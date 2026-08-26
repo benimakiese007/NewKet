@@ -152,7 +152,22 @@
 </head>
 
 <body class="bg-white text-gray-900 antialiased home-page">
+    <!--
+        Fallback rendered with the initial HTML.  The full interactive header
+        replaces it once ComponentLoader is available, but this keeps the
+        primary navigation visible if a script or the PWA cache fails.
+    -->
     <div id="header-placeholder"></div>
+    <nav id="header-fallback" class="main-header newket-header-shell fixed top-0 left-0 right-0 z-[100]" data-header-shell="fallback" aria-label="Navigation principale">
+        <div class="header-content flex items-center justify-between gap-4 px-4 py-3 sm:px-8">
+            <a href="/index.html" class="header-logo-link flex items-center" aria-label="Retour à l'accueil NewKet">
+                <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+            </a>
+            <a href="/src/pages/catalog.html" class="rounded-xl bg-white/15 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/25">
+                Parcourir les produits
+            </a>
+        </div>
+    </nav>
 
 
     <main id="main-content" class="mt-2">

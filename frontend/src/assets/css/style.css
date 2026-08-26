@@ -308,6 +308,11 @@ button {
     flex-shrink: 0;
 }
 
+/* Keep the static home-page fallback only when the real header was not rendered. */
+#header-placeholder:has(.main-header) + #header-fallback {
+    display: none;
+}
+
 @media (max-width: 1024px) {
     #header-placeholder {
         min-height: calc(144px + env(safe-area-inset-top, 0px)); /* Fallback for mobile fixed header + search row */
@@ -9401,7 +9406,7 @@ html.dark .skeleton {
    ========================================== */
 #toast-container {
     position: fixed;
-    top: 2rem;
+    top: 5rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10000;
@@ -9410,23 +9415,30 @@ html.dark .skeleton {
     align-items: center;
     pointer-events: none;
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     padding: 0 1.25rem;
 }
 
 .nk-toast {
+    --nk-toast-accent: #111827;
+    --nk-toast-accent-soft: rgba(17, 24, 39, 0.1);
+    --nk-toast-accent-glow: rgba(17, 24, 39, 0.18);
     pointer-events: auto;
     width: 100%;
-    padding: 1rem 1.25rem;
+    min-height: 78px;
+    padding: 1rem 3.75rem 1.05rem 1rem;
+    border: 1px solid rgba(17, 24, 39, 0.08);
     border-radius: 1.25rem;
-    color: white;
-    font-weight: 600;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95)),
+        radial-gradient(circle at top left, var(--nk-toast-accent-soft), transparent 42%);
+    color: #111827;
+    font-weight: 700;
     font-size: 0.9rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18), 0 8px 18px rgba(15, 23, 42, 0.08);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 0.875rem;
     margin-bottom: 0.75rem;
     cursor: grab;
     user-select: none;
@@ -9434,52 +9446,103 @@ html.dark .skeleton {
     animation: toast-slide-down 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(18px);
 }
 
 .nk-toast:active {
     cursor: grabbing;
 }
 
-.nk-toast-success { background-color: #10B981 !important; background: linear-gradient(135deg, #10B981, #059669) !important; }
-.nk-toast-error { background-color: #EF4444 !important; background: linear-gradient(135deg, #EF4444, #DC2626) !important; }
-.nk-toast-danger { background-color: #EF4444 !important; background: linear-gradient(135deg, #EF4444, #DC2626) !important; }
-.nk-toast-warning { background-color: #F59E0B !important; background: linear-gradient(135deg, #F59E0B, #D97706) !important; }
-.nk-toast-info { background-color: #111827 !important; background: linear-gradient(135deg, #111827, #1F2937) !important; }
+.nk-toast::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    pointer-events: none;
+}
+
+.nk-toast-success {
+    --nk-toast-accent: #059669;
+    --nk-toast-accent-soft: rgba(5, 150, 105, 0.12);
+    --nk-toast-accent-glow: rgba(5, 150, 105, 0.24);
+}
+.nk-toast-error,
+.nk-toast-danger {
+    --nk-toast-accent: #dc2626;
+    --nk-toast-accent-soft: rgba(220, 38, 38, 0.12);
+    --nk-toast-accent-glow: rgba(220, 38, 38, 0.24);
+}
+.nk-toast-warning {
+    --nk-toast-accent: #d97706;
+    --nk-toast-accent-soft: rgba(217, 119, 6, 0.14);
+    --nk-toast-accent-glow: rgba(217, 119, 6, 0.26);
+}
+.nk-toast-info {
+    --nk-toast-accent: #111827;
+    --nk-toast-accent-soft: rgba(17, 24, 39, 0.1);
+    --nk-toast-accent-glow: rgba(17, 24, 39, 0.2);
+}
+
+.nk-toast-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--nk-toast-accent);
+}
+
+.nk-toast-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--nk-toast-accent);
+    background: var(--nk-toast-accent-soft);
+    box-shadow: 0 10px 22px var(--nk-toast-accent-glow);
+}
 
 .nk-toast-body {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    gap: 0.2rem;
 }
 
 .nk-toast-title {
     font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.9;
-    margin-bottom: 0.1rem;
-    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--nk-toast-accent);
+    font-weight: 900;
 }
 
 .nk-toast-content {
     flex: 1;
-    line-height: 1.4;
-    padding-right: 0.5rem;
+    line-height: 1.45;
+    color: #374151;
+    padding-right: 0.25rem;
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
 .nk-toast-close {
-    background: rgba(255, 255, 255, 0.15);
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    background: rgba(17, 24, 39, 0.06);
     border: none;
-    color: white;
-    width: 28px;
-    height: 28px;
+    color: #6b7280;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -9489,17 +9552,29 @@ html.dark .skeleton {
 }
 
 .nk-toast-close:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(17, 24, 39, 0.12);
+    color: #111827;
     transform: rotate(90deg);
+}
+
+.nk-toast-progress {
+    position: absolute;
+    left: 4px;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--nk-toast-accent), rgba(17, 24, 39, 0.12));
+    transform-origin: left;
+    animation: toast-progress 3s linear forwards;
 }
 
 @keyframes toast-slide-down {
     from {
-        transform: translateY(-150%);
+        transform: translateY(-120%) scale(0.96);
         opacity: 0;
     }
     to {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
         opacity: 1;
     }
 }
@@ -9510,8 +9585,17 @@ html.dark .skeleton {
         opacity: 1;
     }
     to {
-        transform: translateY(-150%);
+        transform: translateY(-120%) scale(0.96);
         opacity: 0;
+    }
+}
+
+@keyframes toast-progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
     }
 }
 
@@ -9528,6 +9612,23 @@ html.dark .skeleton {
         max-width: 100%;
         transform: none;
         padding: 0;
+    }
+
+    .nk-toast {
+        min-height: 72px;
+        padding: 0.875rem 3.25rem 0.95rem 0.875rem;
+        gap: 0.75rem;
+    }
+
+    .nk-toast-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 0.875rem;
+    }
+
+    .nk-toast-close {
+        top: 0.75rem;
+        right: 0.75rem;
     }
 }
 

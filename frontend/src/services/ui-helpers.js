@@ -45,7 +45,7 @@ async function _processToastQueue() {
     }
 
     _isShowingToast = true;
-    const { message, type, title } = _toastQueue.shift();
+    const { message, type, title, iconOverride } = _toastQueue.shift();
     
     const container = createToastContainer();
     const toast = document.createElement('div');
@@ -56,13 +56,26 @@ async function _processToastQueue() {
     
     const safeMsg = escape(message);
     const safeTitle = title ? escape(title) : null;
+    const icons = {
+        success: 'solar:check-circle-bold',
+        danger: 'solar:danger-circle-bold',
+        error: 'solar:danger-circle-bold',
+        warning: 'solar:danger-triangle-bold',
+        info: 'solar:bell-bold'
+    };
+    const icon = iconOverride || icons[type] || icons.info;
     
     toast.innerHTML = `
+        <div class="nk-toast-accent" aria-hidden="true"></div>
+        <div class="nk-toast-icon" aria-hidden="true">
+            <iconify-icon icon="${escape(icon)}" width="21"></iconify-icon>
+        </div>
         <div class="nk-toast-body">
-            ${safeTitle ? `<div class="nk-toast-title">${safeTitle}</div>` : ''}
+            <div class="nk-toast-title">${safeTitle || type}</div>
             <div class="nk-toast-content">${safeMsg}</div>
         </div>
         <button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>
+        <div class="nk-toast-progress" aria-hidden="true"></div>
     `;
 
     container.appendChild(toast);
