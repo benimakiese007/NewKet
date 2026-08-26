@@ -63,9 +63,17 @@ export default defineConfig({
             // ComponentLoader still refreshes its auth-dependent links later,
             // but visitors no longer see an empty header until JavaScript runs.
             let headerHtml = readFileSync(resolve(__dirname, 'src/partials/header.html'), 'utf8');
-            headerHtml = headerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
-            headerHtml = headerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
-            newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml);
+
+            // A damaged partial must never replace the placeholder: ComponentLoader
+            // has a valid inline header and can safely render it on the client.
+            // Replacing the placeholder with NUL bytes makes that recovery impossible.
+            if (headerHtml.trim() && !headerHtml.includes('\0')) {
+              headerHtml = headerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+              headerHtml = headerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
+              newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml);
+            } else {
+              console.warn('[newket-html-inject] Header partial is invalid; using the client header fallback.');
+            }
 
             let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
             footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);

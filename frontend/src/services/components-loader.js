@@ -509,8 +509,10 @@ const ComponentLoader = {
 
         await Promise.all(componentsToLoad);
         // The home page ships a small static fallback for static/PWA-cache
-        // failures. It is no longer needed once the real header is available.
-        document.getElementById('header-fallback')?.remove();
+        // failures. Remove it only after the real header was actually rendered.
+        if (document.querySelector('#header-placeholder .main-header')) {
+            document.getElementById('header-fallback')?.remove();
+        }
         this.loadSearchCategories();
         this.bindGlobalActions();
         this.applyConfiguredSocialLinks();
