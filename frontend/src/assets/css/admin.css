@@ -274,6 +274,32 @@ html.admin-embedded-mode .admin-shell > main {
     padding-top: var(--dashboard-topbar-height) !important;
 }
 
+.customer-dashboard-main {
+    padding-top: 1.5rem !important;
+}
+
+.vendor-dashboard-main {
+    padding-top: 1.5rem !important;
+}
+
+.vendor-dashboard-main .vendor-main-content {
+    margin-top: -1rem !important;
+}
+
+@media (max-width: 639px) {
+    .customer-dashboard-main {
+        padding-top: 1.5rem !important;
+    }
+
+    .vendor-dashboard-main {
+        padding-top: 1.5rem !important;
+    }
+
+    .vendor-dashboard-main .vendor-main-content {
+        margin-top: -1rem !important;
+    }
+}
+
 /* Shared admin page breathing room below the header bar.
    Augmenté pour aligner le départ du contenu sur le layout vendeur. */
 .admin-shell > main {
@@ -413,7 +439,7 @@ html.admin-embedded-mode .admin-shell > main {
 /* Match the same vertical alignment on vendor and customer dashboards. */
 .vendor-main-content,
 .customer-main-content {
-    padding-top: clamp(1rem, 2vw, 2rem);
+    padding-top: clamp(0.75rem, 1.5vw, 1.25rem);
     -webkit-overflow-scrolling: touch;
 }
 

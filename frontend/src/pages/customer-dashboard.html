@@ -231,7 +231,7 @@
     <!-- Overlay pour Mobile -->
     <div id="customerSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
 
-    <main class="dashboard-main-offset w-full max-w-none pb-12 lg:pb-16 flex flex-col lg:flex-row lg:gap-8 relative pt-24 sm:pt-28 lg:pt-32">
+    <main class="dashboard-main-offset customer-dashboard-main w-full max-w-none pb-12 lg:pb-16 flex flex-col lg:flex-row lg:gap-8 relative">
         <!-- Sidebar -->
         <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto modal-scroll border-0 lg:border-r border-gray-100 flex-shrink-0">
 
@@ -381,6 +381,13 @@
 
             <!-- Dashboard View -->
             <div id="view-dashboard" class="space-y-8 animate-in">
+                <div class="dashboard-page-header dashboard-page-header--stacked">
+                    <div class="dashboard-page-header__content">
+                        <h1 class="dashboard-page-title">Bonjour, <span id="customerDashboardName">Client</span></h1>
+                        <p class="dashboard-page-subtitle">Voici un aperçu de votre activité aujourd'hui.</p>
+                    </div>
+                </div>
+
                 <!-- Stats Grid for Customers -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-1">
@@ -1750,6 +1757,8 @@
 
             const nameEl = document.getElementById('userDisplayName');
             if (nameEl) nameEl.textContent = displayName;
+            const dashboardNameEl = document.getElementById('customerDashboardName');
+            if (dashboardNameEl) dashboardNameEl.textContent = displayName;
 
             const refreshCustomerSidebarAvatar = async () => {
                 const currentProfile = window.ProfileManager?.getProfile?.() || {};
@@ -1793,8 +1802,11 @@
             });
             window.addEventListener('profileUpdated', () => {
                 const updatedProfile = window.ProfileManager?.getProfile?.() || {};
+                const updatedName = compactUsername(updatedProfile.username || updatedProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName')) || displayName;
+                const dashboardNameEl = document.getElementById('customerDashboardName');
+                if (dashboardNameEl) dashboardNameEl.textContent = updatedName;
                 renderCustomerProfileAvatarPreview(
-                    compactUsername(updatedProfile.username || updatedProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName')) || displayName,
+                    updatedName,
                     updatedProfile.avatar || localStorage.getItem('newketUserAvatar') || ''
                 );
             });
@@ -1864,7 +1876,10 @@
                 const saved = result?.data || {};
                 const savedPhone = saved.phone || saved.store_phone || profile.phone;
                 window.ProfileManager?.saveProfile?.({ ...profile, ...saved, phone: savedPhone });
-                document.getElementById('userDisplayName').textContent = (saved.username || saved.name || username) || 'Mon Compte';
+                const savedDisplayName = (saved.username || saved.name || username) || 'Mon Compte';
+                document.getElementById('userDisplayName').textContent = savedDisplayName;
+                const dashboardNameEl = document.getElementById('customerDashboardName');
+                if (dashboardNameEl) dashboardNameEl.textContent = savedDisplayName;
                 renderAvatar(saved.username || saved.name || username, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
                 showInlineMessage('profile-feedback', 'Profil mis à jour avec succès !', 'success');
             } catch (err) {
