@@ -10312,6 +10312,13 @@ html.dark .skeleton::after {
   .page-content, #page-content, #app-body {
     padding-bottom: 80px !important;
   }
+  body.home-page main,
+  body.home-page #main-content {
+    padding-bottom: 16px !important;
+  }
+  body.home-page .newket-footer-shell {
+    margin-top: 1.5rem !important;
+  }
   /* Footer already has its own padding, remove any body-level shift */
   body {
     padding-bottom: 0 !important;
