@@ -24,7 +24,7 @@ const PRODUCTS = [
   // ── Mode & Vêtements ──────────────────────────────────────────────────────
   {
     name: 'Veste en cuir premium noire',
-    category: 'Mode',
+    category: 'Mode Femme',
     price: 280000,
     description: 'Veste en cuir véritable, coupe slim moderne. Idéale pour un look élégant au quotidien. Taille M disponible.',
     is_new: true,
@@ -32,7 +32,7 @@ const PRODUCTS = [
   },
   {
     name: 'Chemise lin blanc crème',
-    category: 'Mode',
+    category: 'Mode Femme',
     price: 85000,
     description: 'Chemise en lin naturel, respirante et confortable. Parfaite pour les journées chaudes. Disponible en S, M, L.',
     is_new: true,
@@ -40,7 +40,7 @@ const PRODUCTS = [
   },
   {
     name: 'Sneakers Jordan Air blanc/rouge',
-    category: 'Chaussures',
+    category: 'Mode Femme',
     price: 350000,
     description: 'Jordan Air légendaires en coloris blanc et rouge. Pointure 42. État impeccable, portées 2 fois.',
     is_new: false,
@@ -48,7 +48,7 @@ const PRODUCTS = [
   },
   {
     name: 'Sac à main Louis Vuitton Neverfull',
-    category: 'Sacs',
+    category: 'Mode Femme',
     price: 1200000,
     description: 'Authentique Louis Vuitton Neverfull MM en toile monogram. Avec dustbag et reçu d\'achat. Très bon état.',
     is_new: false,
@@ -56,7 +56,7 @@ const PRODUCTS = [
   },
   {
     name: 'Costume 3 pièces gris anthracite',
-    category: 'Mode',
+    category: 'Mode Femme',
     price: 420000,
     description: 'Costume élégant en laine mélangée. Veste, pantalon et gilet. Taille 50. Parfait pour mariages et cérémonies.',
     is_new: true,
@@ -72,7 +72,7 @@ const PRODUCTS = [
   },
   {
     name: 'Montre Fossil homme cuir marron',
-    category: 'Montres',
+    category: 'Mode Homme',
     price: 180000,
     description: 'Montre Fossil Grant automatique, bracelet cuir marron. Boîtier 44mm. Avec boîte et garantie.',
     is_new: true,
@@ -80,7 +80,7 @@ const PRODUCTS = [
   },
   {
     name: 'Lunettes de soleil Ray-Ban Wayfarer',
-    category: 'Accessoires',
+    category: 'Mode Femme',
     price: 95000,
     description: 'Ray-Ban Wayfarer Classic noir mat. Protection UV400. Avec étui et chiffon de nettoyage.',
     is_new: true,
@@ -90,7 +90,7 @@ const PRODUCTS = [
   // ── Électronique & Tech ───────────────────────────────────────────────────
   {
     name: 'iPhone 14 Pro 256GB Space Black',
-    category: 'Téléphones',
+    category: 'High-Tech & Gadgets',
     price: 1450000,
     description: 'iPhone 14 Pro en excellent état. 256GB, Space Black. Batterie 94%. Avec boîte originale et câble.',
     is_new: false,
@@ -98,7 +98,7 @@ const PRODUCTS = [
   },
   {
     name: 'MacBook Air M2 13" argent',
-    category: 'Ordinateurs',
+    category: 'High-Tech & Gadgets',
     price: 2200000,
     description: 'MacBook Air M2, 8GB RAM, 256GB SSD. Vendu avec chargeur MagSafe. En parfait état de fonctionnement.',
     is_new: false,
@@ -106,7 +106,7 @@ const PRODUCTS = [
   },
   {
     name: 'Casque Sony WH-1000XM5 noir',
-    category: 'Audio',
+    category: 'High-Tech & Gadgets',
     price: 480000,
     description: 'Casque sans fil Sony à réduction de bruit active. Autonomie 30h. Neuf dans sa boîte.',
     is_new: true,
@@ -114,7 +114,7 @@ const PRODUCTS = [
   },
   {
     name: 'Samsung Galaxy S23 Ultra 256GB',
-    category: 'Téléphones',
+    category: 'High-Tech & Gadgets',
     price: 1350000,
     description: 'Galaxy S23 Ultra, noir, 256GB. Stylet S-Pen inclus. Très bon état, quelques micro-rayures sur la coque.',
     is_new: false,
@@ -122,7 +122,7 @@ const PRODUCTS = [
   },
   {
     name: 'Tablette iPad Pro 11" M2 128GB',
-    category: 'Tablettes',
+    category: 'High-Tech & Gadgets',
     price: 1680000,
     description: 'iPad Pro 11 pouces M2, 128GB WiFi, espace gris. Avec Smart Folio. Parfait état.',
     is_new: false,
@@ -130,7 +130,7 @@ const PRODUCTS = [
   },
   {
     name: 'Enceinte JBL Flip 6 bleue',
-    category: 'Audio',
+    category: 'High-Tech & Gadgets',
     price: 130000,
     description: 'JBL Flip 6, coloris bleu. Étanche IP67, autonomie 12h. Neuve avec boîte.',
     is_new: true,
@@ -138,7 +138,7 @@ const PRODUCTS = [
   },
   {
     name: 'DJI Mini 3 Pro + télécommande',
-    category: 'Drones',
+    category: 'High-Tech & Gadgets',
     price: 980000,
     description: 'Drone DJI Mini 3 Pro avec télécommande RC. 3 batteries, sac de transport inclus. 8 heures de vol total.',
     is_new: false,
@@ -146,7 +146,7 @@ const PRODUCTS = [
   },
   {
     name: 'Console PS5 + 2 manettes',
-    category: 'Gaming',
+    category: 'High-Tech & Gadgets',
     price: 1800000,
     description: 'PlayStation 5 edition standard avec 2 manettes DualSense. 5 jeux inclus. En parfait état.',
     is_new: false,
@@ -156,7 +156,7 @@ const PRODUCTS = [
   // ── Maison & Déco ─────────────────────────────────────────────────────────
   {
     name: 'Canapé 3 places velours émeraude',
-    category: 'Mobilier',
+    category: 'Maison, Déco & Meubles',
     price: 950000,
     description: 'Canapé moderne en velours vert émeraude. Structure en bois massif, pieds dorés. 220cm de longueur.',
     is_new: true,
@@ -164,7 +164,7 @@ const PRODUCTS = [
   },
   {
     name: 'Lampe design béton + bois',
-    category: 'Décoration',
+    category: 'Maison, Déco & Meubles',
     price: 85000,
     description: 'Lampe de table artisanale en béton et bois naturel. Ampoule LED E27 incluse. Fil 2m.',
     is_new: true,
@@ -172,7 +172,7 @@ const PRODUCTS = [
   },
   {
     name: 'Miroir mural rond doré 80cm',
-    category: 'Décoration',
+    category: 'Maison, Déco & Meubles',
     price: 145000,
     description: 'Miroir rond avec cadre en métal doré brossé. Diamètre 80cm. Parfait pour salon ou chambre.',
     is_new: true,
@@ -180,7 +180,7 @@ const PRODUCTS = [
   },
   {
     name: 'Table basse bois flotté',
-    category: 'Mobilier',
+    category: 'Maison, Déco & Meubles',
     price: 210000,
     description: 'Table basse artisanale en bois flotté avec plateau en verre trempé. 120x60cm. Pièce unique.',
     is_new: true,
@@ -188,7 +188,7 @@ const PRODUCTS = [
   },
   {
     name: 'Plante artificielle palmier XXL',
-    category: 'Décoration',
+    category: 'Maison, Déco & Meubles',
     price: 75000,
     description: 'Palmier artificiel haute qualité, 180cm. Pot en céramique blanc inclus. Parfait pour bureau ou salon.',
     is_new: true,
@@ -196,7 +196,7 @@ const PRODUCTS = [
   },
   {
     name: 'Ensemble literie premium 200x200',
-    category: 'Literie',
+    category: 'Maison, Déco & Meubles',
     price: 320000,
     description: 'Parure de lit 200x200 satin de coton égyptien 800 fils. Housse de couette + 4 taies. Blanc cassé.',
     is_new: true,
@@ -204,7 +204,7 @@ const PRODUCTS = [
   },
   {
     name: 'Tapis berbère fait main 200x140',
-    category: 'Décoration',
+    category: 'Maison, Déco & Meubles',
     price: 380000,
     description: 'Authentique tapis berbère marocain en laine naturelle, motifs géométriques. 200x140cm. Tissé main.',
     is_new: false,
@@ -214,7 +214,7 @@ const PRODUCTS = [
   // ── Bijoux & Luxe ─────────────────────────────────────────────────────────
   {
     name: 'Bague or 18k avec diamant 0.5ct',
-    category: 'Bijoux',
+    category: 'Mode Femme',
     price: 2800000,
     description: 'Bague en or 18 carats avec diamant central 0.5ct. Certificat GIA inclus. Taille 54.',
     is_new: true,
@@ -222,7 +222,7 @@ const PRODUCTS = [
   },
   {
     name: 'Montre Seiko automatique acier',
-    category: 'Montres',
+    category: 'Mode Homme',
     price: 350000,
     description: 'Seiko Presage Cocktail Time, cadran bleu profond. Mouvement automatique japonais. Comme neuf.',
     is_new: false,
@@ -230,7 +230,7 @@ const PRODUCTS = [
   },
   {
     name: 'Bracelet manchette argent sterling',
-    category: 'Bijoux',
+    category: 'Mode Femme',
     price: 95000,
     description: 'Bracelet manchette en argent 925 avec gravure géométrique. Artisanat local de qualité.',
     is_new: true,
@@ -238,7 +238,7 @@ const PRODUCTS = [
   },
   {
     name: 'Parfum Dior Sauvage 100ml',
-    category: 'Parfums',
+    category: 'Beauté & Santé',
     price: 320000,
     description: 'Dior Sauvage Eau de Parfum 100ml. Neuf, sous blister. Authentique avec hologramme.',
     is_new: true,
@@ -246,7 +246,7 @@ const PRODUCTS = [
   },
   {
     name: 'Collier perles d\'eau douce',
-    category: 'Bijoux',
+    category: 'Mode Femme',
     price: 145000,
     description: 'Collier en perles d\'eau douce naturelles, fermoir en or 14k. Longueur 45cm. Dans son écrin.',
     is_new: true,
@@ -256,7 +256,7 @@ const PRODUCTS = [
   // ── Sport & Fitness ───────────────────────────────────────────────────────
   {
     name: 'Vélo de route carbone Specialized',
-    category: 'Sport',
+    category: 'Sports & Loisirs',
     price: 2500000,
     description: 'Specialized Allez Sprint en carbone, taille M. Groupe Shimano 105 12v. Roues carbone. 3000km au compteur.',
     is_new: false,
@@ -264,7 +264,7 @@ const PRODUCTS = [
   },
   {
     name: 'Tapis de yoga antidérapant premium',
-    category: 'Sport',
+    category: 'Sports & Loisirs',
     price: 65000,
     description: 'Tapis de yoga 6mm en caoutchouc naturel. Format 183x63cm. Antidérapant, certifié sans PVC.',
     is_new: true,
@@ -272,7 +272,7 @@ const PRODUCTS = [
   },
   {
     name: 'Haltères réglables 2×24kg',
-    category: 'Fitness',
+    category: 'Sports & Loisirs',
     price: 280000,
     description: 'Paire d\'haltères réglables de 2 à 24kg. Système à sélecteur rapide. Remplacement d\'un rack complet.',
     is_new: false,
@@ -280,7 +280,7 @@ const PRODUCTS = [
   },
   {
     name: 'Sac de sport Nike Brasilia 45L',
-    category: 'Sport',
+    category: 'Sports & Loisirs',
     price: 89000,
     description: 'Nike Brasilia XL en coloris noir/blanc. Compartiment chaussures séparé. Neuf avec étiquette.',
     is_new: true,
@@ -290,7 +290,7 @@ const PRODUCTS = [
   // ── Beauté & Cosmétiques ──────────────────────────────────────────────────
   {
     name: 'Palette fards à paupières Urban Decay',
-    category: 'Beauté',
+    category: 'Beauté & Santé',
     price: 180000,
     description: 'Urban Decay Naked3 Palette, 12 teintes rosées. Neuve, jamais ouverte.',
     is_new: true,
@@ -298,7 +298,7 @@ const PRODUCTS = [
   },
   {
     name: 'Sérum visage hyaluronique 30ml',
-    category: 'Soins',
+    category: 'Beauté & Santé',
     price: 95000,
     description: 'Sérum à l\'acide hyaluronique pur 2%. Hydratation intense, anti-âge. 30ml. Vegan et cruelty-free.',
     is_new: true,
@@ -306,7 +306,7 @@ const PRODUCTS = [
   },
   {
     name: 'Lisseur GHD Gold professionnel',
-    category: 'Beauté',
+    category: 'Beauté & Santé',
     price: 420000,
     description: 'Lisseur GHD Gold plates céramiques 24mm. Température optimale 185°C. Pochette de transport incluse.',
     is_new: false,
@@ -316,7 +316,7 @@ const PRODUCTS = [
   // ── Alimentation & Gourmet ────────────────────────────────────────────────
   {
     name: 'Café Ethiopia Yirgacheffe 1kg',
-    category: 'Alimentation',
+    category: 'Alimentation & Boissons',
     price: 48000,
     description: 'Café de spécialité Ethiopian Yirgacheffe, torréfaction claire. Notes de jasmin et bergamote. 1kg grains.',
     is_new: true,
@@ -324,7 +324,7 @@ const PRODUCTS = [
   },
   {
     name: 'Set whisky 12 ans Glenfiddich',
-    category: 'Boissons',
+    category: 'Alimentation & Boissons',
     price: 380000,
     description: 'Coffret Glenfiddich 12 ans d\'âge + 2 verres Glencairn. Édition exclusive. Sous cellophane.',
     is_new: true,
@@ -334,7 +334,7 @@ const PRODUCTS = [
   // ── Livres & Bureautique ──────────────────────────────────────────────────
   {
     name: 'iPad + Apple Pencil 2e génération',
-    category: 'Tablettes',
+    category: 'High-Tech & Gadgets',
     price: 720000,
     description: 'iPad 10e génération + Apple Pencil 2e gen. Parfait pour artistes et étudiants. Très bon état.',
     is_new: false,
@@ -342,7 +342,7 @@ const PRODUCTS = [
   },
   {
     name: 'Chaise de bureau ergonomique Herman Miller',
-    category: 'Mobilier',
+    category: 'Maison, Déco & Meubles',
     price: 1900000,
     description: 'Herman Miller Aeron taille B. Réglage lombaire, accoudoirs 4D. Garantie constructeur restante.',
     is_new: false,
@@ -350,7 +350,7 @@ const PRODUCTS = [
   },
   {
     name: 'Caméra Sony Alpha A7III + objectif',
-    category: 'Photo',
+    category: 'High-Tech & Gadgets',
     price: 3200000,
     description: 'Sony A7III boîtier + objectif 28-70mm f3.5-5.6. 15000 déclenchements. 2 batteries + chargeur.',
     is_new: false,

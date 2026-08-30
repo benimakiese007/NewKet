@@ -152,14 +152,25 @@
                             <label for="pCategoryInput" class="text-sm font-bold text-gray-900 uppercase tracking-wider">Catégorie</label>
                         </div>
                         <div class="relative group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50" id="categoryInputWrapper">
-                            <input list="categoryDatalist" type="text" id="pCategoryInput" name="pCategoryInput" autocomplete="off" required placeholder="Choisir ou écrire une catégorie..."
-                                class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 bg-transparent font-medium">
+                            <select id="pCategoryInput" name="pCategoryInput" required
+                                class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-medium cursor-pointer">
+                                <option value="" disabled selected>Choisir une catégorie...</option>
+                                <option value="Mode Femme">Mode Femme</option>
+                                <option value="Mode Homme">Mode Homme</option>
+                                <option value="High-Tech & Gadgets">High-Tech & Gadgets</option>
+                                <option value="Maison, Déco & Meubles">Maison, Déco & Meubles</option>
+                                <option value="Bricolage & Construction">Bricolage & Construction</option>
+                                <option value="Beauté & Santé">Beauté & Santé</option>
+                                <option value="Sports & Loisirs">Sports & Loisirs</option>
+                                <option value="Jouets & Enfants">Jouets & Enfants</option>
+                                <option value="Culture & Divertissement">Culture & Divertissement</option>
+                                <option value="Véhicules & Mobilité">Véhicules & Mobilité</option>
+                                <option value="Alimentation & Boissons">Alimentation & Boissons</option>
+                                <option value="Animalerie">Animalerie</option>
+                                <option value="Autres">Autres</option>
+                            </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
                                 class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
-                            
-                            <datalist id="categoryDatalist">
-                                <!-- Dynamic categories injected by script -->
-                            </datalist>
                         </div>
                     </div>
 
@@ -625,55 +636,6 @@
                 }
                 updateEstimate();
             });
-
-            // Category Selection Handling
-            window.bindCategoryListeners = function(f) {
-                const formToUse = f || document;
-                const categoryInput = formToUse.querySelector('#pCategoryInput');
-                const categoryDatalist = formToUse.querySelector('#categoryDatalist');
-                
-                if (!categoryInput || !categoryDatalist) return; // Not found in this view
-                
-                window.allCategories = window.allCategories || [
-                    "Femme",
-                    "Homme",
-                    "Tech & Gadgets",
-                    "Art de vivre"
-                ];
-                
-                // Fetch dynamic categories
-                async function loadDynamicCategories() {
-                    try {
-                        const apiBase = window.API_BASE || '/api';
-                        const response = await fetch(`${apiBase}/products/categories/ranked`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data.success && data.categories && data.categories.length > 0) {
-                                const dynamicCats = data.categories.map(c => c.category);
-                                window.allCategories = Array.from(new Set([...dynamicCats, ...window.allCategories]));
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Failed to load dynamic categories:', e);
-                    } finally {
-                        // Pre-render once loaded
-                        renderCategoryOptions(window.allCategories);
-                    }
-                }
-                
-                function renderCategoryOptions(categories) {
-                    categoryDatalist.innerHTML = '';
-                    categories.forEach(cat => {
-                        const option = document.createElement('option');
-                        option.value = cat;
-                        categoryDatalist.appendChild(option);
-                    });
-                }
-
-                loadDynamicCategories();
-            };
-
-            window.bindCategoryListeners();
 
             // Promotion Toggle Logic
             const isPromoToggle = document.getElementById('isPromoToggle');

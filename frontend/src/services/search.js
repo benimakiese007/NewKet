@@ -164,6 +164,9 @@ const SearchManager = {
             const menu = getMenu();
             if (menu) { menu.classList.remove('hidden'); menuOpen = true; }
             
+            // Dim the page background
+            this.openSearchOverlay();
+            
             // Blur the search suggestions while category menu is open
             const suggestions = document.getElementById('searchSuggestions');
             if (suggestions) {
@@ -184,6 +187,14 @@ const SearchManager = {
                 suggestions.style.filter = '';
                 suggestions.style.opacity = '';
                 suggestions.style.pointerEvents = '';
+            }
+            
+            // Close search overlay only if search input is not focused
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            if ((!searchInput || document.activeElement !== searchInput) && 
+                (!mobileSearchInput || document.activeElement !== mobileSearchInput)) {
+                this.closeSearchOverlay();
             }
         };
 
@@ -303,12 +314,12 @@ const SearchManager = {
                 </div>`;
         }
 
-        // Fetch "popular" products (just latest 4 for now to make it dynamic)
+        // Fetch latest products — 1 per seller (user_id), max 4 displayed ("Récemment ajoutés")
         try {
             const popOptions = {
-                limit: 4,
+                limit: 20, // Fetch more to ensure we get 4 distinct sellers
                 order: ['created_at', { ascending: false }],
-                select: 'id, name, category, price, image',
+                select: 'id, name, category, price, image, user_id',
                 eq: [['is_archived', false]]
             };
             
@@ -317,23 +328,32 @@ const SearchManager = {
                 popOptions.eq.push(['category', this.selectedCategory]);
             }
 
-            const popularProducts = await window.SupabaseAdapter.fetchWithFilters('products', popOptions);
+            const allRecentProducts = await window.SupabaseAdapter.fetchWithFilters('products', popOptions);
 
-            if (popularProducts && popularProducts.length > 0) {
+            // Deduplicate: keep only the most recent product per seller, max 4
+            const seenSellers = new Set();
+            const recentProducts = (allRecentProducts || []).filter(p => {
+                const sellerKey = p.user_id || p.id; // fallback to id if user_id missing
+                if (seenSellers.has(sellerKey)) return false;
+                seenSellers.add(sellerKey);
+                return true;
+            }).slice(0, 4);
+
+            if (recentProducts.length > 0) {
                 html += `
                     <div class="suggestion-section">
-                        <div class="suggestion-section-title">Produits Populaires</div>
+                        <div class="suggestion-section-title">Récemment ajoutés</div>
                         <div class="py-1">`;
                 
-                html += popularProducts.map(p => {
-                    const firstImg = (p.image || '').split(',')[0];
-                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(firstImg, { width: 120, quality: 70 }) : firstImg) || firstImg;
-                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(firstImg, [48, 72, 120], { quality: 70 }) : '';
+                html += recentProducts.map(p => {
+                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image, { width: 120, quality: 70 }) : p.image) || '';
+                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(p.image, [48, 72, 120], { quality: 70 }) : '';
+                    const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
                         
                     return `
                     <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
-                            ${firstImg ? `<img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';">` : `<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">`}
+                            <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(p.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
@@ -453,14 +473,14 @@ const SearchManager = {
                         <div class="py-1">`;
                 
                 html += filtered.map(p => {
-                    const firstImg = (p.image || '').split(',')[0];
-                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(firstImg, { width: 120, quality: 70 }) : firstImg) || firstImg;
-                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(firstImg, [48, 72, 120], { quality: 70 }) : '';
+                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image, { width: 120, quality: 70 }) : p.image) || '';
+                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(p.image, [48, 72, 120], { quality: 70 }) : '';
+                    const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
                         
                     return `
                     <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
-                            ${firstImg ? `<img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';">` : `<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">`}
+                            <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(p.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>

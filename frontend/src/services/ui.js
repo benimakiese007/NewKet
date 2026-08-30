@@ -138,7 +138,31 @@ const UI = {
     },
 
     getHomeBatchSize(grid) {
-        return this.getHomeColumnCount(grid) * 5;
+        // Le client demande exactement 30 produits avant le bouton Voir plus.
+        return 30;
+    },
+
+    matchesHomeFilter(product, filter) {
+        if (!product) return false;
+        if (filter === 'all') return true;
+        if (filter === 'Promos') return product.isPromo === true;
+        return product.category === filter;
+    },
+
+    async ensureHomeFilterBatch(category, grid, alreadyRenderedIds = new Set()) {
+        if (!window.ProductManager || !grid) return;
+
+        const batchSize = this.getHomeBatchSize(grid);
+        while (
+            ProductManager.getProducts()
+                .filter(product => this.matchesHomeFilter(product, category))
+                .filter(product => !alreadyRenderedIds.has(String(product.id))).length < batchSize
+            && ProductManager.hasMore()
+        ) {
+            const beforeCount = ProductManager.getProducts().length;
+            await ProductManager.loadMore();
+            if (ProductManager.getProducts().length === beforeCount) break;
+        }
     },
 
     /**
@@ -186,12 +210,7 @@ const UI = {
 
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         if (currentFilter !== 'all') {
-            filtered = filtered.filter(p => {
-                if (currentFilter === 'Femme') return p.category === 'Femme' || p.category === 'Collections Femme';
-                if (currentFilter === 'Homme') return p.category === 'Homme' || p.category === 'Style Homme';
-                if (currentFilter === 'Promos') return p.isPromo === true;
-                return p.category === currentFilter;
-            });
+            filtered = filtered.filter(p => this.matchesHomeFilter(p, currentFilter));
         }
 
         let displayList;
@@ -271,7 +290,7 @@ window.NewKetPageRefresh = async function () {
 /**
  * Global functions for home page filters
  */
-window.filterAllProducts = function (category) {
+window.filterAllProducts = async function (category) {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.filter === category);
         btn.classList.toggle('bg-gray-900', btn.dataset.filter === category);
@@ -279,6 +298,21 @@ window.filterAllProducts = function (category) {
         btn.classList.toggle('bg-gray-100', btn.dataset.filter !== category);
         btn.classList.toggle('text-gray-700', btn.dataset.filter !== category);
     });
+
+    const grid = document.getElementById('allProductGrid');
+    if (grid && !window._isFetchingHome) {
+        window._isFetchingHome = true;
+        try {
+            UI.renderFilteredBatch(ProductManager.getProducts(), grid, UI.getHomeBatchSize(grid), false);
+            await UI.ensureHomeFilterBatch(category, grid);
+        } catch (err) {
+            console.error("Error loading filtered products:", err);
+            if (window.showToast) showToast('Erreur lors du chargement', 'error');
+        } finally {
+            window._isFetchingHome = false;
+        }
+    }
+
     UI.renderAll(ProductManager.getProducts());
 };
 
@@ -298,14 +332,6 @@ window.showMoreProducts = async function () {
 
     try {
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-        const matchesCurrentFilter = product => {
-            if (currentFilter === 'all') return true;
-            if (currentFilter === 'Femme') return product.category === 'Femme' || product.category === 'Collections Femme';
-            if (currentFilter === 'Homme') return product.category === 'Homme' || product.category === 'Style Homme';
-            if (currentFilter === 'Promos') return product.isPromo === true;
-            return product.category === currentFilter;
-        };
-
         const renderedIds = new Set(
             [...grid.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
         );
@@ -313,14 +339,7 @@ window.showMoreProducts = async function () {
 
         // Fetch only when locally loaded products cannot fill another five-line block.
         // With an active filter, several pages may be needed to find enough matching products.
-        while (
-            ProductManager.getProducts()
-                .filter(matchesCurrentFilter)
-                .filter(product => !renderedIds.has(String(product.id))).length < batchSize
-            && ProductManager.hasMore()
-        ) {
-            await ProductManager.loadMore();
-        }
+        await UI.ensureHomeFilterBatch(currentFilter, grid, renderedIds);
 
         UI.renderFilteredBatch(ProductManager.getProducts(), grid, batchSize, true);
     } catch (err) {

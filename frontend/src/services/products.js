@@ -1,6 +1,6 @@
 /* newket EMarket Product Manager — V2.1 (Paginated + Image Optimization) */
 
-const PRODUCTS_PAGE_SIZE = 25; // Five complete rows on the five-column home grid
+const PRODUCTS_PAGE_SIZE = 30; // 30 ÷ 5 = 6 rows (desktop), 30 ÷ 3 = 10 rows (tablet), 30 ÷ 2 = 15 rows (mobile)
 const PRODUCTS_ADMIN_MAX = 1000; // Max products to fetch in admin (no pagination limit)
 
 // The home page and catalogue are browsing surfaces. Re-rendering their grids for

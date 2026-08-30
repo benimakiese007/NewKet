@@ -73,7 +73,7 @@ const HEADER_HTML = `
                         <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
                         
                         <!-- Mini Dropdown for categories -->
-                        <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
+                        <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white/85 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
                             <div class="py-2" id="searchCategoryMenuList">
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>
                                 <!-- Dynamic Categories -->
@@ -338,9 +338,9 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                         <iconify-icon icon="solar:phone-calling-linear" width="18"></iconify-icon>
                         <span>+243990924254</span>
                     </a>
-                    <a href="mailto:benimakiese1234@gmail.com" onclick="if(window.copyTextToClipboard) { window.copyTextToClipboard('benimakiese1234@gmail.com'); if(window.showToast) window.showToast('Adresse email copiée dans le presse-papiers', 'success'); }" class="flex items-center gap-2 hover:text-white transition-colors break-all" title="Cliquer pour envoyer un email (ou copier l'adresse)">
+                    <a href="mailto:newketmarket@gmail.com" onclick="if(window.copyTextToClipboard) { window.copyTextToClipboard('newketmarket@gmail.com'); if(window.showToast) window.showToast('Adresse email copiée dans le presse-papiers', 'success'); }" class="flex items-center gap-2 hover:text-white transition-colors break-all" title="Cliquer pour envoyer un email (ou copier l'adresse)">
                         <iconify-icon icon="solar:letter-linear" width="18"></iconify-icon>
-                        <span>benimakiese1234@gmail.com</span>
+                        <span>newketmarket@gmail.com</span>
                     </a>
                 </div>
                 <div class="flex items-center gap-4">
@@ -749,38 +749,44 @@ const ComponentLoader = {
      * This avoids visible gaps from shadows/rounding differences on light pages.
      */
     async loadSearchCategories() {
-        try {
-            const apiBase = window.API_BASE || '/api';
-            const response = await fetch(`${apiBase}/products/categories/ranked`);
-            if (!response.ok) return;
-            const data = await response.json();
-            if (!data.success || !data.categories) return;
+        const FIXED_CATEGORIES = [
+            'Mode Femme',
+            'Mode Homme',
+            'High-Tech & Gadgets',
+            'Maison, Déco & Meubles',
+            'Bricolage & Construction',
+            'Beauté & Santé',
+            'Sports & Loisirs',
+            'Jouets & Enfants',
+            'Culture & Divertissement',
+            'Véhicules & Mobilité',
+            'Alimentation & Boissons',
+            'Animalerie',
+            'Autres',
+        ];
 
-            const select = document.getElementById('mobileSearchCategorySelect');
-            const menuList = document.getElementById('searchCategoryMenuList');
+        const select = document.getElementById('mobileSearchCategorySelect');
+        const menuList = document.getElementById('searchCategoryMenuList');
 
-            if (select) {
-                select.innerHTML = '<option value="all">Tout</option>';
-                data.categories.forEach(c => {
-                    const option = document.createElement('option');
-                    option.value = c.category;
-                    option.textContent = c.category;
-                    select.appendChild(option);
-                });
-            }
+        if (select) {
+            select.innerHTML = '<option value="all">Tout</option>';
+            FIXED_CATEGORIES.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+        }
 
-            if (menuList) {
-                menuList.innerHTML = '<button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>';
-                data.categories.forEach(c => {
-                    const btn = document.createElement('button');
-                    btn.className = 'category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900';
-                    btn.dataset.value = c.category;
-                    btn.textContent = c.category;
-                    menuList.appendChild(btn);
-                });
-            }
-        } catch (e) {
-            console.error('Failed to load search categories:', e);
+        if (menuList) {
+            menuList.innerHTML = '<button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>';
+            FIXED_CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900';
+                btn.dataset.value = cat;
+                btn.textContent = cat;
+                menuList.appendChild(btn);
+            });
         }
     },
 
