@@ -80,7 +80,22 @@ const AuthManager = {
         try {
             if (window.supabaseClient) {
                 window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                    // ── PASSWORD_RECOVERY: user clicked a reset link
+                    // Do NOT call handleSessionUpdate here — it would redirect away from the reset page.
+                    if (event === 'PASSWORD_RECOVERY') {
+                        window._isPasswordRecoveryMode = true;
+                        if (session) {
+                            this.user = session.user;
+                        }
+                        return; // Stay on reset-password page
+                    }
+
                     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                        // If we're on the reset-password page in recovery mode, ignore SIGNED_IN
+                        // (Supabase fires SIGNED_IN right after PASSWORD_RECOVERY)
+                        if (window._isPasswordRecoveryMode && window.location.pathname.includes('reset-password')) {
+                            return;
+                        }
                         if (session) {
                             const user = session.user;
                             this.user = user;
@@ -1119,6 +1134,8 @@ const AuthManager = {
 
     enforcePermissions() {
         if (this._authChecking) return;
+        // Never redirect away from the reset-password page during a recovery flow
+        if (window._isPasswordRecoveryMode && window.location.pathname.includes('reset-password')) return;
 
         const path = window.location.pathname;
         const isLoginPage = path.includes('login');
