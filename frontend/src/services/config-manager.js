@@ -19,11 +19,11 @@ const ConfigManager = {
         primaryColor: '#050505',
         primaryHover: '#1A1A1A',
         secondaryColor: '#121212',
-        headerBg: '#013220',
+        headerBg: '#1f2937',
         headerFg: '#ffffff',
-        footerBg: '#013220',
+        footerBg: '#1f2937',
         footerFg: '#ffffff',
-        themeColor: '#064734',
+        themeColor: '#1f2937',
         fontHeading: "'Poppins', sans-serif",
         fontBody: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
         faviconUrl: '',
@@ -133,11 +133,11 @@ const ConfigManager = {
         // Branding / Theme (site-wide)
         const primaryColor = row.primaryColor ?? row.primary_color;
         const secondaryColor = row.secondaryColor ?? row.secondary_color;
-        const headerBg = row.headerBg ?? row.header_bg;
+        const headerBg = row.headerBg ?? row.header_bg ?? '#1f2937';
         const headerFg = row.headerFg ?? row.header_fg;
-        const footerBg = row.footerBg ?? row.footer_bg;
+        const footerBg = row.footerBg ?? row.footer_bg ?? '#1f2937';
         const footerFg = row.footerFg ?? row.footer_fg;
-        const themeColor = row.themeColor ?? row.theme_color;
+        const themeColor = row.themeColor ?? row.theme_color ?? '#1f2937';
         const fontHeading = row.fontHeading ?? row.font_heading;
         const fontBody = row.fontBody ?? row.font_body;
         const faviconUrl = row.faviconUrl ?? row.favicon_url;

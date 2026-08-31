@@ -102,7 +102,7 @@ canvas {
         right: 0;
         top: 0;
         height: calc(env(safe-area-inset-top, 0px) + 1px);
-        background: #013220;
+        background: var(--newket-header-bg);
         pointer-events: none;
         z-index: 999999;
     }

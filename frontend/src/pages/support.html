@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#013220">
+    <meta name="theme-color" content="#1f2937">
 
     <!-- Tailwind CSS CDN -->
     <link rel="stylesheet" href="/src/assets/css/input.css">
@@ -271,14 +271,48 @@
                 input.value = '';
                 input.style.height = 'auto';
 
-                await new Promise((r) => setTimeout(r, 700));
-                const agentMsg = {
-                    from: 'agent',
-                    text: "Bien recu. Si ton probleme concerne une commande, precise le numero de commande et la page concernee.",
-                    ts: Date.now()
-                };
-                addMessage(agentMsg);
-                saveToHistory(agentMsg);
+                try {
+                    // Call Gemini API
+                    const GEMINI_API_KEY = 'VOTRE_CLE_API_GEMINI'; // À remplacer par votre clé API
+                    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                role: 'user',
+                                parts: [{ text: `Tu es un assistant de support client pour la plateforme e-commerce NewKet. Réponds de façon concise et aidante à ce message: ${text}` }]
+                            }]
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    let replyText = "Désolé, je n'ai pas pu comprendre la réponse du serveur.";
+                    
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        replyText = data.candidates[0].content.parts[0].text;
+                    }
+
+                    const agentMsg = {
+                        from: 'agent',
+                        text: replyText,
+                        ts: Date.now()
+                    };
+                    addMessage(agentMsg);
+                    saveToHistory(agentMsg);
+                } catch (error) {
+                    console.error("Erreur avec l'API Gemini:", error);
+                    const errorMsg = {
+                        from: 'agent',
+                        text: "Désolé, une erreur de connexion est survenue.",
+                        ts: Date.now()
+                    };
+                    addMessage(errorMsg);
+                    saveToHistory(errorMsg);
+                }
             });
         })();
 

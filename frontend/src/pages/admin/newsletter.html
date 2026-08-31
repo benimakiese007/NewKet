@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#013220">
+    <meta name="theme-color" content="#1f2937">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -47,7 +47,7 @@
             <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div class="admin-page-header__content">
                     <h1 class="admin-page-title text-3xl font-black tracking-tight text-gray-900">Newsletter</h1>
-                    <p class="text-gray-500">GÃ©rez les abonnÃ©s et envoyez des campagnes.</p>
+                    <p class="text-gray-500">Gérez les abonnés et envoyez des campagnes.</p>
                 </div>
                 <div class="admin-page-actions flex items-center gap-3">
                     <button onclick="exportCSV()" data-track-action="admin_newsletter:export_csv_click"
@@ -64,7 +64,7 @@
                     <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
                         <iconify-icon icon="solar:letter-bold" width="20"></iconify-icon>
                     </div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total abonnÃ©s</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total abonnés</p>
                     <div class="text-2xl font-black text-gray-900" id="statTotal"><div class="skeleton skeleton-text" style="width:45%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
@@ -78,7 +78,7 @@
                     <div class="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mb-3">
                         <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
                     </div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">DÃ©sabonnÃ©s</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Désabonnés</p>
                     <div class="text-2xl font-black text-gray-900" id="statUnsubscribed"><div class="skeleton skeleton-text" style="width:45%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
@@ -95,7 +95,7 @@
                 <!-- Toolbar -->
                 <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
                     <div class="flex items-center gap-3">
-                        <h2 class="font-black text-gray-900">Liste des abonnÃ©s</h2>
+                        <h2 class="font-black text-gray-900">Liste des abonnés</h2>
                         <span id="filterLabel" class="px-2.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black uppercase rounded-full tracking-widest">Tous</span>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -106,7 +106,7 @@
                             class="border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-gray-400 cursor-pointer">
                             <option value="all">Tous les statuts</option>
                             <option value="active">Actifs</option>
-                            <option value="unsubscribed">DÃ©sabonnÃ©s</option>
+                            <option value="unsubscribed">Désabonnés</option>
                         </select>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
 
             <div class="glass-panel p-6">
                 <h2 class="font-black text-gray-900 mb-1">Envoyer une campagne</h2>
-                <p class="text-sm text-gray-400 mb-6">Le message sera envoyé directement aux contacts Brevo de la liste newsletter.</p>
+                <p class="text-sm text-gray-400 mb-6">Le message sera envoy� directement aux contacts Brevo de la liste newsletter.</p>
 
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -150,13 +150,13 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Objet de l'email</label>
-                            <input type="text" id="campaignSubject" placeholder="Ex: Nouvelles arrivÃ©es exclusives"
+                            <input type="text" id="campaignSubject" placeholder="Ex: Nouvelles arrivées exclusives"
                                 class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors">
                         </div>
                     </div>
                     <div>
                         <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Contenu du message (Texte brut ou HTML)</label>
-                        <textarea id="campaignBody" rows="6" placeholder="Bonjour chers abonnÃ©s, ..."
+                        <textarea id="campaignBody" rows="6" placeholder="Bonjour chers abonnés, ..."
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors resize-none font-mono text-xs"></textarea>
                     </div>
                     <div class="flex items-center gap-3">
@@ -203,7 +203,7 @@
             } catch (err) {
                 console.error('[Newsletter] Failed to load:', err);
                 allSubscribers = [];
-                showToast && showToast('Erreur de chargement des abonnÃ©s.', 'error');
+                showToast && showToast('Erreur de chargement des abonnés.', 'error');
             }
 
             renderStats();
@@ -235,7 +235,7 @@
                 return;
             }
             if (subscribers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400 text-sm italic">Aucun abonnÃ© trouvÃ©.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400 text-sm italic">Aucun abonné trouvé.</td></tr>`;
                 return;
             }
 
@@ -244,7 +244,7 @@
                 const isActive = s.status !== 'unsubscribed';
                 const statusBadge = isActive
                     ? `<span class="px-2.5 py-0.5 bg-green-50 text-green-600 text-[9px] font-black uppercase rounded-full">Actif</span>`
-                    : `<span class="px-2.5 py-0.5 bg-red-50 text-red-500 text-[9px] font-black uppercase rounded-full">DÃ©sabonnÃ©</span>`;
+                    : `<span class="px-2.5 py-0.5 bg-red-50 text-red-500 text-[9px] font-black uppercase rounded-full">Désabonné</span>`;
                 const source = s.source || 'Footer';
 
                 return `
@@ -258,10 +258,10 @@
                         <td class="p-4 text-right">
                             <div class="flex justify-end gap-2">
                                 ${isActive
-                                    ? `<button onclick="unsubscribe('${s.id}')" data-track-action="admin_newsletter:unsubscribe_click" title="DÃ©sabonner" class="text-gray-400 hover:text-red-500 transition-all flex items-center justify-center rounded-xl">
+                                    ? `<button onclick="unsubscribe('${s.id}')" data-track-action="admin_newsletter:unsubscribe_click" title="Désabonner" class="text-gray-400 hover:text-red-500 transition-all flex items-center justify-center rounded-xl">
                                         <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon>
                                     </button>`
-                                    : `<button onclick="resubscribe('${s.id}')" data-track-action="admin_newsletter:resubscribe_click" title="RÃ©activer" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600 transition-all flex items-center justify-center">
+                                    : `<button onclick="resubscribe('${s.id}')" data-track-action="admin_newsletter:resubscribe_click" title="Réactiver" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600 transition-all flex items-center justify-center">
                                         <iconify-icon icon="solar:refresh-circle-bold" width="16"></iconify-icon>
                                     </button>`
                                 }
@@ -289,7 +289,7 @@
 
             // Update label
             const label = document.getElementById('filterLabel');
-            label.textContent = filtered.length === allSubscribers.length ? 'Tous' : `${filtered.length} rÃ©sultats`;
+            label.textContent = filtered.length === allSubscribers.length ? 'Tous' : `${filtered.length} résultats`;
 
             renderTable(filtered);
         }
@@ -302,7 +302,7 @@
                 if (sub) sub.status = 'unsubscribed';
                 renderStats();
                 filterSubscribers();
-                window.showToast && showToast('AbonnÃ© dÃ©sactivÃ© et synchronisÃ© Brevo.', 'info');
+                window.showToast && showToast('Abonné désactivé et synchronisé Brevo.', 'info');
             } catch (err) {
                 console.warn('[Newsletter] Backend unsubscribe failed, falling back locally:', err);
                 const client = window.supabaseClient;
@@ -313,7 +313,7 @@
                     if (sub) sub.status = 'unsubscribed';
                     renderStats();
                     filterSubscribers();
-                    window.showToast && showToast('AbonnÃ© dÃ©sactivÃ©.', 'info');
+                    window.showToast && showToast('Abonné désactivé.', 'info');
                 }
             }
         }
@@ -326,7 +326,7 @@
                 if (sub) sub.status = 'active';
                 renderStats();
                 filterSubscribers();
-                window.showToast && showToast('AbonnÃ© rÃ©activÃ© et synchronisÃ© Brevo.', 'success');
+                window.showToast && showToast('Abonné réactivé et synchronisé Brevo.', 'success');
             } catch (err) {
                 console.warn('[Newsletter] Backend resubscribe failed, falling back locally:', err);
                 const client = window.supabaseClient;
@@ -337,20 +337,20 @@
                     if (sub) sub.status = 'active';
                     renderStats();
                     filterSubscribers();
-                    window.showToast && showToast('AbonnÃ© rÃ©activÃ©.', 'success');
+                    window.showToast && showToast('Abonné réactivé.', 'success');
                 }
             }
         }
 
         async function deleteSubscriber(id) {
-            if (!confirm('Supprimer dÃ©finitivement cet abonnÃ© ?')) return;
+            if (!confirm('Supprimer définitivement cet abonné ?')) return;
             try {
                 const response = await window.ApiClient.delete(`/newsletter/subscribers/${id}`, {});
                 if (!response?.success) throw new Error(response?.error || 'Erreur inconnue');
                 allSubscribers = allSubscribers.filter(s => s.id !== id);
                 renderStats();
                 filterSubscribers();
-                window.showToast && showToast('AbonnÃ© supprimÃ© et retirÃ© de Brevo.', 'info');
+                window.showToast && showToast('Abonné supprimé et retiré de Brevo.', 'info');
             } catch (err) {
                 console.warn('[Newsletter] Backend delete failed, falling back locally:', err);
                 const client = window.supabaseClient;
@@ -360,7 +360,7 @@
                     allSubscribers = allSubscribers.filter(s => s.id !== id);
                     renderStats();
                     filterSubscribers();
-                    window.showToast && showToast('AbonnÃ© supprimÃ©.', 'info');
+                    window.showToast && showToast('Abonné supprimé.', 'info');
                 }
             }
         }
@@ -377,10 +377,10 @@
                 const response = await window.ApiClient.post('/newsletter/sync', {});
                 if (!response?.success) throw new Error(response?.error || 'Erreur inconnue');
 
-                window.showToast && showToast(`Brevo synchronisÃ©: ${response.synced || 0}/${response.total || 0}`, 'success');
+                window.showToast && showToast(`Brevo synchronisé: ${response.synced || 0}/${response.total || 0}`, 'success');
             } catch (err) {
                 console.error('[Newsletter] Brevo sync failed:', err);
-                window.showToast && showToast('Ã‰chec de la synchronisation Brevo: ' + err.message, 'error');
+                window.showToast && showToast('Échec de la synchronisation Brevo: ' + err.message, 'error');
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -391,7 +391,7 @@
 
         function exportCSV() {
             if (allSubscribers.length === 0) {
-                window.showToast && showToast('Aucun abonnÃ© Ã  exporter.', 'info');
+                window.showToast && showToast('Aucun abonné à exporter.', 'info');
                 return;
             }
             const headers = ['Email', 'Source', 'Statut', 'Date inscription'];
@@ -412,7 +412,7 @@
                 link.download = filename;
                 link.click();
             }
-            window.showToast && showToast('Export rÃ©ussi !', 'success');
+            window.showToast && showToast('Export réussi !', 'success');
         }
 
         async function sendNewsletterCampaign() {
