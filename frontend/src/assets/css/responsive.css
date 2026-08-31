@@ -108,7 +108,8 @@ canvas {
     }
 
     .dashboard-topbar.newket-dashboard-header {
-        overflow: visible !important;
+        /* Le dashboard nav n'a pas de dropdown : on coupe le débordement visuel */
+        overflow: hidden !important;
     }
 
     /* Fallback: if JS header spacing hasn't run yet, avoid content being hidden */

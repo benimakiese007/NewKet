@@ -146,6 +146,24 @@ html.admin-embedded-mode .admin-shell > main {
     }
 }
 
+/* =========================================================
+   MASQUER le header marketplace (newket-header-shell) sur
+   les pages dashboard vendeur/client.
+   Le JS injecte ce header sur ces pages mais il ne doit pas
+   apparaître — seul le dashboard-topbar doit être visible.
+   ========================================================= */
+body.role-supplier .main-header,
+body.role-supplier .newket-header-shell,
+body.role-supplier .header-shell-main,
+body.role-customer .main-header,
+body.role-customer .newket-header-shell,
+body.role-customer .header-shell-main {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
 .dashboard-topbar {
     overflow: visible;
     background: var(--newket-green) !important;
@@ -159,6 +177,7 @@ html.admin-embedded-mode .admin-shell > main {
     box-shadow: none !important;
     color: white !important;
     padding-top: env(safe-area-inset-top, 0px) !important;
+    overflow: hidden !important;
 }
 
 .newket-dashboard-header .dashboard-topbar-inner {
@@ -207,9 +226,9 @@ html.admin-embedded-mode .admin-shell > main {
     border: 1px solid rgba(255, 255, 255, 0.18) !important;
     background: rgba(255, 255, 255, 0.13) !important;
     box-shadow: none;
-    -webkit-backdrop-filter: blur(10px) !important;
-    backdrop-filter: blur(10px) !important;
-    border-radius: 0.5rem; /* Optionnel, pour arrondir un peu si ce n'est pas fait ailleurs */
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-radius: 0.5rem;
 }
 
 .newket-dashboard-header #adminMobileMenuBtn,

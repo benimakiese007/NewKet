@@ -180,17 +180,13 @@ const HEADER_HTML = `
     onclick="window.closeMobileMenu && window.closeMobileMenu(true)">
 </div>
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="mobile-menu-header px-4 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
-        <div class="mobile-menu-brand">
-            <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_400,f_auto,q_auto/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">
-            <p class="mobile-menu-subtitle text-gray-500 text-xs">Votre navigation principale</p>
-        </div>
-        <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale rounded-xl" aria-label="Fermer le menu">
+    <div class="mobile-menu-header px-4 flex items-center justify-end bg-white text-gray-900" style="padding-top: max(0.5rem, env(safe-area-inset-top));">
+        <button id="closeMobileMenu" class="p-1 transition-all btn-active-scale rounded-xl -mr-2 mt-1" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
         </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto pt-4 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
+    <div class="flex-1 overflow-y-auto pt-1 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
             <a href="{{ROOT}}src/pages/login.html" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
