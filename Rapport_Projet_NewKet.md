@@ -166,6 +166,8 @@ Afin d'assurer le lancement et l'évolution de la Marketplace, voici notre feuil
 - **Authentification Mobile & Sociale :** Intégration et test de l'authentification par numéro de téléphone (OTP par SMS) ainsi que la connexion via Facebook (cette dernière nécessitera également la soumission des documents de l'entreprise).
 - **Intégration FlexPaie :** Soumission des documents administratifs, paiement des frais d'activation et intégration des clés API pour les paiements réels.
 - **Limites de Prix (Min/Max) :** Définir et implémenter techniquement les montants minimum et maximum autorisés pour la création d'un produit, afin de garantir la cohérence du catalogue et d'éviter les prix aberrants (ex: 0.01$).
+- **Gestion des Variantes de Produits :** Développer la possibilité pour les vendeurs d'ajouter des options à leurs produits (tailles, couleurs, etc.) avec gestion des prix et des stocks par variante, conformément au document `Roadmap-Produit-variance.md`.
+- **Sécurisation & Cerveau IA Dynamique :** Déplacer la logique du chatbot (Gemini) vers le backend pour sécuriser la clé API, et créer une "Base de Connaissances" administrable depuis Supabase. Cela permettra à l'Admin de mettre à jour les instructions et le contexte du bot en temps réel sans modifier le code.
 
 ### Moyen Terme (Lancement et Acquisition)
 - **Mise en Production :** Achat du nom de domaine officiel (`newket.market`) et passage au plan d'hébergement Vercel Pro.
