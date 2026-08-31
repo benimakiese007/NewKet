@@ -388,7 +388,7 @@ const AdminLayout = {
 
         navbarPlaceholder.innerHTML = `
             <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] transition-all duration-300">
-                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-2 flex justify-between items-center h-20 sm:h-28 relative">
+                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-2 flex justify-between items-center h-8 sm:h-14 relative">
                     <div class="flex items-center gap-4 sm:gap-6">
                         <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transition-all rounded-xl">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -398,7 +398,7 @@ const AdminLayout = {
                     <!-- Center Logo -->
                     <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
-                            <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-20 sm:h-28 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                            <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-8 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                         </a>
                     </div>
 
