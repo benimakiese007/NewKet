@@ -14,7 +14,7 @@ const HEADER_HTML = `
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
-            <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto sm:relative px-1 sm:px-0">
+            <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-20 sm:h-auto sm:relative px-1 sm:px-0">
                 <!-- Hamburger Menu (tous écrans) — col gauche -->
                 <div class="flex items-center justify-start">
                     <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
@@ -28,7 +28,7 @@ const HEADER_HTML = `
                     <a href="{{ROOT}}index.html" aria-label="Retour à l'accueil NewKet" title="Accueil NewKet" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
                         <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
                             data-site-logo="header"
-                            class="header-brand-image h-8 sm:h-20 w-auto object-contain"
+                            class="header-brand-image h-20 sm:h-28 w-auto object-contain"
                             onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                     </a>
                 </div>
@@ -395,9 +395,9 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
-    <div class="relative flex h-[64px] sm:h-[92px] items-center justify-center">
+    <div class="relative flex h-[84px] sm:h-[128px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-12 sm:h-20 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-20 sm:h-28 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-white/40">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>

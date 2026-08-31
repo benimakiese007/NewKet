@@ -275,11 +275,11 @@ html.admin-embedded-mode .admin-shell > main {
 }
 
 .customer-dashboard-main {
-    padding-top: 1.5rem !important;
+    padding-top: 0 !important;
 }
 
 .vendor-dashboard-main {
-    padding-top: 1.5rem !important;
+    padding-top: 0 !important;
 }
 
 .vendor-dashboard-main .vendor-main-content {
@@ -288,11 +288,11 @@ html.admin-embedded-mode .admin-shell > main {
 
 @media (max-width: 639px) {
     .customer-dashboard-main {
-        padding-top: 1.5rem !important;
+        padding-top: 0 !important;
     }
 
     .vendor-dashboard-main {
-        padding-top: 1.5rem !important;
+        padding-top: 0 !important;
     }
 
     .vendor-dashboard-main .vendor-main-content {
