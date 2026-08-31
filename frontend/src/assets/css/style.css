@@ -18,7 +18,7 @@ html.auth-loading::before {
     width: 40px;
     height: 40px;
     border: 3px solid #e5e7eb;
-    border-top-color: #000000;
+    border-top-color: #111827;
     border-radius: 50%;
     animation: nk-auth-spin 1s linear infinite;
     z-index: 99999;
@@ -122,10 +122,10 @@ html.auth-loading body {
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
   
   /* NewKet Branding */
-  --newket-green: #000000;
+  --newket-green: #111827;
 
   /* Site-wide theming hooks (overwritten by BrandingManager) */
-  --newket-header-bg: #1f2937;
+  --newket-header-bg: var(--newket-green);
   --newket-header-fg: #ffffff;
   --newket-footer-bg: #1f2937;
   --newket-footer-fg: #ffffff;
@@ -238,7 +238,7 @@ html, body {
  * exactement à la couleur du header — plus de vide blanc visible.
  */
 html {
-  background-color: var(--newket-header-bg);
+  background-color: #111827;
 }
 
 body {
@@ -1147,14 +1147,14 @@ body.search-focused .main-header {
 }
 
 .newket-header-shell {
-  background: var(--newket-header-bg) !important;
+  background: var(--newket-green) !important;
   /* Fill notch/status-bar area with green so no white gap appears */
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
 
 .newket-header-shell.scrolled {
-  background: var(--newket-header-bg) !important;
+  background: var(--newket-green) !important;
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
@@ -1232,7 +1232,7 @@ body.search-focused .main-header {
 }
 
 .newket-category-nav {
-  background: var(--newket-header-bg) !important;
+  background: var(--newket-green) !important;
   /* Category nav is appended inside the fixed header; keep it flush. */
   margin-top: 0;
   box-shadow: none !important;

@@ -208,7 +208,7 @@
                 if (history.length === 0) {
                     addMessage({
                         from: 'agent',
-                        text: "Salut, je suis l'assistance NewKet. Decris ton probleme et je te reponds.",
+                        text: "Bonjour, je suis l'assistant officiel de NewKet. Comment puis-je vous aider aujourd'hui ?",
                         ts: Date.now()
                     });
                     return;
@@ -273,8 +273,8 @@
 
                 try {
                     // Call Gemini API
-                    const GEMINI_API_KEY = 'VOTRE_CLE_API_GEMINI'; // À remplacer par votre clé API
-                    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                    const GEMINI_API_KEY = 'AQ.Ab8RN6IJsV97qb0wpdNK_-wxOvxzAxvGjNs608eLFtHIoXWeuQ'; // À remplacer par votre clé API
+                    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
                     
                     const response = await fetch(API_URL, {
                         method: 'POST',
@@ -282,9 +282,18 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
+                            systemInstruction: {
+                                parts: [{ text: `Tu es l'assistant de support client officiel de la marketplace e-commerce NewKet. 
+Règles strictes à respecter :
+1. Ton : Sois toujours professionnel, poli, concis et utilise OBLIGATOIREMENT le vouvoiement ("vous").
+2. Suivi de commande/compte : Si l'utilisateur pose une question sur sa commande ou son profil, informe-le que TOUTES les informations détaillées se trouvent sur son Dashboard personnel.
+3. Problème de connexion : S'il n'arrive pas à se connecter, dis-lui d'utiliser l'option "Mot de passe oublié". Si ça ne marche toujours pas, oriente-le vers l'email : newketmarket@gmail.com.
+4. Devenir vendeur : Si un visiteur demande comment vendre, explique-lui clairement et simplement les étapes pour s'inscrire et commencer à vendre sur NewKet.
+5. Hors-sujet : Refuse poliment de répondre à toute question qui ne concerne pas NewKet ou le e-commerce, en rappelant gentiment ton rôle.` }]
+                            },
                             contents: [{
                                 role: 'user',
-                                parts: [{ text: `Tu es un assistant de support client pour la plateforme e-commerce NewKet. Réponds de façon concise et aidante à ce message: ${text}` }]
+                                parts: [{ text: text }]
                             }]
                         })
                     });
