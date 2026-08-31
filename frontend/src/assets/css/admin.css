@@ -24,10 +24,10 @@ body {
 
 @media (min-width: 640px) {
     :root {
-        /* Matches admin-layout.js >=sm topbar height (sm:h-[96px]) */
-        --admin-navbar-height: 6rem;
+        /* Matches admin-layout.js >=sm topbar height (sm:h-[80px]) */
+        --admin-navbar-height: 5rem;
         --admin-navbar-offset: calc(var(--admin-navbar-height) + env(safe-area-inset-top, 0px));
-        --dashboard-topbar-height: 6rem;
+        --dashboard-topbar-height: 5rem;
     }
 }
 
@@ -283,7 +283,7 @@ html.admin-embedded-mode .admin-shell > main {
 }
 
 .vendor-dashboard-main .vendor-main-content {
-    margin-top: -1rem !important;
+    margin-top: 0 !important;
 }
 
 @media (max-width: 639px) {
@@ -296,14 +296,14 @@ html.admin-embedded-mode .admin-shell > main {
     }
 
     .vendor-dashboard-main .vendor-main-content {
-        margin-top: -1rem !important;
+        margin-top: 0 !important;
     }
 }
 
 /* Shared admin page breathing room below the header bar.
-   Augmenté pour aligner le départ du contenu sur le layout vendeur. */
+   Aligné sur le layout client et vendeur (24px) */
 .admin-shell > main {
-    padding-top: clamp(2rem, 3vw, 3rem);
+    padding-top: 1.5rem; /* 24px */
     padding-bottom: clamp(2rem, 4vw, 4rem);
 }
 
@@ -439,7 +439,7 @@ html.admin-embedded-mode .admin-shell > main {
 /* Match the same vertical alignment on vendor and customer dashboards. */
 .vendor-main-content,
 .customer-main-content {
-    padding-top: clamp(0.75rem, 1.5vw, 1.25rem);
+    padding-top: 1.5rem; /* 24px — aligné sur les 3 dashboards */
     -webkit-overflow-scrolling: touch;
 }
 
