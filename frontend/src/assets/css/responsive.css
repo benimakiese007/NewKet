@@ -1770,7 +1770,7 @@ html.dark .glass-panel {
     }
 }
 
-@media (min-width: 1025px) and (max-width: 1324px) {
+@media (min-width: 1025px) {
     .header-content {
         gap: 1rem !important;
         padding-left: 1.25rem !important;
