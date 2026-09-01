@@ -171,7 +171,7 @@ body.role-customer .header-shell-main {
 }
 
 .newket-dashboard-header {
-    background: #1f2937 !important;
+    background: var(--newket-header-bg, #1f2937) !important;
     background-image: none !important;
     border-bottom: none !important;
     box-shadow: none !important;

@@ -10,7 +10,7 @@ const CATEGORY_NAV_HTML_TEMPLATE = ``;
 
 const HEADER_HTML = `
     <!-- Main header container -->
-    <nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="main">
+    <nav class="bg-newket-header main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="main">
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
@@ -319,7 +319,7 @@ const HEADER_HTML = `
 </div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + 80px + env(safe-area-inset-bottom));">
+<footer class="bg-newket-footer newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-gray-800" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + 80px + env(safe-area-inset-bottom));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
             <div class="lg:col-span-4 space-y-4">
@@ -390,7 +390,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 </footer>`;
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
-<nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
+<nav class="bg-newket-header main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
     <div class="relative flex h-16 sm:h-20 items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
         <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-8 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">

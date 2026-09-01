@@ -543,7 +543,7 @@ class CartManager {
             <!-- Cart Slide-over -->
             <div id="cartSlideOver" role="dialog" aria-modal="true" aria-label="Panier" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[10001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
                 <!-- Header -->
-                <div class="px-6 py-5 flex items-center justify-between shrink-0" style="background:#1f2937; border-bottom:1px solid rgba(31,41,55,0.6);">
+                <div class="px-6 py-5 flex items-center justify-between shrink-0 bg-newket-header" style="border-bottom:1px solid rgba(255,255,255,0.1);">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full text-white flex items-center justify-center" style="background:rgba(255,255,255,0.15);">
                             <iconify-icon icon="solar:cart-large-minimalistic-bold" width="20"></iconify-icon>

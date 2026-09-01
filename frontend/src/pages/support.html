@@ -340,21 +340,46 @@ RÈGLES DE COMPORTEMENT STRICTES :
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
             
-            // Simulation de chargement
+            // Récupération des valeurs du formulaire (en utilisant l'ordre des éléments)
+            const inputs = e.target.querySelectorAll('input, select, textarea');
+            const customer_name = inputs[0].value.trim();
+            const customer_email = inputs[1].value.trim();
+            const subject = inputs[2].value;
+            const message = inputs[3].value.trim();
+
             btn.disabled = true;
             btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi en cours...';
             btn.classList.add('opacity-80');
 
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
             const feedback = document.getElementById('supportFeedback');
-            feedback.textContent = 'Message envoyé ! Nous vous répondrons très bientôt.';
-            feedback.className = 'text-sm font-semibold rounded-2xl px-4 py-3 bg-emerald-50 text-emerald-700';
-            
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            btn.classList.remove('opacity-80');
-            e.target.reset();
+            feedback.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/support', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name,
+                        customer_email,
+                        subject,
+                        message
+                    })
+                });
+
+                if (!response.ok) throw new Error("Erreur serveur");
+
+                feedback.textContent = 'Message envoyé ! Nous vous répondrons très bientôt.';
+                feedback.className = 'text-sm font-semibold rounded-2xl px-4 py-3 bg-emerald-50 text-emerald-700 block';
+                e.target.reset();
+            } catch (err) {
+                console.error("Erreur lors de l'envoi du ticket:", err);
+                feedback.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter par email.';
+                feedback.className = 'text-sm font-semibold rounded-2xl px-4 py-3 bg-red-50 text-red-700 block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-80');
+            }
         });
     </script>
 </body>

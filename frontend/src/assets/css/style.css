@@ -1147,14 +1147,14 @@ body.search-focused .main-header {
 }
 
 .newket-header-shell {
-  background: var(--newket-green) !important;
+  background: var(--newket-header-bg, #1f2937) !important;
   /* Fill notch/status-bar area with green so no white gap appears */
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
 
 .newket-header-shell.scrolled {
-  background: var(--newket-green) !important;
+  background: var(--newket-header-bg, #1f2937) !important;
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
@@ -10360,4 +10360,10 @@ html.dark .modal-scroll {
 }
 html.dark .modal-scroll::-webkit-scrollbar-thumb {
     background-color: #475569;
+}
+.bg-newket-header {
+    background-color: var(--newket-header-bg, #1f2937) !important;
+}
+.bg-newket-footer {
+    background-color: var(--newket-footer-bg, #1f2937) !important;
 }
