@@ -166,7 +166,7 @@ body.role-customer .header-shell-main {
 
 .dashboard-topbar {
     overflow: visible;
-    background: var(--newket-green) !important;
+    background: var(--newket-header-bg, #1f2937) !important;
     color: white !important;
 }
 

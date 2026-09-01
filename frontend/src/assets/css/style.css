@@ -122,12 +122,12 @@ html.auth-loading body {
   --glass-border: 1px solid rgba(255, 255, 255, 0.1);
   
   /* NewKet Branding */
-  --newket-green: #111827;
+  --newket-green: #1f2937;
 
   /* Site-wide theming hooks (overwritten by BrandingManager) */
   --newket-header-bg: var(--newket-green);
   --newket-header-fg: #ffffff;
-  --newket-footer-bg: #1f2937;
+  --newket-footer-bg: var(--newket-green);
   --newket-footer-fg: #ffffff;
   --newket-btn-radius: 9999px;
 }
