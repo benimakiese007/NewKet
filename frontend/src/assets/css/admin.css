@@ -923,6 +923,11 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
 .sidebar-collapsed .sidebar-section-title {
     display: none;
 }
+
+/* Cache le bloc Devise d'affichage quand la sidebar est réduite */
+.sidebar-collapsed .sidebar-currency-box {
+    display: none !important;
+}
 @media (min-width: 1024px) {
     .sidebar-toggle-btn {
         display: flex;
