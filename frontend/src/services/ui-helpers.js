@@ -163,7 +163,7 @@ function createToastContainer() {
     
     container = document.createElement('div');
     container.id = 'toast-container';
-    document.body.appendChild(container);
+    document.documentElement.appendChild(container);
     return container;
 }
 
