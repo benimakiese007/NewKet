@@ -527,6 +527,12 @@ const ComponentLoader = {
         // Dispatch event when components are ready
         window.dispatchEvent(new CustomEvent('componentsLoaded'));
 
+        // Si le NotificationManager a déjà chargé les données, on met à jour
+        // le badge immédiatement (les .notification-badge sont maintenant dans le DOM).
+        if (window.NotificationManager) {
+            window.NotificationManager.updateBadge();
+        }
+
         if (window.AuthManager) {
             AuthManager.enforcePermissions();
             AuthManager.updateAccountLink();

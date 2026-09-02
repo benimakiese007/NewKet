@@ -233,6 +233,7 @@ const NotificationManager = {
         
         if (this._fetchPromise) {
             await this._fetchPromise;
+            this.updateBadge();
             return;
         }
 
@@ -384,6 +385,16 @@ const NotificationManager = {
         });
     }
 };
+
+// Dès que le header est injecté dans le DOM, on force la mise à jour du badge.
+// Cela corrige la race condition où updateBadge() était appelé avant que les
+// éléments .notification-badge soient disponibles.
+if (window.componentsLoaded) {
+    // Le header est déjà là, on met à jour immédiatement
+    NotificationManager.updateBadge();
+} else {
+    window.addEventListener('componentsLoaded', () => NotificationManager.updateBadge(), { once: true });
+}
 
 // ========== REVIEW MANAGER ==========
 const ReviewManager = {
