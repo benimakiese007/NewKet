@@ -421,6 +421,7 @@ const ReviewManager = {
 // ========== SUPPORT MANAGER ==========
 const SupportManager = {
     tickets: [],
+    _realtimeSubscription: null,
     async init() {
         if (!window.ApiClient) return;
         try {
@@ -431,6 +432,38 @@ const SupportManager = {
         } catch (e) {
             console.error('[SupportManager] Init error:', e);
         }
+        // Démarrer la souscription Realtime après le chargement initial
+        this._setupRealtime();
+    },
+    _setupRealtime() {
+        if (this._realtimeSubscription || !window.supabaseClient) return;
+        this._realtimeSubscription = window.supabaseClient
+            .channel('public:support_tickets:manager')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_tickets' }, (payload) => {
+                console.log('[SupportManager] Realtime new ticket:', payload);
+                if (payload.new) {
+                    this.tickets.unshift(payload.new);
+                    window.dispatchEvent(new CustomEvent('ticketsUpdated'));
+                }
+            })
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'support_tickets' }, (payload) => {
+                console.log('[SupportManager] Realtime ticket updated:', payload);
+                if (payload.new) {
+                    const idx = this.tickets.findIndex(t => t.id === payload.new.id);
+                    if (idx !== -1) this.tickets[idx] = payload.new;
+                    window.dispatchEvent(new CustomEvent('ticketsUpdated'));
+                }
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'support_tickets' }, (payload) => {
+                console.log('[SupportManager] Realtime ticket deleted:', payload);
+                if (payload.old?.id) {
+                    this.tickets = this.tickets.filter(t => t.id !== payload.old.id);
+                    window.dispatchEvent(new CustomEvent('ticketsUpdated'));
+                }
+            })
+            .subscribe((status) => {
+                console.log('[SupportManager] Realtime status:', status);
+            });
     },
     getTickets() { return this.tickets; },
     async updateStatus(id, status) {

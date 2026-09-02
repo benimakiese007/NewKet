@@ -133,15 +133,13 @@
                 return;
             }
 
-            // Map UI values to DB values
-            const statusMap = { 'ouvert': 'open', 'resolu': 'resolved' };
-            const dbFilter = statusMap[filterStatus] || 'all';
+            // Les valeurs du select HTML correspondent maintenant directement à la base de données
 
             const allTickets = SupportManager.getTickets();
             // Always update stats even when the list is empty (otherwise skeleton stays).
             updateStats();
             let filtered = allTickets;
-            if (dbFilter !== 'all') filtered = filtered.filter(t => t.status === dbFilter);
+            if (filterStatus !== 'all') filtered = filtered.filter(t => t.status === filterStatus);
 
             if (filtered.length === 0) {
                 container.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun ticket trouvé.</div>`;
@@ -149,7 +147,7 @@
             }
 
             container.innerHTML = filtered.map(t => {
-                const isResolved = t.status === 'resolved';
+                const isResolved = t.status === 'resolu';
                 return `
                 <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                     <div class="flex-1">
@@ -172,7 +170,7 @@
         }
 
         async function resolveTicket(id) {
-            const success = await SupportManager.updateStatus(id, 'resolved');
+            const success = await SupportManager.updateStatus(id, 'resolu');
             if (success) {
                 showToast('Ticket résolu', 'success');
             } else {
@@ -181,7 +179,7 @@
         }
 
         async function reopenTicket(id) {
-            const success = await SupportManager.updateStatus(id, 'open');
+            const success = await SupportManager.updateStatus(id, 'ouvert');
             if (success) {
                 showToast('Ticket rouvert', 'info');
             } else {
@@ -203,8 +201,8 @@
             if (!window.SupportManager || typeof SupportManager.getTickets !== 'function') return;
             const allTickets = SupportManager.getTickets();
             document.getElementById('statTotalTickets').textContent = allTickets.length;
-            document.getElementById('statOpenTickets').textContent = allTickets.filter(t => t.status === 'open').length;
-            document.getElementById('statResolvedTickets').textContent = allTickets.filter(t => t.status === 'resolved').length;
+            document.getElementById('statOpenTickets').textContent = allTickets.filter(t => t.status === 'ouvert').length;
+            document.getElementById('statResolvedTickets').textContent = allTickets.filter(t => t.status === 'resolu').length;
         }
 
         async function initPage() {

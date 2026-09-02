@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
 // ─── Statuts de tickets support autorisés ────────────────────────────────────
-const ALLOWED_TICKET_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+const ALLOWED_TICKET_STATUSES = ['ouvert', 'en_cours', 'resolu', 'ferme'];
 
 export const getTickets = async (req, res) => {
     try {
@@ -84,7 +84,7 @@ export const createTicket = async (req, res) => {
                 customer_name,
                 customer_email,
                 message,
-                status: 'OPEN'
+                status: 'ouvert'
             })
             .select()
             .single();

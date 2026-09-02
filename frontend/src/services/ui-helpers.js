@@ -65,13 +65,21 @@ async function _processToastQueue() {
     };
     const icon = iconOverride || icons[type] || icons.info;
     
+    const displayTitles = {
+        success: 'Succès',
+        danger: 'Erreur',
+        error: 'Erreur',
+        warning: 'Attention',
+        info: 'Info'
+    };
+    const defaultTitle = displayTitles[type] || type;
+    
     toast.innerHTML = `
-        <div class="nk-toast-accent" aria-hidden="true"></div>
         <div class="nk-toast-icon" aria-hidden="true">
             <iconify-icon icon="${escape(icon)}" width="21"></iconify-icon>
         </div>
         <div class="nk-toast-body">
-            <div class="nk-toast-title">${safeTitle || type}</div>
+            <div class="nk-toast-title">${safeTitle || defaultTitle}</div>
             <div class="nk-toast-content">${safeMsg}</div>
         </div>
         <button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>

@@ -9408,17 +9408,19 @@ html.dark .skeleton {
    ========================================== */
 #toast-container {
     position: fixed;
-    top: 5rem;
-    left: 50%;
-    transform: translateX(-50%);
+    top: auto;
+    bottom: 2rem;
+    right: 2rem;
+    left: auto;
+    transform: none;
     z-index: 10000;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     pointer-events: none;
     width: 100%;
     max-width: 440px;
-    padding: 0 1.25rem;
+    padding: 0;
 }
 
 .nk-toast {
@@ -9484,15 +9486,6 @@ html.dark .skeleton {
     --nk-toast-accent: #111827;
     --nk-toast-accent-soft: rgba(17, 24, 39, 0.1);
     --nk-toast-accent-glow: rgba(17, 24, 39, 0.2);
-}
-
-.nk-toast-accent {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--nk-toast-accent);
 }
 
 .nk-toast-icon {
@@ -9572,7 +9565,7 @@ html.dark .skeleton {
 
 @keyframes toast-slide-down {
     from {
-        transform: translateY(-120%) scale(0.96);
+        transform: translateY(120%) scale(0.96);
         opacity: 0;
     }
     to {
@@ -9587,7 +9580,7 @@ html.dark .skeleton {
         opacity: 1;
     }
     to {
-        transform: translateY(-120%) scale(0.96);
+        transform: translateY(120%) scale(0.96);
         opacity: 0;
     }
 }
@@ -9607,7 +9600,8 @@ html.dark .skeleton {
 
 @media (max-width: 640px) {
     #toast-container {
-        top: 4rem;
+        top: auto;
+        bottom: 1.5rem;
         left: 1rem;
         right: 1rem;
         width: calc(100% - 2rem);
