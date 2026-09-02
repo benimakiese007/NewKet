@@ -101,8 +101,8 @@ canvas {
         left: 0;
         right: 0;
         top: 0;
-        height: calc(env(safe-area-inset-top, 0px) + 1px);
-        background: #111827;
+        height: env(safe-area-inset-top, 0px);
+        background: var(--newket-header-bg, #1f2937);
         pointer-events: none;
         z-index: 999999;
     }
