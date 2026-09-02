@@ -7,6 +7,26 @@ body {
     padding-top: 0 !important;
 }
 
+/* Override the dark html background (#111827) set in style.css.
+   On admin pages the fixed navbar is dark but the page background is light.
+   Without this, the html background bleeds through as a thin dark line
+   between the fixed navbar and the page content on mobile. */
+html {
+    background-color: #f8fafc !important;
+}
+
+/* ── CRITICAL MOBILE FIX: suppress the body::after notch-cover strip ────────
+   responsive.css injects a fixed dark pseudo-element (min 1px, #111827) at
+   the very top of the page on mobile to cover the iOS status-bar notch for
+   the green marketplace header. Admin pages have their own dark fixed navbar
+   and do NOT need this strip — it was causing a visible horizontal dark line
+   between the navbar and the page content on all admin pages on mobile.     */
+@media (max-width: 639px) {
+    body::after {
+        display: none !important;
+    }
+}
+
 .hidden {
     display: none !important;
 }
@@ -346,7 +366,7 @@ body.role-customer .header-shell-main {
     }
 
     .admin-shell > main {
-        padding-top: 1.5rem !important;
+        padding-top: 0 !important;
     }
 
     /* Disable glass-panel backdrop-filter on mobile/tablet to stop colour bleed
