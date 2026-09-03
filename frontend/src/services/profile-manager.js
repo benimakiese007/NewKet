@@ -187,6 +187,12 @@ const ProfileManager = {
             home_location: normalizedHomeLocation,
             city: normalizedHomeLocation.city || this._profile?.city || ''
         });
+
+        // Push to Supabase immediately (non-blocking)
+        this._getCurrentUser().then(user => {
+            if (user?.id) this._pushHomeLocationToSupabase(user.id, normalizedHomeLocation);
+        }).catch(() => {});
+
         return true;
     },
 
@@ -208,23 +214,51 @@ const ProfileManager = {
                 const normalizedUsername = this._normalizeUsername(
                     profile.username || profile.company_name || profile.name || this._profile.username || this._profile.name
                 );
+
+                // Merge home_location: Supabase wins if more recent, else keep local
+                const remoteHomeLocation = this._normalizeHomeLocation(profile.home_location);
+                const localHomeLocation = this._normalizeHomeLocation(this._profile.home_location);
+                let mergedHomeLocation = localHomeLocation;
+                if (remoteHomeLocation) {
+                    const remoteTs = remoteHomeLocation.updated_at ? new Date(remoteHomeLocation.updated_at).getTime() : 0;
+                    const localTs = localHomeLocation?.updated_at ? new Date(localHomeLocation.updated_at).getTime() : 0;
+                    mergedHomeLocation = remoteTs >= localTs ? remoteHomeLocation : localHomeLocation;
+                }
+
                 this.saveProfile({
                     username: normalizedUsername,
                     name: profile.name || profile.username || this._profile.name || this._profile.username,
                     first_name: profile.first_name || this._profile.first_name,
                     last_name: profile.last_name || this._profile.last_name,
-                    company_name: profile.company_name || this._profile.company_name,
+                    company_name: profile.company_name || this._profile.company_name || null,
                     email: user.email || this._profile.email,
                     phone: profile.phone || profile.store_phone || this._profile.phone,
                     avatar: profile.avatar || profile.avatar_url || profile.photo_url || profile.picture || this._profile.avatar,
                     role: profile.role || user.role,
                     seller_type: profile.seller_type || this._profile.seller_type || null,
-                    company_name: profile.company_name || this._profile.company_name || null,
-                    home_location: this._profile.home_location
+                    home_location: mergedHomeLocation || undefined
                 });
+
+                // Push local home_location to Supabase if it's newer than remote
+                if (mergedHomeLocation && mergedHomeLocation !== remoteHomeLocation) {
+                    await this._pushHomeLocationToSupabase(user.id, mergedHomeLocation);
+                }
             }
         } catch (error) {
             console.error('[ProfileManager] Sync error:', error);
+        }
+    },
+
+    async _pushHomeLocationToSupabase(userId, homeLocation) {
+        if (!window.SupabaseAdapter || !userId || !homeLocation) return;
+        try {
+            await window.SupabaseAdapter.upsert('users', {
+                id: userId,
+                home_location: homeLocation
+            });
+            console.info('[ProfileManager] home_location synced to Supabase.');
+        } catch (error) {
+            console.warn('[ProfileManager] Failed to push home_location to Supabase:', error);
         }
     }
 };

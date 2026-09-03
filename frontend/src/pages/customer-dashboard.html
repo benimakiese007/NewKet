@@ -2153,11 +2153,7 @@
         }
 
         function getReferralLoginLink(code) {
-            const loginPath = typeof window.resolvePath === 'function' ? window.resolvePath('login') : '/pages/login';
-            const url = new URL(loginPath, window.location.origin);
-            url.searchParams.set('signup', '1');
-            url.searchParams.set('ref', code);
-            return url.toString();
+            return `${window.location.origin}/signup/${code}`;
         }
 
         function formatNkTokenUsd(amount) {
@@ -2273,11 +2269,13 @@
                 localStorage.removeItem('newketReferralCode');
                 if (hint) hint.textContent = 'Code validé. Le parrainage est maintenant rattaché à ton compte.';
                 showInlineMessage('referral-feedback', 'Code de parrainage validé.', 'success');
-                await refreshReferralPanel();
+                // Restaurer le bouton immédiatement, avant le refresh (qui peut être lent)
+                button.disabled = false;
+                button.textContent = 'Valider';
+                refreshReferralPanel(); // pas de await — on rafraîchit en arrière-plan
             } catch (error) {
                 console.error('[Customer Referral] Claim error:', error);
                 showInlineMessage('referral-feedback', error?.message || 'Impossible de valider ce code.', 'error');
-            } finally {
                 button.disabled = false;
                 button.textContent = 'Valider';
             }

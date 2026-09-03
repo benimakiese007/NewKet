@@ -606,7 +606,7 @@
                         </div>
                     </div>
                     <!-- Stat-cards summary -->
-                    <div id="vendor-leads-stats" class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6"></div>
+                    <div id="vendor-leads-stats" class="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6"></div>
                     <!-- Search bar (Improvement 5) -->
                     <div class="relative mb-4">
                         <iconify-icon icon="solar:magnifer-bold" width="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
@@ -1053,6 +1053,22 @@
                                         <button id="copyVendorReferralLinkBtn" type="button" class="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Copier</button>
                                     </div>
                                 </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Invitations</div>
+                                        <div id="vendorReferralTotalCount" class="text-2xl font-black text-gray-900">0</div>
+                                    </div>
+                                    <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">En attente</div>
+                                        <div id="vendorReferralPendingCount" class="text-2xl font-black text-gray-900">0</div>
+                                    </div>
+                                    <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Confirmés</div>
+                                        <div id="vendorReferralQualifiedCount" class="text-2xl font-black text-gray-900">0</div>
+                                    </div>
+                                </div>
+
                                 <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
                                     <p class="text-sm font-semibold text-gray-900">Astuce</p>
                                     <p class="text-xs text-gray-500 mt-1">Vous pouvez envoyer ce lien sur WhatsApp, Facebook ou par message direct.</p>
@@ -1139,8 +1155,8 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Localisation</p>
-                                <p class="font-bold text-gray-900 truncate" id="vModalCustomerCity"></p>
-                                <p class="text-[10px] font-bold text-blue-500 hover:underline cursor-pointer truncate hidden mt-1" id="vModalCustomerGPS" onclick="window.openMapUrl(this.dataset.lat, this.dataset.lng)">Voir sur la carte</p>
+                                <p class="font-bold text-gray-900 break-words" id="vModalCustomerCity"></p>
+                                <p class="text-[10px] font-bold text-blue-500 hover:underline cursor-pointer break-words hidden mt-1" id="vModalCustomerGPS" onclick="window.openMapUrl(this.dataset.lat, this.dataset.lng)">Voir sur la carte</p>
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Paiement</p>
@@ -4565,6 +4581,8 @@
                               cardCls: 'bg-emerald-50 border-emerald-100 hover:shadow-emerald-100/50', iconCls: 'bg-emerald-100 text-emerald-600', labelCls: 'text-emerald-600' },
                             { label: 'Litiges', value: countByGroup.disputed, icon: 'solar:danger-triangle-bold-duotone',
                               cardCls: 'bg-red-50 border-red-100 hover:shadow-red-100/50', iconCls: 'bg-red-100 text-red-600', labelCls: 'text-red-600' },
+                            { label: 'Tout', value: recentOrders.length, icon: 'solar:layers-minimalistic-bold-duotone',
+                              cardCls: 'bg-gray-50 border-gray-100 hover:shadow-gray-100/50', iconCls: 'bg-gray-100 text-gray-600', labelCls: 'text-gray-600' },
                         ];
                         statsContainer.innerHTML = statCards.map(c => `
                             <div class="${c.cardCls} border rounded-2xl p-4 flex items-center gap-3 transition-all hover:shadow-md">
@@ -4852,17 +4870,24 @@
                     document.getElementById('vModalCustomerEmail').textContent = order.customer?.email || order.customer_email || 'Pas d\'email';
                     document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
                     
-                    document.getElementById('vModalCustomerCity').textContent = order.customer_city || 'Ville non précisée';
+                    const cityEl = document.getElementById('vModalCustomerCity');
+                    cityEl.textContent = order.customer_city || 'Ville non précisée';
                     const gpsEl = document.getElementById('vModalCustomerGPS');
                     if (order.customer_lat && order.customer_lng) {
                         gpsEl.dataset.lat = order.customer_lat;
                         gpsEl.dataset.lng = order.customer_lng;
                         gpsEl.textContent = 'Voir sur la carte';
                         gpsEl.classList.remove('hidden');
+                        
+                        cityEl.classList.add('cursor-pointer', 'hover:text-blue-600', 'hover:underline');
+                        cityEl.onclick = () => window.openMapUrl(order.customer_lat, order.customer_lng);
                     } else {
                         gpsEl.classList.add('hidden');
                         gpsEl.dataset.lat = '';
                         gpsEl.dataset.lng = '';
+                        
+                        cityEl.classList.remove('cursor-pointer', 'hover:text-blue-600', 'hover:underline');
+                        cityEl.onclick = null;
                     }
 
                     // Avatar logic
@@ -6967,13 +6992,7 @@
                     }
 
                     const getVendorReferralLink = (code) => {
-                        const loginPath = typeof window.resolvePath === 'function'
-                            ? window.resolvePath('login')
-                            : '/pages/login';
-                        const url = new URL(loginPath, window.location.origin);
-                        url.searchParams.set('signup', '1');
-                        url.searchParams.set('ref', code);
-                        return url.toString();
+                        return `${window.location.origin}/signup/${code}`;
                     };
 
                     const loadVendorReferralPanel = async (retryCount = 0) => {
@@ -7003,6 +7022,15 @@
                             linkInput.value = link;
                             codeInput.placeholder = code ? 'Votre code' : 'Code non généré';
                             linkInput.placeholder = link ? 'Votre lien' : 'Lien non disponible';
+
+                            // Mise à jour des compteurs statistiques
+                            const stats = data.stats || {};
+                            const totalEl = document.getElementById('vendorReferralTotalCount');
+                            const pendingEl = document.getElementById('vendorReferralPendingCount');
+                            const qualifiedEl = document.getElementById('vendorReferralQualifiedCount');
+                            if (totalEl) totalEl.textContent = String(stats.total || 0);
+                            if (pendingEl) pendingEl.textContent = String(stats.pending || 0);
+                            if (qualifiedEl) qualifiedEl.textContent = String((stats.qualified || 0) + (stats.rewarded || 0));
                         } catch (err) {
                             console.warn(`[Vendor Referral] Unable to load referral summary (attempt ${retryCount + 1}):`, err?.message || err);
                             if (retryCount < 3) {

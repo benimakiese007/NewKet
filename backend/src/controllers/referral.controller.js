@@ -344,7 +344,7 @@ export async function getReferralSummaryForUser(user) {
 
     return {
         referral_code: referralCode,
-        referral_link: `/pages/login?signup=1&ref=${encodeURIComponent(referralCode)}`,
+        referral_link: `/signup/${encodeURIComponent(referralCode)}`,
         referred_by_user_id: userRow.referred_by_user_id || null,
         referred_by_code: userRow.referred_by_code || null,
         referral_claimed_at: userRow.referral_claimed_at || null,
@@ -411,7 +411,7 @@ export const claimReferral = async (req, res, next) => {
                 success: true,
                 applied: false,
                 referral_code: referralCode,
-                referral_link: `/pages/login?signup=1&ref=${encodeURIComponent(referralCode)}`
+                referral_link: `/signup/${encodeURIComponent(referralCode)}`
             });
         }
 
