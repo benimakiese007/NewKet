@@ -185,6 +185,7 @@ const OrderManager = {
             vendor_id: order.vendor_id,
             vendor: Array.isArray(order.vendor) ? order.vendor[0] : (order.vendor || null),
             vendor_name: (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.name || '',
+            vendor_username: (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.username || '',
             vendor_company_name: (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.company_name || '',
             vendor_email: order.vendor_email || (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.email || '',
             phone_number: order.phone_number || order.customer_phone || order.vendor_phone || (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.store_phone || '',
@@ -212,7 +213,6 @@ const OrderManager = {
             payin_fee_rate: order.payin_fee_rate || 0,
             payin_operator: order.payin_operator || null,
             client_total_paid: order.client_total_paid || 0,
-            payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
             type: 'order',
             items: allItems.map(item => ({
                 id: item.product_id || item.id,
@@ -241,6 +241,14 @@ const OrderManager = {
 
     getOrderById(id) {
         return this.data.find(o => String(o.id) === String(id)) || null;
+    },
+
+    /**
+     * Alias de init({ force: true }) — utilisé par achat.html pour forcer
+     * le rechargement des commandes depuis l'API quand une commande n'est pas en cache.
+     */
+    async loadOrders(force = false) {
+        return this.init({ force: force === true });
     },
 
     // ========== STATS ==========

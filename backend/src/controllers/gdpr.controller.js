@@ -4,7 +4,7 @@ import { supabaseAdmin, hasServiceRoleKey, createUserSupabaseClient } from '../c
  * GET /api/gdpr/export
  * Export de toutes les données personnelles de l'utilisateur authentifié (Art. 15 & 20 RGPD)
  */
-export const exportMyData = async (req, res) => {
+export const exportMyData = async (req, res, next) => {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
 
@@ -76,7 +76,7 @@ export const exportMyData = async (req, res) => {
         return res.json(exportPayload);
     } catch (err) {
         console.error('[RGPD] Erreur exportMyData:', err.message);
-        return res.status(500).json({ error: 'Erreur lors de la génération de l\'export.' });
+        return next(err);
     }
 };
 
@@ -85,13 +85,13 @@ export const exportMyData = async (req, res) => {
  * Demande de suppression de compte (Art. 17 RGPD — droit à l'effacement)
  * Anonymise les données et enqueue une suppression définitive après 30 jours.
  */
-export const requestAccountDeletion = async (req, res) => {
+export const requestAccountDeletion = async (req, res, next) => {
     const userId = req.user?.id;
     const userEmail = req.user?.email;
     if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
 
     if (!hasServiceRoleKey) {
-        return res.status(503).json({ error: 'Suppression de compte indisponible (clé service manquante).' });
+        return next(err);
     }
 
     try {
@@ -131,7 +131,7 @@ export const requestAccountDeletion = async (req, res) => {
         });
     } catch (err) {
         console.error('[RGPD] Erreur requestAccountDeletion:', err.message);
-        return res.status(500).json({ error: 'Erreur lors de la demande de suppression.' });
+        return next(err);
     }
 };
 
@@ -139,7 +139,7 @@ export const requestAccountDeletion = async (req, res) => {
  * GET /api/gdpr/consent-history
  * Historique des consentements de l'utilisateur (Art. 7(1) RGPD)
  */
-export const getConsentHistory = async (req, res) => {
+export const getConsentHistory = async (req, res, next) => {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
 
@@ -158,6 +158,6 @@ export const getConsentHistory = async (req, res) => {
         return res.json({ consents: data || [] });
     } catch (err) {
         console.error('[RGPD] Erreur getConsentHistory:', err.message);
-        return res.status(500).json({ error: 'Erreur lors de la récupération de l\'historique.' });
+        return next(err);
     }
 };

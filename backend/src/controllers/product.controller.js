@@ -104,7 +104,7 @@ const assertProductOwnership = async (req, id) => {
 };
 
 
-export const getProducts = async (req, res) => {
+export const getProducts = async (req, res, next) => {
     try {
         const page = Math.max(1, parseInt(req.query.page, 10) || 1);
         const limit = Math.max(1, Math.min(60, parseInt(req.query.limit, 10) || 20));
@@ -151,11 +151,11 @@ export const getProducts = async (req, res) => {
         res.json({ data: processedData, count, page });
     } catch (err) {
         console.error('❌ getProducts error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const getProductById = async (req, res) => {
+export const getProductById = async (req, res, next) => {
     try {
         const { id } = req.params;
         const supabase = getScopedClient(req);
@@ -183,11 +183,11 @@ export const getProductById = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('❌ getProductById error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const createProduct = async (req, res) => {
+export const createProduct = async (req, res, next) => {
     try {
         if (!await assertSupplierActor(req, res)) return;
 
@@ -256,11 +256,11 @@ export const createProduct = async (req, res) => {
         res.status(201).json(data);
     } catch (err) {
         console.error('❌ createProduct error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!await assertSupplierActor(req, res)) return;
@@ -306,11 +306,11 @@ export const updateProduct = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('❌ updateProduct error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!await assertSupplierActor(req, res)) return;
@@ -332,11 +332,11 @@ export const deleteProduct = async (req, res) => {
         res.json({ success: true, message: 'Produit supprimé avec succès' });
     } catch (err) {
         console.error('❌ deleteProduct error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const archiveProduct = async (req, res) => {
+export const archiveProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!await assertSupplierActor(req, res)) return;
@@ -356,11 +356,11 @@ export const archiveProduct = async (req, res) => {
         res.json({ success: true, message: 'Produit archivé avec succès' });
     } catch (err) {
         console.error('❌ archiveProduct error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const restoreProduct = async (req, res) => {
+export const restoreProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!await assertSupplierActor(req, res)) return;
@@ -380,11 +380,11 @@ export const restoreProduct = async (req, res) => {
         res.json({ success: true, message: 'Produit restauré avec succès' });
     } catch (err) {
         console.error('❌ restoreProduct error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const getVendorArchivedProducts = async (req, res) => {
+export const getVendorArchivedProducts = async (req, res, next) => {
     try {
         if (!await assertSupplierActor(req, res)) return;
         const userId = req.user.id;
@@ -427,11 +427,11 @@ export const getVendorArchivedProducts = async (req, res) => {
         res.json({ data: allArchived, count: allArchived.length });
     } catch (err) {
         console.error('❌ getVendorArchivedProducts error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const deleteBulkProducts = async (req, res) => {
+export const deleteBulkProducts = async (req, res, next) => {
     try {
         if (!await assertSupplierActor(req, res)) return;
         const { ids } = req.body; // Array of IDs
@@ -454,11 +454,11 @@ export const deleteBulkProducts = async (req, res) => {
         res.json({ success: true, count: ids.length });
     } catch (err) {
         console.error('❌ deleteBulkProducts error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const updateBulkCategory = async (req, res) => {
+export const updateBulkCategory = async (req, res, next) => {
     try {
         if (!await assertSupplierActor(req, res)) return;
         const { ids, category } = req.body;
@@ -481,11 +481,11 @@ export const updateBulkCategory = async (req, res) => {
         res.json({ success: true, count: ids.length });
     } catch (err) {
         console.error('❌ updateBulkCategory error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };
 
-export const getRankedCategories = async (req, res) => {
+export const getRankedCategories = async (req, res, next) => {
     try {
         const supabase = getScopedClient(req);
         
@@ -523,6 +523,6 @@ export const getRankedCategories = async (req, res) => {
         res.json({ success: true, categories: data || [] });
     } catch (err) {
         console.error('❌ getRankedCategories error:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des catégories' });
+        next(err);
     }
 };

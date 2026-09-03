@@ -1,7 +1,7 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import { getReferralSummaryForUser } from './referral.controller.js';
 
-export const getPublicUserStats = async (req, res) => {
+export const getPublicUserStats = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
         const { count, error } = await client
@@ -25,11 +25,11 @@ export const getPublicUserStats = async (req, res) => {
         });
     } catch (err) {
         console.error('Error getPublicUserStats:', err.message);
-        return res.status(500).json({ error: 'Failed to fetch public user stats' });
+        return next(err);
     }
 };
 
-export const getUsers = async (req, res) => {
+export const getUsers = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
         // Return the fields the admin screens actually use.
@@ -126,7 +126,7 @@ export const getUsers = async (req, res) => {
     }
 };
 
-export const getUserReferralSummary = async (req, res) => {
+export const getUserReferralSummary = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -137,13 +137,11 @@ export const getUserReferralSummary = async (req, res) => {
         return res.status(200).json({ success: true, ...summary });
     } catch (err) {
         console.error('Error getUserReferralSummary:', err.message);
-        return res.status(err.status || 500).json({
-            error: err.message || 'Failed to fetch user referral summary'
-        });
+        return next(err);
     }
 };
 
-export const updateStatus = async (req, res) => {
+export const updateStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
@@ -165,11 +163,11 @@ export const updateStatus = async (req, res) => {
         return res.status(200).json({ success: true, user: data[0] });
     } catch (err) {
         console.error('Error updateStatus:', err.message);
-        return res.status(500).json({ error: 'Failed to update user status' });
+        return next(err);
     }
 };
 
-export const updateSellerType = async (req, res) => {
+export const updateSellerType = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { seller_type } = req.body;
@@ -193,11 +191,11 @@ export const updateSellerType = async (req, res) => {
         return res.status(200).json({ success: true, user: data });
     } catch (err) {
         console.error('Error updateSellerType:', err.message);
-        return res.status(500).json({ error: 'Failed to update user seller type' });
+        return next(err);
     }
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -213,6 +211,6 @@ export const deleteUser = async (req, res) => {
         return res.status(200).json({ success: true });
     } catch (err) {
         console.error('Error deleteUser:', err.message);
-        return res.status(500).json({ error: 'Failed to delete user' });
+        return next(err);
     }
 };

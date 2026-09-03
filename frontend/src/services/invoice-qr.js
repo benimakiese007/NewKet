@@ -1,11 +1,12 @@
 import QRCode from 'qrcode';
 
 function buildInvoiceQrTargetUrl(order, qrReference) {
-    const resolvedPath = typeof window.resolvePath === 'function'
-        ? window.resolvePath('invoice-verify')
-        : '/src/pages/invoice-verify.html';
-    const url = new URL(resolvedPath, window.location.origin);
-    if (order?.id) url.searchParams.set('order_id', order.id);
+    const baseUrl = window.location.origin;
+    if (!order?.id) {
+        // Fallback si pas d'ID (ne devrait pas arriver)
+        return new URL('/src/pages/invoice-verify.html', baseUrl).toString();
+    }
+    const url = new URL(`/facture/${order.id}`, baseUrl);
     if (qrReference) url.searchParams.set('invoice_ref', qrReference);
     return url.toString();
 }

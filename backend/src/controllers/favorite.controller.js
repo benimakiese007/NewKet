@@ -1,6 +1,6 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 
-export const syncFromSupabase = async (req, res) => {
+export const syncFromSupabase = async (req, res, next) => {
     try {
         const userId = req.user.id;
         // Utilisez admin pour outrepasser les possibles problèmes RLS si besoin,
@@ -27,11 +27,11 @@ export const syncFromSupabase = async (req, res) => {
         return res.status(200).json({ favorites });
     } catch (err) {
         console.error('❌ Erreur syncFromSupabase (favorites):', err.message);
-        return res.status(500).json({ error: 'Failed to fetch favorites' });
+        return next(err);
     }
 };
 
-export const syncToSupabase = async (req, res) => {
+export const syncToSupabase = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const { favorites } = req.body;
@@ -56,6 +56,6 @@ export const syncToSupabase = async (req, res) => {
         return res.status(200).json({ success: true });
     } catch (err) {
         console.error('❌ Erreur syncToSupabase (favorites):', err.message);
-        return res.status(500).json({ error: 'Failed to sync favorites' });
+        return next(err);
     }
 };

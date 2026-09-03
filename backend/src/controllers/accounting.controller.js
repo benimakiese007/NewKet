@@ -18,7 +18,7 @@ function assertAdmin(req, res) {
     return true;
 }
 
-export const getKPIs = async (req, res) => {
+export const getKPIs = async (req, res, next) => {
     if (!assertAdmin(req, res)) return;
 
     try {
@@ -96,11 +96,11 @@ export const getKPIs = async (req, res) => {
         });
     } catch (error) {
         console.error('[AccountingController] getKPIs error:', error.message);
-        res.status(500).json({ error: 'Erreur lors de la récupération des KPIs' });
+        next(error);
     }
 };
 
-export const getCharts = async (req, res) => {
+export const getCharts = async (req, res, next) => {
     if (!assertAdmin(req, res)) return;
 
     try {
@@ -164,11 +164,11 @@ export const getCharts = async (req, res) => {
 
     } catch (error) {
         console.error('[AccountingController] getCharts error:', error.message);
-        res.status(500).json({ error: 'Erreur lors de la récupération des graphiques' });
+        next(error);
     }
 };
 
-export const exportCSV = async (req, res) => {
+export const exportCSV = async (req, res, next) => {
     if (!assertAdmin(req, res)) return;
 
     try {
@@ -195,6 +195,6 @@ export const exportCSV = async (req, res) => {
 
     } catch (error) {
         console.error('[AccountingController] exportCSV error:', error.message);
-        res.status(500).json({ error: 'Erreur lors de l\'exportation CSV' });
+        next(error);
     }
 };

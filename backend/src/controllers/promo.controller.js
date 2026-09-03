@@ -103,7 +103,7 @@ async function assertVendorPromoOwnershipOrFail(promoId, user, res) {
     return promo;
 }
 
-export const getPromos = async (req, res) => {
+export const getPromos = async (req, res, next) => {
     try {
         const { data, error } = await client
             .from('promos')
@@ -115,11 +115,11 @@ export const getPromos = async (req, res) => {
         res.json(data || []);
     } catch (err) {
         console.error('Erreur getPromos:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des promotions.' });
+        next(err);
     }
 };
 
-export const applyPromo = async (req, res) => {
+export const applyPromo = async (req, res, next) => {
     try {
         const { code } = req.body;
         if (!code) return res.status(400).json({ error: 'Code requis.' });
@@ -129,11 +129,11 @@ export const applyPromo = async (req, res) => {
         res.json({ success: true, data });
     } catch (err) {
         console.error('Erreur applyPromo:', err);
-        res.status(500).json({ error: err.message || 'Erreur lors de l\'application du code promo.' });
+        next(err);
     }
 };
 
-export const getVendorPromos = async (req, res) => {
+export const getVendorPromos = async (req, res, next) => {
     try {
         if (!isVendorUser(req.user)) {
             return res.status(403).json({ error: 'Seuls les vendeurs peuvent gérer des codes promo.' });
@@ -143,11 +143,11 @@ export const getVendorPromos = async (req, res) => {
         return res.status(200).json(payload);
     } catch (error) {
         console.error('Erreur getVendorPromos:', error);
-        return res.status(500).json({ error: 'Impossible de charger vos codes promo.' });
+        return next(error);
     }
 };
 
-export const createVendorPromo = async (req, res) => {
+export const createVendorPromo = async (req, res, next) => {
     try {
         if (!isVendorUser(req.user)) {
             return res.status(403).json({ error: 'Seuls les vendeurs peuvent créer des codes promo.' });
@@ -180,11 +180,11 @@ export const createVendorPromo = async (req, res) => {
         return res.status(201).json({ success: true, promo: hydratedPromo });
     } catch (error) {
         console.error('Erreur createVendorPromo:', error);
-        return res.status(500).json({ error: error.message || 'Impossible de créer le code promo.' });
+        return next(error);
     }
 };
 
-export const updateVendorPromo = async (req, res) => {
+export const updateVendorPromo = async (req, res, next) => {
     try {
         const currentPromo = await assertVendorPromoOwnershipOrFail(req.params.id, req.user, res);
         if (!currentPromo) return;
@@ -215,11 +215,11 @@ export const updateVendorPromo = async (req, res) => {
         return res.status(200).json({ success: true, promo: hydratedPromo });
     } catch (error) {
         console.error('Erreur updateVendorPromo:', error);
-        return res.status(500).json({ error: error.message || 'Impossible de modifier le code promo.' });
+        return next(error);
     }
 };
 
-export const toggleVendorPromo = async (req, res) => {
+export const toggleVendorPromo = async (req, res, next) => {
     try {
         const currentPromo = await assertVendorPromoOwnershipOrFail(req.params.id, req.user, res);
         if (!currentPromo) return;
@@ -242,11 +242,11 @@ export const toggleVendorPromo = async (req, res) => {
         return res.status(200).json({ success: true, promo: hydratedPromo });
     } catch (error) {
         console.error('Erreur toggleVendorPromo:', error);
-        return res.status(500).json({ error: error.message || 'Impossible de changer le statut du code promo.' });
+        return next(error);
     }
 };
 
-export const deleteVendorPromo = async (req, res) => {
+export const deleteVendorPromo = async (req, res, next) => {
     try {
         const currentPromo = await assertVendorPromoOwnershipOrFail(req.params.id, req.user, res);
         if (!currentPromo) return;
@@ -260,11 +260,11 @@ export const deleteVendorPromo = async (req, res) => {
         return res.status(200).json({ success: true });
     } catch (error) {
         console.error('Erreur deleteVendorPromo:', error);
-        return res.status(500).json({ error: error.message || 'Impossible de supprimer le code promo.' });
+        return next(error);
     }
 };
 
-export const validateVendorPromo = async (req, res) => {
+export const validateVendorPromo = async (req, res, next) => {
     try {
         const promoCode = normalizePromoCode(req.body?.promo_code || req.body?.code);
         const orderId = String(req.body?.order_id || '').trim();
@@ -341,6 +341,6 @@ export const validateVendorPromo = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur validateVendorPromo:', error);
-        return res.status(500).json({ error: error.message || 'Impossible de valider ce code promo.' });
+        return next(error);
     }
 };

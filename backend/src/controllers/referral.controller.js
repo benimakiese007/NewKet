@@ -360,7 +360,7 @@ export async function getReferralSummaryForUser(user) {
     };
 }
 
-export async function getAdminReferralOverview(req, res) {
+export async function getAdminReferralOverview(req, res, next) {
     try {
         const limit = Number(req.query?.limit || 250);
         const overview = await loadReferralAdminDataset(limit);
@@ -370,25 +370,21 @@ export async function getAdminReferralOverview(req, res) {
         });
     } catch (error) {
         console.error('Erreur getAdminReferralOverview:', error);
-        return res.status(error.status || 500).json({
-            error: error.message || 'Impossible de charger le tableau de bord du parrainage.'
-        });
+        return next(error);
     }
 }
 
-export const getMyReferralSummary = async (req, res) => {
+export const getMyReferralSummary = async (req, res, next) => {
     try {
         const summary = await getReferralSummaryForUser(req.user);
         return res.status(200).json({ success: true, ...summary });
     } catch (error) {
         console.error('Erreur getMyReferralSummary:', error);
-        return res.status(error.status || 500).json({
-            error: error.message || 'Impossible de charger votre parrainage.'
-        });
+        return next(error);
     }
 };
 
-export const claimReferral = async (req, res) => {
+export const claimReferral = async (req, res, next) => {
     try {
         const code = normalizeReferralCode(
             req.body?.code ||
@@ -492,8 +488,6 @@ export const claimReferral = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur claimReferral:', error);
-        return res.status(error.status || 500).json({
-            error: error.message || 'Impossible de valider ce code de parrainage.'
-        });
+        return next(error);
     }
 };

@@ -95,16 +95,26 @@ export const optionalAuth = async (req, res, next) => {
     }
 };
 
+/** TTL du cache admin : 5 minutes. Au-delà, re-fetch depuis la BDD. */
+const ADMIN_CACHE_TTL_MS = 5 * 60 * 1000;
+
 let adminEmailCache = {
     emails: [],
     lastFetched: 0
 };
 
 /**
- * Helper to fetch admin emails from the database with caching
+ * Helper to fetch admin emails from the database with caching.
+ * The cache is invalidated after ADMIN_CACHE_TTL_MS to ensure that
+ * admin revocations are reflected within at most 5 minutes.
  */
 const getAdminEmails = async () => {
     const now = Date.now();
+
+    // Retourner le cache s'il est encore frais et non vide
+    if (now - adminEmailCache.lastFetched < ADMIN_CACHE_TTL_MS && adminEmailCache.emails.length > 0) {
+        return adminEmailCache.emails;
+    }
 
     try {
         const normalize = (value) => String(value || '').trim().toLowerCase();

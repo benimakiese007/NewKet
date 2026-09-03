@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
-export const getActivities = async (req, res) => {
+export const getActivities = async (req, res, next) => {
     try {
         const userEmail = req.user?.email;
         if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
@@ -26,11 +26,11 @@ export const getActivities = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur getActivities:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des activités.' });
+        next(err);
     }
 };
 
-export const logActivity = async (req, res) => {
+export const logActivity = async (req, res, next) => {
     try {
         const { text, type } = req.body;
         if (!text) return res.status(400).json({ error: 'Texte requis.' });
@@ -55,6 +55,6 @@ export const logActivity = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur logActivity:', err);
-        res.status(500).json({ error: 'Erreur lors de l\'enregistrement de l\'activité.' });
+        next(err);
     }
 };

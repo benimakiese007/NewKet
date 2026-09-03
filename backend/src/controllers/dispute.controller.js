@@ -387,7 +387,7 @@ function normalizeEvidence(evidenceInput = []) {
         .filter((item) => item.url);
 }
 
-export const createDispute = async (req, res) => {
+export const createDispute = async (req, res, next) => {
     try {
         const { order_id, reason, description, evidence = [] } = req.body;
         const customerId = req.user.id;
@@ -480,7 +480,7 @@ export const createDispute = async (req, res) => {
 
         if (error) {
             console.error('Dispute creation failed:', error);
-            return res.status(500).json({ success: false, message: 'Erreur lors de la création du litige.' });
+            return next(err);
         }
 
         await addDisputeEventMessage(dispute.id, customerId, DISPUTE_MESSAGE_TYPES.EVIDENCE, {
@@ -533,11 +533,11 @@ export const createDispute = async (req, res) => {
         });
     } catch (error) {
         console.error('createDispute error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const getDisputes = async (req, res) => {
+export const getDisputes = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const admin = isAdmin(req.user);
@@ -567,17 +567,17 @@ export const getDisputes = async (req, res) => {
         const { data, error } = await query;
         if (error) {
             console.error('getDisputes error:', error);
-            return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des litiges.' });
+            return next(error);
         }
 
         return res.status(200).json({ success: true, data: data || [] });
     } catch (error) {
         console.error('getDisputes error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const getDisputeByOrder = async (req, res) => {
+export const getDisputeByOrder = async (req, res, next) => {
     try {
         const { orderId } = req.params;
         const order = await getOrderOrNull(orderId);
@@ -618,11 +618,11 @@ export const getDisputeByOrder = async (req, res) => {
         return res.status(200).json({ success: true, data: responseData });
     } catch (error) {
         console.error('getDisputeByOrder error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const updateDispute = async (req, res) => {
+export const updateDispute = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { description_update, new_evidence = [], note } = req.body;
@@ -666,11 +666,11 @@ export const updateDispute = async (req, res) => {
         return res.status(200).json({ success: true, data: updatedDispute });
     } catch (error) {
         console.error('updateDispute error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const vendorRespondToDispute = async (req, res) => {
+export const vendorRespondToDispute = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { action, amount = 0, evidence = [], message = '' } = req.body;
@@ -789,11 +789,11 @@ export const vendorRespondToDispute = async (req, res) => {
         return res.status(200).json({ success: true, data: updatedDispute });
     } catch (error) {
         console.error('vendorRespondToDispute error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const buyerRespondToDispute = async (req, res) => {
+export const buyerRespondToDispute = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { action } = req.body;
@@ -850,11 +850,11 @@ export const buyerRespondToDispute = async (req, res) => {
         return res.status(200).json({ success: true, data: updatedDispute });
     } catch (error) {
         console.error('buyerRespondToDispute error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const resolveDispute = async (req, res) => {
+export const resolveDispute = async (req, res, next) => {
     try {
         const { id } = req.params;
         const {
@@ -949,11 +949,11 @@ export const resolveDispute = async (req, res) => {
         });
     } catch (error) {
         console.error('resolveDispute error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
-export const addDisputeMessage = async (req, res) => {
+export const addDisputeMessage = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { type = DISPUTE_MESSAGE_TYPES.MESSAGE, payload = {}, message = '' } = req.body;
@@ -981,11 +981,11 @@ export const addDisputeMessage = async (req, res) => {
         return res.status(201).json({ success: true, data });
     } catch (error) {
         console.error('addDisputeMessage error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi du message.' });
+        return next(error);
     }
 };
 
-export const getDisputeMessages = async (req, res) => {
+export const getDisputeMessages = async (req, res, next) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
@@ -1028,11 +1028,11 @@ export const getDisputeMessages = async (req, res) => {
         return res.status(200).json({ success: true, data: enriched });
     } catch (error) {
         console.error('getDisputeMessages error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des messages.' });
+        return next(error);
     }
 };
 
-export const vendorResolveAmiable = async (req, res) => {
+export const vendorResolveAmiable = async (req, res, next) => {
     try {
         const { id } = req.params;
         const dispute = await getDisputeOrNull(id);
@@ -1044,7 +1044,7 @@ export const vendorResolveAmiable = async (req, res) => {
         return vendorRespondToDispute(req, res);
     } catch (error) {
         console.error('vendorResolveAmiable error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
@@ -1053,7 +1053,7 @@ export const vendorResolveAmiable = async (req, res) => {
  * Accessible par l'acheteur OU le vendeur si le litige est OPEN, SELLER_PENDING ou BUYER_PENDING.
  * Met le litige en UNDER_REVIEW et notifie l'équipe.
  */
-export const escalateToAdmin = async (req, res) => {
+export const escalateToAdmin = async (req, res, next) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
@@ -1115,7 +1115,7 @@ export const escalateToAdmin = async (req, res) => {
         });
     } catch (error) {
         console.error('escalateToAdmin error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur lors de l\'escalade.' });
+        return next(error);
     }
 };
 
@@ -1123,7 +1123,7 @@ export const escalateToAdmin = async (req, res) => {
  * Récupération de l'OTP de retour — RÉSERVÉ AU VENDEUR et à l'Admin.
  * L'acheteur ne doit JAMAIS recevoir ce code directement.
  */
-export const getReturnOtp = async (req, res) => {
+export const getReturnOtp = async (req, res, next) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
@@ -1155,14 +1155,14 @@ export const getReturnOtp = async (req, res) => {
         });
     } catch (error) {
         console.error('getReturnOtp error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+        return next(error);
     }
 };
 
 /**
  * Confirmation du retour physique par l'acheteur via l'OTP fourni par le vendeur.
  */
-export const confirmReturn = async (req, res) => {
+export const confirmReturn = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { otp } = req.body;
@@ -1242,7 +1242,7 @@ export const confirmReturn = async (req, res) => {
         });
     } catch (error) {
         console.error('confirmReturn error:', error);
-        return res.status(500).json({ success: false, message: 'Erreur serveur lors de la confirmation du retour.' });
+        return next(error);
     }
 };
 

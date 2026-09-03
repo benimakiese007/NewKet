@@ -174,7 +174,7 @@ async function createOrUpdateDeliveryRecord(orderId, vendorId, patch = {}) {
     return data;
 }
 
-export const createOrder = async (req, res) => {
+export const createOrder = async (req, res, next) => {
     try {
         if (await isAdminAccount(req.user)) {
             return res.status(403).json({
@@ -222,7 +222,7 @@ export const createOrder = async (req, res) => {
                 error: 'Vous ne pouvez pas acheter votre propre produit.'
             });
         }
-        const unitPrice = toFiniteNumber(req.body?.price || product.price || product.old_price, 0);
+        const unitPrice = toFiniteNumber(product.price || product.old_price, 0);
         const totalAmount = Number((unitPrice * quantity).toFixed(2));
         const nowIso = new Date().toISOString();
 
@@ -315,14 +315,11 @@ export const createOrder = async (req, res) => {
         });
     } catch (error) {
         console.error('❌ Erreur createOrder:', error.message);
-        return res.status(500).json({
-            success: false,
-            error: 'Impossible de créer la commande.'
-        });
+        return next(error);
     }
 };
 
-export const getOrders = async (req, res) => {
+export const getOrders = async (req, res, next) => {
     try {
         const page = Math.max(1, parseInt(req.query.page, 10) || 1);
         const limit = Math.max(1, Math.min(60, parseInt(req.query.limit, 10) || 50));
@@ -382,7 +379,7 @@ export const getOrders = async (req, res) => {
         if (vendorIds.length > 0) {
             const { data: vendors, error: vendorsError } = await client
                 .from('users')
-                .select('id, name, company_name, email')
+                .select('id, name, username, company_name, email')
                 .in('id', vendorIds);
 
             if (vendorsError) {
@@ -443,7 +440,7 @@ export const getOrders = async (req, res) => {
     }
 };
 
-export const createDeliveryQuote = async (req, res) => {
+export const createDeliveryQuote = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { delivery_fee_amount, estimated_delay_hours, note, expires_at } = req.body;
@@ -516,11 +513,11 @@ export const createDeliveryQuote = async (req, res) => {
         return res.status(201).json({ success: true, order: updatedOrder, quote });
     } catch (error) {
         console.error('❌ Erreur createDeliveryQuote:', error.message);
-        return res.status(500).json({ error: 'Impossible de créer le devis de livraison.' });
+        return next(error);
     }
 };
 
-export const respondToDeliveryQuote = async (req, res) => {
+export const respondToDeliveryQuote = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { action, quote_id } = req.body;
@@ -633,11 +630,11 @@ export const respondToDeliveryQuote = async (req, res) => {
         return res.status(200).json({ success: true, order: updatedOrder, quote_status: quoteStatus });
     } catch (error) {
         console.error('❌ Erreur respondToDeliveryQuote:', error.message);
-        return res.status(500).json({ error: 'Impossible de traiter la réponse au devis.' });
+        return next(error);
     }
 };
 
-export const updateOrderStatus = async (req, res) => {
+export const updateOrderStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { status, force = false } = req.body;
@@ -709,11 +706,11 @@ export const updateOrderStatus = async (req, res) => {
         return res.status(200).json({ success: true, order: updatedOrder });
     } catch (error) {
         console.error('❌ Erreur updateOrderStatus:', error.message);
-        return res.status(500).json({ error: 'Failed to update order status' });
+        return next(error);
     }
 };
 
-export const markOrderInDelivery = async (req, res) => {
+export const markOrderInDelivery = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { external_courier_name, external_courier_phone } = req.body;
@@ -762,11 +759,11 @@ export const markOrderInDelivery = async (req, res) => {
         return res.status(200).json({ success: true, order: updatedOrder });
     } catch (error) {
         console.error('❌ Erreur markOrderInDelivery:', error.message);
-        return res.status(500).json({ error: 'Impossible de démarrer la livraison.' });
+        return next(error);
     }
 };
 
-export const reportClientNoShow = async (req, res) => {
+export const reportClientNoShow = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -835,11 +832,11 @@ export const reportClientNoShow = async (req, res) => {
         return res.status(200).json({ success: true, message: 'Commande annulée pour absence du client. Pénalité appliquée.', order: updatedOrder });
     } catch (error) {
         console.error('❌ Erreur reportClientNoShow:', error.message);
-        return res.status(500).json({ error: 'Impossible de signaler l\'absence.' });
+        return next(error);
     }
 };
 
-export const verifyDelivery = async (req, res) => {
+export const verifyDelivery = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { otp } = req.body;
@@ -916,7 +913,7 @@ export const verifyDelivery = async (req, res) => {
             .single();
             
         if (updateError) {
-            return res.status(500).json({ error: 'Impossible de mettre à jour la commande.' });
+            return next(error);
         }
 
         await createOrUpdateDeliveryRecord(id, getOrderVendorId(order), {
@@ -975,11 +972,11 @@ export const verifyDelivery = async (req, res) => {
         return res.status(200).json({ success: true, message: 'Livraison valid\u00E9e avec succ\u00E8s', order: updatedOrder });
     } catch (error) {
         console.error('❌ Erreur verifyDelivery:', error.message);
-        return res.status(500).json({ error: 'Failed to verify delivery' });
+        return next(error);
     }
 };
 
-export const confirmOrderCompletion = async (req, res) => {
+export const confirmOrderCompletion = async (req, res, next) => {
     try {
         const { id } = req.params;
         const order = await fetchOrderOr404(id, res);
@@ -1010,11 +1007,11 @@ export const confirmOrderCompletion = async (req, res) => {
         });
     } catch (error) {
         console.error('❌ Erreur confirmOrderCompletion:', error.message);
-        return res.status(500).json({ error: 'Impossible de confirmer la commande.' });
+        return next(error);
     }
 };
 
-export const releaseEscrow = async (req, res) => {
+export const releaseEscrow = async (req, res, next) => {
     try {
         const { id } = req.params;
         const order = await fetchOrderOr404(id, res);
@@ -1037,6 +1034,6 @@ export const releaseEscrow = async (req, res) => {
         });
     } catch (error) {
         console.error('❌ Erreur releaseEscrow:', error.message);
-        return res.status(500).json({ error: 'Failed to release escrow' });
+        return next(error);
     }
 };

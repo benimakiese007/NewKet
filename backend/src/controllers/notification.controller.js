@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { enqueuePushNotification } from '../services/push-queue.service.js';
 
-export const getNotifications = async (req, res) => {
+export const getNotifications = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
@@ -33,11 +33,11 @@ export const getNotifications = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur getNotifications:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des notifications.' });
+        next(err);
     }
 };
 
-export const addNotification = async (req, res) => {
+export const addNotification = async (req, res, next) => {
     try {
         const { title, message, type, target } = req.body;
         const userId = req.user?.id;
@@ -76,11 +76,11 @@ export const addNotification = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur addNotification:', err);
-        res.status(500).json({ error: 'Erreur lors de la création de la notification.' });
+        next(err);
     }
 };
 
-export const markAsRead = async (req, res) => {
+export const markAsRead = async (req, res, next) => {
     try {
         const { id } = req.params;
         const userId = req.user?.id;
@@ -146,11 +146,11 @@ export const markAsRead = async (req, res) => {
         res.json(updated);
     } catch (err) {
         console.error('Erreur markAsRead:', err);
-        res.status(500).json({ error: 'Erreur lors de la mise à jour de la notification.' });
+        next(err);
     }
 };
 
-export const deleteNotification = async (req, res) => {
+export const deleteNotification = async (req, res, next) => {
     try {
         const { id } = req.params;
         const userId = req.user?.id;
@@ -199,11 +199,11 @@ export const deleteNotification = async (req, res) => {
         res.json({ success: true, message: 'Notification supprimée.' });
     } catch (err) {
         console.error('Erreur deleteNotification:', err);
-        res.status(500).json({ error: 'Erreur lors de la suppression.' });
+        next(err);
     }
 };
 
-export const clearNotifications = async (req, res) => {
+export const clearNotifications = async (req, res, next) => {
     try {
         const userEmail = req.user?.email;
         if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
@@ -243,6 +243,6 @@ export const clearNotifications = async (req, res) => {
         res.json({ success: true, message: 'Toutes les notifications ont été supprimées.' });
     } catch (err) {
         console.error('Erreur clearNotifications:', err);
-        res.status(500).json({ error: 'Erreur lors de la suppression groupée.', details: err.message });
+        next(err);
     }
 };

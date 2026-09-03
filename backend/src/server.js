@@ -92,7 +92,9 @@ const cspDirectives = {
   objectSrc: ["'none'"],
   frameAncestors: ["'none'"],
   formAction: ["'self'"],
-  scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://va.vercel-scripts.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://cdn.jsdelivr.net'],
+  // 'unsafe-eval' retiré volontairement : aucune lib requise ne l'exige, et il ouvre eval() comme vecteur XSS.
+  // 'unsafe-inline' est conservé car requis par Vite/React en production (inline scripts de hydration).
+  scriptSrc: ["'self'", "'unsafe-inline'", 'https://va.vercel-scripts.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://cdn.jsdelivr.net'],
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
   imgSrc: ["'self'", 'data:', 'blob:', 'https:'],

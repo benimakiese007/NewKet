@@ -2469,7 +2469,7 @@ window.showPromptModal = ({
             });
         } catch (_) {}
 
-        // Show a quick modal to collect customer info (Phone & City & Email for Netikash)
+        // Show a quick modal to collect customer info (Phone & City & Email for FlexPaie)
         const customerInfo = await showCheckoutModal(p.name, p.price, requestedQuantity, stock);
         if (!customerInfo) {
             btnElement.innerHTML = originalHtml;

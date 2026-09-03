@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
-export const getReviews = async (req, res) => {
+export const getReviews = async (req, res, next) => {
     try {
         const page = Math.max(1, parseInt(req.query.page, 10) || 1);
         const limit = Math.max(1, Math.min(60, parseInt(req.query.limit, 10) || 50));
@@ -80,11 +80,11 @@ export const getReviews = async (req, res) => {
         res.json(reviews);
     } catch (err) {
         console.error('Erreur getReviews:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des avis.' });
+        next(err);
     }
 };
 
-export const deleteReview = async (req, res) => {
+export const deleteReview = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!id) return res.status(400).json({ error: 'ID requis.' });
@@ -117,6 +117,6 @@ export const deleteReview = async (req, res) => {
         res.json({ success: true, message: 'Avis supprimé avec succès.' });
     } catch (err) {
         console.error('Erreur deleteReview:', err);
-        res.status(500).json({ error: 'Erreur lors de la suppression de l\'avis.' });
+        next(err);
     }
 };

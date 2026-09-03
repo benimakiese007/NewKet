@@ -114,7 +114,7 @@
                             <tr>
                                 <th>Lead ID</th>
                                 <th>Client</th>
-                                <th>Provenance</th>
+
                                 <th>Téléphone / Contact</th>
                                 <th>Date</th>
                                 <th>OTP</th>
@@ -131,7 +131,7 @@
                                     <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
                                     <div class="h-3 bg-gray-100 rounded w-32"></div>
                                 </td>
-                                <td class="p-4"><div class="h-6 bg-gray-200 rounded-full w-20"></div></td>
+
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-16"></div></td>
                                 <td class="p-4"><div class="h-6 bg-gray-200 rounded-xl w-16"></div></td>
@@ -146,7 +146,7 @@
                                     <div class="h-4 bg-gray-200 rounded w-28 mb-2"></div>
                                     <div class="h-3 bg-gray-100 rounded w-36"></div>
                                 </td>
-                                <td class="p-4"><div class="h-6 bg-gray-200 rounded-full w-20"></div></td>
+
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-16"></div></td>
                                 <td class="p-4"><div class="h-6 bg-gray-200 rounded-xl w-16"></div></td>
@@ -161,7 +161,7 @@
                                     <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
                                     <div class="h-3 bg-gray-100 rounded w-32"></div>
                                 </td>
-                                <td class="p-4"><div class="h-6 bg-gray-200 rounded-full w-20"></div></td>
+
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-16"></div></td>
                                 <td class="p-4"><div class="h-6 bg-gray-200 rounded-xl w-16"></div></td>
@@ -176,7 +176,7 @@
                                     <div class="h-4 bg-gray-200 rounded w-20 mb-2"></div>
                                     <div class="h-3 bg-gray-100 rounded w-40"></div>
                                 </td>
-                                <td class="p-4"><div class="h-6 bg-gray-200 rounded-full w-20"></div></td>
+
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
                                 <td class="p-4"><div class="h-4 bg-gray-200 rounded w-16"></div></td>
                                 <td class="p-4"><div class="h-6 bg-gray-200 rounded-xl w-16"></div></td>
@@ -295,11 +295,7 @@
                         <div class="font-black text-gray-900 admin-table-truncate" title="${o.customer?.name || o.customer_name || 'Client Anonyme'}">${o.customer?.name || o.customer_name || 'Client Anonyme'}</div>
                         <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none mt-1" title="${o.customer?.email || o.customer_email || 'Sans email'}">${o.customer?.email || o.customer_email || 'Sans email'}</div>
                     </td>
-                    <td class="p-4">
-                        <div class="badge-premium bg-blue-50 text-blue-600">
-                            ${o.payment_method || 'Mobile Money'}
-                        </div>
-                    </td>
+
                     <td class="p-4">
                         ${o.phone_number ? `
                             <a href="tel:${o.phone_number}" class="inline-flex items-center gap-2 text-black font-black hover:scale-105 transition-transform min-w-0 max-w-full" title="${o.phone_number}">
@@ -412,12 +408,11 @@
                 return;
             }
 
-            const headers = ['ID', 'Client', 'Email', 'Provenance', 'Mobile', 'Date', 'OTP', 'Total', 'Statut'];
+            const headers = ['ID', 'Client', 'Email', 'Mobile', 'Date', 'OTP', 'Total', 'Statut'];
             const rows = orders.map(o => [
                 o.id,
                 o.customer?.name || o.customer_name || 'Client',
                 o.customer?.email || o.customer_email || '',
-                o.payment_method || 'Mobile Money',
                 o.phone_number || '',
                 new Date(o.date).toLocaleDateString(),
                 o.otp_code || '',

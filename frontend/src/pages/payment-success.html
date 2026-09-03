@@ -86,7 +86,7 @@
                 </div>
 
                 <p class="mt-12 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
-                    Securise par Netikash et NewKet Escrow
+                    Securise par FlexPaie et NewKet Escrow
                 </p>
             </div>
         </div>
@@ -324,6 +324,13 @@
                     txRefEl.style.minWidth = '';
                     txRefEl.style.height = '';
                     txRefEl.textContent = txRef || 'Indisponible';
+                }
+
+                // Mode simulation : ?mock=true → succès immédiat, pas d'appel backend
+                const isMock = urlParams.get('mock') === 'true';
+                if (isMock) {
+                    setSuccessUI();
+                    return;
                 }
 
                 setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');

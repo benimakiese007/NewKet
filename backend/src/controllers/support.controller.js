@@ -3,7 +3,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 // ─── Statuts de tickets support autorisés ────────────────────────────────────
 const ALLOWED_TICKET_STATUSES = ['ouvert', 'en_cours', 'resolu', 'ferme'];
 
-export const getTickets = async (req, res) => {
+export const getTickets = async (req, res, next) => {
     try {
         const { data, error } = await supabaseAdmin
             .from('support_tickets')
@@ -14,11 +14,11 @@ export const getTickets = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur getTickets:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des tickets.' });
+        next(err);
     }
 };
 
-export const updateTicketStatus = async (req, res) => {
+export const updateTicketStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
@@ -43,11 +43,11 @@ export const updateTicketStatus = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur updateTicketStatus:', err);
-        res.status(500).json({ error: 'Erreur lors de la mise à jour du ticket.' });
+        next(err);
     }
 };
 
-export const deleteTicket = async (req, res) => {
+export const deleteTicket = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (!id) return res.status(400).json({ error: 'ID requis.' });
@@ -61,12 +61,12 @@ export const deleteTicket = async (req, res) => {
         res.json({ success: true, message: 'Ticket supprimé avec succès.' });
     } catch (err) {
         console.error('Erreur deleteTicket:', err);
-        res.status(500).json({ error: 'Erreur lors de la suppression du ticket.' });
+        next(err);
     }
 };
 
 // Also add a way to create tickets (for future frontend integration)
-export const createTicket = async (req, res) => {
+export const createTicket = async (req, res, next) => {
     try {
         const { subject, customer_name, customer_email, message } = req.body;
         
@@ -93,6 +93,6 @@ export const createTicket = async (req, res) => {
         res.status(201).json(data);
     } catch (err) {
         console.error('Erreur createTicket:', err);
-        res.status(500).json({ error: 'Erreur lors de la création du ticket.' });
+        next(err);
     }
 };

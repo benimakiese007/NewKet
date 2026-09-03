@@ -107,7 +107,7 @@ async function removeNewsletterSubscriber(id) {
     }
 }
 
-export const subscribeNewsletter = async (req, res) => {
+export const subscribeNewsletter = async (req, res, next) => {
     try {
         const { email, source = 'footer' } = req.body || {};
         const normalizedEmail = normalizeEmail(email);
@@ -149,11 +149,11 @@ export const subscribeNewsletter = async (req, res) => {
         });
     } catch (err) {
         console.error('Error subscribeNewsletter:', err.message);
-        return res.status(500).json({ error: 'Internal server error while subscribing.' });
+        return next(err);
     }
 };
 
-export const unsubscribeNewsletterSubscriber = async (req, res) => {
+export const unsubscribeNewsletterSubscriber = async (req, res, next) => {
     try {
         const { id } = req.params;
         const subscriber = await getNewsletterSubscriberById(id);
@@ -179,11 +179,11 @@ export const unsubscribeNewsletterSubscriber = async (req, res) => {
         });
     } catch (err) {
         console.error('Error unsubscribeNewsletterSubscriber:', err.message);
-        return res.status(500).json({ error: 'Internal server error while unsubscribing.' });
+        return next(err);
     }
 };
 
-export const resubscribeNewsletterSubscriber = async (req, res) => {
+export const resubscribeNewsletterSubscriber = async (req, res, next) => {
     try {
         const { id } = req.params;
         const subscriber = await getNewsletterSubscriberById(id);
@@ -209,11 +209,11 @@ export const resubscribeNewsletterSubscriber = async (req, res) => {
         });
     } catch (err) {
         console.error('Error resubscribeNewsletterSubscriber:', err.message);
-        return res.status(500).json({ error: 'Internal server error while reactivating.' });
+        return next(err);
     }
 };
 
-export const deleteNewsletterSubscriber = async (req, res) => {
+export const deleteNewsletterSubscriber = async (req, res, next) => {
     try {
         const { id } = req.params;
         const subscriber = await getNewsletterSubscriberById(id);
@@ -239,11 +239,11 @@ export const deleteNewsletterSubscriber = async (req, res) => {
         });
     } catch (err) {
         console.error('Error deleteNewsletterSubscriber:', err.message);
-        return res.status(500).json({ error: 'Internal server error while deleting subscriber.' });
+        return next(err);
     }
 };
 
-export const syncNewsletterBackfill = async (req, res) => {
+export const syncNewsletterBackfill = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
         const { data, error } = await client
@@ -265,11 +265,11 @@ export const syncNewsletterBackfill = async (req, res) => {
         });
     } catch (err) {
         console.error('Error syncNewsletterBackfill:', err.message);
-        return res.status(500).json({ error: 'Internal server error while syncing newsletter.' });
+        return next(err);
     }
 };
 
-export const sendNewsletter = async (req, res) => {
+export const sendNewsletter = async (req, res, next) => {
     try {
         const { subject, content } = req.body;
 
@@ -322,9 +322,9 @@ export const sendNewsletter = async (req, res) => {
             });
         }
 
-        return res.status(500).json({ error: 'Failed to send newsletter.', details: result.error });
+        return next(brevoError);
     } catch (err) {
         console.error('Error sendNewsletter:', err.message);
-        return res.status(500).json({ error: 'Internal server error while sending newsletter.' });
+        return next(err);
     }
 };

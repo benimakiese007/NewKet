@@ -60,7 +60,7 @@ const mapSettingsRow = (row) => {
     };
 };
 
-export const getSettings = async (req, res) => {
+export const getSettings = async (req, res, next) => {
     try {
         const { data, error } = await supabase
             .from('settings')
@@ -73,11 +73,11 @@ export const getSettings = async (req, res) => {
         res.json(mappedData);
     } catch (err) {
         console.error('Erreur getSettings:', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des paramètres.' });
+        next(err);
     }
 };
 
-export const saveSettings = async (req, res) => {
+export const saveSettings = async (req, res, next) => {
     try {
         const config = req.body;
         
@@ -167,14 +167,14 @@ export const saveSettings = async (req, res) => {
         res.json({ success: true, data });
     } catch (err) {
         console.error('Erreur saveSettings:', err);
-        res.status(500).json({ error: 'Erreur lors de la sauvegarde des paramètres.' });
+        next(err);
     }
 };
 
 // Store OTPs in memory for simplicity (in a real app, use Redis or DB with TTL)
 const otpStore = new Map();
 
-export const requestTransactionResetOTP = async (req, res) => {
+export const requestTransactionResetOTP = async (req, res, next) => {
     try {
         const { data: settings, error: fetchError } = await supabaseAdmin
             .from('settings')
@@ -206,17 +206,17 @@ export const requestTransactionResetOTP = async (req, res) => {
         const emailResult = await EmailService.sendAdminOTP(adminEmail, otp);
         
         if (!emailResult.success) {
-            return res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email.' });
+            return next(err);
         }
 
         res.json({ success: true, message: 'Code envoyé à l\'adresse email de l\'administration.' });
     } catch (error) {
         console.error('Erreur requestTransactionResetOTP:', error);
-        res.status(500).json({ error: 'Erreur serveur.' });
+        next(error);
     }
 };
 
-export const verifyTransactionResetOTP = async (req, res) => {
+export const verifyTransactionResetOTP = async (req, res, next) => {
     try {
         const { otp } = req.body;
         const adminId = req.user?.id || 'admin';
@@ -278,6 +278,6 @@ export const verifyTransactionResetOTP = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur verifyTransactionResetOTP:', error);
-        res.status(500).json({ error: 'Erreur serveur lors de la vérification.' });
+        next(error);
     }
 };

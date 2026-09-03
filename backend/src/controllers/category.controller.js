@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabase.js';
 
-export const getCategories = async (req, res) => {
+export const getCategories = async (req, res, next) => {
     try {
         
         // Fetch categories ranked from the SQL view we created
@@ -21,6 +21,6 @@ export const getCategories = async (req, res) => {
         res.json({ data: categories });
     } catch (err) {
         console.error('❌ getCategories error:', err);
-        res.status(500).json({ error: err.message });
+        next(err);
     }
 };

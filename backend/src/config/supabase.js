@@ -61,13 +61,24 @@ if (hasBaseConfig && hasServiceRoleKey) {
     adminClient = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
     console.log('Supabase Admin Client initialized successfully.');
 } else if (hasBaseConfig) {
-    console.warn('SUPABASE_SECRET_KEY missing or placeholder. Some admin operations may fail.');
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+        // En production, un supabaseAdmin tournant en mode anon est une faille silencieuse :
+        // les opérations admin byppassent les RLS mais n'ont aucune élévation de droits.
+        // On fail-fast pour forcer la correction plutôt que de dégrader silencieusement.
+        throw new Error(
+            '[FATAL] SUPABASE_SECRET_KEY (service_role) is missing in production. ' +
+            'Admin operations require this key. Set it in your environment variables.'
+        );
+    }
+    console.warn('SUPABASE_SECRET_KEY missing or placeholder. Running in degraded mode (anon client for admin). Set this key for production.');
     adminClient = supabase;
 } else {
     adminClient = supabase;
 }
 
 export const supabaseAdmin = adminClient;
+
 
 export function createUserSupabaseClient(accessToken) {
     if (!accessToken) return supabase;

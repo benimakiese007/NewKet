@@ -4,7 +4,8 @@ import crypto from 'crypto';
 import {
     createFlexpaiePaymentRequest,
     isFlexpaieConfigured,
-    verifyFlexpaieSignature
+    verifyFlexpaieSignature,
+    getPaymentByExternalId
 } from '../services/flexpaie.js';
 import NotificationService from '../services/notificationService.js';
 import {
@@ -242,7 +243,7 @@ async function loadExchangeRate(client) {
     return parseFloat(settings?.exchangeRate) || 2800;
 }
 
-export const initiatePayment = async (req, res) => {
+export const initiatePayment = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
         const {
@@ -257,12 +258,7 @@ export const initiatePayment = async (req, res) => {
         } = req.body;
 
         if (!isFlexpaieConfigured()) {
-            return res.status(503).json({
-                success: false,
-                code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
-                error: 'Paiement indisponible',
-                message: 'Aucun fournisseur de paiement n\'est configuré.'
-            });
+            return next(err);
         }
 
         let order = null;
@@ -358,12 +354,7 @@ export const initiatePayment = async (req, res) => {
 
         // Guard : aucun provider de paiement n'est configuré
         if (!provider) {
-            return res.status(503).json({
-                success: false,
-                code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
-                error: 'Paiement indisponible',
-                message: 'Le système de paiement Mobile Money est temporairement indisponible. Veuillez réessayer plus tard.'
-            });
+            return next(err);
         }
 
         if (!orderId) {
@@ -519,6 +510,19 @@ export const initiatePayment = async (req, res) => {
             await client.from('orders').update({ payment_provider: successfulProvider }).eq('id', orderId);
         }
 
+        // Si c'est un paiement simulé (mock=true dans l'URL), on auto-valide la commande en arrière-plan
+        // car il n'y aura aucun vrai Webhook FlexPaie pour le faire.
+        if (paymentUrl && paymentUrl.includes('mock=true')) {
+            const client = supabaseAdmin || supabase;
+            console.log(`[MOCK] Auto-processing mock payment for txId: ${txId}`);
+            // On l'exécute sans await pour ne pas ralentir le retour au frontend
+            client.rpc('process_order_payment', { p_transaction_id: String(txId) })
+                .then(({ data, error }) => {
+                    if (error) console.error('[MOCK] Auto-process error:', error);
+                    else console.log('[MOCK] Auto-process success:', data);
+                });
+        }
+
         return res.status(200).json({
             success: true,
             order_id: orderId,
@@ -569,14 +573,14 @@ export const initiatePayment = async (req, res) => {
     }
 };
 
-export const paymentWebhook = async (req, res) => {
+export const paymentWebhook = async (req, res, next) => {
     if (req.headers?.['x-flexpaie-signature']) {
         return flexpaieWebhook(req, res);
     }
     return res.status(400).send('Provider not supported');
 };
 
-export const flexpaieWebhook = async (req, res) => {
+export const flexpaieWebhook = async (req, res, next) => {
     try {
         const signatureValid = verifyFlexpaieSignature(req);
         if (!signatureValid) {
@@ -612,7 +616,7 @@ export const flexpaieWebhook = async (req, res) => {
             });
 
         if (webhookInsertError && String(webhookInsertError.code) !== '23505') {
-            return res.status(500).send('Erreur DB');
+            return next(unlockError);
         }
 
         // 2. Traiter le paiement
@@ -635,13 +639,13 @@ export const flexpaieWebhook = async (req, res) => {
         return res.status(200).send('OK');
     } catch (error) {
         console.error('flexpaieWebhook error:', error);
-        return res.status(500).send('Erreur interne');
+        return next(error);
     }
 };
 
 
 
-export const getPaymentStatus = async (req, res) => {
+export const getPaymentStatus = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
         const txRef = req.params.tx_ref;
@@ -683,11 +687,11 @@ export const getPaymentStatus = async (req, res) => {
         });
     } catch (error) {
         console.error('getPaymentStatus error:', error);
-        return res.status(500).json({ error: 'Erreur interne' });
+        return next(error);
     }
 };
 
-export const verifyInvoice = async (req, res) => {
+export const verifyInvoice = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
         const orderId = sanitizeText(req.params.order_id);
@@ -737,7 +741,7 @@ export const verifyInvoice = async (req, res) => {
         });
     } catch (error) {
         console.error('verifyInvoice error:', error);
-        return res.status(500).json({ error: 'Erreur interne' });
+        return next(error);
     }
 };
 
@@ -746,7 +750,7 @@ export const verifyInvoice = async (req, res) => {
  * Sert de fallback quand FlexPay ne livre pas le webhook (typiquement en mode test).
  * Appelé par le frontend sur la page payment-success si le statut n'évolue pas.
  */
-export const flexpayActiveVerify = async (req, res) => {
+export const flexpayActiveVerify = async (req, res, next) => {
     try {
         const { transaction_id, order_id } = req.body;
         if (!transaction_id) {
@@ -781,7 +785,7 @@ export const flexpayActiveVerify = async (req, res) => {
         }
 
         // 3. Interroger FlexPay pour vérifier le statut
-        const flexpayPayment = await flexpaieService.getPaymentByExternalId(transaction_id);
+        const flexpayPayment = await getPaymentByExternalId(transaction_id);
         console.log('[FlexPay ActiveVerify] FlexPay response for', transaction_id, ':', JSON.stringify(flexpayPayment));
 
         const flexpayStatus = String(flexpayPayment?.status || flexpayPayment?.data?.status || '').toLowerCase();
@@ -807,7 +811,7 @@ export const flexpayActiveVerify = async (req, res) => {
             console.warn('[FlexPay ActiveVerify] RPC failed, using finalizePaidOrder fallback:', rpcError?.message);
             const { error: fallbackError } = await finalizePaidOrder(client, order.id, nowIso);
             if (fallbackError) {
-                return res.status(500).json({ error: 'Erreur lors de la finalisation' });
+                return next(error);
             }
         }
 
@@ -833,7 +837,7 @@ export const flexpayActiveVerify = async (req, res) => {
         return res.status(200).json({ ok: true, finalized: true, order: paidOrder || order });
     } catch (err) {
         console.error('[FlexPay ActiveVerify Error]', err);
-        return res.status(500).json({ error: 'Erreur interne' });
+        return next(err);
     }
 };
 

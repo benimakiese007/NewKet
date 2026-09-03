@@ -1,4 +1,18 @@
 
+window.escapeHTML = function(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>'"/]/g, function (s) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;'
+        }[s];
+    });
+};
+
         let currentSelectedOrder = null;
         let currentSelectedDispute = null;
         let releaseCountdownTimer = null;
@@ -1092,10 +1106,10 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-0.5">
-                                    <h3 class="font-bold text-sm ${!n.read ? 'text-black' : 'text-gray-600'}">${n.title}</h3>
+                                    <h3 class="font-bold text-sm ${!n.read ? 'text-black' : 'text-gray-600'}">${escapeHTML(n.title)}</h3>
                                     <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${new Date(n.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
                                 </div>
-                                <p class="text-xs text-gray-500 truncate">${n.message}</p>
+                                <p class="text-xs text-gray-500 truncate">${escapeHTML(n.message)}</p>
                             </div>
                             ${!n.read ? '<div class="w-1.5 h-1.5 rounded-full bg-black"></div>' : ''}
                         </div>

@@ -797,10 +797,7 @@
                         <div id="modalPaymentStatus" class="px-3 py-1 rounded-full text-xs font-bold inline-block"></div>
                         <div id="modalTransactionId" class="text-[9px] font-black text-gray-400 uppercase tracking-tighter mt-1"></div>
                     </div>
-                    <div class="space-y-1 text-right">
-                        <div class="text-xs font-bold text-gray-400 uppercase">Mode de paiement</div>
-                        <div id="modalContactMethod" class="text-sm font-medium">Netikash</div>
-                    </div>
+
                 </div>
 
                 <!-- Timeline -->
@@ -820,7 +817,7 @@
                 <!-- Summary -->
                 <div class="bg-gray-50 rounded-xl p-6 space-y-3">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-200">
-                        <img id="modalInvoiceLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
+                        <img id="modalInvoiceLogo" src="/LogoOfficiel_PWA_Icone.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
                         <div class="min-w-0">
                             <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
                             <div class="font-black text-gray-900">Aperçu compact</div>
@@ -1001,7 +998,7 @@
                 <div class="invoice-header">
                     <div class="invoice-header-top">
                         <div class="invoice-brand">
-                            <img id="invLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
+                            <img id="invLogo" src="/LogoOfficiel_PWA_Icone.png" alt="NewKet" class="invoice-logo">
                             <div class="invoice-brand-copy">
                                 <div class="invoice-title">FACTURE</div>
                             </div>
@@ -3454,7 +3451,7 @@
                                     <div class="flex flex-col items-start sm:items-end flex-1 sm:flex-none">
                                         <p class="font-black text-lg text-gray-900 leading-none mb-1">${window.CurrencyManager ? CurrencyManager.formatPrice(o.total) : (o.total + ' FC')}</p>
                                         <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest">
-                                            Vendeur: <span class="text-gray-600">${o.supplier_name || o.supplier_email || 'NewKet Boutique'}</span>
+                                            Vendeur: <span class="text-gray-600">${o.vendor_username ? '@' + o.vendor_username : (o.vendor_name || o.vendor_company_name || o.supplier_name || 'NewKet Boutique')}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -3540,7 +3537,6 @@
 
             const payStatusEl = document.getElementById('modalPaymentStatus');
             const transIdEl = document.getElementById('modalTransactionId');
-            const contactMethodEl = document.getElementById('modalContactMethod');
 
             if (payStatusEl) {
                 const pStatus = order.payment_status || 'N/A';
@@ -3550,16 +3546,6 @@
             if (transIdEl) {
                 transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id}` : '';
                 transIdEl.classList.add('break-all', 'whitespace-normal');
-            }
-            if (contactMethodEl) {
-                const paymentState = String(order.payment_status || '').toUpperCase();
-                if (['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || order.status === 'PAID_HELD') {
-                    contactMethodEl.textContent = 'Paiement confirmé';
-                } else if (order.payment_status && order.payment_status !== 'N/A') {
-                    contactMethodEl.textContent = 'Netikash Online';
-                } else {
-                    contactMethodEl.textContent = 'Paiement en cours';
-                }
             }
 
             const itemsList = document.getElementById('modalOrderItems');
@@ -4345,7 +4331,11 @@
             let discount = Number(order?.promo_discount_amount ?? 0);
             let payinFee = Number(order?.payin_fee_amount ?? 0);
             
-            let total = Number(order?.client_total_paid ?? order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee + payinFee - discount));
+            // N'utilise client_total_paid que s'il est > 0 (évite le $0.00 des paiements mock)
+            const clientPaid = Number(order?.client_total_paid ?? 0);
+            let total = clientPaid > 0
+                ? clientPaid
+                : Number(order?.final_total_amount || order?.total || order?.total_amount || Math.max(0, subtotal + deliveryFee + payinFee - discount));
 
             // Always prefer the accepted quote amount as the delivery truth
             if (order?.latest_delivery_quote?.delivery_fee_amount) {
@@ -4378,12 +4368,12 @@
 
         function getNewketLogoUrl() {
             if (typeof window.resolvePath === 'function') {
-                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
+                return window.resolvePath('/LogoOfficiel_PWA_Icone.png');
             }
             try {
-                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
+                return new URL('/LogoOfficiel_PWA_Icone.png', window.location.href).href;
             } catch (error) {
-                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
+                return '/LogoOfficiel_PWA_Icone.png';
             }
         }
 
@@ -4429,11 +4419,11 @@
                 return window.InvoiceQrService.buildInvoiceQrTargetUrl(order, qrReference);
             }
 
-            const resolvedPath = typeof window.resolvePath === 'function'
-                ? window.resolvePath('invoice-verify')
-                : '/src/pages/invoice-verify.html';
-            const url = new URL(resolvedPath, window.location.origin);
-            if (order?.id) url.searchParams.set('order_id', order.id);
+            const baseUrl = window.location.origin;
+            if (!order?.id) {
+                return new URL('/src/pages/invoice-verify.html', baseUrl).toString();
+            }
+            const url = new URL(`/facture/${order.id}`, baseUrl);
             if (qrReference) url.searchParams.set('invoice_ref', qrReference);
             return url.toString();
         }

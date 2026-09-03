@@ -153,7 +153,7 @@ async function findUsernameConflict(sb, username, userId = null) {
     }) || null;
 }
 
-export const getMyProfile = async (req, res) => {
+export const getMyProfile = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifie' });
@@ -187,11 +187,11 @@ export const getMyProfile = async (req, res) => {
         });
     } catch (err) {
         console.error('Erreur getMyProfile:', err);
-        res.status(500).json({ error: 'Erreur lors de la recuperation du profil.' });
+        next(err);
     }
 };
 
-export const updateMyProfile = async (req, res) => {
+export const updateMyProfile = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifie' });
@@ -344,11 +344,11 @@ export const updateMyProfile = async (req, res) => {
         if (code === '23514') {
             return res.status(422).json({ error: err.message || 'Données invalides.' });
         }
-        res.status(500).json({ error: 'Erreur lors de la mise a jour du profil.' });
+        next(err);
     }
 };
 
-export const checkUsernameAvailability = async (req, res) => {
+export const checkUsernameAvailability = async (req, res, next) => {
     try {
         const raw = req.query?.username || req.query?.name || '';
         const username = normalizeLoginUsername(raw);
@@ -371,11 +371,11 @@ export const checkUsernameAvailability = async (req, res) => {
         });
     } catch (err) {
         console.error('Erreur checkUsernameAvailability:', err);
-        res.status(500).json({ error: 'Erreur lors de la verification du nom d\'utilisateur.' });
+        next(err);
     }
 };
 
-export const resolveUsernameToEmail = async (req, res) => {
+export const resolveUsernameToEmail = async (req, res, next) => {
     try {
         const raw = req.query?.username || req.query?.name || '';
         const username = normalizeLoginUsername(raw);
@@ -429,11 +429,11 @@ export const resolveUsernameToEmail = async (req, res) => {
 
     } catch (err) {
         console.error('Erreur resolveUsernameToEmail:', err);
-        res.status(500).json({ error: 'Erreur lors de la resolution du nom d\'utilisateur.' });
+        next(err);
     }
 };
 
-export const uploadMyAvatar = async (req, res) => {
+export const uploadMyAvatar = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifie' });
@@ -467,7 +467,7 @@ export const uploadMyAvatar = async (req, res) => {
                 .toBuffer();
         } catch (sharpError) {
             console.error('Erreur lors de la conversion WebP:', sharpError);
-            return res.status(500).json({ error: "Erreur de traitement de l'image." });
+            return next(sharpError);
         }
 
         const mimeType = 'image/webp';
@@ -492,7 +492,7 @@ export const uploadMyAvatar = async (req, res) => {
 
         const publicUrl = publicUrlData?.publicUrl;
         if (!publicUrl) {
-            return res.status(500).json({ error: 'URL publique introuvable.' });
+            return next(sharpError);
         }
 
         const { error: profileError } = await sb
@@ -516,9 +516,6 @@ export const uploadMyAvatar = async (req, res) => {
     } catch (err) {
         console.error('Erreur uploadMyAvatar:', err);
         const debug = process.env.NODE_ENV !== 'production';
-        res.status(500).json({
-            error: 'Erreur lors de l\'upload de l\'avatar.',
-            ...(debug ? { details: err?.message || String(err) } : {})
-        });
+        next(err);
     }
 };

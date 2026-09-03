@@ -19,14 +19,14 @@ async function resolveUserRole(userId, userEmail) {
     return data?.role || 'customer';
 }
 
-export const getPushPublicKey = async (req, res) => {
+export const getPushPublicKey = async (req, res, next) => {
     res.json({
         enabled: WebPushService.isConfigured(),
         publicKey: WebPushService.getPublicKey()
     });
 };
 
-export const subscribeToPush = async (req, res) => {
+export const subscribeToPush = async (req, res, next) => {
     try {
         const userId = req.user?.id || null;
         const userEmail = req.user?.email || null;
@@ -44,11 +44,11 @@ export const subscribeToPush = async (req, res) => {
         res.json({ success: true, subscription: saved });
     } catch (error) {
         console.error('[PushController] subscribeToPush error:', error);
-        res.status(error.status || 500).json({ error: "Impossible d'activer les notifications appareil." });
+        next(error);
     }
 };
 
-export const unsubscribeFromPush = async (req, res) => {
+export const unsubscribeFromPush = async (req, res, next) => {
     try {
         const userId = req.user?.id || null;
         const userEmail = req.user?.email || null;
@@ -63,6 +63,6 @@ export const unsubscribeFromPush = async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('[PushController] unsubscribeFromPush error:', error);
-        res.status(500).json({ error: 'Impossible de desactiver les notifications appareil.' });
+        next(error);
     }
 };

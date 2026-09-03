@@ -12,6 +12,7 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import EmailService from '../services/emailService.js';
 import multer from 'multer';
+import { fileTypeFromBuffer } from 'file-type';
 
 // ─── Multer (mémoire) pour les fichiers RCCM ──────────────────────────────────
 // On garde les fichiers en mémoire puis on les envoie dans Supabase Storage.
@@ -33,7 +34,7 @@ const upload = multer({
 export const uploadRccmDoc = upload.array('rccm_document', MAX_RCCM_FILES);
 
 // ─── 1. Soumission par le vendeur ─────────────────────────────────────────────
-export const submitVerification = async (req, res) => {
+export const submitVerification = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) {
@@ -85,20 +86,29 @@ export const submitVerification = async (req, res) => {
         const documentUrls = [];
 
         for (const file of files) {
-            const fileExt = file.originalname.split('.').pop().toLowerCase();
-            const fileName = `${userId}/rccm_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+            // VERIFICATION STRICTE DES MAGIC BYTES (Spoofing MimeType)
+            const type = await fileTypeFromBuffer(file.buffer);
+            if (!type || !['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(type.mime)) {
+                return res.status(400).json({ error: 'Fichier corrompu ou illégal. Utilisez un format d\'image ou PDF valide.' });
+            }
+
+            // On force l'utilisation de la VRAIE extension et du VRAI mimetype
+            const safeExt = type.ext;
+            const safeMime = type.mime;
+
+            const fileName = `${userId}/rccm_${Date.now()}_${Math.random().toString(36).slice(2)}.${safeExt}`;
 
             const { data: uploadData, error: uploadError } = await client
                 .storage
                 .from('vendor-documents')
                 .upload(fileName, file.buffer, {
-                    contentType: file.mimetype,
+                    contentType: safeMime,
                     upsert: true
                 });
 
             if (uploadError) {
                 console.error('[Verification] Storage upload error:', uploadError);
-                return res.status(500).json({ error: 'Erreur lors de l\'upload du document. Réessayez.' });
+                return next(err);
             }
 
             // Générer l'URL publique signée (valable 10 ans pour consultation admin)
@@ -132,7 +142,7 @@ export const submitVerification = async (req, res) => {
 
         if (updateError) {
             console.error('[Verification] DB update error:', updateError);
-            return res.status(500).json({ error: 'Erreur lors de l\'enregistrement de votre demande.' });
+            return next(err);
         }
 
         // Notification admin (best-effort)
@@ -165,12 +175,12 @@ export const submitVerification = async (req, res) => {
 
     } catch (err) {
         console.error('[Verification] submitVerification error:', err);
-        return res.status(500).json({ error: 'Erreur interne. Réessayez plus tard.' });
+        return next(err);
     }
 };
 
 // ─── 2. Liste des demandes en attente (Admin) ──────────────────────────────────
-export const getPendingVerifications = async (req, res) => {
+export const getPendingVerifications = async (req, res, next) => {
     try {
         const client = supabaseAdmin || supabase;
 
@@ -200,12 +210,12 @@ export const getPendingVerifications = async (req, res) => {
         return res.status(200).json({ success: true, verifications: data || [] });
     } catch (err) {
         console.error('[Verification] getPendingVerifications error:', err);
-        return res.status(500).json({ error: 'Erreur lors de la récupération des demandes.' });
+        return next(err);
     }
 };
 
 // ─── 3. Approbation par l'admin ───────────────────────────────────────────────
-export const approveVerification = async (req, res) => {
+export const approveVerification = async (req, res, next) => {
     try {
         const { id } = req.params;
         const client = supabaseAdmin || supabase;
@@ -260,12 +270,12 @@ export const approveVerification = async (req, res) => {
 
     } catch (err) {
         console.error('[Verification] approveVerification error:', err);
-        return res.status(500).json({ error: 'Erreur lors de l\'approbation.' });
+        return next(err);
     }
 };
 
 // ─── 4. Rejet par l'admin ─────────────────────────────────────────────────────
-export const rejectVerification = async (req, res) => {
+export const rejectVerification = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
@@ -324,12 +334,12 @@ export const rejectVerification = async (req, res) => {
 
     } catch (err) {
         console.error('[Verification] rejectVerification error:', err);
-        return res.status(500).json({ error: 'Erreur lors du refus.' });
+        return next(err);
     }
 };
 
 // ─── 5. Récupération du statut de vérification du vendeur connecté ────────────
-export const getMyVerificationStatus = async (req, res) => {
+export const getMyVerificationStatus = async (req, res, next) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Non autorisé.' });
@@ -347,6 +357,6 @@ export const getMyVerificationStatus = async (req, res) => {
         return res.status(200).json({ success: true, verification: data });
     } catch (err) {
         console.error('[Verification] getMyVerificationStatus error:', err);
-        return res.status(500).json({ error: 'Erreur lors de la récupération du statut.' });
+        return next(err);
     }
 };
