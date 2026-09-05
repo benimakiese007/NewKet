@@ -1876,7 +1876,7 @@ body.mobile-menu-open {
 }
 
 .product-info {
-  padding: var(--card-padding);
+  padding: 16px;
   position: relative;
   z-index: 2;
   flex: 1;

@@ -544,31 +544,41 @@ export const getDisputes = async (req, res, next) => {
 
         let query = supabaseAdmin
             .from('disputes')
-            .select(`
-                *,
-                orders!inner (
-                    id,
-                    total,
-                    total_amount,
-                    platform_commission_amount,
-                    payout_amount,
-                    status,
-                    escrow_status,
-                    escrow_release_at,
-                    delivered_at
-                )
-            `)
+            .select('*')
             .order('created_at', { ascending: false });
 
         if (!admin) {
             query = query.or(`customer_id.eq.${userId},vendor_id.eq.${userId},opened_by.eq.${userId}`);
         }
 
-        const { data, error } = await query;
+        const { data: disputesData, error } = await query;
         if (error) {
             console.error('getDisputes error:', error);
             return next(error);
         }
+
+        // Handle missing foreign key between disputes and orders manually
+        const orderIds = [...new Set((disputesData || []).map(d => d.order_id).filter(Boolean))];
+        let ordersMap = {};
+        if (orderIds.length > 0) {
+            const { data: ordersData, error: ordersError } = await supabaseAdmin
+                .from('orders')
+                .select('id, total, total_amount, platform_commission_amount, payout_amount, status, escrow_status, escrow_release_at, delivered_at')
+                .in('id', orderIds);
+            
+            if (!ordersError && ordersData) {
+                ordersData.forEach(o => {
+                    ordersMap[o.id] = o;
+                });
+            } else if (ordersError) {
+                console.error('getDisputes orders fetch error:', ordersError);
+            }
+        }
+
+        const data = (disputesData || []).map(d => ({
+            ...d,
+            orders: ordersMap[d.order_id] || null
+        })).filter(d => d.orders !== null); // Inner join behavior
 
         return res.status(200).json({ success: true, data: data || [] });
     } catch (error) {

@@ -779,25 +779,9 @@ export function buildProductCardHTML(p, options = {}) {
                 </a>
             </div>
             <div class="product-info">
-                <a href="${shopUrl}" class="product-vendor hover:text-gray-900 transition-colors" style="display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; flex-wrap: wrap; text-decoration: none;">
-                    <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
-                        ${avatar
-                            ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" width="36" height="36" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1;">` 
-                            : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
-                        }
-                    </div>
-                    <span style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
-                        <span>${shopName}</span>
-                        ${vendor?.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 shrink-0" width="12" title="Vendeur Pro"></iconify-icon>' : ''}
-                    </span>
-                </a>
                 <h3 class="product-title">
                     <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
                 </h3>
-                <div class="product-rating">
-                    ${starsHTML}
-                    <span class="rating-count">(${reviewCount})</span>
-                </div>
                 <div class="product-price">
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
                     ${priceMetaHTML}

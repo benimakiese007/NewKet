@@ -96,9 +96,9 @@
     }
   },
   "rewrites": [
-    { "source": "/signup/:code", "destination": "/src/pages/login.html?signup=1&ref=:code" },
+    { "source": "/signup/:code", "destination": "/login?signup=1&ref=:code" },
     { "source": "/api/:path*", "destination": "/api/app?path=:path*" },
-    { "source": "/facture/:orderId", "destination": "/src/pages/invoice-verify.html?order_id=:orderId" },
+    { "source": "/facture/:orderId", "destination": "/invoice-verify?order_id=:orderId" },
     { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
     { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
     { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
