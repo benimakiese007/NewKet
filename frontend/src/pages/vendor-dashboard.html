@@ -4557,16 +4557,16 @@
                     const recentOrders = Array.isArray(stats.orders) ? stats.orders : [];
 
                     // Statuts qui nécessitent une action du VENDEUR
-                    const vendorActionStatuses = ['PENDING', 'PAID_HELD', 'IN_DELIVERY'];
+                    const vendorActionStatuses = ['PENDING', 'PAID_HELD', 'PAID', 'IN_DELIVERY'];
                     const needsActionOrders = recentOrders.filter((o) => vendorActionStatuses.includes(o.status));
 
                     // ── Stat-cards (Improvement 1) ──
                     const statsContainer = document.getElementById('vendor-leads-stats');
                     if (statsContainer && recentOrders.length > 0) {
                         const countByGroup = {
-                            action: recentOrders.filter(o => ['PENDING', 'PAID_HELD', 'IN_DELIVERY'].includes(o.status)).length,
+                            action: recentOrders.filter(o => ['PENDING', 'PAID_HELD', 'PAID', 'IN_DELIVERY'].includes(o.status)).length,
                             awaiting_client: recentOrders.filter(o => ['QUOTE', 'READY_FOR_PAYMENT'].includes(o.status)).length,
-                            delivery: recentOrders.filter(o => ['PAID_HELD', 'IN_DELIVERY'].includes(o.status)).length,
+                            delivery: recentOrders.filter(o => ['PAID_HELD', 'PAID', 'IN_DELIVERY'].includes(o.status)).length,
                             done: recentOrders.filter(o => ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status)).length,
                             disputed: recentOrders.filter(o => ['DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(o.status)).length,
                         };
@@ -4646,7 +4646,7 @@
                     } else if (filterMode === 'awaiting_client') {
                         shownOrders = recentOrders.filter(o => ['QUOTE', 'READY_FOR_PAYMENT'].includes(o.status));
                     } else if (filterMode === 'delivery') {
-                        shownOrders = recentOrders.filter(o => ['PAID_HELD', 'IN_DELIVERY'].includes(o.status));
+                        shownOrders = recentOrders.filter(o => ['PAID_HELD', 'PAID', 'IN_DELIVERY'].includes(o.status));
                     } else if (filterMode === 'done') {
                         shownOrders = recentOrders.filter(o => ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status));
                     } else if (filterMode === 'disputed') {
@@ -4760,7 +4760,7 @@
                             { key: 'IN_DELIVERY', label: 'Livraison' },
                             { key: 'DELIVERED', label: 'Terminé' },
                         ];
-                        const statusOrder = ['PENDING', 'QUOTE', 'READY_FOR_PAYMENT', 'PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'RELEASED'];
+                        const statusOrder = ['PENDING', 'QUOTE', 'READY_FOR_PAYMENT', 'PAID_HELD', 'PAID', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'RELEASED'];
                         const currentIdx = statusOrder.indexOf(o.status);
                         const isCancelled = ['CANCELLED', 'REFUNDED', 'DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(o.status);
                         const isDone = ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status);
@@ -4774,7 +4774,7 @@
                             } else if (isDone || currentIdx >= stageIdx) {
                                 dotCls = 'bg-emerald-500 text-white';
                                 barCls = 'bg-emerald-500';
-                            } else if (currentIdx === stageIdx - 1) {
+                            } else if (currentIdx === stageIdx - 1 || (o.status === 'PAID' && s.key === 'IN_DELIVERY')) {
                                 dotCls = 'bg-amber-400 text-white animate-pulse';
                             }
                             const barEl = si > 0 ? '<div class="h-0.5 flex-1 ' + barCls + ' rounded-full transition-all"></div>' : '';
@@ -4789,7 +4789,7 @@
                             quickActionHTML = '<button onclick="event.stopPropagation(); openOrderDetailModal(\'' + o.id + '\')" class="px-3 py-1.5 bg-orange-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all whitespace-nowrap shadow-sm">Modifier devis</button>';
                         } else if (o.status === 'READY_FOR_PAYMENT') {
                             quickActionHTML = '<span class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap border border-indigo-100"><iconify-icon icon="solar:clock-circle-bold" width="12" class="mr-1"></iconify-icon>Attente client</span>';
-                        } else if (o.status === 'PAID_HELD') {
+                        } else if (o.status === 'PAID_HELD' || o.status === 'PAID') {
                             quickActionHTML = '<button onclick="event.stopPropagation(); openOrderDetailModal(\'' + o.id + '\')" class="px-3 py-1.5 bg-purple-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-purple-700 transition-all whitespace-nowrap shadow-sm">D&eacute;marrer livraison</button>';
                         } else if (o.status === 'IN_DELIVERY') {
                             quickActionHTML = '<button onclick="event.stopPropagation(); openOrderDetailModal(\'' + o.id + '\')" class="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all whitespace-nowrap shadow-sm">Saisir OTP</button>';
@@ -4801,7 +4801,7 @@
                         const srcsetAttr = window.buildResponsiveImageSrcSet ? ' srcset="' + window.buildResponsiveImageSrcSet(productImg, [120, 180, 240], { quality: 75 }) + '" sizes="64px"' : '';
 
                     // Déterminer si c'est au VENDEUR d'agir sur cette commande
-                    const isVendorTurn = ['PENDING', 'PAID_HELD', 'IN_DELIVERY'].includes(o.status);
+                    const isVendorTurn = ['PENDING', 'PAID_HELD', 'PAID', 'IN_DELIVERY'].includes(o.status);
                     const vendorTurnBadge = isVendorTurn
                         ? `<span class="nk-your-turn-btn" onclick="event.stopPropagation(); openOrderDetailModal('${o.id}')">
                                <span class="nk-your-turn-dot"></span>
@@ -5018,7 +5018,7 @@
                         document.getElementById('btnMarkDelivered').onclick = () => showInlineMessage('order-modal-feedback', 'Le client doit maintenant accepter le devis et payer.', 'warning');
                         document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'CANCELLED');
                         document.getElementById('btnMarkCancelled').textContent = 'Annuler la demande';
-                    } else if (order.status === 'PAID_HELD') {
+                    } else if (order.status === 'PAID_HELD' || order.status === 'PAID') {
                         actions.classList.remove('hidden');
                         standardActions.classList.remove('hidden');
                         document.getElementById('btnMarkDelivered').innerHTML = `<iconify-icon icon="solar:delivery-bold" width="16"></iconify-icon>Démarrer la livraison`;

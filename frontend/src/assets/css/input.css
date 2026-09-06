@@ -22,4 +22,21 @@
     -webkit-touch-callout: none !important; /* Disable long-press popup on iOS */
     -webkit-user-select: none !important;   /* Safari */
     user-select: none !important;           /* Standard */
-}
+}
+@layer utilities {
+  .grid-fluid-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  @media (min-width: 640px) {
+    .grid-fluid-products {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid-fluid-products {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+  }
+}
+

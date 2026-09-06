@@ -583,7 +583,7 @@ const OrderManager = {
     async startDelivery(orderId, payload = {}) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
-            const data = await ApiClient.post(`/orders/${orderId}/start-delivery`, payload);
+            const data = await ApiClient.post(`/orders/${orderId}/start-delivery`, payload, { suppressToast: true });
             this._initialized = false;
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;

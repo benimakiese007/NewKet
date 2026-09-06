@@ -214,7 +214,7 @@
     <!-- The header component handles its own spacing if needed -->
 
     <!-- ========== PRODUITS SPONSORISÉS ========== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-12 md:mb-16" id="pinnedSection">
+    <section class="w-full w-full px-4 sm:px-8 lg:px-12 mb-12 md:mb-16" id="pinnedSection">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center">
                 <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Produits Sponsorisés</h2>
@@ -224,7 +224,7 @@
                 Voir tout <iconify-icon icon="solar:arrow-right-linear" width="16" class="transition-transform group-hover:translate-x-1"></iconify-icon>
             </a>
         </div>
-        <div class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" id="pinnedProductGrid">
+        <div class="product-grid grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4" id="pinnedProductGrid">
             <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div class="skeleton skeleton-text" style="width:30%"></div><div class="skeleton skeleton-text" style="width:50%"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-button"></div></div>
             <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div class="skeleton skeleton-text" style="width:30%"></div><div class="skeleton skeleton-text" style="width:50%"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-button"></div></div>
             <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div class="skeleton skeleton-text" style="width:30%"></div><div class="skeleton skeleton-text" style="width:50%"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-button"></div></div>
@@ -242,7 +242,7 @@
 
         <div class="absolute inset-0 bg-black/50 backdrop-blur-[4px] z-[1]"></div>
         
-        <div class="relative max-w-7xl mx-auto px-6 sm:px-10 py-16 sm:py-24 lg:py-32 flex flex-col lg:flex-row items-center gap-12 z-10">
+        <div class="relative w-full max-w-screen-2xl mx-auto px-6 sm:px-10 py-16 sm:py-24 lg:py-32 flex flex-col lg:flex-row items-center gap-12 z-10">
             <div class="flex-1 text-center lg:text-left drop-shadow-xl">
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
                     <span id="heroTitleLine1">SUBTILE</span> <br><span id="heroTitleLine2" class="text-gray-300">ÉLÉGANCE.</span>
@@ -289,7 +289,7 @@
 
     <!-- ========== FEATURES SECTION — Infinite Marquee ========== -->
     <!-- SVG inline = aucune dépendance JS, icônes garanties, zéro interaction -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-16 marquee-wrapper" style="cursor:default;">
+    <section class="w-full w-full px-4 sm:px-8 lg:px-12 mt-16 mb-16 marquee-wrapper" style="cursor:default;">
         <div class="marquee-track py-4">
 
             <!-- ===== HALF 1 ===== -->
@@ -397,7 +397,7 @@
 
 
     <!-- ========== TOUS LES PRODUITS + FILTRE ========== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-12 md:mt-16 mb-12 md:mb-16">
+    <section class="w-full w-full px-4 sm:px-8 lg:px-12 mt-12 md:mt-16 mb-12 md:mb-16">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900">Tous les produits</h2>
                 <div class="flex flex-wrap items-center gap-2" id="filterBar">
@@ -426,7 +426,7 @@
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" id="allProductGrid">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4" id="allProductGrid">
             <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div class="skeleton skeleton-text" style="width:30%"></div><div class="skeleton skeleton-text" style="width:50%"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-button"></div></div>
             <div class="skeleton-card"><div class="skeleton skeleton-image"></div><div class="skeleton skeleton-text" style="width:30%"></div><div class="skeleton skeleton-text" style="width:50%"></div><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:40%"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-button"></div></div>
             <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width:30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width:50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width:40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
@@ -447,7 +447,7 @@
 
     <!-- Recently Viewed -->
     <section id="recently-viewed-section" class="py-12 bg-white border-t border-gray-50" style="display:none;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="w-full w-full px-4 sm:px-8 lg:px-12">
             <div class="flex items-center justify-between mb-10">
                 <h2 class="text-2xl font-bold uppercase tracking-tighter">Continuer vos recherches</h2>
             </div>
