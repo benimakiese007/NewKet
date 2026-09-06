@@ -703,11 +703,12 @@ export const verifyInvoice = async (req, res, next) => {
 
         const { data: order, error } = await client
             .from('orders')
-            .select('id, date, status, payment_status, total, total_amount, subtotal_amount, merchandise_amount, delivery_fee_amount, promo_discount_amount, final_total_amount, items, customer_name, customer_email, vendor_name, vendor_email, vendor_company_name, vendor_id, user_id, customer_id, transaction_id, payment_locked_at, updated_at')
+            .select('id, created_at, status, payment_status, total, total_amount, subtotal_amount, merchandise_amount, delivery_fee_amount, promo_discount_amount, final_total_amount, items, customer_name, customer_email, vendor_id, user_id, customer_id, transaction_id, payment_locked_at, updated_at')
             .eq('id', orderId)
             .maybeSingle();
 
         if (error || !order) {
+            console.error('[verifyInvoice] Supabase error:', error?.message, '| order:', order, '| orderId:', orderId);
             return res.status(404).json({ error: 'Commande introuvable.' });
         }
 
@@ -720,7 +721,7 @@ export const verifyInvoice = async (req, res, next) => {
             ok: true,
             order: {
                 id: order.id,
-                date: order.date,
+                date: order.created_at,
                 status: order.status,
                 payment_status: order.payment_status,
                 total: amounts.total,
