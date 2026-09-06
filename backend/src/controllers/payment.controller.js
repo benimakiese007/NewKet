@@ -703,7 +703,7 @@ export const verifyInvoice = async (req, res, next) => {
 
         const { data: order, error } = await client
             .from('orders')
-            .select('id, date, status, payment_status, total, total_amount, subtotal_amount, merchandise_amount, delivery_fee_amount, promo_discount_amount, final_total_amount, items, customer_name, customer_email, vendor_name, vendor_email, vendor_company_name, vendor_id, user_id, customer_id, payment_provider_tx_id, transaction_id, payment_locked_at, updated_at')
+            .select('id, date, status, payment_status, total, total_amount, subtotal_amount, merchandise_amount, delivery_fee_amount, promo_discount_amount, final_total_amount, items, customer_name, customer_email, vendor_name, vendor_email, vendor_company_name, vendor_id, user_id, customer_id, transaction_id, payment_locked_at, updated_at')
             .eq('id', orderId)
             .maybeSingle();
 
