@@ -715,10 +715,10 @@ export const verifyInvoice = async (req, res, next) => {
         // Récupérer vendeur et acheteur en parallèle depuis la table users
         const [vendorRes, buyerRes] = await Promise.all([
             order.vendor_id
-                ? client.from('users').select('name, company_name, shop_slug').eq('id', order.vendor_id).maybeSingle()
+                ? client.from('users').select('name, company_name, shop_slug, username').eq('id', order.vendor_id).maybeSingle()
                 : Promise.resolve({ data: null }),
             order.customer_id
-                ? client.from('users').select('name, shop_slug').eq('id', order.customer_id).maybeSingle()
+                ? client.from('users').select('name, shop_slug, username').eq('id', order.customer_id).maybeSingle()
                 : Promise.resolve({ data: null })
         ]);
 
@@ -726,10 +726,10 @@ export const verifyInvoice = async (req, res, next) => {
         const buyerUser = buyerRes.data;
 
         const vendorDisplayName = vendorUser?.company_name || vendorUser?.name || order.customer_name || 'Vendeur NewKet';
-        const vendorUsername = vendorUser?.shop_slug ? `@${vendorUser.shop_slug}` : null;
+        const vendorUsername = vendorUser?.username ? `@${vendorUser.username}` : (vendorUser?.shop_slug ? `@${vendorUser.shop_slug}` : null);
 
         const buyerDisplayName = buyerUser?.name || order.customer_name || 'Acheteur';
-        const buyerUsername = buyerUser?.shop_slug ? `@${buyerUser.shop_slug}` : null;
+        const buyerUsername = buyerUser?.username ? `@${buyerUser.username}` : (buyerUser?.shop_slug ? `@${buyerUser.shop_slug}` : null);
 
         order.status = mapLegacyOrderStatus(order.status);
         const amounts = getOrderAmountSummary(order);
