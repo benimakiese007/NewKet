@@ -158,6 +158,16 @@ export default defineConfig({
               const url = new URL(originalUrl, 'http://localhost');
               url.searchParams.set('shop', slug);
               req.url = `/src/pages/shop.html?${url.searchParams.toString()}`;
+              return next();
+            }
+
+            // /facture/:orderId → invoice-verify (miroir du rewrite Vercel)
+            const factureMatch = originalUrl.match(/^\/facture\/([^/?#]+)(?:\?.*)?$/i);
+            if (factureMatch) {
+              const url = new URL(originalUrl, 'http://localhost');
+              url.searchParams.set('order_id', factureMatch[1]);
+              req.url = `/src/pages/invoice-verify.html?${url.searchParams.toString()}`;
+              return next();
             }
           } catch {
           }
