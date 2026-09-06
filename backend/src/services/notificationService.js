@@ -446,7 +446,19 @@ const NotificationService = {
 
         const releaseAt = order.escrow_release_at
             ? new Date(order.escrow_release_at).toLocaleString('fr-FR', { timeZone: 'Africa/Kinshasa' })
-            : 'dans 24h';
+            : null;
+
+        // Calculer le délai réel en heures à partir de escrow_release_at et delivered_at
+        let escrowHours = 24; // fallback
+        if (order.escrow_release_at && order.delivered_at) {
+            const diffMs = new Date(order.escrow_release_at).getTime() - new Date(order.delivered_at).getTime();
+            const computed = Math.round(diffMs / (1000 * 60 * 60));
+            if (computed > 0) escrowHours = computed;
+        }
+        const escrowLabel = escrowHours >= 24
+            ? `${escrowHours / 24 === Math.floor(escrowHours / 24) ? `${escrowHours / 24} jour(s)` : `${escrowHours}h`}`
+            : `${escrowHours}h`;
+
         const customerName = order.customer_name || 'Client';
         const nowIso = new Date().toISOString();
         const customerId = order.user_id || order.customer_id || null;
@@ -459,7 +471,7 @@ const NotificationService = {
                     ...(customerId ? { user_id: customerId } : {}),
                     user_email: order.customer_email,
                     title: 'Votre delai de verification demarre',
-                    message: 'Vous avez 24h pour verifier votre commande et signaler un probleme si necessaire.',
+                    message: `Vous avez ${escrowLabel} pour verifier votre commande et signaler un probleme si necessaire.`,
                     type: 'info',
                     target_role: 'customer',
                     read: false,
@@ -468,15 +480,15 @@ const NotificationService = {
 
                 EmailService.sendMail({
                     to: order.customer_email,
-                    subject: 'Livraison confirmee - Verifiez votre commande dans les 24h',
+                    subject: `Livraison confirmee - Verifiez votre commande dans les ${escrowLabel}`,
                     html: `
                         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
                             <h2 style="color: #111827;">Livraison confirmee</h2>
                             <p>Bonjour <b>${customerName}</b>,</p>
                             <p>Votre commande a ete livree et le code de livraison a ete valide.</p>
                             <div style="background: #fffbeb; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-                                <p style="margin: 0; font-weight: bold;">Delai de verification : 24 heures</p>
-                                <p style="margin: 8px 0 0; color: #92400e;">Envoi automatique prevu le : <b>${releaseAt}</b></p>
+                                <p style="margin: 0; font-weight: bold;">Delai de verification : ${escrowLabel}</p>
+                                ${releaseAt ? `<p style="margin: 8px 0 0; color: #92400e;">Envoi automatique prevu le : <b>${releaseAt}</b></p>` : ''}
                             </div>
                             <p>Pendant ce delai, verifiez soigneusement votre produit :</p>
                             <ul>
@@ -484,7 +496,7 @@ const NotificationService = {
                                 <li>Probleme constate -> signalez-le depuis votre espace client</li>
                             </ul>
                             <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
-                                <strong>Important :</strong> Passe ce delai de 24h sans action de votre part, le paiement sera automatiquement envoye au vendeur.
+                                <strong>Important :</strong> Passe ce delai de ${escrowLabel} sans action de votre part, le paiement sera automatiquement envoye au vendeur.
                             </div>
                             <div style="text-align: center; margin-top: 30px;">
                                 <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Voir ma commande</a>
@@ -507,7 +519,7 @@ const NotificationService = {
                         user_id: vendor.id,
                         user_email: vendor.email,
                         title: 'Delai de verification demarre',
-                        message: "La commande a ete livree. Le paiement sera envoye automatiquement dans 24h si aucun probleme n'est signale.",
+                        message: `La commande a ete livree. Le paiement sera envoye automatiquement dans ${escrowLabel} si aucun probleme n'est signale.`,
                         type: 'info',
                         target_role: 'supplier',
                         read: false,
@@ -519,6 +531,7 @@ const NotificationService = {
             console.error('[NotificationService] notifyEscrowTimerStarted vendor error:', err);
         }
     },
+
 
     /**
      * T+12h - Reminder midway through the review period.

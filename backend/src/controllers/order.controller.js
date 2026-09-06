@@ -424,10 +424,11 @@ export const getOrders = async (req, res, next) => {
         return res.status(200).json((data || []).map((order) => {
             const isVendor = order.vendor_id === req.user?.id;
             const isAdmin = isAdminActor(req.user);
-            // Sécurité : l'OTP ne doit jamais être exposé à l'acheteur
+            // Sécurité : l'OTP ne doit jamais être exposé au vendeur (c'est l'acheteur qui doit le lui donner)
             const { otp_code, ...orderWithoutOtp } = order;
+            const isCustomer = !isVendor && !isAdmin;
             return {
-                ...(isVendor || isAdmin ? order : orderWithoutOtp),
+                ...(isCustomer || isAdmin ? order : orderWithoutOtp),
                 vendor: vendorsById.get(order.vendor_id) || null,
                 customer: customersById.get(order.customer_id || order.user_id) || null,
                 status: mapLegacyOrderStatus(order.status),

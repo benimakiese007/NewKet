@@ -7354,12 +7354,10 @@ function openOrderModal(id) {
         function formatReleaseCountdown(diffMs) {
             const ms = Math.max(0, Number(diffMs || 0));
             const totalSeconds = Math.floor(ms / 1000);
-            const days = Math.floor(totalSeconds / 86400);
-            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
 
-            if (days > 0) return `${days}j ${hours}h`;
             if (hours > 0) return `${hours}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
             return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
         }
