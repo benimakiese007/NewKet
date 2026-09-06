@@ -155,7 +155,10 @@
 
     <script type="module">
         const params = new URLSearchParams(window.location.search);
-        const orderId = params.get('order_id') || '';
+        // Vercel rewrite transparent : le navigateur voit /facture/:orderId
+        // → extraire l'id depuis le chemin en priorité, fallback sur query param
+        const pathMatch = window.location.pathname.match(/\/facture\/([^/?#]+)/i);
+        const orderId = pathMatch ? pathMatch[1] : (params.get('order_id') || '');
         const invoiceRef = params.get('invoice_ref') || '';
 
         const loadingState = document.getElementById('loadingState');
