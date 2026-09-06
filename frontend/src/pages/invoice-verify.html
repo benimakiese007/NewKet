@@ -91,6 +91,12 @@
                             <div class="rounded-3xl border border-gray-100 bg-white p-5">
                                 <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Vendeur</div>
                                 <div id="vendorName" class="mt-2 text-xl font-black text-gray-900"></div>
+                                <div id="vendorUsername" class="mt-0.5 text-xs font-bold text-emerald-600"></div>
+                            </div>
+                            <div class="rounded-3xl border border-gray-100 bg-white p-5">
+                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Acheteur</div>
+                                <div id="buyerName" class="mt-2 text-xl font-black text-gray-900"></div>
+                                <div id="buyerUsername" class="mt-0.5 text-xs font-bold text-gray-500"></div>
                             </div>
                             <div class="rounded-3xl border border-gray-100 bg-white p-5">
                                 <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Statut</div>
@@ -217,6 +223,12 @@
             document.getElementById('invoiceReference').textContent = data.invoice_reference || '—';
             document.getElementById('orderId').textContent = `#${data.order?.id || orderId}`;
             document.getElementById('vendorName').textContent = data.order?.vendor_name || 'Vendeur NewKet';
+            const vendorUsernameEl = document.getElementById('vendorUsername');
+            if (vendorUsernameEl) vendorUsernameEl.textContent = data.order?.vendor_username || '';
+            const buyerNameEl = document.getElementById('buyerName');
+            if (buyerNameEl) buyerNameEl.textContent = data.order?.buyer_name || '—';
+            const buyerUsernameEl = document.getElementById('buyerUsername');
+            if (buyerUsernameEl) buyerUsernameEl.textContent = data.order?.buyer_username || '';
             document.getElementById('subtotalValue').textContent = formatAmount(data.order?.subtotal);
             document.getElementById('deliveryValue').textContent = Number(data.order?.delivery_fee || 0) > 0 ? formatAmount(data.order.delivery_fee) : 'Gratuit';
             document.getElementById('discountValue').textContent = Number(data.order?.discount || 0) > 0 ? `- ${formatAmount(data.order.discount)}` : '0 FC';
