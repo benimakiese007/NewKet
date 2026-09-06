@@ -1281,6 +1281,8 @@
                     if (frame.dataset.currentView !== targetView || frame.getAttribute('src') !== nextSrc) {
                         setFrameLoading(true, targetView);
                         frame.dataset.currentView = targetView;
+                        // Reset height so it can shrink if the new page is shorter
+                        frame.style.height = '60vh';
                         frame.setAttribute('src', nextSrc);
                     }
                 } else if (window.newketInitialized) {

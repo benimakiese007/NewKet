@@ -321,12 +321,17 @@ const AdminLayout = {
 
         const postMetrics = () => {
             try {
+                const shell = document.querySelector('.admin-shell');
                 const main = document.querySelector('.admin-shell > main');
+                
+                // Use the content's actual height to allow the iframe to shrink.
+                // document.body.scrollHeight gets stuck to the iframe's max height.
                 const height = Math.max(
-                    main?.scrollHeight || 0,
-                    document.body.scrollHeight || 0,
-                    document.documentElement.scrollHeight || 0
-                );
+                    shell?.offsetHeight || 0,
+                    main?.offsetHeight || 0,
+                    document.getElementById('adminOverviewPanel')?.offsetHeight || 0
+                ) + 40; // add a little padding buffer
+
                 window.parent?.postMessage({
                     type: 'newket-admin-embed-metrics',
                     view: this.getCurrentShellView(),
