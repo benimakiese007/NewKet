@@ -20,7 +20,8 @@ const ASSETS_TO_CACHE = [
     '/Images/Logo NewKet PNG-192.png',
     '/favicon-16x16.png',
     '/favicon-32x32.png',
-    '/favicon.ico'
+    '/favicon.ico',
+    '/offline.html'
 ];
 
 // Install Event
@@ -106,10 +107,11 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     const method = event.request.method;
 
-    // Fix: Disable SW intercept for localhost during development to avoid "ghost" version
-    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-        return;
-    }
+    // (L'interception sur localhost a été réactivée pour tester la PWA. 
+    // Si tu as des soucis de cache en dev, coche "Désactiver le cache" dans le Network tab)
+    // if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    //     return;
+    // }
 
     // Never proxy third-party assets through the service worker.
     // This avoids CSP connect-src failures for Google Fonts, Google avatars,
@@ -152,7 +154,7 @@ self.addEventListener('fetch', (event) => {
                     if (url.pathname === '/' || url.pathname.includes('index.html')) {
                         return caches.match('/index.html');
                     }
-                    return new Response('Offline: Page unavailable.', { status: 503, statusText: 'Service Unavailable' });
+                    return caches.match('/offline.html');
                 });
             })
         );
