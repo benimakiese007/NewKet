@@ -1,12 +1,16 @@
 {
+  "id": "/",
   "name": "NewKet – Marketplace Moderne",
   "short_name": "NewKet",
   "description": "L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe.",
+  "lang": "fr",
   "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#064734",
   "orientation": "portrait",
+  "prefer_related_applications": false,
   "categories": [
     "shopping",
     "lifestyle",
@@ -39,3 +43,4 @@
     }
   ]
 }
+
