@@ -5599,9 +5599,36 @@
                     errorEl.classList.add('hidden');
                     btn.disabled = true;
                     const originalText = btn.innerHTML;
-                    btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi...';
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Vérification...';
 
                     try {
+                        // --- DÉBUT BARRIÈRE DE SÉCURITÉ (Biométrie / Écran de verrouillage) ---
+                        if (window.PublicKeyCredential && navigator.credentials && navigator.credentials.get) {
+                            try {
+                                const challenge = new Uint8Array(32);
+                                window.crypto.getRandomValues(challenge);
+                                
+                                await navigator.credentials.get({
+                                    publicKey: {
+                                        challenge: challenge,
+                                        rpId: window.location.hostname,
+                                        userVerification: "required",
+                                        timeout: 60000,
+                                        allowCredentials: []
+                                    }
+                                });
+                            } catch (authErr) {
+                                console.warn("Vérification locale:", authErr);
+                                if (authErr.name === 'NotAllowedError' || authErr.name === 'SecurityError') {
+                                    throw new Error("Vérification d'identité refusée ou annulée.");
+                                }
+                                // Fallback passif si le navigateur ne gère pas les requêtes vides
+                            }
+                        }
+                        // --- FIN BARRIÈRE DE SÉCURITÉ ---
+                        
+                        btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi de l\'email...';
+
                         const { data: session } = await window.supabaseClient.auth.getSession();
                         const token = session?.session?.access_token;
                         if (!token) throw new Error("Non authentifié");
@@ -7223,13 +7250,16 @@ function openOrderModal(id) {
                 const updateReleaseCountdown = () => {
                     const now = new Date();
                     const diffMs = releaseAt && !Number.isNaN(releaseAt.getTime()) ? releaseAt.getTime() - now.getTime() : null;
+                    const totalHours = (order.delivered_at && releaseAt && !Number.isNaN(releaseAt.getTime())) 
+                        ? Math.round((releaseAt.getTime() - new Date(order.delivered_at).getTime()) / (1000 * 60 * 60)) 
+                        : 72;
                     if (releaseCountdown) {
                         releaseCountdown.textContent = diffMs === null ? 'Délai à définir' : formatReleaseCountdown(diffMs);
                     }
                     if (releaseDelayHint) {
                         releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
                             ? (diffMs > 0
-                                ? `Libération automatique sous 24h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                ? `Libération automatique sous ${totalHours}h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
                                 : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
                             : 'La libération automatique sera affichée dès que le délai sera enregistré.';
                     }

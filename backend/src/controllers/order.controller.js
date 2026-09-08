@@ -883,7 +883,7 @@ export const verifyDelivery = async (req, res, next) => {
         }
 
         const nowIso = new Date().toISOString();
-        let escrowTimerHours = 24; // Default
+        let escrowTimerHours = 72; // Default
         
         if (order.items && order.items.length > 0) {
             const productId = order.items[0].product_id;

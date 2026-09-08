@@ -3670,13 +3670,16 @@
                 const updateReleaseCountdown = () => {
                     const now = new Date();
                     const diffMs = releaseAt && !Number.isNaN(releaseAt.getTime()) ? releaseAt.getTime() - now.getTime() : null;
+                    const totalHours = (order.delivered_at && releaseAt && !Number.isNaN(releaseAt.getTime())) 
+                        ? Math.round((releaseAt.getTime() - new Date(order.delivered_at).getTime()) / (1000 * 60 * 60)) 
+                        : 72;
                     if (releaseCountdown) {
                         releaseCountdown.textContent = diffMs === null ? 'Délai à définir' : formatReleaseCountdown(diffMs);
                     }
                     if (releaseDelayHint) {
                         releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
                             ? (diffMs > 0
-                                ? `Libération automatique sous 24h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                ? `Libération automatique sous ${totalHours}h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
                                 : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
                             : 'La libération automatique sera affichée dès que le délai sera enregistré.';
                     }
