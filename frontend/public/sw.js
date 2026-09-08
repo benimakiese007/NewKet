@@ -21,6 +21,7 @@ const ASSETS_TO_CACHE = [
     '/favicon-16x16.png',
     '/favicon-32x32.png',
     '/favicon.ico',
+    '/offline',
     '/offline.html'
 ];
 
@@ -154,7 +155,7 @@ self.addEventListener('fetch', (event) => {
                     if (url.pathname === '/' || url.pathname.includes('index.html')) {
                         return caches.match('/index.html');
                     }
-                    return caches.match('/offline.html');
+                    return caches.match('/offline').then(off => off || caches.match('/offline.html'));
                 });
             })
         );

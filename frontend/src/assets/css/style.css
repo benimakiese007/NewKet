@@ -1996,6 +1996,10 @@ body.mobile-menu-open {
   line-height: 1.4;
   color: var(--secondary-color);
   transition: color 0.3s ease;
+  /* Truncate long titles to 1 line with ellipsis on all screen sizes */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-title a {
