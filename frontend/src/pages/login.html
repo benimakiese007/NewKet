@@ -1302,6 +1302,20 @@
                         localStorage.removeItem(rememberedLoginKey);
                     }
 
+                    // Force the browser to prompt "Save Password" on mobile
+                    if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+                        try {
+                            const cred = new window.PasswordCredential({
+                                id: resolvedLoginEmail,
+                                password: password,
+                                name: resolvedLoginEmail
+                            });
+                            await navigator.credentials.store(cred);
+                        } catch (err) {
+                            console.warn("Credential save skipped:", err);
+                        }
+                    }
+
                     // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
                     // but we can also trigger it manually for speed if needed.
                     // Connexion réussie, redirection silencieuse

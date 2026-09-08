@@ -20,13 +20,18 @@
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.css" />
+    <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.js"></script>
     <script type="module" src="/src/services/config-manager.js"></script>
     <style>
         :root {
             --premium-black: #0a0a0a;
             --premium-gray: #f8f9fa;
+        }
+
+        /* Hide on touch screens (mobile & tablet), show only on mouse devices */
+        @media (hover: none), (pointer: coarse) {
+            .hidden-on-touch { display: none !important; }
         }
 
         * {
@@ -846,15 +851,45 @@
                     const displaySrc = typeof src === 'string' && src.includes('||') ? src.split('||')[0] : src;
                     return `
                     <div class="relative flex-shrink-0 w-44 h-44 rounded-[2rem] border border-gray-100 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-emerald-300">
-                        <img loading="lazy" src="${displaySrc}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <img loading="lazy" src="${displaySrc}" onclick="window.zoomImage(${index})" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 cursor-zoom-in">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                         <button type="button" onclick="window.removeImage(${index})" 
                             class="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-red-500 rounded-xl w-11 h-11 flex items-center justify-center shadow-lg border border-white/50 opacity-0 group-hover:opacity-100 hover:scale-110 hover:bg-red-50 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
                             <iconify-icon icon="solar:trash-bin-trash-bold-duotone" width="24"></iconify-icon>
                         </button>
-                        ${index === 0 ? '<span class="absolute bottom-4 left-4 px-3 py-1.5 bg-indigo-600 text-[8px] font-black text-white rounded-lg uppercase tracking-[0.2em] shadow-lg">Image Principale</span>' : ''}
+                        ${index === 0 ? '<span class="absolute bottom-4 left-4 px-3 py-1.5 bg-indigo-600 text-[8px] font-black text-white rounded-lg uppercase tracking-[0.2em] shadow-lg pointer-events-none">Image Principale</span>' : ''}
                     </div>
                 `}).join('');
+                
+                if (!window.zoomImageAttached) {
+                    window.zoomImage = function(index) {
+                        const src = selectedProductImages[index];
+                        const displaySrc = typeof src === 'string' && src.includes('||') ? src.split('||')[0] : src;
+                        const modal = document.getElementById('imageZoomModal');
+                        const img = document.getElementById('imageZoomImg');
+                        img.src = displaySrc;
+                        modal.classList.remove('hidden');
+                        // Small delay to trigger CSS transition
+                        setTimeout(() => {
+                            modal.classList.remove('opacity-0');
+                            img.classList.remove('scale-95');
+                            img.classList.add('scale-100');
+                        }, 10);
+                    };
+
+                    window.closeImageZoom = function() {
+                        const modal = document.getElementById('imageZoomModal');
+                        const img = document.getElementById('imageZoomImg');
+                        modal.classList.add('opacity-0');
+                        img.classList.remove('scale-100');
+                        img.classList.add('scale-95');
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                            img.src = '';
+                        }, 300);
+                    };
+                    window.zoomImageAttached = true;
+                }
 
                 if (selectedProductImages.length < 10) {
                     const addButton = document.createElement('div');
@@ -1022,7 +1057,7 @@
                     if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
                         for (let i = 0; i < selectedFileBlobs.length; i++) {
                             const file = selectedFileBlobs[i];
-                            const fileName = `${Date.now()}_${i}.${file.name.split('.').pop()}`;
+                            const fileName = `${Date.now()}_${i}.${file.name?.split('.').pop() ?? 'jpeg'}`;
                             if (typeof SupabaseAdapter.uploadImageBundle === 'function') {
                                 const bundle = await SupabaseAdapter.uploadImageBundle('product-images', fileName, file);
                                 if (bundle?.compositeUrl) {
@@ -1534,6 +1569,16 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     MODAL DE ZOOM IMAGE (LIGHTBOX)
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="imageZoomModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md hidden transition-opacity duration-300 opacity-0" style="padding: 2rem;">
+    <button type="button" onclick="closeImageZoom()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all backdrop-blur-md">
+        <iconify-icon icon="solar:close-circle-bold" width="28"></iconify-icon>
+    </button>
+    <img id="imageZoomImg" src="" class="max-w-full max-h-full rounded-xl shadow-2xl object-contain transform scale-95 transition-transform duration-300" alt="Zoom">
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
      MODAL DE RECADRAGE D'IMAGE — Cropper.js 1:1
      ═══════════════════════════════════════════════════════════════ -->
 <div id="cropperModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm hidden" style="padding: 1rem;">
@@ -1555,6 +1600,23 @@ document.addEventListener('DOMContentLoaded', () => {
         <!-- Cropper area -->
         <div class="flex-1 overflow-hidden bg-gray-50" style="min-height: 300px; max-height: 50vh;">
             <img id="cropperImage" src="" alt="Recadrage" style="display:block; max-width:100%;">
+        </div>
+
+        <!-- Zoom controls — PC only (hidden on touch screens) -->
+        <div id="cropperZoomControls" class="hidden-on-touch flex items-center justify-center gap-3 px-6 py-3 border-t border-gray-50 bg-gray-50/50">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Zoom</span>
+            <button type="button" id="cropperZoomOut"
+                class="w-9 h-9 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-all font-black text-lg leading-none"
+                title="Dézoomer">−</button>
+            <div id="cropperZoomBar" class="flex-1 max-w-[100px] h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div id="cropperZoomFill" class="h-full bg-black rounded-full transition-all" style="width: 50%"></div>
+            </div>
+            <button type="button" id="cropperZoomIn"
+                class="w-9 h-9 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:border-gray-300 transition-all font-black text-lg leading-none"
+                title="Zoomer">+</button>
+            <span class="text-[9px] text-gray-300 font-medium ml-1 flex items-center gap-1">
+                <iconify-icon icon="solar:mouse-linear" width="12"></iconify-icon> molette aussi
+            </span>
         </div>
 
         <!-- Footer buttons -->
@@ -1595,26 +1657,47 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set onload BEFORE src to avoid race condition
         img.onload = function () {
             cropperInstance = new Cropper(img, {
-                aspectRatio: 1,         // Force 1:1 square
-                viewMode: 1,            // Can't move crop box outside image
-                dragMode: 'move',       // User moves the image, not the box
-                autoCropArea: 0.9,      // Start with 90% of the image selected
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.9,
                 responsive: true,
                 restore: false,
                 guides: true,
                 center: true,
                 highlight: false,
-                cropBoxMovable: false,  // Box is fixed, only image moves
+                cropBoxMovable: false,
                 cropBoxResizable: false,
                 toggleDragModeOnDblclick: false,
+                checkOrientation: false
             });
+
+            // Wire zoom buttons AFTER cropperInstance is guaranteed to exist
+            const zoomIn  = document.getElementById('cropperZoomIn');
+            const zoomOut = document.getElementById('cropperZoomOut');
+            const fill    = document.getElementById('cropperZoomFill');
+
+            function updateFill() {
+                if (!cropperInstance) return;
+                const data = cropperInstance.getCanvasData();
+                const ratio = data.width / data.naturalWidth;
+                // Map ratio [0.3 → 3] to bar [0% → 100%]
+                const pct = Math.max(0, Math.min(100, ((ratio - 0.3) / 2.7) * 100));
+                if (fill) fill.style.width = pct + '%';
+            }
+
+            if (zoomIn)  zoomIn.onclick  = () => { cropperInstance.zoom(0.1);  updateFill(); };
+            if (zoomOut) zoomOut.onclick = () => { cropperInstance.zoom(-0.1); updateFill(); };
+
+            // Update fill bar also on mouse wheel zoom
+            img.addEventListener('wheel', () => setTimeout(updateFill, 50), { passive: true });
         };
 
         currentObjectURL = URL.createObjectURL(file);
         img.src = currentObjectURL;
         modal.classList.remove('hidden');
 
-        // Validate button
+
         document.getElementById('cropperValidateBtn').onclick = function () {
             if (!cropperInstance) return;
             cropperInstance.getCroppedCanvas({

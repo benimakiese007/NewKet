@@ -194,8 +194,8 @@ window.SupabaseAdapter = {
                 'image/png': 'png',
                 'image/webp': 'webp'
             };
-            const extension = extensionMap[profile.mimeType] || file.name.split('.').pop() || 'bin';
-            const baseName = file.name.replace(/\.[^.]+$/, '');
+            const extension = extensionMap[profile.mimeType] || file.name?.split('.').pop() || 'bin';
+            const baseName = file.name?.replace(/\.[^.]+$/, '') ?? 'image';
 
             return new File([optimizedBlob], `${baseName}${suffix}.${extension}`, {
                 type: profile.mimeType,
