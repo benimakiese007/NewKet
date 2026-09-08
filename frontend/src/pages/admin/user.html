@@ -778,9 +778,11 @@
                     .subscribe();
             }
 
-            // Always listen for future updates
+
+            // Register listeners FIRST so events fired during or after init are caught
             window.addEventListener('usersUpdated', () => { _statsCache = null; renderUsers(); });
             window.addEventListener('ordersUpdated', () => { _statsCache = null; renderUsers(); });
+            window.addEventListener('productsUpdated', () => { _statsCache = null; renderUsers(); });
 
             // If UserManager already has data ready, render immediately
             if (window.UserManager && UserManager._initialized) {

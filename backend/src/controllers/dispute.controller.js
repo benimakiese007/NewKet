@@ -211,10 +211,15 @@ async function applyDisputeResolution({ dispute, order, resolution, refundAmount
         });
     }
 
+    // Calcul du vrai statut final selon la résolution
+    const finalOrderStatus = resolution === DISPUTE_RESOLUTIONS.FULL_REFUND
+        ? ORDER_STATUSES.REFUNDED
+        : ORDER_STATUSES.COMPLETED;
+
     await logOrderStatusHistory(supabaseAdmin, {
         orderId: order.id,
         previousStatus: ORDER_STATUSES.DISPUTE_OPEN,
-        newStatus: ORDER_STATUSES.COMPLETED,
+        newStatus: finalOrderStatus,
         changedBy,
         notes: `Dispute resolved via ${source}`
     });
@@ -480,7 +485,7 @@ export const createDispute = async (req, res, next) => {
 
         if (error) {
             console.error('Dispute creation failed:', error);
-            return next(err);
+            return next(error);
         }
 
         await addDisputeEventMessage(dispute.id, customerId, DISPUTE_MESSAGE_TYPES.EVIDENCE, {
@@ -963,6 +968,115 @@ export const resolveDispute = async (req, res, next) => {
     }
 };
 
+/**
+ * Rejet d'un litige par l'admin — litige non fondé ou abusif.
+ * Libère l'escrow au vendeur + alerte les deux parties.
+ * Route : PATCH /api/disputes/:id/reject
+ */
+export const rejectDispute = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { rejection_reason } = req.body;
+
+        if (!isAdmin(req.user)) {
+            return res.status(403).json({ success: false, message: 'Réservé aux administrateurs.' });
+        }
+
+        if (!rejection_reason?.trim()) {
+            return res.status(400).json({ success: false, message: 'Une raison de rejet est obligatoire.' });
+        }
+
+        const dispute = await getDisputeOrNull(id);
+        if (!dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
+
+        // Un litige déjà clôturé ne peut pas être rejeté
+        if ([DISPUTE_STATUSES.RESOLVED, DISPUTE_STATUSES.REJECTED].includes(dispute.status)) {
+            return res.status(400).json({ success: false, message: 'Ce litige est déjà clôturé.' });
+        }
+
+        const order = await getOrderOrNull(dispute.order_id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Commande liée introuvable.' });
+        }
+
+        const nowIso = new Date().toISOString();
+
+        // 1. Marquer le litige comme REJECTED
+        const updatedDispute = await updateDisputeRecord(id, {
+            status: DISPUTE_STATUSES.REJECTED,
+            resolution: DISPUTE_RESOLUTIONS.RELEASE_TO_SELLER,
+            resolution_decision: rejection_reason.trim(),
+            resolved_at: nowIso,
+            seller_response_due_at: null,
+            buyer_response_due_at: null,
+            review_due_at: null,
+            last_actor_role: 'ADMIN'
+        });
+
+        // 2. Message système visible par les deux parties
+        await addDisputeEventMessage(id, req.user.id, DISPUTE_MESSAGE_TYPES.SYSTEM, {
+            event: 'DISPUTE_REJECTED',
+            message: `Ce litige a été rejeté par l'administration. Motif : ${rejection_reason.trim()}`,
+            resolution: DISPUTE_RESOLUTIONS.RELEASE_TO_SELLER
+        });
+
+        // 3. Libérer l'escrow au vendeur
+        await releaseOrderEscrow({
+            client: supabaseAdmin,
+            order,
+            initiatedBy: req.user.id,
+            autoRelease: false,
+            force: true
+        });
+
+        // 4. Historique du statut commande
+        await logOrderStatusHistory(supabaseAdmin, {
+            orderId: order.id,
+            previousStatus: ORDER_STATUSES.DISPUTE_OPEN,
+            newStatus: ORDER_STATUSES.COMPLETED,
+            changedBy: req.user.id,
+            notes: `Litige rejeté par admin — ${rejection_reason.trim()}`
+        });
+
+        // 5. Notifier l'acheteur et le vendeur par email (non bloquant)
+        try {
+            const [{ data: buyer }, { data: vendor }] = await Promise.all([
+                supabaseAdmin.from('users').select('name, email').eq('id', dispute.customer_id).maybeSingle(),
+                supabaseAdmin.from('users').select('name, email').eq('id', dispute.vendor_id).maybeSingle()
+            ]);
+
+            if (buyer?.email) {
+                await EmailService.sendEmail({
+                    to: buyer.email,
+                    subject: `[NewKet] Votre litige a été rejeté (commande #${order.id.substring(0, 8)})`,
+                    text: `Bonjour ${buyer.name || ''},\n\nVotre litige concernant la commande #${order.id.substring(0, 8)} a été examiné et rejeté par notre équipe.\n\nMotif : ${rejection_reason.trim()}\n\nLes fonds ont été libérés au vendeur.\n\nL'équipe NewKet`
+                });
+            }
+
+            if (vendor?.email) {
+                await EmailService.sendEmail({
+                    to: vendor.email,
+                    subject: `[NewKet] Litige rejeté — fonds libérés (commande #${order.id.substring(0, 8)})`,
+                    text: `Bonjour ${vendor.name || ''},\n\nLe litige ouvert contre vous concernant la commande #${order.id.substring(0, 8)} a été rejeté par notre équipe.\n\nMotif : ${rejection_reason.trim()}\n\nLes fonds vous ont été libérés.\n\nL'équipe NewKet`
+                });
+            }
+        } catch (emailError) {
+            console.warn('[rejectDispute] Email notifications failed:', emailError.message);
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Litige rejeté. L\'escrow a été libéré au vendeur.',
+            data: updatedDispute
+        });
+    } catch (error) {
+        console.error('rejectDispute error:', error);
+        return next(error);
+    }
+};
+
 export const addDisputeMessage = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -1051,7 +1165,7 @@ export const vendorResolveAmiable = async (req, res, next) => {
         }
 
         req.body.action = DISPUTE_VENDOR_ACTIONS.ACCEPT_REFUND;
-        return vendorRespondToDispute(req, res);
+        return vendorRespondToDispute(req, res, next);
     } catch (error) {
         console.error('vendorResolveAmiable error:', error);
         return next(error);

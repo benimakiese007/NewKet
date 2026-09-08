@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script type="module" src="/src/services/config-manager.js"></script>
     <style>
         :root {
@@ -817,9 +818,12 @@
             }
 
             let selectedFileBlobs = []; 
-            let selectedProductImages = []; 
+            let selectedProductImages = [];
+            // Expose to window so the cropper IIFE can push into them
+            window.selectedFileBlobs = selectedFileBlobs;
+            window.selectedProductImages = selectedProductImages;
 
-            function renderPreviews() {
+            window.renderPreviews = function renderPreviews() {
                 const uploadZone = document.getElementById('uploadZone');
                 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
                 const bgRemovalContainer = document.getElementById('bgRemovalContainer');
@@ -1527,6 +1531,169 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL DE RECADRAGE D'IMAGE — Cropper.js 1:1
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="cropperModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm hidden" style="padding: 1rem;">
+    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg flex flex-col overflow-hidden" style="max-height: 90vh;">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
+                    <iconify-icon icon="solar:crop-bold" width="20" style="color:white"></iconify-icon>
+                </div>
+                <div>
+                    <h3 class="font-black text-gray-900 text-sm">Recadrer l'image</h3>
+                    <p class="text-[11px] text-gray-400 font-medium">Glisse et zoome pour cadrer ton produit</p>
+                </div>
+            </div>
+            <span class="text-[10px] font-black text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg">FORMAT CARRÉ 1:1</span>
+        </div>
+
+        <!-- Cropper area -->
+        <div class="flex-1 overflow-hidden bg-gray-50" style="min-height: 300px; max-height: 50vh;">
+            <img id="cropperImage" src="" alt="Recadrage" style="display:block; max-width:100%;">
+        </div>
+
+        <!-- Footer buttons -->
+        <div class="flex gap-3 px-6 py-5 border-t border-gray-100">
+            <button type="button" id="cropperCancelBtn"
+                class="flex-1 py-3.5 rounded-2xl border-2 border-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-50 transition-all">
+                Annuler
+            </button>
+            <button type="button" id="cropperValidateBtn"
+                class="flex-1 py-3.5 rounded-2xl bg-black text-white font-black text-sm shadow-lg hover:bg-gray-900 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <iconify-icon icon="solar:check-circle-bold" width="18"></iconify-icon>
+                Valider le recadrage
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Image Cropper Logic ─────────────────────────────────────────────────────
+(function () {
+    let cropperInstance = null;
+    let pendingFiles = [];       // files waiting to be cropped
+    let currentObjectURL = null;
+
+    function openCropper(file, onValidate) {
+        const modal = document.getElementById('cropperModal');
+        const img = document.getElementById('cropperImage');
+
+        // Destroy previous instance if any
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+        if (currentObjectURL) {
+            URL.revokeObjectURL(currentObjectURL);
+        }
+
+        // Set onload BEFORE src to avoid race condition
+        img.onload = function () {
+            cropperInstance = new Cropper(img, {
+                aspectRatio: 1,         // Force 1:1 square
+                viewMode: 1,            // Can't move crop box outside image
+                dragMode: 'move',       // User moves the image, not the box
+                autoCropArea: 0.9,      // Start with 90% of the image selected
+                responsive: true,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: false,  // Box is fixed, only image moves
+                cropBoxResizable: false,
+                toggleDragModeOnDblclick: false,
+            });
+        };
+
+        currentObjectURL = URL.createObjectURL(file);
+        img.src = currentObjectURL;
+        modal.classList.remove('hidden');
+
+        // Validate button
+        document.getElementById('cropperValidateBtn').onclick = function () {
+            if (!cropperInstance) return;
+            cropperInstance.getCroppedCanvas({
+                width: 800,
+                height: 800,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            }).toBlob(function (blob) {
+                // Convert blob to dataURL for preview
+                const reader = new FileReader();
+                reader.onload = function (evt) {
+                    onValidate(blob, evt.target.result);
+                    closeCropper();
+                    // Process next file in queue
+                    if (pendingFiles.length > 0) {
+                        const next = pendingFiles.shift();
+                        openCropper(next.file, next.callback);
+                    }
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.92);
+        };
+
+        // Cancel button
+        document.getElementById('cropperCancelBtn').onclick = function () {
+            closeCropper();
+            pendingFiles = []; // Clear queue on cancel
+        };
+    }
+
+    function closeCropper() {
+        const modal = document.getElementById('cropperModal');
+        modal.classList.add('hidden');
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+        if (currentObjectURL) {
+            URL.revokeObjectURL(currentObjectURL);
+            currentObjectURL = null;
+        }
+    }
+
+    // ── Override the file input handler ─────────────────────────────────────
+    // We intercept the 'change' event on pImageUpload BEFORE the existing
+    // handler gets to it, by capturing in the capture phase.
+    document.addEventListener('change', function (e) {
+        if (!e.target || e.target.id !== 'pImageUpload') return;
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        e.stopImmediatePropagation(); // Block the original handler
+
+        const existingCount = window.selectedProductImages ? window.selectedProductImages.length : 0;
+        const remaining = 10 - existingCount;
+        const files = Array.from(e.target.files).slice(0, remaining);
+
+        if (files.length === 0) return;
+
+        // Build a queue of files to crop one by one
+        const queue = files.map(file => ({
+            file,
+            callback: (blob, dataURL) => {
+                if (window.selectedFileBlobs) window.selectedFileBlobs.push(blob);
+                if (window.selectedProductImages) {
+                    window.selectedProductImages.push(dataURL);
+                    if (typeof window.renderPreviews === 'function') window.renderPreviews();
+                }
+            }
+        }));
+
+        pendingFiles = queue.slice(1); // Rest of files after first
+        openCropper(queue[0].file, queue[0].callback);
+
+        // Reset input so same file can be selected again
+        e.target.value = '';
+
+    }, true); // <<< true = capture phase, fires BEFORE existing listeners
+
+})();
 </script>
 </body>
 </html>

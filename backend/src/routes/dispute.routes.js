@@ -3,6 +3,7 @@ import {
     createDispute,
     updateDispute,
     resolveDispute,
+    rejectDispute,
     getDisputes,
     getDisputeByOrder,
     addDisputeMessage,
@@ -41,5 +42,8 @@ router.post('/:id/confirm-return', requireAuth, confirmReturn);
 
 // SÉCURITÉ : Résolution de litige réservée aux administrateurs (double couche : route + contrôleur)
 router.patch('/:id/resolve', requireAuth, requireAdmin, resolveDispute);
+
+// SÉCURITÉ : Rejet de litige réservé aux administrateurs (litige abusif/non fondé)
+router.patch('/:id/reject', requireAuth, requireAdmin, rejectDispute);
 
 export default router;

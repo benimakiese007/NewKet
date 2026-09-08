@@ -32,11 +32,11 @@ CREATE TABLE IF NOT EXISTS disputes (
     seller_evidence         JSONB DEFAULT '[]',
 
     status                  TEXT NOT NULL DEFAULT 'OPEN'
-                                CHECK (status IN ('OPEN','SELLER_PENDING','BUYER_PENDING','UNDER_REVIEW','RESOLVED','REJECTED')),
-    resolution              TEXT CHECK (resolution IN ('FULL_REFUND','PARTIAL_REFUND','RELEASE_TO_SELLER')),
+                                CHECK (status IN ('OPEN','SELLER_PENDING','BUYER_PENDING','UNDER_REVIEW','AWAITING_RETURN','RESOLVED','REJECTED')),
+    resolution              TEXT CHECK (resolution IN ('FULL_REFUND','PARTIAL_REFUND','RELEASE_TO_SELLER','REFUND_WITH_RETURN')),
     resolution_decision     TEXT,
     refund_amount           NUMERIC(12, 2) DEFAULT 0,
-    proposed_resolution     TEXT,
+    proposed_resolution     TEXT CHECK (proposed_resolution IN ('FULL_REFUND','PARTIAL_REFUND','RELEASE_TO_SELLER','REFUND_WITH_RETURN')),
     proposed_amount         NUMERIC(12, 2) DEFAULT 0,
 
     escrow_frozen_at        TIMESTAMPTZ,

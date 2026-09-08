@@ -17,6 +17,7 @@ import './favorites.js';
 import './currency.js';
 import './managers.js';
 import './profile-manager.js';
+import './user-manager.js';
 
 import './ui-helpers.js';
 import './ui.js';
@@ -60,8 +61,7 @@ const deferredImports = [
     { load: () => import('./csv-export.js') },
     { load: () => import('./pull-to-refresh.js') },
     { load: () => import('./realtime-notifications.js') },
-    { load: () => import('./presence-manager.js') },
-    { load: () => import('./user-manager.js'), requiresBackend: true }
+    { load: () => import('./presence-manager.js') }
 ];
 
 if (isAdminPage) {

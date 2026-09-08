@@ -38,6 +38,7 @@ const ProductManager = {
     _totalCountKnown: false,
     _hasMore: true,
     _loading: false,
+    loading: false,
     _error: false,
     _realtimeChannel: null,
 
