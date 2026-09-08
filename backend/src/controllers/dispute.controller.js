@@ -411,11 +411,17 @@ export const createDispute = async (req, res, next) => {
         }
 
         const normalizedOrderStatus = mapLegacyOrderStatus(order.status);
-        if (normalizedOrderStatus !== ORDER_STATUSES.DELIVERED) {
-            return res.status(400).json({ success: false, message: 'Le litige ne peut être ouvert qu’après livraison validée.' });
+        // On accepte DELIVERED (livraison validée) et COMPLETED (escrow auto-libéré ou confirmé par le client)
+        const disputeEligibleStatuses = [ORDER_STATUSES.DELIVERED, ORDER_STATUSES.COMPLETED];
+        if (!disputeEligibleStatuses.includes(normalizedOrderStatus)) {
+            return res.status(400).json({ success: false, message: 'Le litige ne peut être ouvert qu\'après livraison validée.' });
         }
 
-        if (!order.escrow_release_at || new Date(order.escrow_release_at) <= new Date()) {
+        // Pour les commandes DELIVERED : bloquer si la fenêtre de litige est expirée.
+        // Pour les commandes COMPLETED (auto-release) : on autorise toujours — l'escrow_release_at
+        // est déjà dans le passé par définition, mais le client conserve son droit au litige.
+        if (normalizedOrderStatus === ORDER_STATUSES.DELIVERED &&
+            order.escrow_release_at && new Date(order.escrow_release_at) <= new Date()) {
             return res.status(400).json({ success: false, message: 'La fenêtre de litige est expirée.' });
         }
 
