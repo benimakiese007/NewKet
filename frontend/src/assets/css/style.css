@@ -1875,7 +1875,8 @@ body.mobile-menu-open {
   position: relative;
   overflow: hidden;
   background-color: #ffffff;
-  height: 240px; /* Bumped from 200px for a more premium visual weight */
+  aspect-ratio: 1 / 1;
+  width: 100%;
 }
 
 .product-image::before {
@@ -3006,7 +3007,7 @@ body.mobile-menu-open {
   }
 
   .product-image {
-    height: 160px;
+    /* Height is now managed by aspect-ratio 1/1 */
   }
 
   .product-info {
