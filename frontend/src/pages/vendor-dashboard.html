@@ -5602,31 +5602,35 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Vérification...';
 
                     try {
-                        // --- DÉBUT BARRIÈRE DE SÉCURITÉ (Biométrie / Écran de verrouillage) ---
-                        if (window.PublicKeyCredential && navigator.credentials && navigator.credentials.get) {
+                        // --- BARRIÈRE DE SÉCURITÉ : Verrouillage du téléphone (WebAuthn) ---
+                        // Sur les téléphones modernes (iOS Safari / Android Chrome), cette ligne
+                        // déclenche automatiquement Face ID, empreinte, ou le code PIN du téléphone.
+                        if (window.PublicKeyCredential && navigator.credentials?.get) {
+                            let deviceCheckPassed = false;
                             try {
                                 const challenge = new Uint8Array(32);
                                 window.crypto.getRandomValues(challenge);
-                                
                                 await navigator.credentials.get({
                                     publicKey: {
-                                        challenge: challenge,
+                                        challenge,
                                         rpId: window.location.hostname,
-                                        userVerification: "required",
-                                        timeout: 60000,
+                                        userVerification: 'required',
+                                        timeout: 90000,
                                         allowCredentials: []
                                     }
                                 });
+                                deviceCheckPassed = true;
                             } catch (authErr) {
-                                console.warn("Vérification locale:", authErr);
-                                if (authErr.name === 'NotAllowedError' || authErr.name === 'SecurityError') {
-                                    throw new Error("Vérification d'identité refusée ou annulée.");
+                                if (authErr.name === 'NotAllowedError') {
+                                    // L'utilisateur a refusé ou raté la vérification → on bloque
+                                    throw new Error("Vérification du téléphone refusée. Modification annulée.");
                                 }
-                                // Fallback passif si le navigateur ne gère pas les requêtes vides
+                                // Toute autre erreur = appareil non compatible → on laisse passer (fallback)
+                                console.info("WebAuthn non disponible sur cet appareil, fallback OTP email.", authErr.name);
                             }
                         }
                         // --- FIN BARRIÈRE DE SÉCURITÉ ---
-                        
+
                         btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi de l\'email...';
 
                         const { data: session } = await window.supabaseClient.auth.getSession();
