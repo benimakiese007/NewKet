@@ -178,34 +178,68 @@
                 </div>
 
                 <div class="rounded-[2rem] bg-gray-50/50 border border-gray-100 p-6">
-                    <div class="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-3">Pièces demandées</div>
-                    <ul class="space-y-2 text-[12px] text-gray-600 font-medium">
-                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:id-card-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Pièce d’identité (CNI ou passeport) — photo lisible.</span></li>
-                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:document-text-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Registre de commerce (ou document équivalent) si vous en disposez.</span></li>
-                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:map-point-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Justificatif de localisation (adresse / boutique) si possible.</span></li>
+                    <div class="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-3">Pièce d'identité (Obligatoire)</div>
+                    <ul class="space-y-2 text-[12px] text-gray-600 font-medium mb-4">
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:id-card-bold" width="14" class="text-gray-700"></iconify-icon></span><span>CNI ou Passeport — photo nette et lisible.</span></li>
                     </ul>
-                    <div class="mt-4 text-[11px] text-gray-500 font-medium leading-relaxed">
-                        Formats acceptés : PDF, JPG, PNG. Taille max : 10MB par fichier. Minimum : 1 document.
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div id="rectoUploadZone" data-track-action="seller_onboarding:kyc_recto_click" onclick="document.getElementById('rectoUpload').click()"
+                                class="group relative overflow-hidden border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-white">
+                                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                                    <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="20" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
+                                </div>
+                                <p class="text-xs font-black text-gray-900">Recto de la pièce</p>
+                                <input type="file" id="rectoUpload" accept="image/*,application/pdf" class="hidden">
+                            </div>
+                            <div id="rectoPreview" class="hidden relative h-28 border border-gray-100 rounded-2xl overflow-hidden group">
+                                <img src="" class="w-full h-full object-cover bg-gray-50">
+                                <div class="absolute inset-x-2 bottom-2 rounded-lg bg-black/70 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm truncate name-preview"></div>
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+                                    <button type="button" onclick="clearRecto(event)" class="w-8 h-8 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl"><iconify-icon icon="solar:trash-bin-trash-bold" width="16"></iconify-icon></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div id="versoUploadZone" data-track-action="seller_onboarding:kyc_verso_click" onclick="document.getElementById('versoUpload').click()"
+                                class="group relative overflow-hidden border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-white">
+                                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                                    <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="20" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
+                                </div>
+                                <p class="text-xs font-black text-gray-900">Verso de la pièce</p>
+                                <input type="file" id="versoUpload" accept="image/*,application/pdf" class="hidden">
+                            </div>
+                            <div id="versoPreview" class="hidden relative h-28 border border-gray-100 rounded-2xl overflow-hidden group">
+                                <img src="" class="w-full h-full object-cover bg-gray-50">
+                                <div class="absolute inset-x-2 bottom-2 rounded-lg bg-black/70 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm truncate name-preview"></div>
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+                                    <button type="button" onclick="clearVerso(event)" class="w-8 h-8 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl"><iconify-icon icon="solar:trash-bin-trash-bold" width="16"></iconify-icon></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div id="uploadZone" data-track-action="seller_onboarding:kyc_upload_click" onclick="document.getElementById('docUpload').click()"
-                        class="group relative overflow-hidden border-2 border-dashed border-gray-100 rounded-[2rem] p-10 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-gray-50/30">
-                        <div class="relative z-10">
-                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform duration-500">
-                                <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="32" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
+                <div class="rounded-[2rem] bg-gray-50/50 border border-gray-100 p-6">
+                    <div class="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-3">Autres documents (Facultatif)</div>
+                    <ul class="space-y-2 text-[12px] text-gray-600 font-medium mb-4">
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:document-text-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Registre de commerce, RCCM, justificatif de domicile...</span></li>
+                    </ul>
+                    <div class="space-y-4">
+                        <div id="uploadZone" data-track-action="seller_onboarding:kyc_other_upload_click" onclick="document.getElementById('docUpload').click()"
+                            class="group relative overflow-hidden border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-white">
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                                    <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="20" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
+                                </div>
+                                <p class="text-xs font-black text-gray-900 mb-1">Ajouter des documents</p>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
                             </div>
-                            <p class="text-sm font-black text-gray-900 mb-1">Documents d'identité / registre</p>
-                            <p class="text-[10px] text-gray-400 uppercase tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
+                            <input type="file" id="docUpload" multiple accept="image/*,application/pdf" class="hidden">
                         </div>
-                        <input type="file" id="docUpload" multiple accept="image/*,application/pdf" class="hidden">
-
-                        <!-- Decorative bg -->
-                        <div class="absolute inset-0 bg-gradient-to-tr from-gray-100/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div id="fileList" class="flex flex-wrap gap-2"></div>
+                        <p id="file-feedback" class="text-[11px] font-bold mt-2 hidden transition-opacity text-center"></p>
                     </div>
-                    <div id="fileList" class="flex flex-wrap gap-3"></div>
-                    <p id="file-feedback" class="text-[11px] font-bold mt-2 hidden transition-opacity text-center"></p>
                 </div>
             </div>
 
@@ -333,7 +367,8 @@
         }
 
         let uploadedFiles = [];
-
+        let rectoFile = null;
+        let versoFile = null;
         let shopAvatarFile = null;
         let physicalShopFile = null;
 
@@ -459,6 +494,8 @@
 
                     if (inputId === 'shopAvatarUpload') shopAvatarFile = file;
                     if (inputId === 'physicalUpload') physicalShopFile = file;
+                    if (inputId === 'rectoUpload') rectoFile = file;
+                    if (inputId === 'versoUpload') versoFile = file;
                 }
             });
         }
@@ -479,8 +516,26 @@
             document.getElementById('physicalUploadZone').classList.remove('hidden');
         };
 
+        window.clearRecto = (e) => {
+            e.stopPropagation();
+            rectoFile = null;
+            document.getElementById('rectoUpload').value = '';
+            document.getElementById('rectoPreview').classList.add('hidden');
+            document.getElementById('rectoUploadZone').classList.remove('hidden');
+        };
+
+        window.clearVerso = (e) => {
+            e.stopPropagation();
+            versoFile = null;
+            document.getElementById('versoUpload').value = '';
+            document.getElementById('versoPreview').classList.add('hidden');
+            document.getElementById('versoUploadZone').classList.remove('hidden');
+        };
+
         setupPreview('shopAvatarUpload', 'shopAvatarUploadZone', 'shopAvatarPreview');
         setupPreview('physicalUpload', 'physicalUploadZone', 'physicalPreview');
+        setupPreview('rectoUpload', 'rectoUploadZone', 'rectoPreview');
+        setupPreview('versoUpload', 'versoUploadZone', 'versoPreview');
 
         docUpload.addEventListener('change', (e) => {
             const files = Array.from(e.target.files || []);
@@ -518,8 +573,8 @@
                 return;
             }
 
-            if (uploadedFiles.length === 0) {
-                showInlineMessage('step2-feedback', "Veuillez ajouter au moins un document justificatif.", 'error');
+            if (!rectoFile || !versoFile) {
+                showInlineMessage('step2-feedback', "Veuillez fournir le recto et le verso de votre pièce d'identité.", 'error');
                 return;
             }
 
@@ -542,7 +597,7 @@
                 const userId = user.id;
 
                 let docUrls = [];
-                // Upload mandatory KYC files
+                // Upload optional KYC files
                 for (let i = 0; i < uploadedFiles.length; i++) {
                     const file = uploadedFiles[i];
                     const sanitizedName = file.name
@@ -556,6 +611,23 @@
 
                 if (docUrls.length === 0 && uploadedFiles.length > 0) {
                     throw new Error("Aucun document n'a pu être envoyé. Vérifiez votre connexion.");
+                }
+
+                let identityDocUrls = [];
+                if (rectoFile && versoFile) {
+                    const rectoSanitized = rectoFile.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.\-_]/g, "_");
+                    const pathRecto = `kyc/${userId}/${Date.now()}_recto_${rectoSanitized}`;
+                    const urlRecto = await window.SupabaseAdapter.uploadFile('vendor-docs', pathRecto, rectoFile);
+                    if (urlRecto) identityDocUrls.push(urlRecto);
+
+                    const versoSanitized = versoFile.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.\-_]/g, "_");
+                    const pathVerso = `kyc/${userId}/${Date.now()}_verso_${versoSanitized}`;
+                    const urlVerso = await window.SupabaseAdapter.uploadFile('vendor-docs', pathVerso, versoFile);
+                    if (urlVerso) identityDocUrls.push(urlVerso);
+
+                    if (identityDocUrls.length < 2) {
+                        throw new Error("Erreur lors de l'envoi de votre pièce d'identité.");
+                    }
                 }
 
                 // Upload Optional Shop Avatar
@@ -621,11 +693,15 @@
                     store_description: storeDescription,
                     store_address: storeAddress,
                     preferred_payout_method: payoutMethod,
-                    documents_url: docUrls,
                     terms_accepted_at: new Date().toISOString(),
                     seller_terms_accepted_at: new Date().toISOString(),
                     status: 'submitted'
                 };
+
+                if (docUrls.length > 0) updateData.documents_url = docUrls;
+                if (typeof identityDocUrls !== 'undefined' && identityDocUrls.length > 0) {
+                    updateData.identity_document_urls = identityDocUrls;
+                }
 
                 // We map avatarUrl to 'avatar' column on the public.users table if it exists
                 if (avatarUrl) updateData.avatar = avatarUrl;

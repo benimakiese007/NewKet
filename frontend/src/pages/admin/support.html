@@ -133,10 +133,7 @@
                 return;
             }
 
-            // Les valeurs du select HTML correspondent maintenant directement à la base de données
-
             const allTickets = SupportManager.getTickets();
-            // Always update stats even when the list is empty (otherwise skeleton stays).
             updateStats();
             let filtered = allTickets;
             if (filterStatus !== 'all') filtered = filtered.filter(t => t.status === filterStatus);
@@ -145,29 +142,243 @@
                 container.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun ticket trouvé.</div>`;
                 return;
             }
-
-            container.innerHTML = filtered.map(t => {
+            
+            // Re-render UI
+            let html = '';
+            for (let t of filtered) {
                 const isResolved = t.status === 'resolu';
-                return `
-                <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                    <div class="flex-1">
+                
+                if (t.type === 'PAYOUT_CHANGE') {
+                    // It's a payout change request !
+                    const m = t.metadata || {};
+                    const newProvider = m.new_provider || 'N/A';
+                    const newAccountId = m.new_account_id || 'N/A';
+                    const newName = m.new_account_name || 'N/A';
+                    const selfie = m.selfie_url || '';
+                    const newRecto = m.recto_url || '';
+                    const newVerso = m.verso_url || '';
+                    
+                    // We need a placeholder that we will fill asynchronously
+                    html += `
+                    <div id="ticket_box_${t.id}" class="p-6 border-b border-gray-100 flex flex-col gap-4 bg-yellow-50/30 transition-all hover:bg-yellow-50/50">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="text-xs font-black uppercase text-gray-400">${t.id.slice(0, 8)}</span>
+                            <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-orange-100 text-orange-700 border border-orange-200">PAYOUT_CHANGE</span>
                             <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full ${isResolved ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">${isResolved ? 'Résolu' : 'Ouvert'}</span>
                             <div class="text-[10px] text-gray-400 ml-auto">${new Date(t.created_at).toLocaleDateString()}</div>
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-1">${t.subject}</h3>
-                        <div class="text-sm text-gray-600 mb-2">${t.message}</div>
-                        <div class="text-[10px] font-black uppercase text-gray-400">Client: <span class="text-black">${t.customer_name}</span></div>
-                    </div>
-                    <div class="flex items-center gap-2 mt-4 md:mt-0">
-                        ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer Résolu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
-                        <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors rounded-xl"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
-                    </div>
-                </div>
-            `}).join('');
+                        <h3 class="font-bold text-gray-900 text-lg">Changement vers ${newProvider} (${newAccountId})</h3>
+                        <p class="text-xs text-gray-600">Nom demandé: <strong>${newName}</strong> (Vendeur: ${t.customer_name})</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <!-- ANCIEN KYC -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">1. Ancien KYC (DB)</h4>
+                                <div id="old_kyc_loading_${t.id}" class="text-xs text-gray-400 flex items-center justify-center h-24 bg-gray-50 rounded-lg"><iconify-icon icon="line-md:loading-twotone-loop" class="mr-2"></iconify-icon> Chargement...</div>
+                                <div id="old_kyc_content_${t.id}" class="hidden flex-col gap-2"></div>
+                            </div>
 
+                            <!-- NOUVEAU KYC -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm border-blue-100 relative">
+                                <div class="absolute -top-2 -right-2 bg-blue-500 text-white w-5 h-5 flex items-center justify-center rounded-full shadow"><iconify-icon icon="solar:info-circle-bold"></iconify-icon></div>
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2">2. Nouveau KYC</h4>
+                                ${newRecto ? `<img src="${newRecto}" class="w-full h-24 object-cover rounded-lg mb-2 cursor-pointer border border-gray-100 hover:opacity-80" onclick="window.open('${newRecto}', '_blank')">` : '<div class="h-24 bg-gray-50 flex items-center justify-center rounded-lg mb-2 text-xs text-gray-400">Aucun Recto</div>'}
+                                ${newVerso ? `<img src="${newVerso}" class="w-full h-24 object-cover rounded-lg cursor-pointer border border-gray-100 hover:opacity-80" onclick="window.open('${newVerso}', '_blank')">` : '<div class="h-24 bg-gray-50 flex items-center justify-center rounded-lg text-xs text-gray-400">Aucun Verso</div>'}
+                            </div>
+
+                            <!-- SELFIE LIVE -->
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm border-purple-100 relative">
+                                <div class="absolute -top-2 -right-2 bg-purple-500 text-white w-5 h-5 flex items-center justify-center rounded-full shadow"><iconify-icon icon="solar:camera-bold"></iconify-icon></div>
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-purple-500 mb-2">3. Selfie Live</h4>
+                                ${selfie ? `<img src="${selfie}" class="w-full h-48 object-cover rounded-lg cursor-pointer border border-gray-100 hover:opacity-80" onclick="window.open('${selfie}', '_blank')">` : '<div class="h-48 bg-gray-50 flex items-center justify-center rounded-lg text-xs text-gray-400">Aucun Selfie</div>'}
+                            </div>
+                        </div>
+
+                        ${!isResolved ? `
+                        <div class="bg-white p-4 rounded-xl border border-red-100 mt-2 shadow-sm">
+                            <h4 class="text-xs font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <iconify-icon icon="solar:shield-warning-bold" class="text-red-500 text-lg"></iconify-icon> Vérification de sécurité (Obligatoire)
+                            </h4>
+                            <div class="space-y-3 mb-5 pl-2">
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" id="chk_face_${t.id}" onchange="checkPayoutApproval('${t.id}')" class="mt-0.5 w-5 h-5 rounded border-gray-300 text-black focus:ring-black">
+                                    <span class="text-xs font-medium text-gray-700 leading-tight">Le visage sur le <b class="text-black">Selfie Live</b> correspond bien à la personne sur la CNI.</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" id="chk_id_${t.id}" onchange="checkPayoutApproval('${t.id}')" class="mt-0.5 w-5 h-5 rounded border-gray-300 text-black focus:ring-black">
+                                    <span class="text-xs font-medium text-gray-700 leading-tight">Le <b class="text-blue-600">Nouveau KYC</b> est identique à <b class="text-gray-500">l'Ancien KYC</b> (Même document, même nom).</span>
+                                </label>
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" id="chk_name_${t.id}" onchange="checkPayoutApproval('${t.id}')" class="mt-0.5 w-5 h-5 rounded border-gray-300 text-black focus:ring-black">
+                                    <span class="text-xs font-medium text-gray-700 leading-tight">Le nom du compte (${newName}) correspond bien au nom sur la CNI.</span>
+                                </label>
+                            </div>
+                            <div class="flex gap-3 pt-4 border-t border-gray-100">
+                                <button id="btn_approve_${t.id}" onclick="approvePayoutChange('${t.id}', '${t.user_id}', '${newProvider}', '${newAccountId}', '${newName}')" class="flex-1 text-xs font-black uppercase tracking-widest bg-black text-white px-5 py-3 rounded-xl opacity-50 cursor-not-allowed transition-all" disabled>
+                                    Approuver et Changer <iconify-icon icon="solar:check-circle-bold" class="ml-1"></iconify-icon>
+                                </button>
+                                <button onclick="rejectPayoutChange('${t.id}', '${t.user_id}')" class="text-xs font-black uppercase tracking-widest bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-5 py-3 rounded-xl transition-colors">
+                                    Rejeter
+                                </button>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="mt-2 flex items-center justify-between text-xs font-bold text-green-700 bg-green-50 p-4 rounded-xl border border-green-200">
+                            <span class="flex items-center gap-2"><iconify-icon icon="solar:check-circle-bold" class="text-lg"></iconify-icon> Ce changement a été traité et résolu.</span>
+                            <button onclick="deleteTicket('${t.id}')" class="text-gray-400 hover:text-red-500 transition-colors p-1"><iconify-icon icon="solar:trash-bin-bold" class="text-lg"></iconify-icon></button>
+                        </div>
+                        `}
+                    </div>
+                    `;
+                    
+                    // Trigger async fetch for user data
+                    setTimeout(() => fetchOldKyc(t.id, t.user_id), 0);
+                    
+                } else {
+                    html += `
+                    <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-black uppercase text-gray-400">${t.id.slice(0, 8)}</span>
+                                <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full ${isResolved ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">${isResolved ? 'Résolu' : 'Ouvert'}</span>
+                                <div class="text-[10px] text-gray-400 ml-auto">${new Date(t.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <h3 class="font-bold text-gray-900 mb-1">${t.subject}</h3>
+                            <div class="text-sm text-gray-600 mb-2">${t.message}</div>
+                            <div class="text-[10px] font-black uppercase text-gray-400">Client: <span class="text-black">${t.customer_name}</span></div>
+                        </div>
+                        <div class="flex items-center gap-2 mt-4 md:mt-0">
+                            ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer Résolu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
+                            <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors rounded-xl"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
+                        </div>
+                    </div>
+                    `;
+                }
+            }
+            container.innerHTML = html;
         }
+
+        async function fetchOldKyc(ticketId, userId) {
+            try {
+                const profile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                    eq: [['id', userId]],
+                    select: 'identity_document_urls',
+                    single: true,
+                    skipCache: true
+                });
+                const oldKycUrls = profile?.identity_document_urls || [];
+                const oldRecto = oldKycUrls[0] || '';
+                const oldVerso = oldKycUrls[1] || '';
+                
+                const loader = document.getElementById('old_kyc_loading_' + ticketId);
+                const content = document.getElementById('old_kyc_content_' + ticketId);
+                
+                if (loader && content) {
+                    loader.classList.add('hidden');
+                    content.classList.remove('hidden');
+                    content.classList.add('flex');
+                    
+                    content.innerHTML = `
+                        ${oldRecto ? `<img src="${oldRecto}" class="w-full h-24 object-cover rounded-lg cursor-pointer border border-gray-100 hover:opacity-80" onclick="window.open('${oldRecto}', '_blank')">` : '<div class="h-24 bg-gray-50 flex items-center justify-center rounded-lg text-xs text-gray-400">Aucun Recto</div>'}
+                        ${oldVerso ? `<img src="${oldVerso}" class="w-full h-24 object-cover rounded-lg cursor-pointer border border-gray-100 hover:opacity-80" onclick="window.open('${oldVerso}', '_blank')">` : '<div class="h-24 bg-gray-50 flex items-center justify-center rounded-lg text-xs text-gray-400">Aucun Verso</div>'}
+                    `;
+                }
+            } catch (e) {
+                console.warn("Failed to fetch old KYC", e);
+            }
+        }
+        window.fetchOldKyc = fetchOldKyc;
+
+        function checkPayoutApproval(ticketId) {
+            const f = document.getElementById('chk_face_' + ticketId)?.checked;
+            const i = document.getElementById('chk_id_' + ticketId)?.checked;
+            const n = document.getElementById('chk_name_' + ticketId)?.checked;
+            const btn = document.getElementById('btn_approve_' + ticketId);
+            if (f && i && n) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.classList.add('shadow-lg', 'hover:scale-[1.02]');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.classList.remove('shadow-lg', 'hover:scale-[1.02]');
+            }
+        }
+        window.checkPayoutApproval = checkPayoutApproval;
+
+        async function approvePayoutChange(ticketId, userId, provider, accountId, accountName) {
+            if(!confirm("Êtes-vous sûr de vouloir approuver ce changement ? Le numéro de réception du vendeur sera mis à jour.")) return;
+            
+            const btn = document.getElementById('btn_approve_' + ticketId);
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" class="text-lg"></iconify-icon>';
+            btn.disabled = true;
+            
+            try {
+                let finalProvider = 'MOBILE_MONEY';
+                let finalOperator = 'kpay_default';
+                switch (provider) {
+                    case 'MPESA': finalProvider = 'KPAY'; finalOperator = 'vodacom_mpesa'; break;
+                    case 'AIRTEL': finalProvider = 'KPAY'; finalOperator = 'airtel'; break;
+                    case 'ORANGE': finalProvider = 'KPAY'; finalOperator = 'orange'; break;
+                    case 'AFRIMONEY': finalProvider = 'MOBILE_MONEY'; finalOperator = 'afrimoney'; break;
+                }
+
+                // 1. Update payout method
+                // First delete old ones
+                await window.supabaseClient.from('vendor_payout_methods').delete().eq('vendor_id', userId);
+                
+                // Then insert new
+                const { error: insertErr } = await window.supabaseClient.from('vendor_payout_methods').insert([{
+                    vendor_id: userId,
+                    provider: finalProvider,
+                    operator: finalOperator,
+                    account_id: accountId,
+                    account_name: accountName,
+                    is_default: true,
+                    updated_at: new Date().toISOString()
+                }]);
+                if(insertErr) throw insertErr;
+
+                // 2. Unflag user
+                const { error: userErr } = await window.supabaseClient.from('users').update({
+                    payout_change_pending: false,
+                    preferred_payout_method: finalOperator
+                }).eq('id', userId);
+                if(userErr) throw userErr;
+
+                // 3. Mark ticket resolved
+                await SupportManager.updateStatus(ticketId, 'resolu');
+
+                if(window.ToastMaker) window.ToastMaker.success("Changement approuvé avec succès !");
+                renderTickets();
+            } catch (e) {
+                console.error(e);
+                alert("Erreur lors de l'approbation: " + e.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        window.approvePayoutChange = approvePayoutChange;
+
+        async function rejectPayoutChange(ticketId, userId) {
+            if(!confirm("Voulez-vous vraiment rejeter cette demande ? Le vendeur gardera son ancien numéro.")) return;
+            
+            try {
+                // 1. Unflag user
+                await window.supabaseClient.from('users').update({ payout_change_pending: false }).eq('id', userId);
+                
+                // 2. Resolve ticket
+                await SupportManager.updateStatus(ticketId, 'resolu');
+
+                if(window.ToastMaker) window.ToastMaker.info("Demande rejetée.");
+                renderTickets();
+            } catch (e) {
+                console.error(e);
+                alert("Erreur lors du rejet: " + e.message);
+            }
+        }
+        window.rejectPayoutChange = rejectPayoutChange;
 
         async function resolveTicket(id) {
             const success = await SupportManager.updateStatus(id, 'resolu');
