@@ -5511,10 +5511,10 @@
                                     const userId = session?.user?.id;
                                     if (!userId) throw new Error('Non connecté');
 
-                                    const basePath = \`kyc/\${userId}/\${Date.now()}\`;
-                                    const rectoUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', \`\${basePath}_recto\`, kycFiles.recto);
+                                    const basePath = 'kyc/' + userId + '/' + Date.now();
+                                    const rectoUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', basePath + '_recto', kycFiles.recto);
                                     if (!rectoUrl) throw new Error('Erreur upload recto');
-                                    const versoUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', \`\${basePath}_verso\`, kycFiles.verso);
+                                    const versoUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', basePath + '_verso', kycFiles.verso);
                                     if (!versoUrl) throw new Error('Erreur upload verso');
 
                                     const { error } = await window.supabaseClient.from('users').update({
