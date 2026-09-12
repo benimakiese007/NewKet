@@ -314,7 +314,7 @@
 
         async function loadPhotosForCard(t) {
             const m = t.metadata || {};
-            const userId = t.user_id || t.customer_id;
+            const userId = t.user_id;
 
             let rectoUrl = m.recto_url || null;
             let versoUrl = m.verso_url || null;
@@ -386,26 +386,30 @@
 
             try {
                 // Get ticket to retrieve user ID
-                const { data: ticket } = await window.supabaseClient
+                const { data: ticket, error: ticketFetchErr } = await window.supabaseClient
                     .from('support_tickets')
                     .select('*')
                     .eq('id', ticketId)
                     .single();
 
-                const userId = ticket?.user_id || ticket?.customer_id;
+                if (ticketFetchErr) throw ticketFetchErr;
+
+                const userId = ticket?.user_id;
                 if (!userId) throw new Error('ID vendeur introuvable');
 
                 const finalOperator = newProvider ? newProvider.toUpperCase() : null;
 
                 // 1. Update vendor payout method
-                const { data: existingPayout } = await window.supabaseClient
+                const { data: existingPayout, error: payoutCheckErr } = await window.supabaseClient
                     .from('vendor_payout_methods')
                     .select('id')
                     .eq('vendor_id', userId)
-                    .single();
+                    .maybeSingle();
+
+                if (payoutCheckErr) throw payoutCheckErr;
 
                 if (existingPayout) {
-                    await window.supabaseClient
+                    const { error: updateErr } = await window.supabaseClient
                         .from('vendor_payout_methods')
                         .update({
                             provider: finalOperator,
@@ -414,8 +418,10 @@
                             updated_at: new Date().toISOString()
                         })
                         .eq('vendor_id', userId);
+
+                    if (updateErr) throw updateErr;
                 } else {
-                    await window.supabaseClient
+                    const { error: insertErr } = await window.supabaseClient
                         .from('vendor_payout_methods')
                         .insert({
                             vendor_id: userId,
@@ -423,27 +429,35 @@
                             account_id: newAccountId,
                             account_name: newAccountName
                         });
+
+                    if (insertErr) throw insertErr;
                 }
 
-                // 2. Unflag user
-                await window.supabaseClient
+                // 2. Unflag user and update preferred method + account id
+                const { error: userErr } = await window.supabaseClient
                     .from('users')
                     .update({
                         payout_change_pending: false,
-                        preferred_payout_method: finalOperator
+                        preferred_payout_method: finalOperator,
+                        payout_account_id: newAccountId
                     })
                     .eq('id', userId);
 
+                if (userErr) throw userErr;
+
                 // 3. Mark ticket as resolved
-                await window.supabaseClient
+                const { error: ticketUpdateErr } = await window.supabaseClient
                     .from('support_tickets')
                     .update({ status: 'resolu', resolved_at: new Date().toISOString() })
                     .eq('id', ticketId);
 
-                if (window.ToastMaker) window.ToastMaker.success('✅ Compte M-Pesa mis à jour !');
+                if (ticketUpdateErr) throw ticketUpdateErr;
+
+                if (window.ToastMaker) window.ToastMaker.success('✅ Compte de paiement mis à jour !');
                 loadRequests();
 
             } catch (e) {
+                console.error('[PayoutSecurity] Approve error:', e);
                 if (msgEl) { msgEl.textContent = 'Erreur: ' + e.message; msgEl.classList.remove('hidden'); }
                 if (window.ToastMaker) window.ToastMaker.error('Erreur: ' + e.message);
             }
@@ -454,31 +468,38 @@
             if (msgEl) { msgEl.textContent = 'Traitement...'; msgEl.classList.remove('hidden'); }
 
             try {
-                const { data: ticket } = await window.supabaseClient
+                const { data: ticket, error: ticketFetchErr } = await window.supabaseClient
                     .from('support_tickets')
-                    .select('user_id, customer_id')
+                    .select('user_id')
                     .eq('id', ticketId)
                     .single();
 
-                const userId = ticket?.user_id || ticket?.customer_id;
+                if (ticketFetchErr) throw ticketFetchErr;
+
+                const userId = ticket?.user_id;
 
                 if (userId) {
-                    await window.supabaseClient
+                    const { error: userErr } = await window.supabaseClient
                         .from('users')
                         .update({ payout_change_pending: false })
                         .eq('id', userId);
+                    if (userErr) throw userErr;
                 }
 
-                await window.supabaseClient
+                const { error: ticketUpdateErr } = await window.supabaseClient
                     .from('support_tickets')
                     .update({ status: 'rejete', resolved_at: new Date().toISOString() })
                     .eq('id', ticketId);
+
+                if (ticketUpdateErr) throw ticketUpdateErr;
 
                 if (window.ToastMaker) window.ToastMaker.info('Demande rejetée.');
                 loadRequests();
 
             } catch (e) {
+                console.error('[PayoutSecurity] Reject error:', e);
                 if (msgEl) { msgEl.textContent = 'Erreur: ' + e.message; msgEl.classList.remove('hidden'); }
+                if (window.ToastMaker) window.ToastMaker.error('Erreur: ' + e.message);
             }
         }
 
