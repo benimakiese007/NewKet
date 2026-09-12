@@ -133,6 +133,10 @@
 
         function openLightbox(url) {
             if (!url) return;
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'open-admin-lightbox', url: url }, '*');
+                return;
+            }
             document.getElementById('lightboxImg').src = url;
             const lb = document.getElementById('photoLightbox');
             lb.classList.remove('hidden');

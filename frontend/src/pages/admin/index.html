@@ -1353,7 +1353,43 @@
 
             navigate(getRequestedView(), { pushState: false });
         })();
+
+        // Shell-level Lightbox for embedded views
+        function openAdminShellLightbox(url) {
+            if (!url) return;
+            const img = document.getElementById('adminShellLightboxImg');
+            const lb = document.getElementById('adminShellLightbox');
+            if (img && lb) {
+                img.src = url;
+                lb.classList.remove('hidden');
+                lb.classList.add('flex');
+            }
+        }
+
+        function closeAdminShellLightbox() {
+            const lb = document.getElementById('adminShellLightbox');
+            if (lb) {
+                lb.classList.add('hidden');
+                lb.classList.remove('flex');
+            }
+        }
+
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'open-admin-lightbox' && e.data.url) {
+                openAdminShellLightbox(e.data.url);
+            }
+        });
     </script>
+
+    <!-- Top-level Lightbox for embedded views -->
+    <div id="adminShellLightbox" class="fixed inset-0 z-[999999] bg-black/85 backdrop-blur-md hidden items-center justify-center p-6 cursor-pointer" onclick="closeAdminShellLightbox()">
+        <div class="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <img id="adminShellLightboxImg" src="" class="max-w-[90vw] max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10 select-none">
+            <button type="button" class="absolute -top-3 -right-3 w-10 h-10 bg-white text-black rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform cursor-pointer" onclick="closeAdminShellLightbox()">
+                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+            </button>
+        </div>
+    </div>
 </body>
 
 </html>
