@@ -6033,6 +6033,7 @@
 
                         // 2. Create ticket
                         const ticketData = {
+                            id: crypto.randomUUID(),
                             subject: "Changement de numéro M-Pesa/Payout",
                             customer_name: accountName,
                             customer_email: user.email,
