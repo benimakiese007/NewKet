@@ -119,11 +119,13 @@
     </div>
 
     <!-- Lightbox for photo zoom -->
-    <div id="photoLightbox" class="fixed inset-0 z-[99999] bg-black/90 hidden items-center justify-center p-4" onclick="this.classList.add('hidden')">
-        <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl">
-        <button class="absolute top-4 right-4 text-white/80 hover:text-white" onclick="document.getElementById('photoLightbox').classList.add('hidden')">
-            <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
-        </button>
+    <div id="photoLightbox" class="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md hidden items-center justify-center p-6 cursor-pointer" onclick="closeLightbox()">
+        <div class="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" class="max-w-[90vw] max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10 select-none">
+            <button type="button" class="absolute -top-3 -right-3 w-10 h-10 bg-white text-black rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform cursor-pointer" onclick="closeLightbox()">
+                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -132,8 +134,15 @@
         function openLightbox(url) {
             if (!url) return;
             document.getElementById('lightboxImg').src = url;
-            document.getElementById('photoLightbox').classList.remove('hidden');
-            document.getElementById('photoLightbox').classList.add('flex');
+            const lb = document.getElementById('photoLightbox');
+            lb.classList.remove('hidden');
+            lb.classList.add('flex');
+        }
+
+        function closeLightbox() {
+            const lb = document.getElementById('photoLightbox');
+            lb.classList.add('hidden');
+            lb.classList.remove('flex');
         }
 
         function getSignedUrl(bucket, path) {
