@@ -5818,14 +5818,14 @@
                         });
                     }
 
-                    document.getElementById('payoutAccountId').value = '';
-                    document.getElementById('payoutAccountName').value = '';
-                    document.getElementById('payoutFormError').classList.add('hidden');
-                    document.getElementById('payoutSelfieError').classList.add('hidden');
-                    document.getElementById('payoutSubmitError').classList.add('hidden');
-                    
-                    document.getElementById('payoutStepSecurity').classList.add('hidden');
-                    document.getElementById('payoutStepForm').classList.remove('hidden');
+                    const _pai = document.getElementById('payoutAccountId'); if (_pai) _pai.value = '';
+                    const _pan = document.getElementById('payoutAccountName'); if (_pan) _pan.value = '';
+                    const _elPfe = document.getElementById('payoutFormError'); if (_elPfe) _elPfe.classList.add('hidden');
+                    const _elPse = document.getElementById('payoutSelfieError'); if (_elPse) _elPse.classList.add('hidden');
+                    const _elPsu = document.getElementById('payoutSubmitError'); if (_elPsu) _elPsu.classList.add('hidden');
+
+                    const _elPss = document.getElementById('payoutStepSecurity'); if (_elPss) _elPss.classList.add('hidden');
+                    const _elPsf = document.getElementById('payoutStepForm'); if (_elPsf) _elPsf.classList.remove('hidden');
 
                     const mpesaRadio = document.querySelector('input[name="payoutProvider"][value="MPESA"]');
                     if (mpesaRadio) {
