@@ -112,7 +112,7 @@ export const verifyPayoutOtp = async (userId, action, otpCode) => {
  * Récupère les méthodes de paiement du vendeur
  */
 export const getVendorPayoutMethods = async (vendorId) => {
-    const { data, error } = await supabaseAdmin
+    let { data, error } = await supabaseAdmin
         .from('vendor_payout_methods')
         .select('*')
         .eq('vendor_id', vendorId)
@@ -120,6 +120,32 @@ export const getVendorPayoutMethods = async (vendorId) => {
 
     if (error) {
         throw new Error('Erreur de lecture des comptes');
+    }
+
+    if (!data || data.length === 0) {
+        // Auto-heal: Check if vendor has onboarding payout info in public.users
+        const { data: user } = await supabaseAdmin
+            .from('users')
+            .select('preferred_payout_method, payout_account_id, company_name, name')
+            .eq('id', vendorId)
+            .maybeSingle();
+
+        if (user && user.preferred_payout_method && user.payout_account_id) {
+            const { data: newMethod } = await supabaseAdmin
+                .from('vendor_payout_methods')
+                .insert({
+                    vendor_id: vendorId,
+                    provider: user.preferred_payout_method,
+                    operator: user.preferred_payout_method,
+                    account_id: user.payout_account_id,
+                    account_name: user.company_name || user.name || '',
+                    is_default: true
+                })
+                .select();
+            if (newMethod && newMethod.length > 0) {
+                data = newMethod;
+            }
+        }
     }
 
     return data || [];

@@ -5285,16 +5285,49 @@
                         const response = await fetch('/api/vendor-payouts/methods', {
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
-                        
-                        if (!response.ok) throw new Error("Erreur serveur");
-                        const json = await response.json();
-                        
-                        if (!json.success || !json.data || json.data.length === 0) {
+                        let json = null;
+                        if (response.ok) json = await response.json();
+
+                        let methodsList = (json && json.success && Array.isArray(json.data)) ? json.data : [];
+
+                        if (methodsList.length === 0 && session?.user?.id) {
+                            try {
+                                const directMethods = await window.SupabaseAdapter.fetchWithFilters('vendor_payout_methods', {
+                                    eq: [['vendor_id', session.user.id]],
+                                    skipCache: true
+                                });
+                                if (Array.isArray(directMethods) && directMethods.length > 0) {
+                                    methodsList = directMethods;
+                                } else {
+                                    const uData = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                        eq: [['id', session.user.id]],
+                                        limit: 1,
+                                        skipCache: true
+                                    });
+                                    const u = (Array.isArray(uData) && uData.length > 0) ? uData[0] : null;
+                                    if (u && u.preferred_payout_method && u.payout_account_id) {
+                                        methodsList = [{
+                                            id: 'onboarding-payout',
+                                            vendor_id: u.id,
+                                            provider: u.preferred_payout_method,
+                                            operator: u.preferred_payout_method,
+                                            account_id: u.payout_account_id,
+                                            account_name: u.company_name || u.name || '',
+                                            is_default: true
+                                        }];
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn('[VendorPayouts] Fallback direct fetch error:', e);
+                            }
+                        }
+
+                        if (methodsList.length === 0) {
                             emptyEl.classList.remove('hidden');
                             document.getElementById('payoutsMainBtnText').textContent = 'Ajouter un compte';
                             document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:add-circle-bold');
                         } else {
-                            renderPayoutMethodsList(json.data);
+                            renderPayoutMethodsList(methodsList);
                             listEl.classList.remove('hidden');
                             document.getElementById('payoutsMainBtnText').textContent = 'Modifier le compte';
                             document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:pen-bold');
