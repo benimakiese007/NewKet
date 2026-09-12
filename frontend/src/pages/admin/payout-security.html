@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Sécurité Payouts | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .glass-panel { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; }
+        .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #374151; text-decoration: none; transition: all 0.15s; }
+        .sidebar-link:hover { background: #f3f4f6; }
+        .sidebar-link.active { background: #111827; color: white; }
+        .ticket-card { border-radius: 1.5rem; border: 1px solid #e2e8f0; background: white; transition: all 0.2s; }
+        .ticket-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+        .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+        .badge-pending { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .badge-resolved { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .badge-rejected { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .photo-box { border-radius: 1rem; overflow: hidden; border: 1px solid #e5e7eb; background: #f9fafb; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
+        .photo-box img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+        .photo-box .empty { color: #9ca3af; font-size: 10px; font-weight: 700; text-align: center; padding: 1rem; }
+        .action-btn { padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .btn-approve { background: #111827; color: white; }
+        .btn-approve:hover { background: #374151; }
+        .btn-reject { background: #fee2e2; color: #991b1b; }
+        .btn-reject:hover { background: #fecaca; }
+        .modal-scroll { scrollbar-width: thin; }
+    </style>
+</head>
+
+<body class="bg-gray-50 transition-colors duration-200">
+    <div id="adminNavbarPlaceholder"></div>
+    <div id="adminOverlay"></div>
+    <div class="admin-shell">
+        <div id="adminSidebarPlaceholder"></div>
+        <main id="admin-content" class="admin-main min-h-screen">
+            <div class="admin-page-header">
+                <div class="admin-page-header-inner">
+                    <div class="admin-page-header-left">
+                        <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Sécurité Payouts</h1>
+                        <p class="text-gray-500 font-medium">Vérification d'identité pour les demandes de changement de numéro M-Pesa / Airtel.</p>
+                    </div>
+                    <div class="admin-page-actions flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                        <select id="filterStatus" onchange="loadRequests()" class="w-full sm:w-auto bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                            <option value="all">Tous les statuts</option>
+                            <option value="ouvert">En attente</option>
+                            <option value="resolu">Approuvé</option>
+                            <option value="rejete">Rejeté</option>
+                        </select>
+                        <button onclick="loadRequests()" class="w-full sm:w-auto bg-black text-white px-5 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="solar:refresh-bold" width="14"></iconify-icon> Actualiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="px-6 mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-1">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total</span>
+                    <span id="statTotal" class="text-3xl font-black text-gray-900">—</span>
+                </div>
+                <div class="bg-yellow-50 rounded-2xl border border-yellow-100 p-5 flex flex-col gap-1">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-yellow-600">En attente</span>
+                    <span id="statPending" class="text-3xl font-black text-yellow-700">—</span>
+                </div>
+                <div class="bg-green-50 rounded-2xl border border-green-100 p-5 flex flex-col gap-1">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-green-600">Approuvés</span>
+                    <span id="statApproved" class="text-3xl font-black text-green-700">—</span>
+                </div>
+                <div class="bg-red-50 rounded-2xl border border-red-100 p-5 flex flex-col gap-1">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-red-500">Rejetés</span>
+                    <span id="statRejected" class="text-3xl font-black text-red-600">—</span>
+                </div>
+            </div>
+
+            <!-- Main list -->
+            <div class="px-6">
+                <div id="requestsContainer" class="space-y-4">
+                    <div class="glass-panel p-12 text-center">
+                        <iconify-icon icon="line-md:loading-twotone-loop" width="32" class="text-gray-400 mx-auto mb-2"></iconify-icon>
+                        <p class="text-gray-400 text-sm font-medium">Chargement des demandes...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lightbox for photo zoom -->
+    <div id="photoLightbox" class="fixed inset-0 z-[99999] bg-black/90 hidden items-center justify-center p-4" onclick="this.classList.add('hidden')">
+        <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded-2xl shadow-2xl">
+        <button class="absolute top-4 right-4 text-white/80 hover:text-white" onclick="document.getElementById('photoLightbox').classList.add('hidden')">
+            <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
+        </button>
+    </div>
+
+    <script>
+        let allRequests = [];
+
+        function openLightbox(url) {
+            if (!url) return;
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('photoLightbox').classList.remove('hidden');
+            document.getElementById('photoLightbox').classList.add('flex');
+        }
+
+        function getSignedUrl(bucket, path) {
+            if (!path || !window.supabaseClient) return Promise.resolve(null);
+            // Extract just the path from a full URL if needed
+            let cleanPath = path;
+            if (path.startsWith('http')) {
+                const urlObj = new URL(path);
+                const parts = urlObj.pathname.split('/object/public/');
+                if (parts[1]) {
+                    const bucketAndPath = parts[1];
+                    const slashIdx = bucketAndPath.indexOf('/');
+                    cleanPath = bucketAndPath.slice(slashIdx + 1);
+                }
+            }
+            return window.supabaseClient.storage
+                .from(bucket)
+                .createSignedUrl(cleanPath, 3600)
+                .then(({ data }) => data?.signedUrl || path)
+                .catch(() => path);
+        }
+
+        async function loadRequests() {
+            const container = document.getElementById('requestsContainer');
+            container.innerHTML = `<div class="glass-panel p-12 text-center"><iconify-icon icon="line-md:loading-twotone-loop" width="32" class="text-gray-400 mx-auto mb-2"></iconify-icon><p class="text-gray-400 text-sm font-medium">Chargement...</p></div>`;
+
+            const filterStatus = document.getElementById('filterStatus').value;
+
+            let query = window.supabaseClient
+                .from('support_tickets')
+                .select('*')
+                .eq('type', 'PAYOUT_CHANGE')
+                .order('created_at', { ascending: false });
+
+            if (filterStatus !== 'all') {
+                query = query.eq('status', filterStatus);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                container.innerHTML = `<div class="glass-panel p-8 text-center text-red-500 text-sm font-bold">Erreur: ${error.message}</div>`;
+                return;
+            }
+
+            allRequests = data || [];
+
+            // Update stats
+            document.getElementById('statTotal').textContent = allRequests.length;
+            document.getElementById('statPending').textContent = allRequests.filter(t => t.status === 'ouvert').length;
+            document.getElementById('statApproved').textContent = allRequests.filter(t => t.status === 'resolu').length;
+            document.getElementById('statRejected').textContent = allRequests.filter(t => t.status === 'rejete').length;
+
+            if (allRequests.length === 0) {
+                container.innerHTML = `<div class="glass-panel p-12 text-center text-gray-400 text-sm italic">Aucune demande trouvée.</div>`;
+                return;
+            }
+
+            container.innerHTML = allRequests.map(t => buildCard(t)).join('');
+
+            // Load signed URLs asynchronously for each card
+            for (const t of allRequests) {
+                loadPhotosForCard(t);
+            }
+        }
+
+        function buildCard(t) {
+            const m = t.metadata || {};
+            const isResolved = t.status === 'resolu';
+            const isRejected = t.status === 'rejete';
+            const isPending = !isResolved && !isRejected;
+
+            const badgeClass = isResolved ? 'badge-resolved' : isRejected ? 'badge-rejected' : 'badge-pending';
+            const badgeText = isResolved ? 'Approuvé' : isRejected ? 'Rejeté' : 'En attente';
+
+            const date = new Date(t.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            return `
+            <div id="card_${t.id}" class="ticket-card p-6">
+                <!-- Header -->
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">#${t.id.slice(0,8)}</span>
+                    <span class="badge badge-pending text-[9px]">PAYOUT_CHANGE</span>
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                    <span class="ml-auto text-[10px] text-gray-400">${date}</span>
+                </div>
+
+                <!-- Vendor Info -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 p-4 bg-gray-50 rounded-2xl">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Vendeur</p>
+                        <p class="font-black text-gray-900">${t.customer_name || '—'}</p>
+                        <p class="text-xs text-gray-500">${t.customer_email || '—'}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Nouveau compte demandé</p>
+                        <p class="font-black text-gray-900">${m.new_provider || '—'} — ${m.new_account_id || '—'}</p>
+                        <p class="text-xs text-gray-500">Nom: ${m.new_account_name || '—'}</p>
+                    </div>
+                </div>
+
+                <!-- Photos -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Recto CNI / Passeport</p>
+                        <div class="photo-box" id="recto_${t.id}">
+                            <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Verso CNI / Passeport</p>
+                        <div class="photo-box" id="verso_${t.id}">
+                            <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Selfie en direct</p>
+                        <div class="photo-box" id="selfie_${t.id}">
+                            <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                ${isPending ? `
+                <div class="flex flex-wrap gap-3 items-center">
+                    <button onclick="approveRequest('${t.id}', '${m.new_provider || ''}', '${m.new_account_id || ''}', '${m.new_account_name || ''}')" class="action-btn btn-approve">
+                        <iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon> Approuver
+                    </button>
+                    <button onclick="rejectRequest('${t.id}')" class="action-btn btn-reject">
+                        <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon> Rejeter
+                    </button>
+                    <span id="action_msg_${t.id}" class="text-xs text-gray-500 hidden"></span>
+                </div>
+                ` : `
+                <div class="flex items-center gap-2 text-xs font-bold ${isResolved ? 'text-green-600' : 'text-red-500'}">
+                    <iconify-icon icon="${isResolved ? 'solar:check-circle-bold' : 'solar:close-circle-bold'}" width="16"></iconify-icon>
+                    ${isResolved ? 'Demande approuvée — Compte mis à jour' : 'Demande rejetée'}
+                </div>
+                `}
+            </div>`;
+        }
+
+        async function loadPhotosForCard(t) {
+            const m = t.metadata || {};
+            const userId = t.user_id || t.customer_id;
+
+            // Try to get photo URLs from metadata or from user's profile
+            let rectoUrl = m.recto_url || null;
+            let versoUrl = m.verso_url || null;
+            let selfieUrl = m.selfie_url || null;
+
+            // If not in metadata, fetch from user profile
+            if ((!rectoUrl || !versoUrl) && userId && window.supabaseClient) {
+                const { data: user } = await window.supabaseClient
+                    .from('users')
+                    .select('identity_document_urls')
+                    .eq('id', userId)
+                    .single();
+                if (user?.identity_document_urls?.length >= 2) {
+                    rectoUrl = rectoUrl || user.identity_document_urls[0];
+                    versoUrl = versoUrl || user.identity_document_urls[1];
+                }
+            }
+
+            renderPhoto('recto_' + t.id, rectoUrl);
+            renderPhoto('verso_' + t.id, versoUrl);
+            renderPhoto('selfie_' + t.id, selfieUrl);
+        }
+
+        function renderPhoto(containerId, url) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            if (!url) {
+                el.innerHTML = '<div class="empty"><iconify-icon icon="solar:gallery-remove-bold" width="20"></iconify-icon><br>Non disponible</div>';
+                return;
+            }
+            el.innerHTML = `<img src="${url}" loading="lazy" onclick="openLightbox('${url}')" onerror="this.parentElement.innerHTML='<div class=\\'empty\\'><iconify-icon icon=\\'solar:gallery-remove-bold\\' width=\\'20\\'></iconify-icon><br>Erreur chargement</div>'">`;
+        }
+
+        async function approveRequest(ticketId, newProvider, newAccountId, newAccountName) {
+            const msgEl = document.getElementById('action_msg_' + ticketId);
+            if (msgEl) { msgEl.textContent = 'Traitement...'; msgEl.classList.remove('hidden'); }
+
+            try {
+                // Get ticket to retrieve user ID
+                const { data: ticket } = await window.supabaseClient
+                    .from('support_tickets')
+                    .select('*')
+                    .eq('id', ticketId)
+                    .single();
+
+                const userId = ticket?.user_id || ticket?.customer_id;
+                if (!userId) throw new Error('ID vendeur introuvable');
+
+                const finalOperator = newProvider ? newProvider.toUpperCase() : null;
+
+                // 1. Update vendor payout method
+                const { data: existingPayout } = await window.supabaseClient
+                    .from('vendor_payout_methods')
+                    .select('id')
+                    .eq('user_id', userId)
+                    .single();
+
+                if (existingPayout) {
+                    await window.supabaseClient
+                        .from('vendor_payout_methods')
+                        .update({
+                            provider: finalOperator,
+                            account_id: newAccountId,
+                            account_name: newAccountName,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('user_id', userId);
+                } else {
+                    await window.supabaseClient
+                        .from('vendor_payout_methods')
+                        .insert({
+                            user_id: userId,
+                            provider: finalOperator,
+                            account_id: newAccountId,
+                            account_name: newAccountName
+                        });
+                }
+
+                // 2. Unflag user
+                await window.supabaseClient
+                    .from('users')
+                    .update({
+                        payout_change_pending: false,
+                        preferred_payout_method: finalOperator
+                    })
+                    .eq('id', userId);
+
+                // 3. Mark ticket as resolved
+                await window.supabaseClient
+                    .from('support_tickets')
+                    .update({ status: 'resolu', resolved_at: new Date().toISOString() })
+                    .eq('id', ticketId);
+
+                if (window.ToastMaker) window.ToastMaker.success('✅ Compte M-Pesa mis à jour !');
+                loadRequests();
+
+            } catch (e) {
+                if (msgEl) { msgEl.textContent = 'Erreur: ' + e.message; msgEl.classList.remove('hidden'); }
+                if (window.ToastMaker) window.ToastMaker.error('Erreur: ' + e.message);
+            }
+        }
+
+        async function rejectRequest(ticketId) {
+            const msgEl = document.getElementById('action_msg_' + ticketId);
+            if (msgEl) { msgEl.textContent = 'Traitement...'; msgEl.classList.remove('hidden'); }
+
+            try {
+                const { data: ticket } = await window.supabaseClient
+                    .from('support_tickets')
+                    .select('user_id, customer_id')
+                    .eq('id', ticketId)
+                    .single();
+
+                const userId = ticket?.user_id || ticket?.customer_id;
+
+                if (userId) {
+                    await window.supabaseClient
+                        .from('users')
+                        .update({ payout_change_pending: false })
+                        .eq('id', userId);
+                }
+
+                await window.supabaseClient
+                    .from('support_tickets')
+                    .update({ status: 'rejete', resolved_at: new Date().toISOString() })
+                    .eq('id', ticketId);
+
+                if (window.ToastMaker) window.ToastMaker.info('Demande rejetée.');
+                loadRequests();
+
+            } catch (e) {
+                if (msgEl) { msgEl.textContent = 'Erreur: ' + e.message; msgEl.classList.remove('hidden'); }
+            }
+        }
+
+        window.addEventListener('newketInitialized', () => {
+            loadRequests();
+        });
+
+        if (window.newketInitialized) {
+            loadRequests();
+        }
+    </script>
+</body>
+</html>
