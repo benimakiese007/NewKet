@@ -856,6 +856,8 @@
                             console.error("Erreur notification:", e);
                         }
 
+                        await syncPayoutMethod(id);
+
                         if (window.showToast) window.showToast(`${name} est maintenant vendeur actif.`, 'success', 'Approuvé');
                         setTimeout(() => window.location.reload(), 2000);
                     } else {
@@ -895,6 +897,8 @@
                             console.error("Erreur notification:", e);
                         }
 
+                        await syncPayoutMethod(id);
+
                         if (window.showToast) window.showToast(`${name} est maintenant Vendeur Certifié ✅`, 'success', 'Certifié');
                         setTimeout(() => window.location.reload(), 2000);
                     } else {
@@ -907,6 +911,41 @@
                     if (window.LoaderManager) LoaderManager.hide();
                 }
             });
+        }
+
+        // Sync payout number from onboarding (users.payout_account_id) → vendor_payout_methods table
+        async function syncPayoutMethod(userId) {
+            try {
+                const users = window.UserManager ? UserManager.getUsers() : [];
+                const user = users.find(u => u.id === userId);
+                if (!user) return;
+
+                const provider = user.preferred_payout_method;
+                const accountId = user.payout_account_id;
+                if (!provider || !accountId) return; // Nothing to sync
+
+                // Check if a method already exists for this vendor
+                const existing = await window.SupabaseAdapter.fetchWithFilters('vendor_payout_methods', {
+                    eq: [['vendor_id', userId]],
+                    limit: 1
+                });
+                if (Array.isArray(existing) && existing.length > 0) return; // Already synced
+
+                // Insert the payout method
+                await window.SupabaseAdapter.insert('vendor_payout_methods', {
+                    id: crypto.randomUUID(),
+                    vendor_id: userId,
+                    provider: provider,
+                    account_id: accountId,
+                    account_name: user.company_name || user.name || '',
+                    is_default: true,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+                console.log('[NewKet] Payout method synced for vendor', userId);
+            } catch (e) {
+                console.error('[NewKet] Erreur sync payout method:', e);
+            }
         }
 
 
