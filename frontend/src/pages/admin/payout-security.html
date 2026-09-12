@@ -335,7 +335,7 @@
                 const { data: existingPayout } = await window.supabaseClient
                     .from('vendor_payout_methods')
                     .select('id')
-                    .eq('user_id', userId)
+                    .eq('vendor_id', userId)
                     .single();
 
                 if (existingPayout) {
@@ -347,12 +347,12 @@
                             account_name: newAccountName,
                             updated_at: new Date().toISOString()
                         })
-                        .eq('user_id', userId);
+                        .eq('vendor_id', userId);
                 } else {
                     await window.supabaseClient
                         .from('vendor_payout_methods')
                         .insert({
-                            user_id: userId,
+                            vendor_id: userId,
                             provider: finalOperator,
                             account_id: newAccountId,
                             account_name: newAccountName
