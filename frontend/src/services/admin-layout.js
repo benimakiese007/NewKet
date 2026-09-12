@@ -289,6 +289,7 @@ const AdminLayout = {
             html.admin-embedded-mode body {
                 background: #f8fafc !important;
                 margin: 0 !important;
+                overflow-y: hidden !important;
             }
 
             html.admin-embedded-mode #adminNavbarPlaceholder,
