@@ -188,10 +188,16 @@ const ProfileManager = {
             city: normalizedHomeLocation.city || this._profile?.city || ''
         });
 
-        // Push to Supabase immediately (non-blocking)
+        // Push to Supabase — if user not ready yet, mark as pending for syncWithSupabase to pick up
         this._getCurrentUser().then(user => {
-            if (user?.id) this._pushHomeLocationToSupabase(user.id, normalizedHomeLocation);
-        }).catch(() => {});
+            if (user?.id) {
+                this._pushHomeLocationToSupabase(user.id, normalizedHomeLocation);
+            } else {
+                localStorage.setItem('newketPendingHomeLocationSync', '1');
+            }
+        }).catch(() => {
+            localStorage.setItem('newketPendingHomeLocationSync', '1');
+        });
 
         return true;
     },
@@ -239,9 +245,15 @@ const ProfileManager = {
                     home_location: mergedHomeLocation || undefined
                 });
 
-                // Push local home_location to Supabase if it's newer than remote
-                if (mergedHomeLocation && mergedHomeLocation !== remoteHomeLocation) {
+                // Push local home_location to Supabase if:
+                // - remote has none (first save), OR local is newer, OR there's a pending sync flag
+                const hasPendingSync = localStorage.getItem('newketPendingHomeLocationSync') === '1';
+                const remoteTs = remoteHomeLocation?.updated_at ? new Date(remoteHomeLocation.updated_at).getTime() : 0;
+                const localTs = localHomeLocation?.updated_at ? new Date(localHomeLocation.updated_at).getTime() : 0;
+                const shouldPush = mergedHomeLocation && (hasPendingSync || !remoteHomeLocation || localTs > remoteTs);
+                if (shouldPush) {
                     await this._pushHomeLocationToSupabase(user.id, mergedHomeLocation);
+                    localStorage.removeItem('newketPendingHomeLocationSync');
                 }
             }
         } catch (error) {
@@ -250,15 +262,25 @@ const ProfileManager = {
     },
 
     async _pushHomeLocationToSupabase(userId, homeLocation) {
-        if (!window.SupabaseAdapter || !userId || !homeLocation) return;
+        if (!userId || !homeLocation) return;
+
+        // Use direct .update() (not upsert) — the row always exists for authenticated users,
+        // and upsert can fail silently on INSERT when NOT NULL columns are missing.
+        const client = window.SupabaseAdapter?.getClient?.();
+        if (!client) return;
+
         try {
-            await window.SupabaseAdapter.upsert('users', {
-                id: userId,
-                home_location: homeLocation
-            });
+            const { error } = await client
+                .from('users')
+                .update({ home_location: homeLocation })
+                .eq('id', userId);
+
+            if (error) throw error;
             console.info('[ProfileManager] home_location synced to Supabase.');
         } catch (error) {
             console.warn('[ProfileManager] Failed to push home_location to Supabase:', error);
+            // Mark as pending so the next syncWithSupabase call retries it
+            localStorage.setItem('newketPendingHomeLocationSync', '1');
         }
     }
 };
