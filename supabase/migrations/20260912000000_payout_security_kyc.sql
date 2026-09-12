@@ -18,7 +18,7 @@ END $$;
 -- Add the new constraint allowing African Mobile Money providers
 ALTER TABLE public.vendor_payout_methods 
     ADD CONSTRAINT vendor_payout_methods_provider_check 
-    CHECK (provider IN ('flexpaie', 'stripe', 'MPESA', 'AIRTEL', 'ORANGE', 'AFRICELL'));
+    CHECK (provider IN ('flexpaie', 'stripe', 'MPESA', 'AIRTEL', 'ORANGE', 'AFRICELL', 'kpay', 'mobile_money', 'MOBILE_MONEY', 'KPAY', 'FLEXPAIE', 'STRIPE'));
 
 -- 3. Create 'vendor-docs' storage bucket if it doesn't exist
 INSERT INTO storage.buckets (id, name, public)
@@ -42,9 +42,5 @@ USING (
     bucket_id = 'vendor-docs' AND
     (
         auth.role() = 'authenticated' 
-        -- In reality, we'd check for admin role here. Since NewKet handles roles via users.role,
-        -- and storage policies can't easily join users table without a helper function,
-        -- we rely on RLS being handled at the app level using signed URLs or a helper function.
-        -- We'll allow authenticated users to read for now (they still need the exact path or signed url).
     )
 );
