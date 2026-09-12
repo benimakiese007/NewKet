@@ -141,18 +141,26 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Mode de paiement préféré</label>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Opérateur de versement</label>
                         <div class="relative">
                             <select id="payoutMethod" required
                                 class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium appearance-none">
                                 <option value="" disabled selected>Choisir...</option>
-                                <option value="Mobile Money">Mobile Money (M-Pesa, Orange...)</option>
-                                <option value="Bank">Virement Bancaire</option>
-                                <option value="Cash">Collecte en magasin</option>
+                                <option value="AIRTEL">Airtel Money</option>
+                                <option value="MPESA">M-Pesa</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
                         </div>
                     </div>
+                </div>
+
+                <!-- Payout Number (full width) -->
+                <div class="space-y-2">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Numéro de versement</label>
+                    <input type="tel" id="payoutAccountId" required placeholder="ex: 0990924257"
+                        class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
+                    <p class="text-[11px] text-gray-400 ml-1">Le numéro de mobile money sur lequel vous recevrez vos paiements.</p>
+                </div>
                 </div>
 
                 <!-- Next Button -->
@@ -589,6 +597,7 @@
                 const storeAddress = document.getElementById('storeAddress').value;
                 const pMethodElem = document.getElementById('payoutMethod');
                 const payoutMethod = pMethodElem ? pMethodElem.value : '';
+                const payoutAccountId = (document.getElementById('payoutAccountId')?.value || '').trim();
 
                 const session = window.getSupabaseSession
                     ? await window.getSupabaseSession(3000)
@@ -695,6 +704,7 @@
                     store_description: storeDescription,
                     store_address: storeAddress,
                     preferred_payout_method: payoutMethod,
+                    payout_account_id: payoutAccountId || null,
                     terms_accepted_at: new Date().toISOString(),
                     seller_terms_accepted_at: new Date().toISOString(),
                     status: 'submitted'
@@ -747,7 +757,7 @@
         const backToStep1 = document.getElementById('backToStep1');
         
         function validateStep1() {
-            const requiredFields = ['companyName', 'phone', 'storeDescription', 'storeAddress', 'payoutMethod'];
+            const requiredFields = ['companyName', 'phone', 'storeDescription', 'storeAddress', 'payoutMethod', 'payoutAccountId'];
             let isValid = true;
             requiredFields.forEach(id => {
                 const el = document.getElementById(id);
