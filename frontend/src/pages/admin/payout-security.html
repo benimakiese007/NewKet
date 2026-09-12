@@ -221,38 +221,64 @@
                     <span class="ml-auto text-[10px] text-gray-400">${date}</span>
                 </div>
 
-                <!-- Vendor Info -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 p-4 bg-gray-50 rounded-2xl">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Vendeur</p>
-                        <p class="font-black text-gray-900">${t.customer_name || '—'}</p>
-                        <p class="text-xs text-gray-500">${t.customer_email || '—'}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Nouveau compte demandé</p>
-                        <p class="font-black text-gray-900">${m.new_provider || '—'} — ${m.new_account_id || '—'}</p>
-                        <p class="text-xs text-gray-500">Nom: ${m.new_account_name || '—'}</p>
-                    </div>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                    <!-- LEFT: Profil Original -->
+                    <div class="p-5 bg-gray-50 rounded-2xl border border-gray-200">
+                        <div class="flex items-center gap-2 mb-4 border-b border-gray-200 pb-3">
+                            <iconify-icon icon="solar:folder-with-files-bold-duotone" class="text-gray-400" width="18"></iconify-icon>
+                            <h4 class="text-xs font-black uppercase tracking-widest text-gray-500">Profil Actuel (Au dossier)</h4>
+                        </div>
+                        
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Identité du Vendeur</p>
+                        <p class="font-black text-gray-900 mb-1">${t.customer_name || '—'}</p>
+                        <p class="text-xs text-gray-500 mb-5">${t.customer_email || '—'}</p>
 
-                <!-- Photos -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Recto CNI / Passeport</p>
-                        <div class="photo-box" id="recto_${t.id}">
-                            <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Recto (Dossier)</p>
+                                <div class="photo-box bg-white border-gray-200" id="orig_recto_${t.id}">
+                                    <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Verso (Dossier)</p>
+                                <div class="photo-box bg-white border-gray-200" id="orig_verso_${t.id}">
+                                    <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Verso CNI / Passeport</p>
-                        <div class="photo-box" id="verso_${t.id}">
-                            <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+
+                    <!-- RIGHT: Nouvelle Demande -->
+                    <div class="p-5 bg-blue-50 rounded-2xl border border-blue-100">
+                        <div class="flex items-center gap-2 mb-4 border-b border-blue-200 pb-3">
+                            <iconify-icon icon="solar:shield-check-bold-duotone" class="text-blue-500" width="18"></iconify-icon>
+                            <h4 class="text-xs font-black uppercase tracking-widest text-blue-600">Nouvelle Soumission</h4>
                         </div>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Selfie en direct</p>
-                        <div class="photo-box" id="selfie_${t.id}">
-                            <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                        
+                        <p class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-1">Nouveau Compte Demandé</p>
+                        <p class="font-black text-gray-900 mb-1">${m.new_provider || '—'} — ${m.new_account_id || '—'}</p>
+                        <p class="text-xs text-gray-600 mb-5">Nom: ${m.new_account_name || '—'}</p>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Nouv. Recto</p>
+                                <div class="photo-box bg-white border-blue-200" id="recto_${t.id}">
+                                    <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Nouv. Verso</p>
+                                <div class="photo-box bg-white border-blue-200" id="verso_${t.id}">
+                                    <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Selfie (Live)</p>
+                                <div class="photo-box bg-white border-blue-400 border-2 shadow-sm" id="selfie_${t.id}">
+                                    <div class="empty"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement...</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -260,20 +286,15 @@
                 <!-- Actions -->
                 ${isPending ? `
                 <div class="flex flex-wrap gap-3 items-center">
-                    <button onclick="approveRequest('${t.id}', '${m.new_provider || ''}', '${m.new_account_id || ''}', '${m.new_account_name || ''}')" class="action-btn btn-approve">
-                        <iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon> Approuver
+                    <button onclick="approveRequest('${t.id}', '${m.new_provider}', '${m.new_account_id}', '${m.new_account_name?.replace(/'/g, "\\'")}')" class="px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 shadow-lg hover:-translate-y-0.5">
+                        <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon> Approuver
                     </button>
-                    <button onclick="rejectRequest('${t.id}')" class="action-btn btn-reject">
-                        <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon> Rejeter
+                    <button onclick="rejectRequest('${t.id}')" class="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2">
+                        <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon> Rejeter
                     </button>
-                    <span id="action_msg_${t.id}" class="text-xs text-gray-500 hidden"></span>
+                    <div id="action_msg_${t.id}" class="text-xs font-medium ml-3 hidden"></div>
                 </div>
-                ` : `
-                <div class="flex items-center gap-2 text-xs font-bold ${isResolved ? 'text-green-600' : 'text-red-500'}">
-                    <iconify-icon icon="${isResolved ? 'solar:check-circle-bold' : 'solar:close-circle-bold'}" width="16"></iconify-icon>
-                    ${isResolved ? 'Demande approuvée — Compte mis à jour' : 'Demande rejetée'}
-                </div>
-                `}
+                ` : ''}
             </div>`;
         }
 
@@ -281,27 +302,33 @@
             const m = t.metadata || {};
             const userId = t.user_id || t.customer_id;
 
-            // Try to get photo URLs from metadata or from user's profile
             let rectoUrl = m.recto_url || null;
             let versoUrl = m.verso_url || null;
             let selfieUrl = m.selfie_url || null;
+            
+            let origRectoUrl = null;
+            let origVersoUrl = null;
 
-            // If not in metadata, fetch from user profile
-            if ((!rectoUrl || !versoUrl) && userId && window.supabaseClient) {
+            if (userId && window.supabaseClient) {
                 const { data: user } = await window.supabaseClient
                     .from('users')
                     .select('identity_document_urls')
                     .eq('id', userId)
                     .single();
+                if (user?.identity_document_urls?.length >= 1) {
+                    origRectoUrl = user.identity_document_urls[0];
+                }
                 if (user?.identity_document_urls?.length >= 2) {
-                    rectoUrl = rectoUrl || user.identity_document_urls[0];
-                    versoUrl = versoUrl || user.identity_document_urls[1];
+                    origVersoUrl = user.identity_document_urls[1];
                 }
             }
 
             renderPhoto('recto_' + t.id, rectoUrl);
             renderPhoto('verso_' + t.id, versoUrl);
             renderPhoto('selfie_' + t.id, selfieUrl);
+            
+            renderPhoto('orig_recto_' + t.id, origRectoUrl);
+            renderPhoto('orig_verso_' + t.id, origVersoUrl);
         }
 
         function renderPhoto(containerId, url) {
