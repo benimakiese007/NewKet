@@ -766,9 +766,15 @@
                 const el = document.getElementById(id);
                 let fieldValid = el && el.value.trim() !== '';
                 
-                // Specific validation for payoutAccountId (must be 10 digits)
+                // Specific validation for payoutAccountId (must be 10 digits and start with 08 or 09)
                 if (id === 'payoutAccountId' && fieldValid) {
-                    fieldValid = el.value.trim().length === 10;
+                    fieldValid = /^(08|09)[0-9]{8}$/.test(el.value.trim());
+                    const errorEl = document.getElementById('payoutError');
+                    if (!fieldValid && el.value.trim() !== '') {
+                        if (errorEl) errorEl.classList.remove('hidden');
+                    } else {
+                        if (errorEl) errorEl.classList.add('hidden');
+                    }
                 }
 
                 if (!fieldValid) {
