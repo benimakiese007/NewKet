@@ -159,9 +159,10 @@
                 <!-- Payout Number (full width) -->
                 <div class="space-y-2">
                     <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Numéro de versement</label>
-                    <input type="tel" id="payoutAccountId" required placeholder="ex: 08XXXXXXXX"
+                    <input type="tel" id="payoutAccountId" required placeholder="ex: 08XXXXXXXX" 
+                        maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                         class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
-                    <p class="text-[11px] text-gray-400 ml-1">Le numéro de mobile money sur lequel vous recevrez vos paiements.</p>
+                    <p class="text-[11px] text-gray-400 ml-1">Le numéro de mobile money sur lequel vous recevrez vos paiements (10 chiffres).</p>
                 </div>
                 </div>
 
@@ -763,10 +764,19 @@
             let isValid = true;
             requiredFields.forEach(id => {
                 const el = document.getElementById(id);
-                if (el && !el.value.trim()) {
+                let fieldValid = el && el.value.trim() !== '';
+                
+                // Specific validation for payoutAccountId (must be 10 digits)
+                if (id === 'payoutAccountId' && fieldValid) {
+                    fieldValid = el.value.trim().length === 10;
+                }
+
+                if (!fieldValid) {
                     isValid = false;
-                    el.classList.add('border-red-500');
-                    el.classList.remove('border-gray-100');
+                    if(el) {
+                        el.classList.add('border-red-500');
+                        el.classList.remove('border-gray-100');
+                    }
                 } else if (el) {
                     el.classList.remove('border-red-500');
                     el.classList.add('border-gray-100');
