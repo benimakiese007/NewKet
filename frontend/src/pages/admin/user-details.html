@@ -566,12 +566,18 @@
                 if (user.status === 'submitted' || user.status === 'pending') {
                     actionButtonsHtml += `
                         <div class="mt-6 pt-4 border-t border-gray-100">
-                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Vérification Boutique</p>
-                            <div class="flex gap-2">
-                                <button onclick="approveVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_vendor_click" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all flex items-center justify-center gap-2">
-                                    <iconify-icon icon="solar:check-read-bold" width="18"></iconify-icon> Approuver
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-3">Vérification Boutique</p>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="approveVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_vendor_click" class="w-full py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:check-read-bold" width="18"></iconify-icon> Approuver comme Vendeur
                                 </button>
-                                <button onclick="rejectVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:reject_vendor_click" class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                                <button onclick="approveVendorAsCertified('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_vendor_certified_click"
+                                    class="w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${documentUrls.length > 0 ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer' : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'}"
+                                    ${documentUrls.length === 0 ? 'disabled title="Aucun document soumis — certification impossible"' : ''}>
+                                    <iconify-icon icon="solar:verified-check-bold" width="18"></iconify-icon> Approuver & Certifier
+                                    ${documentUrls.length === 0 ? '<span class="text-[10px] ml-1">(aucun doc)</span>' : ''}
+                                </button>
+                                <button onclick="rejectVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:reject_vendor_click" class="w-full py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
                                     <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon> Rejeter
                                 </button>
                             </div>
@@ -826,11 +832,11 @@
         }
 
         async function approveVendor(id, name) {
-            window.showConfirm("Approuver", `Confirmer l'approbation du vendeur ${name} ?`, async () => {
+            window.showConfirm("Approuver comme Vendeur", `Confirmer l'approbation de ${name} comme vendeur normal (sans badge certifié) ?`, async () => {
                 if (window.LoaderManager) LoaderManager.show("Approbation...");
 
                 try {
-                    const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier', seller_type: 'certified' });
+                    const res = await window.SupabaseAdapter.update('users', id, { status: 'approved', role: 'supplier', seller_type: null });
                     if (res) {
                         try {
                             const users = window.UserManager ? UserManager.getUsers() : [];
@@ -850,7 +856,7 @@
                             console.error("Erreur notification:", e);
                         }
 
-                        if (window.showToast) window.showToast(`Le vendeur ${name} a été approuvé.`, 'success', 'Approbation');
+                        if (window.showToast) window.showToast(`${name} est maintenant vendeur actif.`, 'success', 'Approuvé');
                         setTimeout(() => window.location.reload(), 2000);
                     } else {
                         throw new Error("Mise à jour échouée (aucun retour).");
@@ -863,6 +869,46 @@
                 }
             });
         }
+
+        async function approveVendorAsCertified(id, name) {
+            window.showConfirm("Approuver & Certifier", `Approuver ${name} comme Vendeur Certifié ✅ ? Il recevra le badge bleu sur sa boutique.`, async () => {
+                if (window.LoaderManager) LoaderManager.show("Certification...");
+
+                try {
+                    const res = await window.SupabaseAdapter.update('users', id, { status: 'approved', role: 'supplier', seller_type: 'certified' });
+                    if (res) {
+                        try {
+                            const users = window.UserManager ? UserManager.getUsers() : [];
+                            const user = users.find(u => u.id === id);
+                            if (user && user.email) {
+                                await window.SupabaseAdapter.insert('notifications', {
+                                    id: 'notif-' + Date.now(),
+                                    title: "🏅 Vous êtes Vendeur Certifié !",
+                                    message: "Félicitations ! Votre boutique a été vérifiée et vous avez obtenu le badge Vendeur Certifié.",
+                                    type: "success",
+                                    date: new Date().toISOString(),
+                                    read: false,
+                                    user_email: user.email
+                                });
+                            }
+                        } catch (e) {
+                            console.error("Erreur notification:", e);
+                        }
+
+                        if (window.showToast) window.showToast(`${name} est maintenant Vendeur Certifié ✅`, 'success', 'Certifié');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        throw new Error("Mise à jour échouée (aucun retour).");
+                    }
+                } catch (err) {
+                    console.error("Erreur certification:", err);
+                    if (window.showToast) window.showToast("Erreur lors de la certification : " + err.message, 'danger', 'Erreur');
+                } finally {
+                    if (window.LoaderManager) LoaderManager.hide();
+                }
+            });
+        }
+
 
         async function setVendorSellerType(id, sellerType, name) {
             const isCertified = sellerType === 'certified';
