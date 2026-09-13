@@ -126,15 +126,154 @@
     }
   },
   "rewrites": [
-    { "source": "/api/analytics/admin/behavior", "destination": "/api/admin-behavior" },
-    { "source": "/api/analytics/admin/behavior/drilldown", "destination": "/api/admin-behavior-drilldown" },
-    { "source": "/api/analytics/admin/behavior/reset", "destination": "/api/admin-behavior-reset" },
-    { "source": "/api/:path*", "destination": "/api/app?path=:path*" },
-    { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
-    { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
-    { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
-    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop?shop=:shopSlug" },
-    { "source": "/boutique/:shopSlug/produit/:productSlug", "destination": "/src/pages/product?id=:productSlug" }
+    {
+      "source": "/api/analytics/admin/behavior",
+      "destination": "/api/admin-behavior"
+    },
+    {
+      "source": "/api/analytics/admin/behavior/drilldown",
+      "destination": "/api/admin-behavior-drilldown"
+    },
+    {
+      "source": "/api/analytics/admin/behavior/reset",
+      "destination": "/api/admin-behavior-reset"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/app?path=:path*"
+    },
+    {
+      "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet",
+      "destination": "/src/pages/product?id=:productSlug"
+    },
+    {
+      "source": "/Boutique/:shopSlug/NewKet",
+      "destination": "/src/pages/shop?shop=:shopSlug"
+    },
+    {
+      "source": "/boutique/:shopSlug/NewKet",
+      "destination": "/src/pages/shop?shop=:shopSlug"
+    },
+    {
+      "source": "/boutique/:shopSlug",
+      "destination": "/src/pages/shop?shop=:shopSlug"
+    },
+    {
+      "source": "/boutique/:shopSlug/produit/:productSlug",
+      "destination": "/src/pages/product?id=:productSlug"
+    },
+    {
+      "source": "/catalog",
+      "destination": "/src/pages/catalog"
+    },
+    {
+      "source": "/login",
+      "destination": "/src/pages/login"
+    },
+    {
+      "source": "/product",
+      "destination": "/src/pages/product"
+    },
+    {
+      "source": "/shop",
+      "destination": "/src/pages/shop"
+    },
+    {
+      "source": "/favorites",
+      "destination": "/src/pages/favorites"
+    },
+    {
+      "source": "/shops",
+      "destination": "/src/pages/shops"
+    },
+    {
+      "source": "/support",
+      "destination": "/src/pages/support"
+    },
+    {
+      "source": "/faq",
+      "destination": "/src/pages/faq"
+    },
+    {
+      "source": "/seller-onboarding",
+      "destination": "/src/pages/seller-onboarding"
+    },
+    {
+      "source": "/vendor-dashboard",
+      "destination": "/src/pages/vendor-dashboard"
+    },
+    {
+      "source": "/customer-dashboard",
+      "destination": "/src/pages/customer-dashboard"
+    },
+    {
+      "source": "/publish",
+      "destination": "/src/pages/publish"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/src/pages/reset-password"
+    },
+    {
+      "source": "/achat",
+      "destination": "/src/pages/achat"
+    },
+    {
+      "source": "/promo",
+      "destination": "/src/pages/promo"
+    },
+    {
+      "source": "/settings",
+      "destination": "/src/pages/settings"
+    },
+    {
+      "source": "/terms",
+      "destination": "/src/pages/terms"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/src/pages/privacy"
+    },
+    {
+      "source": "/mentions-legales",
+      "destination": "/src/pages/mentions-legales"
+    },
+    {
+      "source": "/system-health",
+      "destination": "/src/pages/system-health"
+    },
+    {
+      "source": "/payment-success",
+      "destination": "/src/pages/payment-success"
+    },
+    {
+      "source": "/payment-cancel",
+      "destination": "/src/pages/payment-cancel"
+    },
+    {
+      "source": "/invoice-verify",
+      "destination": "/src/pages/invoice-verify"
+    },
+    {
+      "source": "/about",
+      "destination": "/src/pages/about"
+    },
+    {
+      "source": "/seller",
+      "destination": "/src/pages/seller"
+    },
+    {
+      "source": "/404",
+      "destination": "/src/pages/404"
+    },
+    {
+      "source": "/500",
+      "destination": "/src/pages/500"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/src/pages/admin/:path*"
+    }
   ],
   "crons": [
     {

@@ -965,12 +965,12 @@ const ComponentLoader = {
         // --- NEW: Sync Account Path Resolution ---
         const hasSession = !!window.AuthManager?.user || !!this._initialHasSession;
         const role = window.AuthManager?.role || (hasSession ? localStorage.getItem('newketRole') : null);
-        let accountPath = 'src/pages/login.html';
+        let accountPath = 'login';
         
         if (hasSession && role) {
-            if (role === 'admin') accountPath = 'src/pages/admin/index.html';
-            else if (role === 'supplier') accountPath = 'src/pages/vendor-dashboard.html';
-            else accountPath = 'src/pages/customer-dashboard.html';
+            if (role === 'admin') accountPath = 'admin';
+            else if (role === 'supplier') accountPath = 'vendor-dashboard';
+            else accountPath = 'customer-dashboard';
         }
 
         // Resolve AUTH_ONLY blocks: show content only for authenticated users
