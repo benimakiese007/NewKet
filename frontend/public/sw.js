@@ -3,13 +3,13 @@ const CACHE_NAME = `newket-cache-${BUILD_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
-    '/src/pages/catalog.html',
-    '/src/pages/product.html',
-    '/src/pages/favorites.html',
-    '/src/pages/shops.html',
-    '/src/pages/shop.html',
-    '/src/pages/support.html',
-    '/src/pages/faq.html',
+    '/catalog',
+    '/product',
+    '/favorites',
+    '/shops',
+    '/shop',
+    '/support',
+    '/faq',
 
     '/src/assets/css/style.css',
     '/src/assets/css/responsive.css',
@@ -108,11 +108,12 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     const method = event.request.method;
 
-    // (L'interception sur localhost a été réactivée pour tester la PWA. 
-    // Si tu as des soucis de cache en dev, coche "Désactiver le cache" dans le Network tab)
-    // if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-    //     return;
-    // }
+    // En développement local, on laisse le réseau passer directement.
+    // Cela évite que d'anciennes réponses en cache (corrompues ou périmées)
+    // masquent les vrais fichiers servis par Vite.
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        return;
+    }
 
     // Never proxy third-party assets through the service worker.
     // This avoids CSP connect-src failures for Google Fonts, Google avatars,

@@ -179,7 +179,7 @@ function resolvePath(path) {
     // Fallback logic (must be consistent with ComponentLoader.getAdjustedPath)
     const root = '/';
     if (!path || path === '#' || path === './') {
-        return root + 'index.html';
+        return root;
     }
 
     if (path.startsWith('/') || path.startsWith('http') || path.startsWith('javascript:')) {
@@ -187,9 +187,15 @@ function resolvePath(path) {
     }
 
     let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
-    
+
+    // Strip legacy src/pages/ prefix so old callers still work.
+    cleanPath = cleanPath.replace(/^src\/pages\//, '').replace(/^pages\//, '');
+
+    // Strip .html extension
+    cleanPath = cleanPath.replace(/\.html$/, '');
+
     if (cleanPath === 'admin' || cleanPath === 'admin/') {
-        cleanPath = 'pages/admin/index.html';
+        return root + 'admin/index';
     }
 
     let query = '';
@@ -199,25 +205,8 @@ function resolvePath(path) {
         query = '?' + parts[1];
     }
 
-    if (cleanPath === 'index' || cleanPath === '404' || cleanPath === 'index.html' || cleanPath === '404.html') {
-        if (!cleanPath.endsWith('.html')) cleanPath += '.html';
-        return root + cleanPath + query;
-    }
-
     if (cleanPath.startsWith('assets/')) {
         return root + 'src/' + cleanPath + query;
-    }
-
-    if (!cleanPath.startsWith('src/') && !cleanPath.startsWith('pages/')) {
-        cleanPath = 'pages/' + cleanPath;
-    }
-
-    if (!cleanPath.startsWith('src/')) {
-        cleanPath = 'src/' + cleanPath;
-    }
-
-    if (!cleanPath.includes('.') && !cleanPath.endsWith('/')) {
-        cleanPath += '.html';
     }
 
     return root + cleanPath + query;

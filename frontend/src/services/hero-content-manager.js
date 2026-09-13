@@ -48,8 +48,8 @@ const HeroContentManager = {
             titleLine1: 'SUBTILE',
             titleLine2: 'ÉLÉGANCE.',
             description: "L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.",
-            primaryCta: { label: 'Découvrir', href: '/src/pages/catalog.html' },
-            secondaryCta: { label: 'Vendre', href: '/src/pages/publish.html' },
+            primaryCta: { label: 'Découvrir', href: '/catalog' },
+            secondaryCta: { label: 'Vendre', href: '/publish' },
             slideIntervalSeconds: HERO_DEFAULT_SWITCH_INTERVAL_SECONDS,
             promo: { headline: '-50%', caption: 'Sélection Premium', code: 'NEWKET50' }
         }

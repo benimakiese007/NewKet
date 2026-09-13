@@ -290,7 +290,7 @@
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
                         <div class="h-px bg-gray-100 my-4 mx-2"></div>
-                        <a href="/src/pages/admin/index.html" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
+                        <a href="/admin/index" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
                             <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
                             <span>Espace Vendeur</span>
                         </a>
@@ -2016,7 +2016,7 @@
                         return;
                     }
 
-                    const redirectTo = window.location.origin + '/src/pages/reset-password.html';
+                    const redirectTo = window.location.origin + '/reset-password';
                     const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
 
                     if (error) throw error;
@@ -2548,7 +2548,7 @@
                         <iconify-icon icon="solar:bag-2-bold" width="44" class="mb-3 text-gray-300"></iconify-icon>
                         <p class="font-bold text-gray-900">Aucune commande en cours</p>
                         <p class="mt-2 text-sm">Explorez le catalogue et lancez une demande.</p>
-                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-xs font-black tracking-widest uppercase text-black border-b border-black">Voir le catalogue</a>
+                        <a href="/catalog" class="inline-block mt-4 text-xs font-black tracking-widest uppercase text-black border-b border-black">Voir le catalogue</a>
                     </div>
                 `;
             } else {
@@ -2716,7 +2716,7 @@
                         <div class="text-2xl font-bold text-gray-900 mb-2">Aucune commande pour le moment</div>
                         <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend, découvrez nos nouveautés.</div>
                         <div class="mt-6">
-                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                            <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
                             </a>
                         </div>
@@ -2820,7 +2820,7 @@
                         <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</div>
                         <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
                         <div class="mt-6">
-                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                            <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
                             </a>
                         </div>
@@ -3490,7 +3490,7 @@
                         </div>
                         <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
                         <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
-                        <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
+                        <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/catalog'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                             Découvrir le catalogue
                         </a>
                     </div>
@@ -3864,7 +3864,7 @@
                 console.warn('[DEBUG handlePayOrder] currentSelectedOrder est NULL — navigation annulée');
                 return;
             }
-            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/src/pages/achat.html';
+            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/achat';
             const targetUrl = `${path}?order_id=${encodeURIComponent(currentSelectedOrder.id)}`;
             console.log('[DEBUG handlePayOrder] Navigation vers:', targetUrl);
             window.location.href = targetUrl;
@@ -4420,7 +4420,7 @@
 
             const baseUrl = window.location.origin;
             if (!order?.id) {
-                return new URL('/src/pages/invoice-verify.html', baseUrl).toString();
+                return new URL('/invoice-verify', baseUrl).toString();
             }
             const url = new URL(`/facture/${order.id}`, baseUrl);
             if (qrReference) url.searchParams.set('invoice_ref', qrReference);

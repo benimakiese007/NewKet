@@ -589,15 +589,15 @@
             if (!v) return '-';
             // Pretty known admin routes and pages
             const map = [
-                ['/src/pages/customer-dashboard.html', 'Dashboard client'],
-                ['/src/pages/vendor-dashboard.html', 'Dashboard vendeur'],
-                ['/src/pages/shop.html', 'Boutique (liste)'],
-                ['/src/pages/shops.html', 'Boutiques'],
-                ['/src/pages/catalog.html', 'Catalogue'],
-                ['/src/pages/product.html', 'Produit'],
-                ['/src/pages/achat.html', 'Achat'],
-                ['/src/pages/payment-success.html', 'Succès paiement'],
-                ['/src/pages/admin/index.html', 'Admin (Shell)'],
+                ['/customer-dashboard', 'Dashboard client'],
+                ['/vendor-dashboard', 'Dashboard vendeur'],
+                ['/shop', 'Boutique (liste)'],
+                ['/shops', 'Boutiques'],
+                ['/catalog', 'Catalogue'],
+                ['/product', 'Produit'],
+                ['/achat', 'Achat'],
+                ['/payment-success', 'Succès paiement'],
+                ['/admin/index', 'Admin (Shell)'],
             ];
             for (const [needle, label] of map) {
                 if (v.includes(needle)) return label;

@@ -161,17 +161,17 @@ export const ApiClient = {
         }
     },
 
-    async _waitForLocalApiReady(maxWaitMs = 4500) {
+    async _waitForLocalApiReady(maxWaitMs = 12000) {
         if (!isLocalDevHost()) return false;
         if (this._localApiReadyPromise) return await this._localApiReadyPromise;
 
         this._localApiReadyPromise = (async () => {
             const deadline = Date.now() + maxWaitMs;
             while (Date.now() < deadline) {
-                if (await this._probeLocalApiHealth()) {
+                if (await this._probeLocalApiHealth(1500)) {
                     return true;
                 }
-                await this._wait(350);
+                await this._wait(200);
             }
             return false;
         })();
@@ -183,7 +183,7 @@ export const ApiClient = {
         }
     },
 
-    async isLocalBackendReady(maxWaitMs = 4500) {
+    async isLocalBackendReady(maxWaitMs = 12000) {
         return await this._waitForLocalApiReady(maxWaitMs);
     },
 

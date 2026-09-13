@@ -14,7 +14,7 @@ const resolveLocalBackendReady = async () => {
     if (window.newketBackendReady === true) return true;
     if (window.newketBackendReady === false) return false;
     if (window.ApiClient?.isLocalBackendReady) {
-        const ready = await window.ApiClient.isLocalBackendReady(1200);
+        const ready = await window.ApiClient.isLocalBackendReady(); // uses 12s default
         window.newketBackendReady = ready;
         return ready;
     }
@@ -101,7 +101,7 @@ const App = {
                             L&apos;&eacute;quipe admin garde l&apos;acc&egrave;s pour la supervision et le r&eacute;tablissement du service.
                         </p>
                         <div style="margin-top:30px; display:flex; justify-content:center;">
-                            <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/src/pages/login.html';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                            <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/login';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
                                 Acc&egrave;s admin
                             </button>
                         </div>
@@ -130,7 +130,7 @@ const App = {
                             L’espace administrateur reste disponible pour la connexion et la supervision.
                         </p>
                         <div style="margin-top:28px; display:flex; justify-content:center;">
-                            <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/src/pages/login.html';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                            <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/login';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
                                 Se connecter en admin
                             </button>
                         </div>
@@ -464,7 +464,7 @@ const App = {
         const isCatalogPage = (() => {
             try {
                 const path = String(window.location?.pathname || '');
-                return path.endsWith('/catalog.html') || path.includes('/src/pages/catalog.html');
+                return path.endsWith('/catalog.html') || path.includes('/catalog');
             } catch (_) {
                 return false;
             }

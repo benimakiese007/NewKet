@@ -114,7 +114,7 @@
 <body>
 <nav class="bg-newket-header bg-[#111827] fixed top-0 w-full z-[100] transition-all duration-300">
         <div class="max-w-4xl mx-auto px-4 sm:px-8 py-3 grid grid-cols-3 items-center h-[64px] sm:h-[80px]">
-<a href="/src/pages/customer-dashboard.html" class="justify-self-start flex items-center gap-2 text-sm font-bold text-white/75 hover:text-white transition-colors group">
+<a href="/customer-dashboard" class="justify-self-start flex items-center gap-2 text-sm font-bold text-white/75 hover:text-white transition-colors group">
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="20" class="group-hover:-translate-x-1 transition-transform"></iconify-icon>
                 <span class="hidden sm:inline">Retour à l'espace client</span>
             </a>
@@ -308,7 +308,7 @@
         }
 
         window.goToOrder = function(orderId) {
-            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/src/pages/achat.html';
+            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/achat';
             window.location.href = `${path}?order_id=${encodeURIComponent(orderId)}`;
         };
 
@@ -343,7 +343,7 @@
                         <div class="text-2xl font-bold text-gray-900 mb-2">Votre panier est vide pour le moment</div>
                         <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
                         <div class="mt-6">
-                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                            <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
                             </a>
                         </div>
@@ -499,11 +499,11 @@
                 window.location.href = window.resolvePath('customer-dashboard');
                 return;
             }
-            window.location.href = '/src/pages/customer-dashboard.html';
+            window.location.href = '/customer-dashboard';
         }
 
         window.goDashboard = function(tab) {
-            const base = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/src/pages/customer-dashboard.html';
+            const base = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/customer-dashboard';
             const hash = tab ? `#${encodeURIComponent(tab)}` : '';
             window.location.href = `${base}${hash}`;
         };
@@ -744,7 +744,7 @@
                     return;
                 }
                 localStorage.clear();
-                window.location.href = (typeof window.resolvePath === 'function') ? window.resolvePath('login') : '/src/pages/login.html';
+                window.location.href = (typeof window.resolvePath === 'function') ? window.resolvePath('login') : '/login';
             });
 
             const initCustomerSidebar = () => {

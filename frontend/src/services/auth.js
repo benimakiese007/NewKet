@@ -84,7 +84,7 @@ const AuthManager = {
                     // Do NOT call handleSessionUpdate here — it would redirect away from the reset page.
                     if (event === 'PASSWORD_RECOVERY') {
                         if (!window.location.pathname.includes('reset-password')) {
-                            const target = (typeof window.resolvePath === 'function' ? window.resolvePath('pages/reset-password') : '/src/pages/reset-password.html') + '?recovery=1';
+                            const target = (typeof window.resolvePath === 'function' ? window.resolvePath('pages/reset-password') : '/reset-password') + '?recovery=1';
                             window.location.href = target;
                             return;
                         }

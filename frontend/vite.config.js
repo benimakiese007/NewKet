@@ -161,12 +161,30 @@ export default defineConfig({
               return next();
             }
 
-            // /facture/:orderId → invoice-verify (miroir du rewrite Vercel)
+            // /facture/:orderId → invoice-verify
             const factureMatch = originalUrl.match(/^\/facture\/([^/?#]+)(?:\?.*)?$/i);
             if (factureMatch) {
               const url = new URL(originalUrl, 'http://localhost');
               url.searchParams.set('order_id', factureMatch[1]);
               req.url = `/src/pages/invoice-verify.html?${url.searchParams.toString()}`;
+              return next();
+            }
+
+            // Pretty URL dev rewrites: /catalog → /src/pages/catalog.html
+            // Only single-segment paths with no dots (to exclude assets & HMR URLs)
+            const rootPages = ['catalog', 'login', 'product', 'shop', 'favorites', 'shops', 'support', 'faq', 'seller-onboarding', 'vendor-dashboard', 'customer-dashboard', 'publish', 'reset-password', 'achat', 'promo', 'settings', 'terms', 'privacy', 'mentions-legales', 'system-health', 'payment-success', 'payment-cancel', 'invoice-verify', 'about', 'seller', '404', '500'];
+            const simplePage = originalUrl.match(/^\/([^/?#.@]+)(?:\.html)?(\?.*)?$/i);
+            if (simplePage && rootPages.includes(simplePage[1])) {
+              req.url = `/src/pages/${simplePage[1]}.html${simplePage[2] || ''}`;
+              return next();
+            }
+
+            // /admin/xxx → /src/pages/admin/xxx.html
+            if (originalUrl.startsWith('/admin/')) {
+              const url = new URL(originalUrl, 'http://localhost');
+              let pathname = url.pathname;
+              if (!pathname.includes('.')) pathname += '.html';
+              req.url = `/src/pages${pathname}${url.search}`;
               return next();
             }
           } catch {

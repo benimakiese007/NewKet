@@ -258,7 +258,7 @@
                     <p style="font-size:0.875rem;font-weight:700;color:#111827;margin:0 0 0.2rem;">🍪 Nous respectons votre vie privée</p>
                     <p style="font-size:0.75rem;color:#6b7280;margin:0;line-height:1.5;">
                         Nous utilisons des cookies pour améliorer votre expérience. Voir notre
-                        <a href="/src/pages/privacy.html" style="color:#013220;font-weight:600;text-decoration:underline;">politique de confidentialité</a>.
+                        <a href="/privacy" style="color:#013220;font-weight:600;text-decoration:underline;">politique de confidentialité</a>.
                     </p>
                 </div>
                 <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding-bottom:0.2rem;">

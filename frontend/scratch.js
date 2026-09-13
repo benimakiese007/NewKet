@@ -1275,7 +1275,7 @@ window.escapeHTML = function(str) {
                         <iconify-icon icon="solar:bag-2-bold" width="44" class="mb-3 text-gray-300"></iconify-icon>
                         <p class="font-bold text-gray-900">Aucune commande en cours</p>
                         <p class="mt-2 text-sm">Explorez le catalogue et lancez une demande.</p>
-                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-xs font-black tracking-widest uppercase text-black border-b border-black">Voir le catalogue</a>
+                        <a href="/catalog" class="inline-block mt-4 text-xs font-black tracking-widest uppercase text-black border-b border-black">Voir le catalogue</a>
                     </div>
                 `;
             } else {
@@ -1443,7 +1443,7 @@ window.escapeHTML = function(str) {
                         <div class="text-2xl font-bold text-gray-900 mb-2">Aucune commande pour le moment</div>
                         <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend, découvrez nos nouveautés.</div>
                         <div class="mt-6">
-                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                            <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
                             </a>
                         </div>
@@ -1550,7 +1550,7 @@ window.escapeHTML = function(str) {
                         <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</div>
                         <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
                         <div class="mt-6">
-                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                            <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
                             </a>
                         </div>
@@ -2118,7 +2118,7 @@ window.escapeHTML = function(str) {
                         </div>
                         <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
                         <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
-                        <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
+                        <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/catalog'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                             Découvrir le catalogue
                         </a>
                     </div>
@@ -2479,7 +2479,7 @@ window.escapeHTML = function(str) {
 
         async function handlePayOrder() {
             if (!currentSelectedOrder) return;
-            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/src/pages/achat.html';
+            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/achat';
             window.location.href = `${path}?order_id=${encodeURIComponent(currentSelectedOrder.id)}`;
         }
 
@@ -2802,7 +2802,7 @@ window.escapeHTML = function(str) {
 
             const resolvedPath = typeof window.resolvePath === 'function'
                 ? window.resolvePath('invoice-verify')
-                : '/src/pages/invoice-verify.html';
+                : '/invoice-verify';
             const url = new URL(resolvedPath, window.location.origin);
             if (order?.id) url.searchParams.set('order_id', order.id);
             if (qrReference) url.searchParams.set('invoice_ref', qrReference);

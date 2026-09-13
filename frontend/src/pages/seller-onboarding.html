@@ -12,7 +12,7 @@
     <meta name="theme-color" content="#1f2937">
     <title>S'enregistrer comme Vendeur | NewKet Marketplace</title>
     <meta name="description" content="Rejoignez NewKet et vendez vos créations et articles de luxe à une audience exclusive. Finalisez votre profil vendeur certifié dès aujourd'hui.">
-    <link rel="canonical" href="https://newket.cd/src/pages/seller-onboarding" />
+    <link rel="canonical" href="https://newket.cd/seller-onboarding" />
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -326,7 +326,7 @@
                     <input type="checkbox" id="termsCheckboxSeller" name="termsCheckboxSeller" required
                         class="mt-1 w-5 h-5 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer accent-black">
                     <span class="text-xs font-semibold text-gray-600 leading-relaxed">
-                        J'accepte les <a href="/src/pages/terms.html" class="text-black font-bold hover:underline" target="_blank">Conditions d'utilisation</a>, la <a href="/src/pages/privacy.html" class="text-black font-bold hover:underline" target="_blank">Politique de confidentialité</a> et j'atteste l'exactitude des informations fournies pour devenir vendeur.
+                        J'accepte les <a href="/terms" class="text-black font-bold hover:underline" target="_blank">Conditions d'utilisation</a>, la <a href="/privacy" class="text-black font-bold hover:underline" target="_blank">Politique de confidentialité</a> et j'atteste l'exactitude des informations fournies pour devenir vendeur.
                     </span>
                 </label>
             </div>
@@ -364,7 +364,7 @@
             </div>
             <h2 class="text-3xl font-black text-gray-900 mb-3 tracking-tight">C'est envoyé !</h2>
             <p class="text-sm text-gray-500 mb-10 leading-relaxed font-medium">Votre dossier est entre les mains de notre équipe. Nous reviendrons vers vous très vite par email.</p>
-            <button data-track-action="seller_onboarding:success_back_dashboard_click" onclick="window.location.href=typeof window.resolvePath === 'function' ? window.resolvePath('vendor-dashboard') : '/src/pages/vendor-dashboard.html'"
+            <button data-track-action="seller_onboarding:success_back_dashboard_click" onclick="window.location.href=typeof window.resolvePath === 'function' ? window.resolvePath('vendor-dashboard') : '/vendor-dashboard'"
                 class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
                 Retour au dashboard
             </button>
@@ -397,7 +397,7 @@
 
         function getDashboardHref() {
             if (typeof window.resolvePath === 'function') return window.resolvePath('vendor-dashboard');
-            return '/src/pages/vendor-dashboard.html';
+            return '/vendor-dashboard';
         }
 
         function wireDashboardCtas() {

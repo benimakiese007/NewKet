@@ -16,7 +16,7 @@
     <meta property="og:type" content="product">
     <meta property="og:title" content="Produit d'exception — NewKet">
     <meta property="og:description" content="Une pièce unique sélectionnée pour son excellence.">
-    <meta property="og:url" content="https://newket.vercel.app/src/pages/product.html">
+    <meta property="og:url" content="https://newket.vercel.app/product">
     <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
     <meta id="og-price-amount" property="product:price:amount" content="0">
     <meta id="og-price-currency" property="product:price:currency" content="CDF">
@@ -56,7 +56,7 @@
         <nav class="bg-transparent flex flex-nowrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
             <a href="/index.html" class="hover:text-black transition-colors" style="flex: 0 0 auto;">Accueil</a>
             <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
-            <a href="/src/pages/catalog.html" class="hover:text-black transition-colors" style="flex: 0 0 auto;">Catalogue</a>
+            <a href="/catalog" class="hover:text-black transition-colors" style="flex: 0 0 auto;">Catalogue</a>
             <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
             <span class="text-black" id="breadcrumb-current" style="flex: 0 0 auto;">Produit</span>
         </nav>
@@ -228,7 +228,7 @@
         <section class="mt-8 pb-8 border-t border-gray-100 pt-8">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900">Articles similaires</h2>
-                <a href="/src/pages/catalog.html" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
+                <a href="/catalog" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
                     Voir tout <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
                 </a>
             </div>
@@ -376,7 +376,7 @@
 
             showSkeleton();
             if (!productId) {
-                window.location.href = typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html';
+                window.location.href = typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/catalog';
                 return;
             }
 
@@ -386,7 +386,7 @@
                     <div class="py-32 text-center">
                         <iconify-icon icon="solar:ghost-broken" width="80" class="text-gray-200 mb-8"></iconify-icon>
                         <h1 class="text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Article Introuvable</h1>
-                        <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
+                        <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
                     </div>
                 `;
                 return;
@@ -516,7 +516,7 @@
                             : vendorName.trim().replace(/\s+/g, '_'))
                         : null);
                 vendorLinkEl.href = shopSlug
-                    ? `/src/pages/shop.html?shop=${encodeURIComponent(shopSlug)}`
+                    ? (window.NewKetLinks?.buildShopShareUrl ? window.NewKetLinks.buildShopShareUrl({ shopSlug }) : `/shop.html?shop=${encodeURIComponent(shopSlug)}`)
                     : '#';
             }
 
@@ -750,7 +750,7 @@
         function renderReviewForm(pid) {
             const cont = document.getElementById('reviewFormContainer');
             if (!AuthManager.user) {
-                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="/src/pages/login.html" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="/login" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
                 return;
             }
 

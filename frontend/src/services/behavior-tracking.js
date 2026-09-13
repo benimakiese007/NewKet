@@ -280,7 +280,7 @@ const BehaviorTracking = {
     _isAdminArea() {
         try {
             const path = String(window.location.pathname || '');
-            if (path.includes('/src/pages/admin/')) return true;
+            if (path.includes('/admin/')) return true;
             if (path.includes('/admin/')) return true;
         } catch (_) {}
 
@@ -289,7 +289,7 @@ const BehaviorTracking = {
             // Only skip tracking for admin role when browsing admin pages.
             if (role === 'admin') {
                 const path = String(window.location.pathname || '');
-                if (path.includes('/src/pages/admin/') || path.includes('/admin/')) return true;
+                if (path.includes('/admin/') || path.includes('/admin/')) return true;
             }
         } catch (_) {}
 

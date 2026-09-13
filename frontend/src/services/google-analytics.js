@@ -32,7 +32,7 @@ function sendPageView() {
 function isAdminArea() {
     try {
         const path = String(window.location.pathname || '');
-        if (path.includes('/src/pages/admin/') || path.includes('/admin/')) return true;
+        if (path.includes('/admin/') || path.includes('/admin/')) return true;
     } catch (_) {}
     return false;
 }

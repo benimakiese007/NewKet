@@ -5,7 +5,7 @@
 
 const AdminLayout = {
     navigationLoadingKey: 'newket_admin_navigation_loading',
-    shellIndexPath: '/src/pages/admin/index.html',
+    shellIndexPath: '/admin/index',
     shellViewMap: {
         index: 'overview',
         user: 'user',
@@ -243,17 +243,17 @@ const AdminLayout = {
     },
 
     getAdjustedPath(path) {
-        if (!path) return '/src/pages/admin/index.html';
+        if (!path) return '/admin/index';
         
         // Handle root-relative paths
-        if (path === './') return '/src/pages/admin/index.html';
+        if (path === './') return '/admin/index';
         
         // Ensure path starts with / and ends with .html if it's a local page
         let adjusted = path;
         if (!adjusted.startsWith('/') && !adjusted.startsWith('http')) {
-            adjusted = '/src/pages/admin/' + adjusted;
+            adjusted = '/admin/' + adjusted;
         }
-        if (adjusted.includes('/src/pages/admin/') && !adjusted.endsWith('.html')) {
+        if (adjusted.includes('/admin/') && !adjusted.endsWith('.html')) {
             adjusted += '.html';
         }
         
@@ -266,7 +266,7 @@ const AdminLayout = {
         }
 
         if (!path) return '/';
-        if (path === 'login') return '/src/pages/login.html';
+        if (path === 'login') return '/login';
 
         if (path.startsWith('admin/')) {
             const adminPath = path.replace(/^admin\//, '');
@@ -367,7 +367,7 @@ const AdminLayout = {
 
             const url = new URL(link.href, window.location.href);
             if (url.origin !== window.location.origin) return;
-            if (!url.pathname.includes('/src/pages/admin/')) return;
+            if (!url.pathname.includes('/admin/')) return;
 
             event.preventDefault();
             window.parent?.postMessage({
@@ -514,7 +514,7 @@ const AdminLayout = {
         if (typeof window.resolvePath !== 'function') {
             window.resolvePath = (path) => {
                 if (!path) return '/';
-                if (path === 'login') return '/src/pages/login.html';
+                if (path === 'login') return '/login';
                 if (path.startsWith('admin/')) {
                     return this.getAdjustedPath(path.replace(/^admin\//, ''));
                 }
@@ -732,7 +732,7 @@ const AdminLayout = {
 
             const url = new URL(link.href, window.location.origin);
             const isSameOrigin = url.origin === window.location.origin;
-            const isAdminTarget = url.pathname.includes('/src/pages/admin/') || url.pathname.endsWith('/src/pages/admin');
+            const isAdminTarget = url.pathname.includes('/admin/') || url.pathname.endsWith('/admin');
 
             if (isSameOrigin && isAdminTarget) {
                 const nextView = url.searchParams.get('view') || this.shellViewMap[this.getCurrentAdminFile(url.pathname)] || 'overview';

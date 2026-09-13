@@ -41,14 +41,14 @@ const HEADER_HTML = `
                     </div>
 
                     <!-- Notifications Icon (Mobile) -->
-                    <a href="{{ROOT}}src/pages/notifications.html" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    <a href="{{ROOT}}notifications" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Notifications" aria-label="Voir les notifications">
                         <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
                         <span class="notification-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
                     </a>
 
                     <!-- Favorites Icon (Mobile) -->
-                    <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button admin-hidden relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    <a href="{{ROOT}}favorites" class="header-icon-button admin-hidden relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Favoris" aria-label="Voir les favoris">
                         <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
                         <span class="favorites-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
@@ -89,7 +89,7 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Publish Button (seller only - shown via JS) -->
-                <a href="{{ROOT}}src/pages/publish.html"
+                <a href="{{ROOT}}publish"
                     class="seller-ui-element shrink-0 bg-gray-900 text-white p-2 rounded-xl hover:bg-gray-800 transition-colors items-center justify-center publish-btn h-[44px] w-[44px] order-last btn-active-scale"
                     data-track-action="navigation:publish_click"
                     aria-label="Vendre un article"
@@ -133,7 +133,7 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Notifications -->
-                <a href="{{ROOT}}src/pages/notifications.html"
+                <a href="{{ROOT}}notifications"
                     class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
@@ -143,7 +143,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                <a href="{{ROOT}}favorites" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
                     <span
@@ -189,7 +189,7 @@ const HEADER_HTML = `
     <div class="flex-1 overflow-y-auto pt-1 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
-            <a href="{{ROOT}}src/pages/login.html" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
+            <a href="{{ROOT}}login" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
                 <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
                 </div>
@@ -205,7 +205,7 @@ const HEADER_HTML = `
 
         <!-- Logged User Call to Action -->
         <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
-            <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800 shadow-xl">
+            <a id="mobileLoggedLink" href="{{ROOT}}customer-dashboard" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800 shadow-xl">
                 <div class="w-10 h-10 shrink-0 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
                     <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                     <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="20" class="text-white hidden"></iconify-icon>
@@ -222,23 +222,23 @@ const HEADER_HTML = `
 
         <div class="mobile-menu-shortcuts px-4 mb-6">
             <div class="mobile-menu-shortcuts-grid">
-                <a href="{{ROOT}}src/pages/catalog.html" class="mobile-menu-shortcut-card">
+                <a href="{{ROOT}}catalog" class="mobile-menu-shortcut-card">
                     <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
                     <span>Catalogue</span>
                 </a>
-                <a href="{{ROOT}}src/pages/shops.html" class="mobile-menu-shortcut-card">
+                <a href="{{ROOT}}shops" class="mobile-menu-shortcut-card">
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
                     <span>Boutiques</span>
                 </a>
-                <a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn seller-ui-element" data-track-action="navigation:publish_click" style="display:none">
+                <a href="{{ROOT}}publish" class="mobile-menu-shortcut-card publish-btn seller-ui-element" data-track-action="navigation:publish_click" style="display:none">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span>Vendre</span>
                 </a>
-                <a href="{{ROOT}}src/pages/favorites.html" class="mobile-menu-shortcut-card admin-hidden">
+                <a href="{{ROOT}}favorites" class="mobile-menu-shortcut-card admin-hidden">
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
                 </a>
-                <a href="{{ROOT}}src/pages/notifications.html" class="mobile-menu-shortcut-card non-seller-ui-element">
+                <a href="{{ROOT}}notifications" class="mobile-menu-shortcut-card non-seller-ui-element">
                     <iconify-icon icon="solar:bell-linear" width="20"></iconify-icon>
                     <span>Notifications</span>
                     <span class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden absolute top-2 right-2">0</span>
@@ -250,27 +250,27 @@ const HEADER_HTML = `
             <div class="mobile-menu-sections-left">
             <h3 class="mobile-menu-section-title">Catégories</h3>
             <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
+                <a href="{{ROOT}}catalog?category=Femme"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-circle-linear" width="20"></iconify-icon> Femme
                 </a>
-                <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
+                <a href="{{ROOT}}catalog?category=Homme"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-rounded-linear" width="20"></iconify-icon> Homme
                 </a>
-                <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
+                <a href="{{ROOT}}catalog?category=Tech & Gadgets"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
                 </a>
-                <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
+                <a href="{{ROOT}}catalog?category=HIGH-TECH"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon> HIGH-TECH
                 </a>
-                <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
+                <a href="{{ROOT}}catalog?category=Art de vivre"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:sofa-linear" width="20"></iconify-icon> Art de vivre
                 </a>
-                <a href="{{ROOT}}src/pages/catalog.html?promo=true"
+                <a href="{{ROOT}}catalog?promo=true"
                     class="mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
                     <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
                 </a>
@@ -284,11 +284,11 @@ const HEADER_HTML = `
             <div class="header-quick-links mb-6 border-t border-gray-50 pt-6">
                 <h3 class="mobile-menu-section-title">Liens utiles</h3>
                 <nav class="flex flex-col gap-1">
-                    <a href="{{ROOT}}src/pages/support.html"
+                    <a href="{{ROOT}}support"
                         class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                         <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
                     </a>
-                    <a href="{{ROOT}}src/pages/faq.html"
+                    <a href="{{ROOT}}faq"
                         class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                         <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
                     </a>
@@ -349,11 +349,11 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-2 space-y-4">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
                 <ul class="space-y-4">
-                    <li><a href="{{ROOT}}src/pages/about.html" class="text-gray-400 hover:text-white text-sm transition-colors">À propos de nous</a></li>
-                    <li><a href="{{ROOT}}src/pages/seller.html" class="text-gray-400 hover:text-white text-sm transition-colors">Devenir Vendeur</a></li>
-                    <li><a href="{{ROOT}}src/pages/support.html" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
-                    <li><a href="{{ROOT}}src/pages/faq.html" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
-                    {{AUTH_ONLY_START}}<li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn" data-track-action="navigation:publish_click">Vendre un article</a></li>{{AUTH_ONLY_END}}
+                    <li><a href="{{ROOT}}about" class="text-gray-400 hover:text-white text-sm transition-colors">À propos de nous</a></li>
+                    <li><a href="{{ROOT}}seller" class="text-gray-400 hover:text-white text-sm transition-colors">Devenir Vendeur</a></li>
+                    <li><a href="{{ROOT}}support" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
+                    <li><a href="{{ROOT}}faq" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
+                    {{AUTH_ONLY_START}}<li><a href="{{ROOT}}publish" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn" data-track-action="navigation:publish_click">Vendre un article</a></li>{{AUTH_ONLY_END}}
                 </ul>
             </div>
             <div class="lg:col-span-4 space-y-4">
@@ -381,9 +381,9 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
         <div class="flex flex-col md:flex-row justify-between items-center gap-5">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
             <div class="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
-                <a href="{{ROOT}}src/pages/mentions-legales.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
-                <a href="{{ROOT}}src/pages/terms.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">CGV</a>
-                <a href="{{ROOT}}src/pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
+                <a href="{{ROOT}}mentions-legales" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
+                <a href="{{ROOT}}terms" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">CGV</a>
+                <a href="{{ROOT}}privacy" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
             </div>
         </div>
     </div>
@@ -417,13 +417,13 @@ const getBottomNavHTML = (role) => {
         <span class="text-[9px] font-medium tracking-wide">Recherche</span>
     </a>
     ${isSeller ? `
-    <a href="{{ROOT}}src/pages/publish.html" data-bottom-nav-item="sell" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
+    <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
         <span class="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#0A4A2E] to-[#1a7a4e] shadow-[0_4px_20px_rgba(10,74,46,0.5)] border-[3px] border-white/20 transition-transform active:scale-90 hover:scale-105">
             <iconify-icon icon="solar:add-circle-bold" width="28" class="text-white"></iconify-icon>
         </span>
         <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
     </a>` : `
-    <a href="{{ROOT}}src/pages/shops.html" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Boutiques">
+    <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Boutiques">
         <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Boutique</span>
     </a>`}
@@ -997,25 +997,32 @@ const ComponentLoader = {
     },
 
     getAdjustedPath(path) {
-        // Standardize to root-relative paths for consistent behavior across all levels.
+        // Returns clean root-relative URLs (e.g. /catalog, /login, /admin/index).
+        // The Vite dev middleware and Vercel rewrites map these to src/pages/*.html
+        // transparently, so the browser URL stays clean.
         const root = '/';
-        
-        // If the path is empty, #, or root relative, handle accordingly
+
         if (!path || path === '#' || path === './') {
-            return root + 'index.html';
+            return root;
         }
 
-        // If it's an absolute URL or javascript:, return it as is.
+        // Absolute URLs and javascript: pass through unchanged.
         if (path.startsWith('/') || path.startsWith('http') || path.startsWith('javascript:')) {
             return path;
         }
 
-        // Standardize path: remove redundant ./ or leading /
-        let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
-        
-        // Handle special redirects / shortcuts
+        // Normalise: strip leading ./ or extra /
+        let cleanPath = path.replace(/^\.\//g, '').replace(/^\/+/g, '');
+
+        // Strip legacy src/pages/ prefix so old callers still work.
+        cleanPath = cleanPath.replace(/^src\/pages\//, '').replace(/^pages\//, '');
+
+        // Strip .html extension — Vercel cleanUrls + dev middleware handle it
+        cleanPath = cleanPath.replace(/\.html$/, '');
+
+        // Admin shortcut: 'admin' or 'admin/' → /admin/index
         if (cleanPath === 'admin' || cleanPath === 'admin/') {
-            cleanPath = 'pages/admin/index.html';
+            return root + 'admin/index';
         }
 
         // Separate query string if present
@@ -1026,33 +1033,9 @@ const ComponentLoader = {
             query = '?' + parts[1];
         }
 
-        // Ensure index/404 are relative to root
-        if (cleanPath === 'index' || cleanPath === '404' || cleanPath === 'index.html' || cleanPath === '404.html') {
-            if (!cleanPath.endsWith('.html')) cleanPath += '.html';
-            return root + cleanPath + query;
-        }
-
-        // If it starts with assets/ or public/, ensure it's in src/ (legacy check)
+        // Assets stay in src/
         if (cleanPath.startsWith('assets/')) {
             return root + 'src/' + cleanPath + query;
-        }
-        if (cleanPath.startsWith('public/')) {
-            return root + cleanPath + query; // public is usually root
-        }
-
-        // Everything else that doesn't start with src/ or pages/ is likely in pages/
-        if (!cleanPath.startsWith('src/') && !cleanPath.startsWith('pages/')) {
-            cleanPath = 'pages/' + cleanPath;
-        }
-
-        // Ensure src/ prefix
-        if (!cleanPath.startsWith('src/')) {
-            cleanPath = 'src/' + cleanPath;
-        }
-
-        // Add .html if missing (and it's not a folder or doesn't have an extension)
-        if (!cleanPath.includes('.') && !cleanPath.endsWith('/')) {
-            cleanPath += '.html';
         }
 
         return root + cleanPath + query;

@@ -79,7 +79,7 @@
                         <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
                         Accueil
                     </a>
-                    <a href="/src/pages/customer-dashboard.html" class="hero-gradient flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-black/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <a href="/customer-dashboard" class="hero-gradient flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-black/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
                         Mes commandes
                         <iconify-icon icon="solar:alt-arrow-right-linear" width="20"></iconify-icon>
                     </a>
@@ -212,10 +212,10 @@
                 }
                 window.__newketPaymentRedirectTimer = setTimeout(() => {
                     const target = resolvedOrderId
-                        ? `/src/pages/customer-dashboard.html#achat?order_id=${encodeURIComponent(resolvedOrderId)}`
+                        ? `/customer-dashboard.html#achat?order_id=${encodeURIComponent(resolvedOrderId)}`
                         : (txRef
-                            ? `/src/pages/customer-dashboard.html#orders?tx_ref=${encodeURIComponent(txRef)}`
-                            : '/src/pages/customer-dashboard.html#orders');
+                            ? `/customer-dashboard.html#orders?tx_ref=${encodeURIComponent(txRef)}`
+                            : '/customer-dashboard.html#orders');
                     window.location.href = target;
                 }, 3000);
 

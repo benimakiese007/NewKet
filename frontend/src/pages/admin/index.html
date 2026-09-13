@@ -1095,29 +1095,29 @@
         (function() {
                 const shellViewSources = {
                     overview: null,
-                    realtime: '/src/pages/admin/realtime.html?embedded=1',
-                    user: '/src/pages/admin/user.html?embedded=1',
-                    'user-details': '/src/pages/admin/user-details.html?embedded=1',
-                    products: '/src/pages/admin/products.html?embedded=1',
-                    orders: '/src/pages/admin/orders.html?embedded=1',
-                    'otp-guide': '/src/pages/admin/otp-guide.html?embedded=1',
-                    'otp-tracker': '/src/pages/admin/otp-tracker.html?embedded=1',
-                    analytics: '/src/pages/admin/analytics.html?embedded=1',
-                activities: '/src/pages/admin/activities.html?embedded=1',
-                    diagnostics: '/src/pages/admin/diagnostics.html?embedded=1',
-                reviews: '/src/pages/admin/reviews.html?embedded=1',
-                newsletter: '/src/pages/admin/newsletter.html?embedded=1',
-                'notifications-admin': '/src/pages/admin/notifications-admin.html?embedded=1',
-                support: '/src/pages/admin/support.html?embedded=1',
-                referrals: '/src/pages/admin/referrals.html?embedded=1',
-                security: '/src/pages/admin/security.html?embedded=1',
-                hero: '/src/pages/admin/hero.html?embedded=1',
-                settings: '/src/pages/admin/settings.html?embedded=1',
-                comptabilite: '/src/pages/admin/comptabilite.html?embedded=1',
-                disputes: '/src/pages/admin/disputes.html?embedded=1',
-                payouts: '/src/pages/admin/payouts.html?embedded=1',
-                'payout-security': '/src/pages/admin/payout-security.html?embedded=1',
-                'dispute-details': '/src/pages/admin/dispute-details.html?embedded=1'
+                    realtime: '/admin/realtime.html?embedded=1',
+                    user: '/admin/user.html?embedded=1',
+                    'user-details': '/admin/user-details.html?embedded=1',
+                    products: '/admin/products.html?embedded=1',
+                    orders: '/admin/orders.html?embedded=1',
+                    'otp-guide': '/admin/otp-guide.html?embedded=1',
+                    'otp-tracker': '/admin/otp-tracker.html?embedded=1',
+                    analytics: '/admin/analytics.html?embedded=1',
+                activities: '/admin/activities.html?embedded=1',
+                    diagnostics: '/admin/diagnostics.html?embedded=1',
+                reviews: '/admin/reviews.html?embedded=1',
+                newsletter: '/admin/newsletter.html?embedded=1',
+                'notifications-admin': '/admin/notifications-admin.html?embedded=1',
+                support: '/admin/support.html?embedded=1',
+                referrals: '/admin/referrals.html?embedded=1',
+                security: '/admin/security.html?embedded=1',
+                hero: '/admin/hero.html?embedded=1',
+                settings: '/admin/settings.html?embedded=1',
+                comptabilite: '/admin/comptabilite.html?embedded=1',
+                disputes: '/admin/disputes.html?embedded=1',
+                payouts: '/admin/payouts.html?embedded=1',
+                'payout-security': '/admin/payout-security.html?embedded=1',
+                'dispute-details': '/admin/dispute-details.html?embedded=1'
             };
 
                 const viewTitles = {
@@ -1191,7 +1191,7 @@
             }
 
             function buildUrl(view, options = {}) {
-                const url = new URL('/src/pages/admin/index.html', window.location.origin);
+                const url = new URL('/admin/index', window.location.origin);
                 if (view !== 'overview') {
                     url.searchParams.set('view', view);
                 }
@@ -1332,7 +1332,7 @@
 
                 const url = new URL(link.href, window.location.href);
                 if (url.origin !== window.location.origin) return;
-                if (!url.pathname.includes('/src/pages/admin/')) return;
+                if (!url.pathname.includes('/admin/')) return;
 
                 const file = url.pathname.split('/').pop().replace('.html', '') || 'index';
                 const view = file === 'index' ? (url.searchParams.get('view') || 'overview') : file;

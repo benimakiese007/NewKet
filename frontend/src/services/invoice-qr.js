@@ -4,7 +4,7 @@ function buildInvoiceQrTargetUrl(order, qrReference) {
     const baseUrl = window.location.origin;
     if (!order?.id) {
         // Fallback si pas d'ID (ne devrait pas arriver)
-        return new URL('/src/pages/invoice-verify.html', baseUrl).toString();
+        return new URL('/invoice-verify', baseUrl).toString();
     }
     const url = new URL(`/facture/${order.id}`, baseUrl);
     if (qrReference) url.searchParams.set('invoice_ref', qrReference);
