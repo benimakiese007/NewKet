@@ -4711,13 +4711,51 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Catégorie du problème</label>
-                        <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50">
+                        <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" onchange="updateDisputeReasonHint(this.value)">
                             <option value="">-- Sélectionnez une catégorie --</option>
-                            <option value="NOT_RECEIVED">Produit non reçu</option>
-                            <option value="DAMAGED">Produit endommagé ou cassé</option>
-                            <option value="NOT_AS_DESCRIBED">Produit non conforme à la description</option>
-                            <option value="OTHER">Autre raison</option>
+                            <optgroup label="Problèmes de livraison">
+                                <option value="NOT_RECEIVED">📦 Produit non reçu</option>
+                            </optgroup>
+                            <optgroup label="Problèmes sur le produit">
+                                <option value="DAMAGED">💥 Produit endommagé ou cassé</option>
+                                <option value="NOT_AS_DESCRIBED">🔄 Produit non conforme à la description</option>
+                                <option value="MISSING_ITEM">🧩 Article(s) manquant(s) dans la commande</option>
+                                <option value="WRONG_ITEM">❌ Mauvais article reçu (erreur de référence)</option>
+                            </optgroup>
+                            <optgroup label="Cas graves">
+                                <option value="COUNTERFEIT">⚠️ Produit contrefait / faux article</option>
+                            </optgroup>
+                            <optgroup label="Autre">
+                                <option value="OTHER">🔍 Autre raison (description détaillée obligatoire)</option>
+                            </optgroup>
                         </select>
+                        <!-- Hint contextuel selon la raison choisie -->
+                        <div id="disputeReasonHint" class="hidden mt-2 px-3 py-2 rounded-lg text-xs leading-relaxed"></div>
+                        <script>
+                        (function() {
+                            const HINTS = {
+                                NOT_RECEIVED:     { cls: 'bg-blue-50 text-blue-700',   msg: '📦 Le vendeur aura 24h pour répondre. En cas de silence, vous serez remboursé automatiquement.' },
+                                DAMAGED:          { cls: 'bg-orange-50 text-orange-700', msg: '💥 Fournissez des photos claires du dommage. Le vendeur pourra proposer un remboursement partiel ou total.' },
+                                NOT_AS_DESCRIBED: { cls: 'bg-yellow-50 text-yellow-700', msg: '🔄 Prenez des photos comparatives entre ce que vous avez reçu et l\'annonce. Un remboursement partiel est probable.' },
+                                MISSING_ITEM:     { cls: 'bg-purple-50 text-purple-700', msg: '🧩 Photographiez le contenu du colis reçu. Le vendeur proposera un remboursement au prorata des articles manquants.' },
+                                WRONG_ITEM:       { cls: 'bg-red-50 text-red-700',     msg: '❌ Vous devrez retourner le mauvais article au vendeur (frais de retour à sa charge). Le remboursement est déclenché après retour.' },
+                                COUNTERFEIT:      { cls: 'bg-red-100 text-red-800 font-semibold border border-red-300', msg: '⚠️ Ce type de litige est traité directement par notre équipe. Aucun accord amiable ne sera possible. Votre dossier sera examiné sous 72h.' },
+                                OTHER:            { cls: 'bg-gray-50 text-gray-700',   msg: '🔍 Décrivez précisément votre problème (minimum 50 caractères). Ce litige sera examiné directement par notre équipe.' }
+                            };
+                            window.updateDisputeReasonHint = function(val) {
+                                const hint = document.getElementById('disputeReasonHint');
+                                if (!hint) return;
+                                const h = HINTS[val];
+                                if (h) {
+                                    hint.className = 'mt-2 px-3 py-2 rounded-lg text-xs leading-relaxed ' + h.cls;
+                                    hint.textContent = h.msg;
+                                } else {
+                                    hint.className = 'hidden mt-2 px-3 py-2 rounded-lg text-xs leading-relaxed';
+                                    hint.textContent = '';
+                                }
+                            };
+                        })();
+                        </script>
                     </div>
 
                     <div>

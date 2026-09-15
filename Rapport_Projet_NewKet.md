@@ -154,8 +154,8 @@ Pour anticiper la mise en production commerciale de la Marketplace, voici les co
   Bien que le plan gratuit ("Hobby") soit techniquement suffisant pour faire tourner le site actuellement, les conditions de Vercel interdisent strictement l'usage de ce plan gratuit pour un projet commercial. Le passage au plan "Pro" est donc obligatoire pour le lancement.
 - **Base de données (Supabase) : ~25$ / mois**
   C'est le moteur qui fait tourner nos données et notre système d'authentification. L'avantage est que le plan gratuit est très généreux. Nous n'aurons besoin de passer au plan payant de 25$ que lorsque la plateforme dépassera la barre des 10 000 utilisateurs.
-- **Système d'Emailing (Brevo) : 9$ à 18$ / mois (ultérieurement)**
-  Le plan gratuit actuel (300 emails/jour) est suffisant pour démarrer. L'abonnement payant (Starter à partir de 9$/mois ou Standard à partir de 18$/mois) sera nécessaire uniquement lorsque le volume d'utilisateurs augmentera (dépassement du quota quotidien) ou pour lancer des campagnes marketing de masse.
+- **Système d'Emailing (Brevo) : ~9$ / mois (Obligatoire au lancement)**
+  Le plan gratuit actuel (300 emails/jour) est insuffisant pour un lancement public, car le dépassement bloquera l'envoi des OTP de livraison, gelant ainsi les fonds des commandes. Le passage au plan Starter (~9$/mois pour 100 000 emails) est obligatoire avant l'ouverture au public.
 
 ## 10. Roadmap (Prochaines Étapes)
 
@@ -170,7 +170,7 @@ Afin d'assurer le lancement et l'évolution de la Marketplace, voici notre feuil
 - **Sécurisation & Cerveau IA Dynamique :** Déplacer la logique du chatbot (Gemini) vers le backend pour sécuriser la clé API, et créer une "Base de Connaissances" administrable depuis Supabase. Cela permettra à l'Admin de mettre à jour les instructions et le contexte du bot en temps réel sans modifier le code.
 
 ### Moyen Terme (Lancement et Acquisition)
-- **Mise en Production :** Achat du nom de domaine officiel (`newket.market`) et passage au plan d'hébergement Vercel Pro.
+- **Mise en Production :** Achat du nom de domaine officiel (`newket.market`), passage au plan d'hébergement Vercel Pro, et souscription au plan Brevo Starter (~8.08$/mois) pour sécuriser le flux critique d'emails transactionnels.
 - **Onboarding Vendeurs Bêta :** Lancement de la phase d'acquisition et certification des premiers marchands pour alimenter le catalogue.
 - **Lancement Public :** Ouverture officielle de la plateforme aux acheteurs avec mise en avant du système de parrainage et codes promo.
 

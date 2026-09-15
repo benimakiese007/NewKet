@@ -177,3 +177,23 @@ export const promoRateLimit = rateLimit({
         error: 'Trop de tentatives. Veuillez réessayer dans quelques minutes.'
     },
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHATBOT IA (Gemini)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Rate limit pour le proxy Gemini (/api/chat).
+ * Protège la clé API contre les abus et limite les coûts API.
+ *
+ * Règle : 20 requêtes / 15 minutes par IP
+ */
+export const chatRateLimit = rateLimit({
+    ...commonOptions,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,
+    message: {
+        success: false,
+        error: 'Trop de messages envoyés. Veuillez patienter quelques minutes avant de continuer.'
+    },
+});

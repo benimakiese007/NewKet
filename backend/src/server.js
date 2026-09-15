@@ -48,6 +48,7 @@ import metaRoutes from './routes/meta.routes.js';
 import gdprRoutes from './routes/gdpr.routes.js';
 import verificationRoutes from './routes/verification.routes.js';
 import consentRoutes from './routes/consent.routes.js';
+import chatRoutes from './routes/chat.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
@@ -247,6 +248,7 @@ app.use('/api/meta', metaRoutes);
 app.use('/api/gdpr', gdprRoutes);
 app.use('/api/consent', consentRoutes);
 app.use('/api/verification', verificationRoutes);
+app.use('/api/chat', chatRoutes); // Proxy sécurisé Gemini (clé API côté serveur uniquement)
 
 app.use(sentryErrorHandler);
 

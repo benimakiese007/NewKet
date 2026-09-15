@@ -191,6 +191,19 @@ export const createProduct = async (req, res, next) => {
     try {
         if (!await assertSupplierActor(req, res)) return;
 
+        // SÉCURITÉ KYC : Vérifier si le vendeur est approuvé avant de le laisser publier
+        const { data: vendorInfo } = await supabaseAdmin
+            .from('users')
+            .select('business_verification_status')
+            .eq('id', req.user.id)
+            .single();
+
+        if (vendorInfo?.business_verification_status !== 'approved') {
+            return res.status(403).json({
+                error: 'Votre compte vendeur doit être approuvé (documents vérifiés) pour publier des produits.'
+            });
+        }
+
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 

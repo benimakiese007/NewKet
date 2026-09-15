@@ -272,47 +272,23 @@
                 input.style.height = 'auto';
 
                 try {
-                    // Call Gemini API
-                    const GEMINI_API_KEY = ''; // À remplacer par votre clé API (Ne pas hardcoder de clés en production)
-                    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
-                    
-                    const response = await fetch(API_URL, {
+                    // Appel au proxy backend sécurisé.
+                    // La clé API Gemini est conservée côté serveur uniquement.
+                    const response = await fetch('/api/chat', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            systemInstruction: {
-                                parts: [{ text: `Tu es l'assistant de support client officiel de NewKet, une marketplace (B2B, B2C, C2C) opérant en RDC.
-
-IMPORTANT : Tu dois toujours te rappeler que NewKet est une PLACE DE MARCHÉ (Marketplace) et non une boutique e-commerce classique. NewKet ne gère ni les stocks, ni les livraisons. Ce sont les vendeurs indépendants qui gèrent eux-mêmes l'expédition et la livraison de leurs propres produits.
-
-CONNAISSANCES SUR NEWKET :
-- Paiement et Sécurité : Le paiement est 100% sécurisé via un système de séquestre (FlexPaie). L'argent de l'acheteur est bloqué et remis au vendeur seulement après validation de la livraison (par code OTP) et expiration de la garantie.
-- Moyens de paiement : M-Pesa, Airtel Money, Orange Money, Afrimoney, Visa, MasterCard.
-- Vendre sur NewKet : Pour devenir vendeur, il faut créer un compte Vendeur et soumettre ses documents d'identité (KYC) pour validation par l'administration.
-- Litiges : En cas de non-expédition, remboursement automatique. En cas de problème à la réception, l'acheteur peut ouvrir un litige sur la plateforme.
-- Parrainage : Les utilisateurs peuvent gagner des NKTokens (réductions) en invitant des amis qui commandent dans les 30 jours (1 NKToken = 0.50 USD).
-
-RÈGLES DE COMPORTEMENT STRICTES :
-1. Ton : Sois toujours professionnel, poli, concis et utilise OBLIGATOIREMENT le vouvoiement ("vous").
-2. Suivi de commande/compte : Si l'utilisateur pose une question sur sa commande ou son compte, informe-le que TOUTES les informations détaillées se trouvent sur son Dashboard personnel.
-3. Problème de connexion : S'il n'arrive pas à se connecter, conseille l'option "Mot de passe oublié". Si ça ne marche toujours pas, oriente vers l'email : newketmarket@gmail.com.
-4. Escalade vers un humain : Si l'utilisateur demande explicitement à parler à un humain/conseiller, ou si tu ne peux pas résoudre son problème complexe, donne-lui l'email (newketmarket@gmail.com) et le téléphone (+243990924254).
-5. Hors-sujet : Refuse poliment de répondre à toute question qui ne concerne pas NewKet ou le e-commerce.` }]
-                            },
-                            contents: [{
-                                role: 'user',
-                                parts: [{ text: text }]
-                            }]
-                        })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text })
                     });
-                    
-                    const data = await response.json();
-                    let replyText = "Désolé, je n'ai pas pu comprendre la réponse du serveur.";
-                    
-                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                        replyText = data.candidates[0].content.parts[0].text;
+
+                    let replyText = "Désolé, une erreur est survenue. Veuillez réessayer.";
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        replyText = data.reply || replyText;
+                    } else if (response.status === 429) {
+                        replyText = "Vous avez envoyé trop de messages. Veuillez patienter quelques minutes avant de continuer.";
+                    } else {
+                        console.error('[Chat] Erreur serveur:', response.status);
                     }
 
                     const agentMsg = {
@@ -323,7 +299,7 @@ RÈGLES DE COMPORTEMENT STRICTES :
                     addMessage(agentMsg);
                     saveToHistory(agentMsg);
                 } catch (error) {
-                    console.error("Erreur avec l'API Gemini:", error);
+                    console.error("[Chat] Erreur de connexion:", error);
                     const errorMsg = {
                         from: 'agent',
                         text: "Désolé, une erreur de connexion est survenue.",
@@ -332,6 +308,7 @@ RÈGLES DE COMPORTEMENT STRICTES :
                     addMessage(errorMsg);
                     saveToHistory(errorMsg);
                 }
+
             });
         })();
 

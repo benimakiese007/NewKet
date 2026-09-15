@@ -70,10 +70,78 @@ export const DISPUTE_STATUSES = {
 };
 
 export const DISPUTE_REASONS = {
-    NOT_RECEIVED: 'NOT_RECEIVED',
-    DAMAGED: 'DAMAGED',
+    NOT_RECEIVED:     'NOT_RECEIVED',
+    DAMAGED:          'DAMAGED',
     NOT_AS_DESCRIBED: 'NOT_AS_DESCRIBED',
-    OTHER: 'OTHER'
+    MISSING_ITEM:     'MISSING_ITEM',
+    WRONG_ITEM:       'WRONG_ITEM',
+    COUNTERFEIT:      'COUNTERFEIT',
+    OTHER:            'OTHER'
+};
+
+/**
+ * DISPUTE_REASON_DEFAULTS
+ * Pour chaque raison de litige, définit :
+ *   - suggestedResolution : résolution conseillée à l'admin
+ *   - directReview        : si true → statut initial UNDER_REVIEW (jamais OPEN)
+ *   - requiresReturn      : si true → flow REFUND_WITH_RETURN prioritaire
+ *   - minDescriptionLen   : longueur minimale de la description
+ *   - reasonFlag          : flag interne pour filtrage admin (null = normal)
+ */
+export const DISPUTE_REASON_DEFAULTS = {
+    NOT_RECEIVED: {
+        suggestedResolution: 'FULL_REFUND',
+        directReview: false,
+        requiresReturn: false,
+        minDescriptionLen: 10,
+        reasonFlag: null
+    },
+    DAMAGED: {
+        suggestedResolution: 'PARTIAL_REFUND',
+        directReview: false,
+        requiresReturn: false,
+        minDescriptionLen: 20,
+        reasonFlag: null
+    },
+    NOT_AS_DESCRIBED: {
+        suggestedResolution: 'PARTIAL_REFUND',
+        directReview: false,
+        requiresReturn: false,
+        minDescriptionLen: 20,
+        reasonFlag: null
+    },
+    MISSING_ITEM: {
+        // Articles manquants → partiel proportionnel, vendeur propose le montant
+        suggestedResolution: 'PARTIAL_REFUND',
+        directReview: false,
+        requiresReturn: false,
+        minDescriptionLen: 20,
+        reasonFlag: null
+    },
+    WRONG_ITEM: {
+        // Mauvais article → retour obligatoire, vendeur supporte les frais
+        suggestedResolution: 'REFUND_WITH_RETURN',
+        directReview: false,
+        requiresReturn: true,
+        minDescriptionLen: 20,
+        reasonFlag: null
+    },
+    COUNTERFEIT: {
+        // Contrefaçon → escalade directe admin, jamais de résolution amiable
+        suggestedResolution: 'FULL_REFUND',
+        directReview: true,
+        requiresReturn: false,
+        minDescriptionLen: 30,
+        reasonFlag: 'FRAUD_ALERT'
+    },
+    OTHER: {
+        // Cas divers → admin obligatoire, description longue exigée
+        suggestedResolution: null,
+        directReview: true,
+        requiresReturn: false,
+        minDescriptionLen: 50,
+        reasonFlag: 'ADMIN_ONLY'
+    }
 };
 
 export const DISPUTE_RESOLUTIONS = {
@@ -171,7 +239,7 @@ export function generateTransactionId() {
 }
 
 export function generateOtpCode() {
-    return `${Math.floor(100000 + Math.random() * 900000)}`;
+    return `${crypto.randomInt(100000, 1000000)}`;
 }
 
 export function computeEscrowReleaseAt(fromDate = new Date(), hours = ESCROW_HOLD_HOURS) {

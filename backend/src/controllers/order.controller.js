@@ -196,15 +196,34 @@ export const createOrder = async (req, res, next) => {
             return res.status(400).json({ success: false, error: 'product_id est requis.' });
         }
 
+        const variantId = req.body?.variant_id || null;
+
         const { data: product, error: productError } = await client
             .from('products')
-            .select('id, name, price, old_price, image, category, user_id, supplier_email, custom_exchange_rate')
+            .select('id, name, price, old_price, image, category, user_id, supplier_email, custom_exchange_rate, stock')
             .eq('id', productId)
             .maybeSingle();
 
         if (productError) throw productError;
         if (!product) {
             return res.status(404).json({ success: false, error: 'Produit introuvable.' });
+        }
+
+        // Vérification de disponibilité avant création de commande
+        if (variantId) {
+            const { data: variant } = await client
+                .from('product_variants')
+                .select('stock')
+                .eq('id', variantId)
+                .maybeSingle();
+            
+            if (!variant || (variant.stock !== null && variant.stock < quantity)) {
+                return res.status(400).json({ success: false, error: 'Stock insuffisant pour cette variante.' });
+            }
+        } else {
+            if (product.stock !== null && product.stock < quantity) {
+                return res.status(400).json({ success: false, error: 'Stock insuffisant.' });
+            }
         }
 
         if (!customerEmail) {

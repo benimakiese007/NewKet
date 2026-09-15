@@ -285,13 +285,37 @@ export const initiatePayment = async (req, res, next) => {
                 return res.status(400).json({ error: `Paiement impossible depuis le statut ${existingOrder.status}.` });
             }
 
-            // Prevent multiple concurrent payments for the same order within a short window (10 seconds for testing)
+            // Gestion du verrou de paiement :
+            // - Si le verrou a moins de 10s → double-clic, on bloque
+            // - Si le verrou a entre 10s et 10min → paiement en cours (FlexPay attend la validation client)
+            // - Si le verrou a plus de 10min → verrou fantôme (client a fermé son navigateur ou FlexPay n'a pas répondu)
+            //   → on libère automatiquement le verrou pour que le client puisse réessayer
+            const LOCK_DEBOUNCE_MS   = 10 * 1000;        // 10 secondes : anti-double-clic
+            const LOCK_STALE_MS      = 10 * 60 * 1000;   // 10 minutes  : verrou fantôme
             if (existingOrder.payment_status === 'INITIATED' && existingOrder.payment_locked_at) {
                 const lockedAt = new Date(existingOrder.payment_locked_at).getTime();
                 const now = new Date().getTime();
-                if (now - lockedAt < 10 * 1000) {
+                const ageMs = now - lockedAt;
+
+                if (ageMs < LOCK_DEBOUNCE_MS) {
+                    // Double-clic : bloqué
                     return res.status(429).json({ error: "Une tentative de paiement est déjà en cours de création. Veuillez patienter quelques secondes." });
                 }
+
+                if (ageMs >= LOCK_STALE_MS) {
+                    // Verrou fantôme : libération automatique, le client peut réessayer
+                    console.warn(`[PaymentLock] Verrou fantôme détecté sur la commande ${orderId} (vieux de ${Math.round(ageMs / 60000)} min). Libération automatique.`);
+                    const nowIso = new Date().toISOString();
+                    await client.from('orders').update({
+                        payment_status: 'PENDING',
+                        payment_locked_at: null,
+                        payment_lock_reason: null,
+                        updated_at: nowIso
+                    }).eq('id', orderId);
+                    // On laisse la requête continuer : le client peut relancer le paiement
+                }
+                // Entre 10s et 10min → paiement en cours, on laisse continuer
+                // (le webhook FlexPay peut encore arriver)
             }
 
             order = existingOrder;
@@ -616,7 +640,31 @@ export const flexpaieWebhook = async (req, res, next) => {
             });
 
         if (webhookInsertError && String(webhookInsertError.code) !== '23505') {
-            return next(unlockError);
+            return res.status(500).send('Erreur insertion webhook');
+        }
+
+        // 1.5 SÉCURITÉ : Vérification stricte du montant
+        // Le montant payé (payload.amount) doit correspondre au centime près
+        const { data: order } = await client
+            .from('orders')
+            .select('client_total_paid')
+            .eq('transaction_id', String(ourTxId))
+            .single();
+            
+        const paidAmount = Number(payload?.amount || 0);
+        const expectedAmount = Number(order?.client_total_paid || 0);
+
+        if (!order || Math.abs(paidAmount - expectedAmount) > 0.01) {
+            console.error(`[FLEXPAIE Webhook] Montant invalide pour TX ${ourTxId}: Reçu ${paidAmount}, Attendu ${expectedAmount}`);
+            
+            await client.from('payment_webhook_events').update({
+                process_status: 'PROCESSING_FAILED',
+                processing_error: `Invalid amount. Received ${paidAmount}, expected ${expectedAmount}`
+            }).eq('provider', 'flexpaie').eq('provider_event_id', providerEventId);
+            
+            // On renvoie 200 pour dire à FlexPaie qu'on a reçu le message (pour éviter les retrys infinis),
+            // mais on ne traite pas la commande.
+            return res.status(200).send('Invalid amount recorded');
         }
 
         // 2. Traiter le paiement

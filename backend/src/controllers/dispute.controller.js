@@ -6,6 +6,7 @@ import {
     ESCROW_STATUSES,
     DISPUTE_STATUSES,
     DISPUTE_REASONS,
+    DISPUTE_REASON_DEFAULTS,
     DISPUTE_RESOLUTIONS,
     DISPUTE_MESSAGE_TYPES,
     DISPUTE_VENDOR_ACTIONS,
@@ -405,6 +406,19 @@ export const createDispute = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Motif de litige invalide.' });
         }
 
+        // --- Logique spécifique par raison ---
+        const reasonDefaults = DISPUTE_REASON_DEFAULTS[reason];
+
+        // Validation longueur de description selon la raison
+        if (description.trim().length < reasonDefaults.minDescriptionLen) {
+            return res.status(400).json({
+                success: false,
+                message: `La description doit contenir au moins ${reasonDefaults.minDescriptionLen} caractères pour ce motif (${description.trim().length} fournis).`,
+                required_min_length: reasonDefaults.minDescriptionLen,
+                provided_length: description.trim().length
+            });
+        }
+
         const order = await getOrderOrNull(order_id);
         if (!order || getOrderCustomerId(order) !== customerId) {
             return res.status(404).json({ success: false, message: 'Commande introuvable ou accès refusé.' });
@@ -461,8 +475,16 @@ export const createDispute = async (req, res, next) => {
             }
         }
 
+        // --- Détermination du statut initial ---
+        // COUNTERFEIT et OTHER → UNDER_REVIEW direct (par définition de la raison)
+        // Client abusif → UNDER_REVIEW direct (détection d'abus)
+        // Tous les autres → OPEN → SELLER_PENDING
         const abuseCheck = await detectDisputeAbuse(customerId);
-        const initialStatus = abuseCheck.directReview ? DISPUTE_STATUSES.UNDER_REVIEW : DISPUTE_STATUSES.OPEN;
+        const forceDirectReview = reasonDefaults.directReview || abuseCheck.directReview;
+        const initialStatus = forceDirectReview
+            ? DISPUTE_STATUSES.UNDER_REVIEW
+            : DISPUTE_STATUSES.OPEN;
+
         const createdAt = new Date().toISOString();
 
         const { data: dispute, error } = await supabaseAdmin
@@ -474,6 +496,10 @@ export const createDispute = async (req, res, next) => {
                 vendor_id: getOrderVendorId(order),
                 reason,
                 reason_category: reason,
+                // Flag interne : 'FRAUD_ALERT' pour COUNTERFEIT, 'ADMIN_ONLY' pour OTHER
+                reason_flag: reasonDefaults.reasonFlag,
+                // Résolution conseillée : pré-remplie dans l'interface admin
+                suggested_resolution: reasonDefaults.suggestedResolution,
                 description: description.trim(),
                 evidence: normalizedEvidence,
                 proof_urls: normalizedEvidence.map((item) => item.url),
@@ -498,10 +524,16 @@ export const createDispute = async (req, res, next) => {
             event: 'OPEN_DISPUTE',
             reason,
             description: description.trim(),
-            evidence: normalizedEvidence
+            evidence: normalizedEvidence,
+            // Metadata contextuelle pour l'admin
+            reason_flag: reasonDefaults.reasonFlag,
+            suggested_resolution: reasonDefaults.suggestedResolution,
+            requires_return: reasonDefaults.requiresReturn,
+            direct_review: forceDirectReview,
+            direct_review_cause: abuseCheck.directReview ? 'abuse_detected' : (reasonDefaults.directReview ? 'reason_policy' : null)
         });
 
-        if (!abuseCheck.directReview) {
+        if (!forceDirectReview) {
             await updateDisputeRecord(dispute.id, {
                 status: DISPUTE_STATUSES.SELLER_PENDING,
                 seller_response_due_at: addHours(createdAt, DISPUTE_SELLER_RESPONSE_HOURS)
@@ -516,11 +548,14 @@ export const createDispute = async (req, res, next) => {
             metadata: {
                 dispute_id: dispute.id,
                 reason,
-                abuse_direct_review: abuseCheck.directReview
+                reason_flag: reasonDefaults.reasonFlag,
+                abuse_direct_review: abuseCheck.directReview,
+                reason_direct_review: reasonDefaults.directReview
             },
             processedAt: createdAt
         });
 
+        // Alerte email admin — priorité haute pour COUNTERFEIT
         const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
         if (adminEmail) {
             try {
@@ -529,7 +564,9 @@ export const createDispute = async (req, res, next) => {
                     adminEmail,
                     orderId: order.id,
                     customerName: customer?.name || 'Un client',
-                    reason
+                    reason,
+                    // Permet à l'email template d'afficher un bandeau d'urgence pour COUNTERFEIT
+                    urgent: reason === DISPUTE_REASONS.COUNTERFEIT
                 });
             } catch (emailError) {
                 console.error('Dispute email alert failed:', emailError.message);
@@ -539,8 +576,17 @@ export const createDispute = async (req, res, next) => {
         const finalDispute = await getDisputeOrNull(dispute.id);
         return res.status(201).json({
             success: true,
-            message: 'Litige ouvert et escrow gelé.',
-            data: finalDispute
+            message: forceDirectReview
+                ? 'Litige escaladé directement en révision admin (motif ou politique de détection).'
+                : 'Litige ouvert et escrow gelé.',
+            data: finalDispute,
+            // Informations utiles pour le frontend
+            meta: {
+                initial_status: initialStatus,
+                reason_flag: reasonDefaults.reasonFlag,
+                suggested_resolution: reasonDefaults.suggestedResolution,
+                requires_return: reasonDefaults.requiresReturn
+            }
         });
     } catch (error) {
         console.error('createDispute error:', error);
