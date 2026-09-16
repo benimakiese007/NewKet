@@ -405,35 +405,8 @@ const NotificationService = {
     },
 
     async notifyVendorProductImageIssue(product, issue = {}) {
-        if (!product?.id) return;
-
-        try {
-            const vendor = await resolveVendorRecipient(product);
-            if (!vendor?.email) return;
-
-            const productName = product.name || 'Produit NewKet';
-            const reason = issue.reason || 'image inaccessible';
-            const detail = issue.detail ? ` (${issue.detail})` : '';
-            const nowIso = new Date().toISOString();
-            const signature = issue.signature || 'unknown';
-
-            const created = await createDbNotification({
-                id: `notif-product-image-${product.id}-${signature}`,
-                ...(vendor.id ? { user_id: vendor.id } : {}),
-                user_email: vendor.email,
-                title: 'Image produit a verifier',
-                message: `Le garde-fou a detecte un probleme sur l'image de "${productName}"${detail}.`,
-                type: 'warning',
-                target_role: 'supplier',
-                read: false,
-                date: nowIso
-            });
-
-            return Boolean(created);
-        } catch (error) {
-            console.error('[NotificationService] notifyVendorProductImageIssue error:', error);
-            return false;
-        }
+        // Désactivé à la demande : on ne notifie plus les vendeurs pour les garde-fous d'images
+        return false;
     },
 
     /**
