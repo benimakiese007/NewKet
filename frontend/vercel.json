@@ -271,6 +271,14 @@
       "destination": "/src/pages/500"
     },
     {
+      "source": "/choose-role",
+      "destination": "/src/pages/choose-role"
+    },
+    {
+      "source": "/notifications",
+      "destination": "/src/pages/notifications"
+    },
+    {
       "source": "/admin/:path*",
       "destination": "/src/pages/admin/:path*"
     }

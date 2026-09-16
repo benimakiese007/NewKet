@@ -543,7 +543,7 @@
                         ${fallbackImages.slice(0, 3).map(p => `
                             <div class="flex justify-between text-sm font-medium text-gray-700 items-center gap-2">
                                 <span class="truncate flex-1">${p.name}</span>
-                                <a href="/admin/products.html?filter=fallback&search=${encodeURIComponent(p.name)}" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0 ml-2">Corriger</a>
+                                <a href="/admin/products?filter=fallback&search=${encodeURIComponent(p.name)}" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0 ml-2">Corriger</a>
                             </div>
                         `).join('')}
                         ${fallbackImages.length > 3 ? `<div class="text-[10px] font-black text-yellow-500 uppercase mt-2 text-right">+ ${fallbackImages.length - 3} autres</div>` : ''}

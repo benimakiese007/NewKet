@@ -172,7 +172,7 @@ export default defineConfig({
 
             // Pretty URL dev rewrites: /catalog → /src/pages/catalog.html
             // Only single-segment paths with no dots (to exclude assets & HMR URLs)
-            const rootPages = ['catalog', 'login', 'product', 'shop', 'favorites', 'shops', 'support', 'faq', 'seller-onboarding', 'vendor-dashboard', 'customer-dashboard', 'publish', 'reset-password', 'achat', 'promo', 'settings', 'terms', 'privacy', 'mentions-legales', 'system-health', 'payment-success', 'payment-cancel', 'invoice-verify', 'about', 'seller', '404', '500'];
+            const rootPages = ["404", "500", "about", "achat", "catalog", "choose-role", "customer-dashboard", "faq", "favorites", "invoice-verify", "login", "mentions-legales", "notifications", "payment-cancel", "payment-success", "privacy", "product", "promo", "publish", "reset-password", "seller-onboarding", "seller", "settings", "shop", "shops", "support", "system-health", "terms", "vendor-dashboard"];
             const simplePage = originalUrl.match(/^\/([^/?#.@]+)(?:\.html)?(\?.*)?$/i);
             if (simplePage && rootPages.includes(simplePage[1])) {
               req.url = `/src/pages/${simplePage[1]}.html${simplePage[2] || ''}`;

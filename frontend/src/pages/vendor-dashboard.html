@@ -662,7 +662,7 @@
                         </div>
                         <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun achat effectué</h3>
                         <p class="text-sm text-gray-500 mb-6 max-w-sm mx-auto">Vous n'avez pas encore effectué d'achats sur la plateforme.</p>
-                        <a href="/index.html" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center w-max mx-auto gap-2">
+                        <a href="/" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center w-max mx-auto gap-2">
                             <iconify-icon icon="solar:shop-2-bold" width="20"></iconify-icon>
                             Explorer la boutique
                         </a>
@@ -3485,9 +3485,16 @@
                         imgStr = imgStr[0];
                     }
                     imgStr = String(imgStr).toLowerCase().trim();
-                    return imgStr === '' || imgStr === 'null' || imgStr === 'undefined' ||
-                           imgStr === '[]' || imgStr.includes('default.') ||
-                           imgStr.includes('logo-newket') || imgStr.includes('garde-fou');
+                    if (imgStr === '' || imgStr === 'null' || imgStr === 'undefined' ||
+                        imgStr === '[]' || imgStr.includes('default.') ||
+                        imgStr.includes('logo-newket') || imgStr.includes('garde-fou')) return true;
+                    // Rejeter toute URL externe : seules Cloudinary et Supabase Storage sont autorisées
+                    if (imgStr.startsWith('http') &&
+                        !imgStr.includes('res.cloudinary.com') &&
+                        !imgStr.includes('.supabase.co/storage/v1/') &&
+                        !imgStr.includes('/storage/v1/object/public/') &&
+                        !imgStr.includes('/storage/v1/render/image/public/')) return true;
+                    return false;
                 }
 
                 async function checkVendorBrokenImagesAsync(products) {

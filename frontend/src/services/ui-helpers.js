@@ -1322,6 +1322,15 @@ export function resolveProductImageSource(productOrImage, opts = {}) {
     for (const candidate of candidates) {
         const normalized = getOptimizedImageUrl(candidate, opts);
         if (normalized && normalized !== fallback) {
+            // Rejeter toute URL externe : seules Cloudinary et Supabase Storage sont autorisées
+            const lower = normalized.toLowerCase();
+            if (lower.startsWith('http') &&
+                !lower.includes('res.cloudinary.com') &&
+                !lower.includes('.supabase.co/storage/v1/') &&
+                !lower.includes('/storage/v1/object/public/') &&
+                !lower.includes('/storage/v1/render/image/public/')) {
+                continue; // URL externe → ignorer, essayer le candidat suivant
+            }
             return normalized;
         }
     }

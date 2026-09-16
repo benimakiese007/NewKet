@@ -351,7 +351,7 @@ const SearchManager = {
                     const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
                         
                     return `
-                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
+                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : '/product') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
                             <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(p.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
                         </div>
@@ -379,7 +379,7 @@ const SearchManager = {
         if (!query) return;
         this.saveRecentSearch(query);
         
-        let path = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog') : 'src/pages/catalog.html';
+        let path = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog') : '/catalog';
         const params = new URLSearchParams();
         params.set('q', query);
         if (this.selectedCategory !== 'all') {
@@ -478,7 +478,7 @@ const SearchManager = {
                     const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
                         
                     return `
-                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
+                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : '/product') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
                             <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(p.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
                         </div>
@@ -495,7 +495,7 @@ const SearchManager = {
                 html += `</div></div>`;
 
                 // Footer see all
-                const catalogPath = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog') : 'src/pages/catalog.html';
+                const catalogPath = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog') : '/catalog';
                 const searchUrl = `${catalogPath}?q=${encodeURIComponent(query)}${this.selectedCategory !== 'all' ? '&category=' + encodeURIComponent(this.selectedCategory) : ''}`;
                 
                 html += `

@@ -25,7 +25,7 @@ const HEADER_HTML = `
 
                 <!-- Logo Section — col centre (parfaitement centré sur mobile, statique sur desktop) -->
                 <div class="flex items-center justify-center sm:min-w-0 sm:justify-start">
-                    <a href="{{ROOT}}index.html" aria-label="Retour à l'accueil NewKet" title="Accueil NewKet" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
+                    <a href="{{ROOT}}" aria-label="Retour à l'accueil NewKet" title="Accueil NewKet" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
                         <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
                             data-site-logo="header"
                             class="header-brand-image h-8 sm:h-14 w-auto object-contain"
@@ -392,7 +392,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <nav class="bg-newket-header main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
     <div class="relative flex h-16 sm:h-20 items-center justify-center">
-    <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
+    <a href="{{ROOT}}" class="flex items-center group py-2" title="Retour à l'accueil">
         <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-8 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-white/40">
@@ -408,7 +408,7 @@ const getBottomNavHTML = (role) => {
     
     return `<!-- Liquid Glass Bottom Navbar -->
 <nav class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-4 sm:hidden shadow-[0_10px_40px_rgba(0,0,0,0.2)] rounded-[32px] w-[calc(100%-44px)] left-[22px] h-[64px]" style="bottom: calc(env(safe-area-inset-bottom, 0px) - 16px);">
-    <a href="{{ROOT}}index.html" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
+    <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>
     </a>

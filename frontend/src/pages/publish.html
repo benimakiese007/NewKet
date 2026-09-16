@@ -768,12 +768,19 @@
                         loadedImages = product.image.split(',').map(img => img.trim()).filter(img => img);
                     }
                     
-                    // Filter out fallback/broken images so the user sees an empty upload zone
+                    // Filter out fallback/broken/external images so the user sees an empty upload zone
                     loadedImages = loadedImages.filter(imgStr => {
                         if (!imgStr) return false;
                         const str = String(imgStr).toLowerCase().trim();
-                        return !(str === '' || str === 'null' || str === 'undefined' || str === '[]' || 
-                                 str.includes('default.') || str.includes('logo-newket') || str.includes('garde-fou') || str.includes('broken_image_404'));
+                        if (str === '' || str === 'null' || str === 'undefined' || str === '[]' ||
+                            str.includes('default.') || str.includes('logo-newket') || str.includes('garde-fou') || str.includes('broken_image_404')) return false;
+                        // Rejeter toute URL externe : seules Cloudinary et Supabase Storage sont autorisées
+                        if (str.startsWith('http') &&
+                            !str.includes('res.cloudinary.com') &&
+                            !str.includes('.supabase.co/storage/v1/') &&
+                            !str.includes('/storage/v1/object/public/') &&
+                            !str.includes('/storage/v1/render/image/public/')) return false;
+                        return true;
                     });
                     
                     if (loadedImages.length > 0) {
