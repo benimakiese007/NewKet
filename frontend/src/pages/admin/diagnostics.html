@@ -480,8 +480,10 @@
                             return resolve();
                         }
                         
-                        let imgUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
-                        if (!imgUrl) return resolve();
+                        let rawUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
+                        if (!rawUrl) return resolve();
+                        
+                        let imgUrl = rawUrl.includes('||') ? rawUrl.split('||')[0].trim() : rawUrl.trim();
                         
                         const img = new Image();
                         img.onload = () => resolve();
