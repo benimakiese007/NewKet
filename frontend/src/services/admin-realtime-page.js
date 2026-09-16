@@ -807,6 +807,8 @@ async function seedAnalyticsSnapshot() {
         const { data, error } = await client
             .from('analytics_events')
             .select('id, event_type, user_id, user_role, session_id, path, page_title, target, active_ms, metadata, created_at, user_agent')
+            .neq('user_role', 'admin')
+            .not('path', 'ilike', '%/admin/%')
             .order('created_at', { ascending: false })
             .limit(5);
 
@@ -969,6 +971,7 @@ function handleDbEvent(table, eventType, payload) {
     }
 
     if (table === 'analytics_events') {
+        if (row.user_role === 'admin' || (row.path && row.path.includes('/admin/'))) return;
         const eventTypeName = String(row.event_type || 'analytics').toLowerCase();
         const title = row.page_title || row.path || eventTypeName || 'Signal analytics';
         const detailParts = [
