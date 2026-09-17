@@ -1268,11 +1268,7 @@
             if (navigator.share) {
                 navigator.share(shareData).catch(() => { });
             } else {
-                navigator.clipboard.writeText(productUrl).then(() => {
-                    if (window.showToast) {
-                        showToast('Lien copié dans le presse-papier !', 'success');
-                    }
-                });
+                window.copyAndAnimateButton(event, productUrl);
             }
         }
 
