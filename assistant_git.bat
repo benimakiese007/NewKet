@@ -16,9 +16,10 @@ echo 4. [FIN] Sauvegarder et envoyer mon travail (Commit + Push)
 echo 5. [PAUSE] Mettre mon brouillon de cote en securite (Stash)
 echo 6. [REPRISE] Recuperer mon brouillon mis de cote (Stash Pop)
 echo 7. [URGENCE] Tout annuler et forcer la mise a jour propre
-echo 8. Quitter
+echo 8. [AIDE] Comprendre chaque option avec des exemples
+echo 9. Quitter
 echo.
-set /p choix="Choisis une option (1-8) : "
+set /p choix="Choisis une option (1-9) : "
 
 if "%choix%"=="1" goto STATUS
 if "%choix%"=="2" goto BRANCH
@@ -27,7 +28,8 @@ if "%choix%"=="4" goto PUSH
 if "%choix%"=="5" goto STASH
 if "%choix%"=="6" goto UNSTASH
 if "%choix%"=="7" goto RESET
-if "%choix%"=="8" goto END
+if "%choix%"=="8" goto HELP
+if "%choix%"=="9" goto END
 
 goto MENU
 
@@ -164,6 +166,47 @@ echo ==================================================
 echo  OUF ! TON PROJET EST TOUT PROPRE ET A JOUR !
 echo ==================================================
 echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
+goto MENU
+
+:HELP
+cls
+echo ==================================================
+echo               GUIDE D'UTILISATION
+echo ==================================================
+echo.
+echo OPTION 1 : VOIR (Status)
+echo Exemple : Il est 14h, tu reviens de pause, tu ne sais plus 
+echo ce que tu as code ce matin. Utilise 1 pour voir les fichiers touches.
+echo.
+echo OPTION 2 : DEPART (Branch)
+echo Exemple : On te demande de coder la page profil. Tu choisis 2, 
+echo tu l'appelles "page-profil", et tu te retrouves dans un 
+echo brouillon isole ou tu peux travailler en toute securite.
+echo.
+echo OPTION 3 : MAJ (Pull)
+echo Exemple : Ton collegue vient de finir le bouton "Acheter". 
+echo Pour l'avoir sur ton propre PC, tu choisis l'option 3.
+echo.
+echo OPTION 4 : FIN (Commit + Push)
+echo Exemple : Tu as fini ta page profil. Tu choisis 4 pour l'envoyer
+echo sur GitHub afin que les autres puissent la tester.
+echo.
+echo OPTION 5 : PAUSE (Stash)
+echo Exemple : Tu es en plein milieu d'un code, le boss te demande 
+echo de corriger un bug urgent ailleurs. Tu fais 5 pour cacher ton 
+echo brouillon dans un tiroir sans l'effacer.
+echo.
+echo OPTION 6 : REPRISE (Stash Pop)
+echo Exemple : Tu as fini le bug urgent. Tu reviens sur ta branche
+echo et tu fais 6 pour ressortir ton brouillon de l'etape 5 !
+echo.
+echo OPTION 7 : URGENCE (Reset)
+echo Exemple : Tu as fait n'importe quoi, ton code est casse, 
+echo tu veux tout annuler et repartir de zero. Utilise le 7 !
+echo.
+echo ==================================================
 echo Appuyez sur une touche pour retourner au menu principal... 
 pause >nul
 goto MENU
