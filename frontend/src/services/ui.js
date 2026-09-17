@@ -356,7 +356,7 @@ window.filterAllProducts = async function (category) {
             await UI.ensureHomeFilterBatch(category, grid);
         } catch (err) {
             console.error("Error loading filtered products:", err);
-            if (window.showToast) showToast('Erreur lors du chargement', 'error');
+            if (grid) grid.innerHTML = <div class="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-gray-100"><iconify-icon icon="solar:wifi-router-minimalistic-broken" width="48" class="text-red-400 mb-3"></iconify-icon><p class="text-gray-800 font-semibold mb-1">Impossible de filtrer les produits</p><button onclick="window.filterAllProducts('')" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors mt-2">Réessayer</button></div>;
         } finally {
             window._isFetchingHome = false;
         }
@@ -393,7 +393,14 @@ window.showMoreProducts = async function () {
         UI.renderFilteredBatch(ProductManager.getProducts(), grid, batchSize, true);
     } catch (err) {
         console.error("Error loading more products:", err);
-        if (window.showToast) showToast('Erreur lors du chargement', 'error');
+        if (buttonLabel) {
+            buttonLabel.textContent = 'Erreur réseau, réessayer';
+            if (button) button.classList.add('border-red-500', 'text-red-500');
+            setTimeout(() => {
+                if (button) button.classList.remove('border-red-500', 'text-red-500');
+                buttonLabel.textContent = 'Voir plus de produits';
+            }, 4000);
+        }
     } finally {
         window._isFetchingHome = false;
         if (button) button.disabled = false;
