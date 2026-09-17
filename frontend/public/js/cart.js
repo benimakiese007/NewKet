@@ -442,11 +442,11 @@ class CartManager {
                 // Supprimer l'article du panier une fois la commande validée
                 this.remove(productIdOrCartItemId);
                 
+                this.toggleCartUI(false);
                 if (window.showOrderSuccessModal) {
-                    this.toggleCartUI(false);
                     window.showOrderSuccessModal();
                 } else {
-                    if (window.showToast) window.showToast("Commande passée avec succès !", "success");
+                    console.warn('[NewKet Cart] showOrderSuccessModal non disponible — commande validée sans animation.');
                 }
             }
         } else {

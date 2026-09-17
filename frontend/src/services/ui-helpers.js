@@ -327,9 +327,10 @@ document.addEventListener('click', async (event) => {
         return;
     }
 
-    const copied = await copyTextToClipboard(productUrl);
-    if (copied && window.showToast) {
-        showToast('Lien copie !', 'info');
+    if (window.copyAndAnimateButton) {
+        window.copyAndAnimateButton({ currentTarget: shareButton }, productUrl, 'Lien copié !');
+    } else {
+        await copyTextToClipboard(productUrl);
     }
 }, true);
 
