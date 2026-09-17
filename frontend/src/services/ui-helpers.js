@@ -785,7 +785,7 @@ export function buildProductCardHTML(p, options = {}) {
                         <iconify-icon icon="solar:cart-plus-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
                         <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Ajouter' : 'Indisponible'}</span>
                     </button>
-                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + resolvePath('pages/product') + '?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
+                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id='); }"
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 bg-white hover:bg-gray-50 flex-shrink-0 transition-all"
                         aria-label="Partager ce produit"
                         title="Partager">
@@ -3026,4 +3026,40 @@ window.showOrderSuccessModal = function() {
             window.location.href = '/customer-dashboard.html#orders';
         }, 2800);
     });
+};
+
+window.copyAndAnimateButton = async function(event, text, successText = 'Copié !') {
+    const btn = event.currentTarget;
+    if (!btn || btn._isAnimatingCopy) return;
+    btn._isAnimatingCopy = true;
+
+    // Save original state
+    if (!btn.dataset.originalHtml) {
+        btn.dataset.originalHtml = btn.innerHTML;
+    }
+
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+    } else if (window.copyTextToClipboard) {
+        window.copyTextToClipboard(text);
+    }
+
+    // Determine if it's an icon-only button by checking its structure
+    const textSpan = btn.querySelector('span');
+    const isIconOnly = !textSpan || textSpan.textContent.trim() === '';
+
+    // Animate button
+    btn.innerHTML = <iconify-icon icon="solar:check-circle-bold" class="text-green-500 scale-125 transition-transform duration-300"></iconify-icon> + 
+                    (isIconOnly ? '' : <span class="text-green-500 font-bold ml-1"></span>);
+    
+    // Add success colors temporarily
+    const originalClasses = btn.className;
+    btn.classList.add('border-green-200', 'bg-green-50');
+
+    setTimeout(() => {
+        btn.innerHTML = btn.dataset.originalHtml;
+        btn.className = originalClasses;
+        btn._isAnimatingCopy = false;
+    }, 2000);
 };
