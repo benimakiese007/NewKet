@@ -12,14 +12,16 @@ echo.
 echo 1. Mettre a jour le projet (Recuperer le travail des autres)
 echo 2. Commencer une nouvelle tache (Creer une branche)
 echo 3. Sauvegarder et envoyer mon travail (Commit + Push)
-echo 4. Quitter
+echo 4. [URGENCE] Tout annuler et forcer la mise a jour propre
+echo 5. Quitter
 echo.
-set /p choix="Choisis une option (1-4) : "
+set /p choix="Choisis une option (1-5) : "
 
 if "%choix%"=="1" goto PULL
 if "%choix%"=="2" goto BRANCH
 if "%choix%"=="3" goto PUSH
-if "%choix%"=="4" goto END
+if "%choix%"=="4" goto RESET
+if "%choix%"=="5" goto END
 
 goto MENU
 
@@ -33,9 +35,9 @@ echo.
 echo ==================================================
 echo  SUPER ! LE PROJET EST A JOUR !
 echo ==================================================
-echo. 
- echo Appuyez sur une touche pour retourner au menu principal... 
- pause >nul
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
 goto MENU
 
 :BRANCH
@@ -56,9 +58,9 @@ echo.
 echo ==================================================
 echo  C'EST PARTI ! TU PEUX COMMENCER A CODER !
 echo ==================================================
-echo. 
- echo Appuyez sur une touche pour retourner au menu principal... 
- pause >nul
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
 goto MENU
 
 :PUSH
@@ -80,9 +82,38 @@ echo ==================================================
 echo  TRAVAIL ENVOYE ! 
 echo  N'oublie pas d'aller sur GitHub pour creer ta Pull Request.
 echo ==================================================
-echo. 
- echo Appuyez sur une touche pour retourner au menu principal... 
- pause >nul
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
+goto MENU
+
+:RESET
+echo.
+echo ==================================================
+echo                    ATTENTION !
+echo ==================================================
+echo Tu es sur le point de JETER DEFINITIVEMENT toutes les
+echo modifications que tu n'as pas encore sauvegardees.
+echo Le code va redevenir exactement comme sur GitHub.
+echo.
+set /p confirm="Es-tu VRAIMENT sur de vouloir tout effacer ? (O/N) : "
+if /i not "%confirm%"=="O" goto MENU
+
+echo.
+echo [1/3] Suppression des brouillons en cours...
+git reset --hard
+git clean -fd
+echo [2/3] Retour sur la branche principale...
+git checkout main
+echo [3/3] Telechargement de la version propre...
+git pull origin main
+echo.
+echo ==================================================
+echo  OUF ! TON PROJET EST TOUT PROPRE ET A JOUR !
+echo ==================================================
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
 goto MENU
 
 :END
