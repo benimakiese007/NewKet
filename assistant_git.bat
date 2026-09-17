@@ -92,7 +92,11 @@ echo.
 echo ==================================================
 echo                    ATTENTION !
 echo ==================================================
-echo Tu es sur le point de JETER DEFINITIVEMENT toutes les
+echo Voici les fichiers qui vont etre SUPPRIMES OU ANNULES :
+ echo.
+ git status --short
+ echo.
+ echo Tu es sur le point de JETER DEFINITIVEMENT toutes ces
 echo modifications que tu n'as pas encore sauvegardees.
 echo Le code va redevenir exactement comme sur GitHub.
 echo.
