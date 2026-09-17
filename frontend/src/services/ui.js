@@ -14,6 +14,12 @@ const UI = {
             }
         });
 
+        window.addEventListener('productsError', () => {
+            if (!window._isFetchingHome) {
+                this.renderHomeGrid();
+            }
+        });
+
         if (!this._homeResizeBound) {
             let resizeTimer;
             window.addEventListener('resize', () => {
@@ -56,6 +62,21 @@ const UI = {
 
         // If no products yet, show skeletons
         if (!products || products.length === 0) {
+
+            if (window.ProductManager && window.ProductManager._error) {
+                const retryHtml = \<div class="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-gray-100">
+                    <iconify-icon icon="solar:wifi-router-minimalistic-broken" width="48" class="text-red-400 mb-3"></iconify-icon>
+                    <p class="text-gray-800 font-semibold mb-1">Impossible de charger les produits</p>
+                    <p class="text-gray-500 text-sm mb-4">Veuillez vérifier votre connexion réseau.</p>
+                    <button onclick="window.ProductManager.fetchFreshData()" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors">
+                        Réessayer
+                    </button>
+                </div>\;
+                if (grid) grid.innerHTML = retryHtml;
+                if (null) null.innerHTML = retryHtml;
+                return;
+            }
+
             if (section) section.classList.remove('hidden');
             grid.innerHTML = window.buildSkeletonCardHTML(12);
             return;
@@ -95,9 +116,22 @@ const UI = {
 
     renderRecent(products) {
         const grid = document.getElementById('recentProductGrid');
-        if (!grid) return;
+        if (!grid) return;        if (!products || products.length === 0) {
 
-        if (!products || products.length === 0) {
+            if (window.ProductManager && window.ProductManager._error) {
+                const retryHtml = \<div class="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-gray-100">
+                    <iconify-icon icon="solar:wifi-router-minimalistic-broken" width="48" class="text-red-400 mb-3"></iconify-icon>
+                    <p class="text-gray-800 font-semibold mb-1">Impossible de charger les produits</p>
+                    <p class="text-gray-500 text-sm mb-4">Veuillez vérifier votre connexion réseau.</p>
+                    <button onclick="window.ProductManager.fetchFreshData()" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors">
+                        Réessayer
+                    </button>
+                </div>\;
+                if (grid) grid.innerHTML = retryHtml;
+                if (null) null.innerHTML = retryHtml;
+                return;
+            }
+
             grid.innerHTML = window.buildSkeletonCardHTML(5);
             return;
         }
@@ -175,6 +209,21 @@ const UI = {
     renderFilteredBatch(products, container, batchSize, append = false) {
         if (!products || products.length === 0) {
             if (!append) {
+
+            if (window.ProductManager && window.ProductManager._error) {
+                const retryHtml = \<div class="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-gray-100">
+                    <iconify-icon icon="solar:wifi-router-minimalistic-broken" width="48" class="text-red-400 mb-3"></iconify-icon>
+                    <p class="text-gray-800 font-semibold mb-1">Impossible de charger les produits</p>
+                    <p class="text-gray-500 text-sm mb-4">Veuillez vérifier votre connexion réseau.</p>
+                    <button onclick="window.ProductManager.fetchFreshData()" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors">
+                        Réessayer
+                    </button>
+                </div>\;
+                if (null) null.innerHTML = retryHtml;
+                if (container) container.innerHTML = retryHtml;
+                return;
+            }
+
                 const isLoading = window.ProductManager && window.ProductManager.loading;
                 if (isLoading) {
                     container.innerHTML = window.buildSkeletonCardHTML(batchSize);

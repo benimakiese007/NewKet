@@ -231,7 +231,8 @@ const ProductManager = {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         eq: [['is_archived', false]],
                         order: ['created_at', { ascending: false }],
-                        limit: PRODUCTS_PAGE_SIZE
+                        limit: PRODUCTS_PAGE_SIZE,
+                        suppressToast: true
                     });
                     products = fetchedProducts || [];
                     this._totalCount = products.length;
@@ -254,7 +255,8 @@ const ProductManager = {
                         select: '*',
                         eq: [['is_archived', false]],
                         order: ['created_at', { ascending: false }],
-                        limit: PRODUCTS_PAGE_SIZE
+                        limit: PRODUCTS_PAGE_SIZE,
+                        suppressToast: true
                     });
                     products = fetchedProducts || [];
                     this._totalCount = products.length;
@@ -300,7 +302,8 @@ const ProductManager = {
                     const pinned = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
-                        eq: [['pinned', true], ['is_archived', false]]
+                        eq: [['pinned', true], ['is_archived', false]],
+                        suppressToast: true
                     });
                     if (pinned && pinned.length > 0) {
                         const mappedPinned = pinned.map(p => this._mapProduct(p));
