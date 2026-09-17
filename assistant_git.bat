@@ -9,32 +9,35 @@ echo ==================================================
 echo         ASSISTANT GIT POUR L'EQUIPE NEWKET
 echo ==================================================
 echo.
-echo 1. Mettre a jour le projet (Recuperer le travail des autres)
-echo 2. Commencer une nouvelle tache (Creer une branche)
-echo 3. Sauvegarder et envoyer mon travail (Commit + Push)
-echo 4. [URGENCE] Tout annuler et forcer la mise a jour propre
-echo 5. Quitter
+echo 1. [VOIR] Qu'est-ce que j'ai modifie aujourd'hui ? (Status)
+echo 2. [DEPART] Commencer une nouvelle tache (Creer une branche)
+echo 3. [MAJ] Mettre a jour le projet (Tirer les nouveautes)
+echo 4. [FIN] Sauvegarder et envoyer mon travail (Commit + Push)
+echo 5. [PAUSE] Mettre mon brouillon de cote en securite (Stash)
+echo 6. [REPRISE] Recuperer mon brouillon mis de cote (Stash Pop)
+echo 7. [URGENCE] Tout annuler et forcer la mise a jour propre
+echo 8. Quitter
 echo.
-set /p choix="Choisis une option (1-5) : "
+set /p choix="Choisis une option (1-8) : "
 
-if "%choix%"=="1" goto PULL
+if "%choix%"=="1" goto STATUS
 if "%choix%"=="2" goto BRANCH
-if "%choix%"=="3" goto PUSH
-if "%choix%"=="4" goto RESET
-if "%choix%"=="5" goto END
+if "%choix%"=="3" goto PULL
+if "%choix%"=="4" goto PUSH
+if "%choix%"=="5" goto STASH
+if "%choix%"=="6" goto UNSTASH
+if "%choix%"=="7" goto RESET
+if "%choix%"=="8" goto END
 
 goto MENU
 
-:PULL
-echo.
-echo [1/2] Retour sur la branche principale...
-git checkout main
-echo [2/2] Telechargement des dernieres modifications...
-git pull origin main
+:STATUS
 echo.
 echo ==================================================
-echo  SUPER ! LE PROJET EST A JOUR !
+echo               ETAT DE TON TRAVAIL
 echo ==================================================
+echo.
+git status
 echo.
 echo Appuyez sur une touche pour retourner au menu principal... 
 pause >nul
@@ -58,6 +61,22 @@ echo.
 echo ==================================================
 echo  C'EST PARTI ! TU PEUX COMMENCER A CODER !
 echo ==================================================
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
+goto MENU
+
+:PULL
+echo.
+echo [1/2] Retour sur la branche principale...
+git checkout main
+echo [2/2] Telechargement des dernieres modifications...
+git pull origin main
+echo.
+echo ==================================================
+echo  SUPER ! LE PROJET EST A JOUR !
+echo ==================================================
+echo (S'il y a un conflit, ouvre VS Code pour le resoudre manuellement)
 echo.
 echo Appuyez sur une touche pour retourner au menu principal... 
 pause >nul
@@ -87,16 +106,45 @@ echo Appuyez sur une touche pour retourner au menu principal...
 pause >nul
 goto MENU
 
+:STASH
+echo.
+echo ==================================================
+echo               MISE DE COTE (STASH)
+echo ==================================================
+git stash
+echo.
+echo Ton brouillon a ete mis dans le "tiroir" secret de Git !
+echo Ton code est redevenu propre. Tu peux maintenant changer 
+echo de branche ou mettre a jour sans danger.
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
+goto MENU
+
+:UNSTASH
+echo.
+echo ==================================================
+echo            RECUPERATION DU BROUILLON
+echo ==================================================
+git stash pop
+echo.
+echo Ton brouillon a ete recupere du "tiroir" !
+echo Tu peux reprendre ton travail la ou tu l'avais laisse.
+echo.
+echo Appuyez sur une touche pour retourner au menu principal... 
+pause >nul
+goto MENU
+
 :RESET
 echo.
 echo ==================================================
 echo                    ATTENTION !
 echo ==================================================
 echo Voici les fichiers qui vont etre SUPPRIMES OU ANNULES :
- echo.
- git status --short
- echo.
- echo Tu es sur le point de JETER DEFINITIVEMENT toutes ces
+echo.
+git status --short
+echo.
+echo Tu es sur le point de JETER DEFINITIVEMENT toutes ces
 echo modifications que tu n'as pas encore sauvegardees.
 echo Le code va redevenir exactement comme sur GitHub.
 echo.
