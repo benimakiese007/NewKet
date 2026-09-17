@@ -33,7 +33,9 @@ echo.
 echo ==================================================
 echo  SUPER ! LE PROJET EST A JOUR !
 echo ==================================================
-pause
+echo. 
+ echo Appuyez sur une touche pour retourner au menu principal... 
+ pause >nul
 goto MENU
 
 :BRANCH
@@ -54,7 +56,9 @@ echo.
 echo ==================================================
 echo  C'EST PARTI ! TU PEUX COMMENCER A CODER !
 echo ==================================================
-pause
+echo. 
+ echo Appuyez sur une touche pour retourner au menu principal... 
+ pause >nul
 goto MENU
 
 :PUSH
@@ -76,7 +80,9 @@ echo ==================================================
 echo  TRAVAIL ENVOYE ! 
 echo  N'oublie pas d'aller sur GitHub pour creer ta Pull Request.
 echo ==================================================
-pause
+echo. 
+ echo Appuyez sur une touche pour retourner au menu principal... 
+ pause >nul
 goto MENU
 
 :END
