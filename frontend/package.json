@@ -24,12 +24,17 @@
   },
   "homepage": "https://github.com/benimakiese007/NOVA-V2#readme",
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.8",
     "tailwindcss": "^3.4.19",
     "vite": "^8.0.2"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
     "@iconify-json/line-md": "^1.2.16",
     "@iconify-json/logos": "^1.2.11",
     "@iconify-json/solar": "^1.2.5",

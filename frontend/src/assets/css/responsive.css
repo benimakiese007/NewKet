@@ -119,8 +119,8 @@ canvas {
 
     /* Shop page hero: ensure top actions are not hidden under header on small screens */
     .vendor-hero {
-        height: 520px !important;
-        min-height: 520px !important;
+        min-height: 56vh !important;
+        height: auto !important;
     }
 
     /* Mobile logo size */
