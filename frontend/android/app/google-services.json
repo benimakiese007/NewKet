@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "794219544066",
+    "project_id": "newket-market",
+    "storage_bucket": "newket-market.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794219544066:android:8d8e72550326c8ec3ff11b",
+        "android_client_info": {
+          "package_name": "cd.newket.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_E_cQG860DhogFvnXYhQZqO8YTnKPaxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

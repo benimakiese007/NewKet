@@ -1022,7 +1022,7 @@ const ComponentLoader = {
 
         // Admin shortcut: 'admin' or 'admin/' → /admin/index
         if (cleanPath === 'admin' || cleanPath === 'admin/') {
-            return root + 'admin/index';
+            cleanPath = 'admin/index';
         }
 
         // Separate query string if present
@@ -1038,8 +1038,16 @@ const ComponentLoader = {
             return root + 'src/' + cleanPath + query;
         }
 
+        // Capacitor runs a simple static server. It needs the EXACT physical file path.
+        if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
+            if (cleanPath === '' || cleanPath === 'index') {
+                return root + 'index.html' + query;
+            }
+            return root + 'src/pages/' + cleanPath + '.html' + query;
+        }
+
         return root + cleanPath + query;
-    }
+    },
 };
 
 window.ComponentLoader = ComponentLoader;

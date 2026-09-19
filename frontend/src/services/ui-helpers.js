@@ -195,7 +195,7 @@ function resolvePath(path) {
     cleanPath = cleanPath.replace(/\.html$/, '');
 
     if (cleanPath === 'admin' || cleanPath === 'admin/') {
-        return root + 'admin/index';
+        cleanPath = 'admin/index';
     }
 
     let query = '';
@@ -207,6 +207,13 @@ function resolvePath(path) {
 
     if (cleanPath.startsWith('assets/')) {
         return root + 'src/' + cleanPath + query;
+    }
+
+    if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
+        if (cleanPath === '' || cleanPath === 'index') {
+            return root + 'index.html' + query;
+        }
+        return root + 'src/pages/' + cleanPath + '.html' + query;
     }
 
     return root + cleanPath + query;
@@ -263,6 +270,12 @@ async function copyTextToClipboard(text) {
 function buildShopShareUrl({ shopName, shopSlug } = {}) {
     const providedSlug = String(shopSlug || '').trim();
     const slug = providedSlug || buildShopSlug(shopName);
+
+    // On Capacitor (native), return the physical file path instead of a pretty URL
+    if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
+        return '/src/pages/shop.html?shop=' + encodeURIComponent(slug);
+    }
+
     const url = new URL(`/boutique/${encodeURIComponent(slug)}`, window.location.origin);
     return url.toString();
 }
@@ -277,6 +290,16 @@ function buildProductShareUrl({ shopName, email, productName, productId } = {}) 
 }
 
 function buildProductPagePath({ shopName, shopSlug, productName, productId, email } = {}) {
+    // On Capacitor (native Android/iOS), there is no server to rewrite pretty URLs.
+    // We must use the exact physical file path: /src/pages/product.html?id=xxx
+    if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
+        const params = new URLSearchParams();
+        if (productId) params.set('id', productId);
+        if (email) params.set('email', email);
+        const qs = params.toString();
+        return '/src/pages/product.html' + (qs ? '?' + qs : '');
+    }
+
     const resolvedShopSlug = String(shopSlug || '').trim() || buildShopSlug(shopName);
     const productSlug = buildProductSlug(productName);
 
@@ -738,9 +761,12 @@ export function buildProductCardHTML(p, options = {}) {
     const absoluteProductUrl = `${window.location.origin}${productPagePath}`;
     
     const shopName = vendor?.company_name || vendor?.name || 'NewKet Shop';
+    const shopSlugFallback = vendor?.shop_slug || buildShopSlug(shopName);
     const shopUrl = window.NewKetLinks?.buildShopShareUrl 
         ? window.NewKetLinks.buildShopShareUrl({ shopName: shopName, shopSlug: vendor?.shop_slug })
-        : `/boutique/${encodeURIComponent(vendor?.shop_slug || buildShopSlug(shopName))}`;
+        : (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)
+            ? `/src/pages/shop.html?shop=${encodeURIComponent(shopSlugFallback)}`
+            : `/boutique/${encodeURIComponent(shopSlugFallback)}`);
 
     return `
         <div class="product-card card-active-scale ${animationClass} ${wrapperClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
@@ -2988,7 +3014,7 @@ window.clearInlineFeedback = clearInlineFeedback;
 
 window.showOrderSuccessModal = function() {
     // Inject the success animation container
-    const modalHtml = \
+    const modalHtml = `
         <div id="orderSuccessOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white/90 backdrop-blur-sm transition-opacity duration-500 opacity-0">
             <div class="flex flex-col items-center justify-center p-8 text-center transform scale-75 opacity-0" id="orderSuccessContent">
                 <div class="relative w-32 h-32 mb-6">
@@ -3002,7 +3028,7 @@ window.showOrderSuccessModal = function() {
                 <p class="text-gray-500 font-medium mb-8 max-w-sm">Merci pour votre achat. Vous allez être redirigé vers le suivi de votre commande.</p>
             </div>
         </div>
-    \;
+    `;
     
     document.body.insertAdjacentHTML('beforeend', modalHtml);
     
@@ -3024,7 +3050,7 @@ window.showOrderSuccessModal = function() {
         
         // Redirect after animation completes
         setTimeout(() => {
-            window.location.href = '/customer-dashboard.html#orders';
+            window.location.href = window.resolvePath('customer-dashboard') + '#orders';
         }, 2800);
     });
 };
@@ -3051,8 +3077,8 @@ window.copyAndAnimateButton = async function(event, text, successText = 'Copié 
     const isIconOnly = !textSpan || textSpan.textContent.trim() === '';
 
     // Animate button
-    btn.innerHTML = <iconify-icon icon="solar:check-circle-bold" class="text-green-500 scale-125 transition-transform duration-300"></iconify-icon> + 
-                    (isIconOnly ? '' : <span class="text-green-500 font-bold ml-1"></span>);
+    btn.innerHTML = `<iconify-icon icon="solar:check-circle-bold" class="text-green-500 scale-125 transition-transform duration-300"></iconify-icon>` + 
+                    (isIconOnly ? '' : `<span class="text-green-500 font-bold ml-1">${successText}</span>`);
     
     // Add success colors temporarily
     const originalClasses = btn.className;

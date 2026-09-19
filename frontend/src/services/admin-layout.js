@@ -253,6 +253,12 @@ const AdminLayout = {
         if (!adjusted.startsWith('/') && !adjusted.startsWith('http')) {
             adjusted = '/admin/' + adjusted;
         }
+
+        if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
+            let cleanPath = adjusted.replace(/^\/+/, '').replace(/\.html$/, '');
+            return '/' + 'src/pages/' + cleanPath + '.html';
+        }
+
         if (adjusted.includes('/admin/') && !adjusted.endsWith('.html')) {
             adjusted += '.html';
         }

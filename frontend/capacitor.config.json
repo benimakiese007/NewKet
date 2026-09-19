@@ -1,5 +1,11 @@
 {
   "appId": "cd.newket.app",
   "appName": "NewKet",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "StatusBar": {
+      "backgroundColor": "#1f2937",
+      "style": "DARK"
+    }
+  }
 }

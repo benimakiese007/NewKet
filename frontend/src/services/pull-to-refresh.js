@@ -187,19 +187,43 @@ const PullToRefresh = {
 
     onTouchStart(event) {
         if (!this.isEligibleTouch(event)) {
+            this.state.tracking = false;
             this.state.pulling = false;
             return;
         }
 
-        this.state.pulling = true;
+        this.state.tracking = true;
+        this.state.pulling = false;
         this.state.armed = false;
         this.state.startY = event.touches[0].clientY;
+        this.state.startX = event.touches[0].clientX;
     },
 
     onTouchMove(event) {
-        if (!this.state.pulling || this.state.refreshing) return;
+        if (!this.state.tracking || this.state.refreshing) return;
 
-        const deltaY = event.touches[0].clientY - this.state.startY;
+        const currentY = event.touches[0].clientY;
+        const currentX = event.touches[0].clientX;
+        const deltaY = currentY - this.state.startY;
+        const deltaX = Math.abs(currentX - this.state.startX);
+
+        // Determine intent before hijacking touch
+        if (!this.state.pulling) {
+            // If scrolling up (finger goes up), scrolling horizontally, or no longer at top, abort PTR tracking.
+            if (deltaY < -5 || deltaX > 15 || !this.atTop()) {
+                this.state.tracking = false;
+                return;
+            }
+            
+            // If finger goes down more than deadzone (15px), lock into pull mode
+            if (deltaY > 15) {
+                this.state.pulling = true;
+            } else {
+                // Still in deadzone, don't preventDefault yet, allow native scroll to evaluate
+                return; 
+            }
+        }
+
         if (deltaY <= 0 || !this.atTop()) {
             this.resetPullState();
             this.resetVisuals();
@@ -223,6 +247,7 @@ const PullToRefresh = {
             return;
         }
 
+        // Only preventDefault after intent is clearly to pull-down. This fixes the Android frozen scroll issue!
         event.preventDefault();
         this.applyPullVisuals(pullDistance);
     },
@@ -320,6 +345,7 @@ const PullToRefresh = {
     },
 
     resetPullState() {
+        this.state.tracking = false;
         this.state.pulling = false;
         this.state.armed = false;
         this.state.spinnerAngle = 0;

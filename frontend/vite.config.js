@@ -38,7 +38,7 @@ export default defineConfig({
         const isMinimalPage = path.includes('/login') || path.includes('/publish') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding');
         const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
 
-        // Inject build version meta tag + iOS PWA update script into every page
+        // Inject build version meta tag + iOS PWA update script + mobile fixes into every page
         html = html.replace(
           '<meta charset="UTF-8">',
           `<meta charset="UTF-8">\n    <meta name="newket-version" content="${buildVersion}">`
@@ -46,7 +46,7 @@ export default defineConfig({
         if (!html.includes('pwa-ios-update.js')) {
           html = html.replace(
             '</head>',
-            `  <script src="/js/pwa-ios-update.js" defer><\/script>\n</head>`
+            `  <script src="/js/pwa-ios-update.js" defer></script>\n  <script src="/js/mobile-fix.js" defer></script>\n</head>`
           );
         }
         
