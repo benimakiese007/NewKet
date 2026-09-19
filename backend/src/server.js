@@ -78,7 +78,8 @@ function isAllowedVercelOrigin(origin) {
     const { protocol, hostname } = new URL(origin);
     if (protocol !== 'https:') return false;
 
-    return hostname === 'newket.vercel.app'
+    return hostname === 'newket.market'
+      || hostname === 'newket.vercel.app'
       || hostname === 'new-ket-benimakiese1234-8436s-projects.vercel.app'
       || hostname === 'new-ket-git-main-benimakiese1234-8436s-projects.vercel.app'
       || hostname.endsWith('.vercel.app');

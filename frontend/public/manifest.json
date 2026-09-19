@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "NewKet – Marketplace Moderne",
+  "name": "NewKet — Marketplace N°1 en RDC",
   "short_name": "NewKet",
-  "description": "L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe.",
+  "description": "La première marketplace de la République Démocratique du Congo (RDC). Achetez et vendez en ligne à Kinshasa. Paiement Mobile Money et livraison rapide.",
   "lang": "fr",
   "start_url": "/index.html",
   "scope": "/",
@@ -13,8 +13,8 @@
   "prefer_related_applications": false,
   "categories": [
     "shopping",
-    "lifestyle",
-    "luxury"
+    "business",
+    "lifestyle"
   ],
   "icons": [
     {
