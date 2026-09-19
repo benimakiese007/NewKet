@@ -55,5 +55,10 @@ Ce document liste les prochaines grandes fonctionnalités (features) prévues po
 *   **À définir par l'équipe :** Les valeurs exactes (ex: Min = 500 CDF / Max = 10 000 USD) selon le contexte marché congolais.
 *   *Priorité : Court terme — à implémenter lors de la finalisation du formulaire de publication (`publish.html`).*
 
+## 10. Live Updates (Mises à jour transparentes pour l'App Mobile)
+**Objectif :** Permettre le déploiement instantané des corrections et améliorations sur les téléphones des utilisateurs sans exiger une mise à jour depuis les Stores.
+*   **Concept :** Intégration d'un système type Ionic Appflow ou EAS Update / CodePush pour envoyer les modifications de code de la PWA (HTML, CSS, JS) directement "Over The Air" (OTA) aux applications mobiles natives (via Capacitor).
+*   *Avantage : Réactivité maximale pour corriger des bugs et déployer de nouvelles fonctionnalités, tout en évitant les processus de validation parfois longs d'Apple (App Store) et de Google (Play Store).*
+
 ---
 *Note technique : Conformément aux directives de sécurité et de simplification, NewKet ne gère pas de système de "Wallet" (portefeuille interne) stockant l'argent des utilisateurs sur la plateforme à long terme. Tous les flux passent directement par le système de paiement et le séquestre.*

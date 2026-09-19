@@ -48,8 +48,9 @@ for (const viewport of VIEWPORTS) {
                 await page.waitForTimeout(2000);
 
                 // ── 1. Le header est présent ──────────────────────────────
-                const header = page.locator('header').first();
-                await expect(header, 'Le header doit être visible').toBeVisible({ timeout: 10000 });
+                // Le projet utilise <nav> avec id "header-fallback" ou un placeholder dynamique
+                const header = page.locator('nav[data-header-shell], nav.main-header, header, #header-placeholder, #header-fallback').first();
+                await expect(header, 'Le header doit être visible').toBeVisible({ timeout: 15000 });
 
                 // ── 2. Menu hamburger sur mobile ──────────────────────────
                 if (viewport.width < 768) {

@@ -9,25 +9,42 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <meta name="theme-color" content="#1f2937">
-    <title>Chargement... — NewKet</title>
-    <meta name="description" content="Découvrez une sélection exclusive d'articles de luxe sur NewKet.">
-    
+    <title>Chargement... — Produit sur NewKet | Marketplace Kinshasa RDC</title>
+    <meta name="description" content="Découvrez ce produit sur NewKet, la marketplace N°1 en RDC. Livraison à Kinshasa et en République Démocratique du Congo. Paiement Mobile Money sécurisé.">
+
     <!-- Open Graph -->
     <meta property="og:type" content="product">
-    <meta property="og:title" content="Produit d'exception — NewKet">
-    <meta property="og:description" content="Une pièce unique sélectionnée pour son excellence.">
-    <meta property="og:url" content="https://newket.vercel.app/product">
-    <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
+    <meta property="og:title" content="Produit sur NewKet — Marketplace Kinshasa RDC">
+    <meta property="og:description" content="Découvrez ce produit sur NewKet. Livraison à Kinshasa et en RDC. Paiement Airtel Money, M-Pesa, Orange Money, Afrimoney.">
+    <meta property="og:url" content="https://newket.market/product">
+    <meta property="og:image" content="https://newket.market/icons/icon-512-v2.png">
+    <meta property="og:locale" content="fr_CD">
+    <meta property="og:site_name" content="NewKet">
     <meta id="og-price-amount" property="product:price:amount" content="0">
     <meta id="og-price-currency" property="product:price:currency" content="CDF">
 
-    <!-- Structured Data Placeholder -->
+    <!-- Structured Data — Product Schema (enrichi dynamiquement par JS au chargement) -->
     <script type="application/ld+json" id="product-schema">
     {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": "Chargement...",
-      "description": "Chargement..."
+      "description": "Produit disponible sur NewKet, la marketplace e-commerce N°1 en RDC, basée à Kinshasa.",
+      "brand": { "@type": "Brand", "name": "NewKet Marketplace" },
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "CDF",
+        "availability": "https://schema.org/InStock",
+        "areaServed": {
+          "@type": "Country",
+          "name": "République Démocratique du Congo"
+        },
+        "seller": {
+          "@type": "Organization",
+          "name": "NewKet",
+          "url": "https://newket.market/"
+        }
+      }
     }
     </script>
     <script src="/security-bootstrap.js"></script>

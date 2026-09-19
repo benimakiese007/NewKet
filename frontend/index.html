@@ -12,39 +12,89 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>NewKet — Marketplace de Luxe & Mode en RDC</title>
-    <meta name="description" content="Bienvenue sur NewKet, la destination luxe n°1 en RDC. Achetez et vendez des articles certifiés : mode, horlogerie, maroquinerie et technologie. Livraison rapide et paiement sécurisé.">
-    <link rel="canonical" href="https://newket.vercel.app/">
-    
+    <title>NewKet — Marketplace N°1 à Kinshasa & en RDC | Achat & Vente en Ligne</title>
+    <meta name="description" content="NewKet est la première marketplace e-commerce de la République Démocratique du Congo (RDC), basée à Kinshasa. Achetez et vendez en ligne : mode, électronique, maroquinerie. Paiement Mobile Money sécurisé, livraison rapide à Kinshasa et en RDC.">
+    <link rel="canonical" href="https://newket.market/">
+
+    <!-- Geo — Signal géographique Kinshasa / RDC pour Google et les moteurs de recherche -->
+    <meta name="geo.region" content="CD-KN">
+    <meta name="geo.placename" content="Kinshasa, République Démocratique du Congo">
+    <meta name="geo.position" content="-4.3276;15.3136">
+    <meta name="ICBM" content="-4.3276, 15.3136">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://newket.vercel.app/">
-    <meta property="og:title" content="NewKet — Marketplace de Luxe en RDC">
-    <meta property="og:description" content="Le luxe à portée de main. Découvrez une sélection curated de produits d'exception.">
-    <meta property="og:image" content="https://newket.vercel.app/icons/icon-512-v2.png?v=2">
+    <meta property="og:url" content="https://newket.market/">
+    <meta property="og:title" content="NewKet — Marketplace N°1 à Kinshasa & en RDC">
+    <meta property="og:description" content="Achetez et vendez en ligne à Kinshasa. Mode, électronique, accessoires. Paiement via Airtel Money, M-Pesa, Orange Money, Afrimoney. Livraison rapide en RDC.">
+    <meta property="og:image" content="https://newket.market/icons/icon-512-v2.png?v=2">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
+    <meta property="og:locale" content="fr_CD">
+    <meta property="og:site_name" content="NewKet">
 
-    <!-- Twitter -->
+    <!-- Twitter / X -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://newket.vercel.app/">
-    <meta property="twitter:title" content="NewKet — Marketplace de Luxe en RDC">
-    <meta property="twitter:description" content="Le luxe à portée de main. Découvrez une sélection curated de produits d'exception.">
-    <meta property="twitter:image" content="https://newket.vercel.app/icons/icon-512-v2.png?v=2">
+    <meta property="twitter:url" content="https://newket.market/">
+    <meta property="twitter:title" content="NewKet — Marketplace N°1 à Kinshasa & en RDC">
+    <meta property="twitter:description" content="Achetez et vendez en ligne à Kinshasa. Mode, électronique, accessoires. Paiement Mobile Money sécurisé.">
+    <meta property="twitter:image" content="https://newket.market/icons/icon-512-v2.png?v=2">
 
-    <!-- Structured Data -->
+    <!-- Structured Data — WebSite avec SearchAction -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "NewKet",
-      "url": "https://newket.vercel.app/",
+      "url": "https://newket.market/",
+      "description": "NewKet est la première marketplace e-commerce de la République Démocratique du Congo (RDC), basée à Kinshasa.",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://newket.vercel.app/catalog?q={search_term_string}",
+        "target": "https://newket.market/catalog?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
+    }
+    </script>
+
+    <!-- Structured Data — Organization avec adresse Kinshasa (signal AEO) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["Organization", "OnlineBusiness"],
+      "name": "NewKet",
+      "url": "https://newket.market/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://newket.market/icons/icon-512-v2.png"
+      },
+      "description": "NewKet est la première plateforme d'e-commerce et marketplace de la République Démocratique du Congo (RDC), basée à Kinshasa. Elle permet aux habitants de Kinshasa et de toute la RDC d'acheter et de vendre des produits en ligne de manière sécurisée, grâce à un système de paiement escrow et des modes de paiement locaux.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kinshasa",
+        "addressCountry": "CD",
+        "addressRegion": "Kinshasa"
+      },
+      "areaServed": [
+        {
+          "@type": "City",
+          "name": "Kinshasa"
+        },
+        {
+          "@type": "Country",
+          "name": "République Démocratique du Congo"
+        }
+      ],
+      "paymentAccepted": "Mobile Money (Airtel Money, M-Pesa, Orange Money, Afrimoney), Carte bancaire",
+      "currenciesAccepted": "CDF, USD",
+      "knowsAbout": ["Marketplace en ligne", "E-commerce RDC", "Acheter en ligne Kinshasa", "Vendre en ligne RDC"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "url": "https://newket.market/support",
+        "availableLanguage": ["French"]
+      },
+      "sameAs": []
     }
     </script>
 

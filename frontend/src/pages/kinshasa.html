@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512-v2.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#064734">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+
+    <title>Acheter en Ligne à Kinshasa — NewKet, Marketplace N°1 en RDC</title>
+    <meta name="description" content="NewKet est la marketplace numéro 1 à Kinshasa, RDC. Achetez et vendez en ligne dans toutes les communes : Gombe, Limete, Kalamu, Ngaliema, Lemba. Paiement Mobile Money (Airtel, M-Pesa, Orange, Afrimoney). Livraison 24-48h.">
+    <link rel="canonical" href="https://newket.market/kinshasa">
+
+    <!-- Geo — Signal géographique Kinshasa -->
+    <meta name="geo.region" content="CD-KN">
+    <meta name="geo.placename" content="Kinshasa, République Démocratique du Congo">
+    <meta name="geo.position" content="-4.3276;15.3136">
+    <meta name="ICBM" content="-4.3276, 15.3136">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://newket.market/kinshasa">
+    <meta property="og:title" content="Acheter en Ligne à Kinshasa — NewKet Marketplace RDC">
+    <meta property="og:description" content="La marketplace N°1 à Kinshasa. Milliers de produits livrés dans toutes les communes. Paiement Mobile Money sécurisé.">
+    <meta property="og:image" content="https://newket.market/icons/icon-512-v2.png">
+    <meta property="og:locale" content="fr_CD">
+    <meta property="og:site_name" content="NewKet">
+
+    <!-- Twitter / X -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://newket.market/kinshasa">
+    <meta property="twitter:title" content="Acheter en Ligne à Kinshasa — NewKet">
+    <meta property="twitter:description" content="La marketplace N°1 à Kinshasa, RDC. Paiement Mobile Money, livraison 24-48h.">
+    <meta property="twitter:image" content="https://newket.market/icons/icon-512-v2.png">
+
+    <!-- Structured Data — LocalBusiness + BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://newket.market/" },
+        { "@type": "ListItem", "position": 2, "name": "Kinshasa", "item": "https://newket.market/kinshasa" }
+      ]
+    }
+    </script>
+
+    <!-- Structured Data — Service area Kinshasa (AEO signal fort) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineBusiness",
+      "name": "NewKet — Kinshasa",
+      "url": "https://newket.market/kinshasa",
+      "description": "NewKet est la première marketplace e-commerce basée à Kinshasa, en République Démocratique du Congo. Elle livre dans toutes les communes de Kinshasa : Gombe, Limete, Kalamu, Ngaliema, Lemba, Kintambo, Bandalungwa, Ndjili, Masina et plus encore.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kinshasa",
+        "addressCountry": "CD",
+        "addressRegion": "Kinshasa"
+      },
+      "areaServed": [
+        { "@type": "City", "name": "Kinshasa" },
+        { "@type": "AdministrativeArea", "name": "Gombe" },
+        { "@type": "AdministrativeArea", "name": "Limete" },
+        { "@type": "AdministrativeArea", "name": "Kalamu" },
+        { "@type": "AdministrativeArea", "name": "Ngaliema" },
+        { "@type": "AdministrativeArea", "name": "Lemba" },
+        { "@type": "AdministrativeArea", "name": "Kintambo" },
+        { "@type": "AdministrativeArea", "name": "Bandalungwa" },
+        { "@type": "AdministrativeArea", "name": "Ndjili" },
+        { "@type": "AdministrativeArea", "name": "Masina" },
+        { "@type": "AdministrativeArea", "name": "Matete" },
+        { "@type": "AdministrativeArea", "name": "Kinsenso" }
+      ],
+      "paymentAccepted": "Airtel Money, M-Pesa, Orange Money, Afrimoney, Carte bancaire",
+      "currenciesAccepted": "CDF, USD"
+    }
+    </script>
+
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f7f8fa; color: #111827; }
+
+        .hero {
+            background: linear-gradient(135deg, #064734 0%, #0a6b4e 60%, #1a8a62 100%);
+            color: white;
+            padding: 64px 20px;
+            text-align: center;
+        }
+        .hero h1 { font-size: clamp(28px, 5vw, 52px); font-weight: 800; margin: 0 0 16px; line-height: 1.1; }
+        .hero p  { font-size: clamp(15px, 2.5vw, 20px); opacity: 0.88; max-width: 640px; margin: 0 auto 32px; line-height: 1.6; }
+
+        .btn-primary {
+            display: inline-block;
+            background: #fff;
+            color: #064734;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 14px 32px;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+
+        .section { max-width: 960px; margin: 0 auto; padding: 48px 20px; }
+        .section-title { font-size: 26px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+        .section-sub { color: #6b7280; font-size: 15px; margin-bottom: 32px; }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            border: 1px solid #f0f0f0;
+        }
+        .card-icon { font-size: 32px; margin-bottom: 12px; }
+        .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .card p  { font-size: 14px; color: #6b7280; line-height: 1.6; }
+
+        .communes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        .commune-tag {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 14px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .payment-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 8px;
+        }
+        .payment-tag {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #064734;
+        }
+
+        .cta-banner {
+            background: linear-gradient(135deg, #064734, #0a6b4e);
+            color: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin: 0 20px 48px;
+        }
+        .cta-banner h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .cta-banner p { opacity: 0.85; margin-bottom: 24px; font-size: 15px; }
+        .btn-white {
+            display: inline-block;
+            background: #fff;
+            color: #064734;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 12px 28px;
+            border-radius: 999px;
+            text-decoration: none;
+            margin: 6px;
+        }
+
+        @media (max-width: 640px) {
+            .hero { padding: 48px 16px; }
+            .cta-banner { padding: 28px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1>Acheter en Ligne à Kinshasa</h1>
+        <p>NewKet est la marketplace N°1 en RDC. Des milliers de produits livrés dans toutes les communes de Kinshasa. Paiement 100% Mobile Money sécurisé.</p>
+        <a href="/catalog" class="btn-primary">
+            <iconify-icon icon="mdi:shopping" width="18" style="vertical-align:middle; margin-right:6px;"></iconify-icon>
+            Voir les produits
+        </a>
+    </section>
+
+    <!-- POURQUOI NEWKET À KINSHASA -->
+    <div class="section">
+        <h2 class="section-title">Pourquoi choisir NewKet à Kinshasa ?</h2>
+        <p class="section-sub">La plateforme pensée pour les Kinois, par des Kinois.</p>
+
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-icon">🛡️</div>
+                <h3>Paiement Sécurisé</h3>
+                <p>Votre argent est bloqué en escrow et libéré uniquement après réception de votre commande. Zéro risque d'arnaque.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚡</div>
+                <h3>Livraison 24-48h</h3>
+                <p>Livraison rapide dans toutes les communes de Kinshasa. Du vendeur à votre porte en moins de 48 heures.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">📱</div>
+                <h3>Mobile Money Accepté</h3>
+                <p>Payez avec Airtel Money, M-Pesa, Orange Money ou Afrimoney. Pas besoin de carte bancaire.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🏪</div>
+                <h3>Vendeurs Vérifiés</h3>
+                <p>Chaque boutique sur NewKet passe par un processus de vérification d'identité (KYC). Achetez en confiance.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚖️</div>
+                <h3>Protection Acheteur</h3>
+                <p>En cas de litige, notre équipe de médiation intervient pour vous protéger. Vous n'êtes jamais seul.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🇨🇩</div>
+                <h3>100% Congolais</h3>
+                <p>NewKet est né à Kinshasa, pour la RDC. Nous comprenons les besoins locaux et parlons votre langue.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMUNES DESSERVIES -->
+    <div class="section" style="padding-top: 0;">
+        <h2 class="section-title">Livraison dans toutes les communes de Kinshasa</h2>
+        <p class="section-sub">NewKet livre partout à Kinshasa. Trouvez votre commune ci-dessous :</p>
+
+        <div class="communes-grid">
+            <div class="commune-tag">📍 Gombe</div>
+            <div class="commune-tag">📍 Limete</div>
+            <div class="commune-tag">📍 Kalamu</div>
+            <div class="commune-tag">📍 Ngaliema</div>
+            <div class="commune-tag">📍 Lemba</div>
+            <div class="commune-tag">📍 Kintambo</div>
+            <div class="commune-tag">📍 Bandalungwa</div>
+            <div class="commune-tag">📍 Ndjili</div>
+            <div class="commune-tag">📍 Masina</div>
+            <div class="commune-tag">📍 Matete</div>
+            <div class="commune-tag">📍 Kinsenso</div>
+            <div class="commune-tag">📍 Bumbu</div>
+            <div class="commune-tag">📍 Selembao</div>
+            <div class="commune-tag">📍 Mont-Ngafula</div>
+            <div class="commune-tag">📍 Kisenso</div>
+            <div class="commune-tag">📍 Makala</div>
+            <div class="commune-tag">📍 Ngaba</div>
+            <div class="commune-tag">📍 Barumbu</div>
+            <div class="commune-tag">📍 Lingwala</div>
+            <div class="commune-tag">📍 Kimbaseke</div>
+            <div class="commune-tag">📍 Kimbanseke</div>
+            <div class="commune-tag">📍 Maluku</div>
+            <div class="commune-tag">📍 Tshangu</div>
+            <div class="commune-tag">📍 Ngouba</div>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 14px; color: #9ca3af; text-align: center;">
+            Délai de livraison : <strong>24 à 48 heures</strong> pour la grande Kinshasa.
+        </p>
+    </div>
+
+    <!-- PAIEMENTS ACCEPTÉS -->
+    <div class="section" style="padding-top: 0;">
+        <h2 class="section-title">Modes de paiement acceptés à Kinshasa</h2>
+        <p class="section-sub">Payez comme vous voulez, depuis votre téléphone. Aucune carte bancaire requise.</p>
+
+        <div class="payment-grid">
+            <div class="payment-tag">📲 Airtel Money</div>
+            <div class="payment-tag">📲 M-Pesa (Vodacom)</div>
+            <div class="payment-tag">📲 Orange Money</div>
+            <div class="payment-tag">📲 Afrimoney</div>
+            <div class="payment-tag">💳 Carte Bancaire</div>
+        </div>
+
+        <p style="margin-top: 16px; font-size: 14px; color: #6b7280; line-height: 1.6;">
+            Tous les paiements sont traités par <strong>FlexPaie</strong>, notre partenaire certifié PCI-DSS. Vos données financières ne sont jamais stockées sur NewKet.
+        </p>
+    </div>
+
+    <!-- FAQ LOCAL KINSHASA -->
+    <div class="section" style="padding-top: 0;">
+        <h2 class="section-title">Questions fréquentes — Acheter à Kinshasa</h2>
+        <p class="section-sub">Tout ce que vous devez savoir avant de commander.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="card">
+                <h3 style="font-size:16px; margin-bottom:8px;">Quel est le délai de livraison à Kinshasa ?</h3>
+                <p>En général, la livraison dans les communes de Kinshasa prend <strong>24 à 48 heures</strong> après la confirmation du paiement et l'expédition par le vendeur.</p>
+            </div>
+            <div class="card">
+                <h3 style="font-size:16px; margin-bottom:8px;">Puis-je payer en francs congolais (CDF) ?</h3>
+                <p>Oui, NewKet accepte les paiements en <strong>francs congolais (CDF)</strong> et en <strong>dollars américains (USD)</strong>. Le prix affiché par le vendeur détermine la devise utilisée.</p>
+            </div>
+            <div class="card">
+                <h3 style="font-size:16px; margin-bottom:8px;">Comment ouvrir une boutique sur NewKet à Kinshasa ?</h3>
+                <p>C'est simple : créez un compte, choisissez le rôle "Vendeur", complétez votre profil boutique et publiez vos premiers produits. Vos clients à Kinshasa vous trouveront immédiatement.</p>
+            </div>
+            <div class="card">
+                <h3 style="font-size:16px; margin-bottom:8px;">NewKet livre-t-il hors de Kinshasa ?</h3>
+                <p>Oui. En plus de Kinshasa, NewKet dessert d'autres villes de la RDC : <strong>Lubumbashi, Goma, Bukavu, Mbuji-Mayi, Matadi</strong> et d'autres. Le délai est de 3 à 5 jours ouvrables.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA FINAL -->
+    <div style="max-width: 960px; margin: 0 auto;">
+        <div class="cta-banner">
+            <h2>Prêt à acheter ou vendre en ligne à Kinshasa ?</h2>
+            <p>Rejoignez des milliers de Kinois qui font confiance à NewKet chaque jour.</p>
+            <a href="/catalog" class="btn-white">🛒 Acheter maintenant</a>
+            <a href="/seller" class="btn-white">🏪 Ouvrir ma boutique</a>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <!-- Structured Data — FAQPage local Kinshasa -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quel est le délai de livraison à Kinshasa ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "En général, la livraison dans les communes de Kinshasa prend 24 à 48 heures après la confirmation du paiement." }
+        },
+        {
+          "@type": "Question",
+          "name": "Puis-je payer en francs congolais (CDF) sur NewKet ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Oui, NewKet accepte les paiements en francs congolais (CDF) et en dollars américains (USD)." }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment ouvrir une boutique sur NewKet à Kinshasa ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Créez un compte sur newket.market, choisissez le rôle Vendeur, complétez votre profil boutique et publiez vos produits. Vos clients à Kinshasa vous trouveront immédiatement." }
+        },
+        {
+          "@type": "Question",
+          "name": "NewKet livre-t-il hors de Kinshasa ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Oui. En plus de Kinshasa, NewKet dessert d'autres villes de la RDC : Lubumbashi, Goma, Bukavu, Mbuji-Mayi, Matadi. Le délai est de 3 à 5 jours ouvrables." }
+        }
+      ]
+    }
+    </script>
+</body>
+</html>

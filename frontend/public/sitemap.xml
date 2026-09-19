@@ -1,19 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Page d'accueil -->
   <url>
-    <loc>https://newket.vercel.app/</loc>
-    <lastmod>2025-04-13</lastmod>
+    <loc>https://newket.market/</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- Catalogue produits — page la plus importante pour le référencement -->
   <url>
-    <loc>https://newket.vercel.app/pages/catalog</loc>
-    <lastmod>2025-04-13</lastmod>
+    <loc>https://newket.market/catalog</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- Landing page Kinshasa — ciblage géographique local (SEO + AEO) -->
   <url>
-    <loc>https://newket.vercel.app/pages/about</loc>
-    <lastmod>2025-04-13</lastmod>
+    <loc>https://newket.market/kinshasa</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Promotions -->
+  <url>
+    <loc>https://newket.market/promo</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Liste des boutiques -->
+  <url>
+    <loc>https://newket.market/shops</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- FAQ — critique pour l'AEO (Answer Engine Optimization / visibilité sur les IAs) -->
+  <url>
+    <loc>https://newket.market/faq</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Devenir vendeur -->
+  <url>
+    <loc>https://newket.market/seller</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- À propos — signal d'identité pour Google et les IAs -->
+  <url>
+    <loc>https://newket.market/about</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Support -->
+  <url>
+    <loc>https://newket.market/support</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+
+  <!-- Pages légales -->
+  <url>
+    <loc>https://newket.market/terms</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://newket.market/privacy</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://newket.market/mentions-legales</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
   </url>
 
 </urlset>

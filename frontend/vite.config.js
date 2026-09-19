@@ -38,11 +38,20 @@ export default defineConfig({
         const isMinimalPage = path.includes('/login') || path.includes('/publish') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding');
         const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
 
-        // Inject build version meta tag + iOS PWA update script + mobile fixes into every page
+        // Inject build version meta tag into every page
         html = html.replace(
           '<meta charset="UTF-8">',
           `<meta charset="UTF-8">\n    <meta name="newket-version" content="${buildVersion}">`
         );
+
+        // Inject geo meta tags (Kinshasa / RDC) into every page if not already present
+        if (!html.includes('geo.region')) {
+          html = html.replace(
+            '<meta name="newket-version"',
+            `<meta name="geo.region" content="CD-KN">\n    <meta name="geo.placename" content="Kinshasa, République Démocratique du Congo">\n    <meta name="geo.position" content="-4.3276;15.3136">\n    <meta name="ICBM" content="-4.3276, 15.3136">\n    <meta name="newket-version"`
+          );
+        }
+
         if (!html.includes('pwa-ios-update.js')) {
           html = html.replace(
             '</head>',
@@ -172,7 +181,7 @@ export default defineConfig({
 
             // Pretty URL dev rewrites: /catalog → /src/pages/catalog.html
             // Only single-segment paths with no dots (to exclude assets & HMR URLs)
-            const rootPages = ["404", "500", "about", "achat", "catalog", "choose-role", "customer-dashboard", "faq", "favorites", "invoice-verify", "login", "mentions-legales", "notifications", "payment-cancel", "payment-success", "privacy", "product", "promo", "publish", "reset-password", "seller-onboarding", "seller", "settings", "shop", "shops", "support", "system-health", "terms", "vendor-dashboard"];
+            const rootPages = ["404", "500", "about", "achat", "catalog", "choose-role", "customer-dashboard", "faq", "favorites", "invoice-verify", "kinshasa", "login", "mentions-legales", "notifications", "payment-cancel", "payment-success", "privacy", "product", "promo", "publish", "reset-password", "seller-onboarding", "seller", "settings", "shop", "shops", "support", "system-health", "terms", "vendor-dashboard"];
             const simplePage = originalUrl.match(/^\/([^/?#.@]+)(?:\.html)?(\?.*)?$/i);
             if (simplePage && rootPages.includes(simplePage[1])) {
               req.url = `/src/pages/${simplePage[1]}.html${simplePage[2] || ''}`;

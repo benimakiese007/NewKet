@@ -1,18 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Securite et Garde-fous', () => {
-  
   test('Redirection depuis Admin si non connecte', async ({ page }) => {
-    // On s'assure d'etre deconnecte (vider le storage)
-    await page.evaluate(() => localStorage.clear());
-    
     await page.goto('/admin/index.html');
     // Le systeme devrait detecter l'absence de session et rediriger vers login
     await expect(page).toHaveURL(/.*login.*/);
   });
 
   test('Redirection depuis Customer Dashboard si non connecte', async ({ page }) => {
-    await page.evaluate(() => localStorage.clear());
     await page.goto('/customer-dashboard.html');
     await expect(page).toHaveURL(/.*login.*/);
   });

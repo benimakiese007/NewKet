@@ -1,5 +1,25 @@
 User-agent: *
 Allow: /
 
-# Sitemaps
-Sitemap: https://newket.vercel.app/sitemap.xml
+# Pages privées — ne pas indexer (dashboards, auth, admin, paiements)
+Disallow: /login
+Disallow: /vendor-dashboard
+Disallow: /customer-dashboard
+Disallow: /settings
+Disallow: /publish
+Disallow: /reset-password
+Disallow: /choose-role
+Disallow: /seller-onboarding
+Disallow: /admin/
+Disallow: /payment-success
+Disallow: /payment-cancel
+Disallow: /invoice-verify
+Disallow: /system-health
+Disallow: /notifications
+Disallow: /favorites
+Disallow: /achat
+
+# API — ne pas indexer
+Disallow: /api/
+
+Sitemap: https://newket.market/sitemap.xml
