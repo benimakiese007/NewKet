@@ -98,6 +98,16 @@ const BrandingManager = {
         // Theme color (PWA + browser UI)
         upsertMeta('theme-color', themeColor);
 
+        // Capacitor Mobile StatusBar synchronization
+        if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+            try {
+                window.Capacitor.Plugins.StatusBar.setBackgroundColor({ color: themeColor });
+                window.Capacitor.Plugins.StatusBar.setStyle({ style: 'LIGHT' });
+            } catch (err) {
+                console.warn('[BrandingManager] Failed to update Capacitor StatusBar:', err);
+            }
+        }
+
         // Manifest: point to dynamic manifest endpoint (skip file:// protocol)
         if (window.location && window.location.protocol !== 'file:') {
             upsertLink({ rel: 'manifest', href: '/api/manifest' });

@@ -3,6 +3,9 @@ const PTR_TRIGGER_DISTANCE = 80;
 const PTR_MAX_PULL_DISTANCE = 110;
 const PTR_MAX_TRANSLATE = 60;
 
+const isNativeCapacitor = () =>
+    Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android' || window.Capacitor?.getPlatform?.() === 'ios');
+
 const PullToRefresh = {
     state: {
         refreshing: false,
@@ -18,6 +21,7 @@ const PullToRefresh = {
 
     init() {
         if (document.body?.dataset.ptrInitialized === '1') return;
+        if (isNativeCapacitor()) return;
         document.body.dataset.ptrInitialized = '1';
 
         this.injectStyles();

@@ -22,7 +22,8 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none; /* helps prevent bounce effect on mobile */
+    overscroll-behavior-y: auto;
+    touch-action: pan-y pinch-zoom;
     min-height: 100vh;
     min-height: 100dvh;
 }
@@ -1385,7 +1386,7 @@ canvas {
    37. DARK MODE — Gaps supplémentaires
    ========================================== */
 
-html.dark .main-header {
+html.dark .main-header:not(.newket-header-shell) {
     background-color: #111827;
     border-color: rgba(255, 255, 255, 0.06);
 }

@@ -14,7 +14,7 @@ const resolveLocalBackendReady = async () => {
     if (window.newketBackendReady === true) return true;
     if (window.newketBackendReady === false) return false;
     if (window.ApiClient?.isLocalBackendReady) {
-        const ready = await window.ApiClient.isLocalBackendReady(); // uses 12s default
+        const ready = await window.ApiClient.isLocalBackendReady(1200);
         window.newketBackendReady = ready;
         return ready;
     }

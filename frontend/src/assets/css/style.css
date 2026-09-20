@@ -267,7 +267,7 @@ html.dark .skeleton {
 
 html, body {
   /* overscroll-behavior-y: none; Removed because it breaks touchpad scrolling on Windows */
-  touch-action: manipulation;
+  touch-action: pan-y pinch-zoom;
 }
 
 /* 
@@ -995,7 +995,7 @@ html.ios-native-category #searchCategoryBtn {
   /* Handle notch / status bar safe area on mobile */
   padding-top: env(safe-area-inset-top);
   /* Default spacing managed by Tailwind classes inside */
-  background-color: var(--bg-white);
+  background-color: var(--newket-header-bg, #1f2937);
   box-shadow: var(--shadow-sm);
   top: 0;
   z-index: 1000;
@@ -1011,7 +1011,7 @@ html.ios-native-category #searchCategoryBtn {
   padding: 0;
   padding-top: env(safe-area-inset-top);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--newket-header-bg, #1f2937);
 }
 
 .header-content {
@@ -10380,7 +10380,7 @@ html.dark body {
   background-attachment: fixed !important;
 }
 
-html.dark .main-header,
+html.dark .main-header:not(.newket-header-shell),
 html.dark #categoryNav,
 html.dark .product-card,
 html.dark .card,

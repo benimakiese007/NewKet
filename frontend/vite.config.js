@@ -213,7 +213,7 @@ export default defineConfig({
         "object-src 'none'",
         "frame-ancestors 'self'",
         "form-action 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.iconify.design https://va.vercel-scripts.com https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.iconify.design https://va.vercel-scripts.com https://unpkg.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: blob: https:",
