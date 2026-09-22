@@ -1,36 +1,296 @@
-﻿<nav id="header-fallback" class="bg-newket-header main-header newket-header-shell fixed top-0 left-0 right-0 z-[100]" data-header-shell="fallback" aria-label="Navigation principale">
-    <div class="header-content relative w-full px-4 sm:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
-        <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto px-1 sm:px-0">
-            <div class="flex items-center justify-start">
-                <span class="header-icon-button inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
-                    <iconify-icon icon="solar:hamburger-menu-linear" width="24"></iconify-icon>
-                </span>
+
+    <!-- Main header container -->
+    <nav class="bg-newket-header main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="main">
+        <!-- Main header content (Logo, Search, Icons) -->
+            <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
+            <!-- Top section for mobile: Menu, Centered Logo, Account -->
+            <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto sm:relative px-1 sm:px-0">
+                <!-- Hamburger Menu (tous écrans) — col gauche -->
+                <div class="flex items-center justify-start">
+                    <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
+                        <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-white"></iconify-icon>
+                    </button>
+                </div>
+
+                <!-- Logo Section — col centre (parfaitement centré sur mobile, statique sur desktop) -->
+                <div class="flex items-center justify-center sm:min-w-0 sm:justify-start">
+                    <a href="{{ROOT}}" aria-label="Retour à l'accueil NewKet" title="Accueil NewKet" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
+                        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
+                            data-site-logo="header"
+                            class="header-brand-image h-8 sm:h-14 w-auto object-contain"
+                            onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                    </a>
+                </div>
+
+                <!-- Right Icons (Mobile) — col droite -->
+                <div class="flex items-center gap-2 justify-end sm:hidden">
+                    <!-- Offline Network Status Icon (Mobile) -->
+                    <div class="network-status-icon hidden flex items-center justify-center text-red-500 bg-red-500/20 h-8 w-8 rounded-lg border border-red-500/30" title="Vous êtes hors ligne">
+                        <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
+                    </div>
+
+                    <!-- Notifications Icon (Mobile) -->
+                    <a href="{{ROOT}}notifications" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Notifications" aria-label="Voir les notifications">
+                        <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
+                        <span class="notification-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
+                    </a>
+
+                    <!-- Favorites Icon (Mobile) -->
+                    <a href="{{ROOT}}favorites" class="header-icon-button admin-hidden relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Favoris" aria-label="Voir les favoris">
+                        <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
+                        <span class="favorites-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
+                    </a>
+                </div>
             </div>
-            <div class="flex items-center justify-center sm:justify-start">
-                <a href="/index.html" class="header-logo-link flex flex-shrink-0 items-center py-1" aria-label="Retour à l'accueil NewKet">
-                    <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-8 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+
+            <!-- Search Bar (Full width on mobile, centered on desktop) -->
+            <div id="mobileSearchContainer" 
+                class="header-search-row user-hidden-on-mobile sm:flex flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative group flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
+                style="max-width: 720px;">
+                <div class="search-bar">
+                    <!-- Category Selector -->
+                    <div id="mobileSearchCategoryNativeShell" class="mobile-search-category-shell">
+                        <select id="mobileSearchCategorySelect" class="mobile-search-category-native" aria-label="Choisir une catégorie">
+                            <option value="all">Tout</option>
+                            <!-- Dynamic Categories -->
+                        </select>
+                    </div>
+                    <div id="searchCategoryBtn" class="search-category-btn" title="Choisir une catégorie">
+                        <span id="selectedCategoryName">TOUT</span>
+                        <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
+                        
+                        <!-- Mini Dropdown for categories -->
+                        <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white/85 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
+                            <div class="py-2" id="searchCategoryMenuList">
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>
+                                <!-- Dynamic Categories -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="text" id="searchInput" name="search" placeholder="Rechercher sur NewKet..." aria-label="Rechercher des produits"
+                        class="search-input" autocomplete="off" spellcheck="false">
+                        
+
+                    <div id="searchSuggestions" class="search-suggestions"></div>
+                </div>
+
+                <!-- Publish Button (seller only - shown via JS) -->
+                <a href="{{ROOT}}publish"
+                    class="seller-ui-element shrink-0 bg-gray-900 text-white p-2 rounded-xl hover:bg-gray-800 transition-colors items-center justify-center publish-btn h-[44px] w-[44px] order-last btn-active-scale"
+                    data-track-action="navigation:publish_click"
+                    aria-label="Vendre un article"
+                    title="Vendre un article"
+                    style="display:none">
+                    <iconify-icon icon="solar:add-circle-bold" width="22"></iconify-icon>
+                </a>
+
+                <!-- Cart Icon (Tablet) -->
+                <button id="cartBtnTablet" onclick="window.CartManager && window.CartManager.toggleCartUI()" 
+                    class="header-icon-button admin-hidden relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Panier" aria-label="Mon panier">
+                    <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
+                    <span class="cart-badge absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
+                </button>
+
+                <!-- Account Icon (Tablet) -->
+                <a id="accountLinkTablet" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Compte" aria-label="Mon compte">
+                    <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
                 </a>
             </div>
-            <div class="flex items-center gap-2 justify-end sm:hidden">
-                <span class="header-icon-button inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
-                    <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
-                </span>
-            </div>
-        </div>
 
-        <div class="header-search-row hidden sm:flex flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0" style="max-width: 720px;">
-            <div class="search-bar">
-                <div class="search-category-btn">
-                    <span>TOUT</span>
-                    <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
+            <!-- Desktop Icons (Notifications, Favorites, Account, Theme) -->
+            <div class="header-actions hidden sm:flex items-center gap-3 shrink-0">
+                <!-- Currency Toggle (Desktop) -->
+                <div class="hidden lg:flex items-center">
+                    <div class="currency-switch-segmented scale-90 origin-right" id="desktopCurrencyToggle" data-active="CDF" title="Devise d'affichage">
+                        <div class="segmented-track">
+                            <div class="segmented-handle"></div>
+                            <span class="segmented-label" data-currency="USD">USD</span>
+                            <span class="segmented-label" data-currency="CDF">CDF</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="search-input flex items-center text-sm font-semibold text-slate-500">Rechercher sur NewKet...</div>
+
+                <!-- Offline Network Status Icon (Desktop) -->
+                <div class="network-status-icon hidden flex items-center gap-2 text-red-500 bg-red-500/20 h-10 px-3 rounded-xl border border-red-500/30" title="Vous êtes hors ligne">
+                    <iconify-icon icon="mdi:wifi-off" width="20"></iconify-icon>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-white">Hors ligne</span>
+                </div>
+
+                <!-- Notifications -->
+                <a href="{{ROOT}}notifications"
+                    class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Notifications" aria-label="Voir les notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+
+                <!-- Favorites -->
+                <a href="{{ROOT}}favorites" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Favoris" aria-label="Voir les favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
+                    <span
+                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
+                </a>
+
+                <!-- Cart -->
+                <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Panier" aria-label="Voir le panier">
+                    <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
+                    <span
+                        class="cart-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
+                </button>
+
+                <!-- Account -->
+                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Compte" id="accountLink" aria-label="Mon compte">
+                    <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
+                </a>
             </div>
         </div>
 
-        <div class="header-actions hidden sm:flex items-center gap-3 shrink-0">
-            <div class="hidden lg:flex items-center">
-                <div class="currency-switch-segmented scale-90 origin-right" data-active="CDF" title="Devise d'affichage">
+        <!-- Global Search Overlay -->
+        <div id="searchOverlay" class="search-overlay"></div>
+
+            </div>
+    </nav>
+
+<!-- Mobile Menu Sidebar -->
+<div id="mobileOverlay"
+    class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300" style="z-index: 9000;" aria-hidden="true"
+    onclick="window.closeMobileMenu && window.closeMobileMenu(true)">
+</div>
+<div id="mobileMenu" class="fixed top-0 left-0 bottom-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
+    <div class="mobile-menu-header px-4 flex items-center justify-end bg-white text-gray-900" style="padding-top: max(0.5rem, env(safe-area-inset-top));">
+        <button id="closeMobileMenu" class="p-1 transition-all btn-active-scale rounded-xl -mr-2 mt-1" aria-label="Fermer le menu">
+            <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto pt-1 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
+        <!-- Guest Call to Action -->
+        <div id="mobileGuestCTA" class="px-4 mb-6">
+            <a href="{{ROOT}}login" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
+                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                </div>
+                <div class="flex-1 flex flex-col items-start min-w-0">
+                    <div class="text-sm font-bold truncate w-full">Compte NewKet</div>
+                    <div class="text-[10px] text-white/60 font-medium mt-0.5 leading-tight line-clamp-2">Connectez-vous pour voir vos favoris et vos commandes.</div>
+                </div>
+                <div class="w-10 h-10 bg-white text-slate-900 rounded-xl flex items-center justify-center shrink-0 shadow-sm group-hover:bg-gray-100 transition-colors">
+                    <iconify-icon icon="solar:login-3-bold" width="20"></iconify-icon>
+                </div>
+            </a>
+        </div>
+
+        <!-- Logged User Call to Action -->
+        <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
+            <a id="mobileLoggedLink" href="{{ROOT}}customer-dashboard" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800 shadow-xl">
+                <div class="w-10 h-10 shrink-0 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
+                    <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                    <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="20" class="text-white hidden"></iconify-icon>
+                </div>
+                <div class="flex-1 flex flex-col items-start min-w-0">
+                    <div id="mobileLoggedName" class="text-sm font-bold leading-tight truncate w-full">Mon Compte</div>
+                    <div id="mobileLoggedRole" class="text-[10px] text-white/50 font-medium uppercase tracking-widest mt-0.5 truncate w-full">Membre NewKet</div>
+                </div>
+                <div class="w-10 h-10 bg-white/10 text-white border border-white/20 rounded-xl flex items-center justify-center shrink-0 hover:bg-white hover:text-slate-900 transition-colors group-hover:scale-105">
+                    <iconify-icon icon="solar:alt-arrow-right-bold" width="20"></iconify-icon>
+                </div>
+            </a>
+        </div>
+
+        <div class="mobile-menu-shortcuts px-4 mb-6">
+            <div class="mobile-menu-shortcuts-grid">
+                <a href="{{ROOT}}catalog" class="mobile-menu-shortcut-card">
+                    <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
+                    <span>Catalogue</span>
+                </a>
+                <a href="{{ROOT}}shops" class="mobile-menu-shortcut-card">
+                    <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
+                    <span>Boutiques</span>
+                </a>
+                <a href="{{ROOT}}publish" class="mobile-menu-shortcut-card publish-btn seller-ui-element" data-track-action="navigation:publish_click" style="display:none">
+                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
+                    <span>Vendre</span>
+                </a>
+                <a href="{{ROOT}}favorites" class="mobile-menu-shortcut-card admin-hidden">
+                    <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
+                    <span>Favoris</span>
+                </a>
+                <a href="{{ROOT}}notifications" class="mobile-menu-shortcut-card non-seller-ui-element">
+                    <iconify-icon icon="solar:bell-linear" width="20"></iconify-icon>
+                    <span>Notifications</span>
+                    <span class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden absolute top-2 right-2">0</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="mobile-menu-sections-grid px-4 mb-6">
+            <div class="mobile-menu-sections-left">
+            <h3 class="mobile-menu-section-title">Catégories</h3>
+            <nav class="flex flex-col gap-1">
+                <a href="{{ROOT}}catalog?category=Femme"
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    <iconify-icon icon="solar:user-circle-linear" width="20"></iconify-icon> Femme
+                </a>
+                <a href="{{ROOT}}catalog?category=Homme"
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    <iconify-icon icon="solar:user-rounded-linear" width="20"></iconify-icon> Homme
+                </a>
+                <a href="{{ROOT}}catalog?category=Tech & Gadgets"
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
+                </a>
+                <a href="{{ROOT}}catalog?category=HIGH-TECH"
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon> HIGH-TECH
+                </a>
+                <a href="{{ROOT}}catalog?category=Art de vivre"
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    <iconify-icon icon="solar:sofa-linear" width="20"></iconify-icon> Art de vivre
+                </a>
+                <a href="{{ROOT}}catalog?promo=true"
+                    class="mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
+                    <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
+                </a>
+            </nav>
+            </div>
+
+            <div class="mobile-menu-sections-right">
+
+
+
+            <div class="header-quick-links mb-6 border-t border-gray-50 pt-6">
+                <h3 class="mobile-menu-section-title">Liens utiles</h3>
+                <nav class="flex flex-col gap-1">
+                    <a href="{{ROOT}}support"
+                        class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                        <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
+                    </a>
+                    <a href="{{ROOT}}faq"
+                        class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                        <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
+                    </a>
+                </nav>
+            </div>
+            </div>
+        </div>
+
+            <div class="px-4 mt-auto border-t border-gray-50 pt-5 pb-6">
+                <div class="p-4 bg-gray-50 rounded-2xl mb-4">
+                    <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
+                <div class="currency-switch-segmented scale-90 origin-left" id="mobileCurrencyToggle" data-active="CDF">
                     <div class="segmented-track">
                         <div class="segmented-handle"></div>
                         <span class="segmented-label" data-currency="USD">USD</span>
@@ -38,12 +298,12 @@
                     </div>
                 </div>
             </div>
-            <span class="header-icon-button inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
-                <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
-            </span>
-            <span class="header-icon-button inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
-                <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
-            </span>
+            
+            <!-- Logout Button (Authenticated Only) -->
+            <button id="mobileLogoutBtn" data-action="logout" style="display: none;"
+                class="flex items-center justify-center gap-2 w-full px-4 py-4 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-all active:scale-[0.98]">
+                <iconify-icon icon="solar:logout-linear" width="20"></iconify-icon> Se déconnecter
+            </button>
         </div>
     </div>
-</nav>
+</div>
