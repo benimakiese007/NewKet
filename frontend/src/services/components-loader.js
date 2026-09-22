@@ -180,9 +180,14 @@ const HEADER_HTML = `
     onclick="window.closeMobileMenu && window.closeMobileMenu(true)">
 </div>
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="mobile-menu-header px-4 flex items-center justify-end bg-white text-gray-900" style="padding-top: max(0.5rem, env(safe-area-inset-top));">
+    <div class="mobile-menu-header px-4 pb-2 flex items-center justify-between text-white" style="background: #1f2937 !important; padding-top: max(0.5rem, env(safe-area-inset-top));">
+        <a href="{{ROOT}}" aria-label="Retour à l'accueil NewKet" class="flex-shrink-0 flex items-center mt-1">
+            <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="160" height="48"
+                class="h-8 w-auto object-contain"
+                onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+        </a>
         <button id="closeMobileMenu" class="p-1 transition-all btn-active-scale rounded-xl -mr-2 mt-1" aria-label="Fermer le menu">
-            <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
+            <iconify-icon icon="solar:close-circle-bold" width="32" class="text-white"></iconify-icon>
         </button>
     </div>
 

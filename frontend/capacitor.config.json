@@ -5,8 +5,9 @@
   "plugins": {
     "StatusBar": {
       "backgroundColor": "#1f2937",
-      "style": "LIGHT",
+      "style": "DARK",
       "overlaysWebView": false
     }
   }
 }
+

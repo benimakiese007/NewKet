@@ -102,7 +102,7 @@ const BrandingManager = {
         if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
             try {
                 window.Capacitor.Plugins.StatusBar.setBackgroundColor({ color: themeColor });
-                window.Capacitor.Plugins.StatusBar.setStyle({ style: 'LIGHT' });
+                window.Capacitor.Plugins.StatusBar.setStyle({ style: 'DARK' });
             } catch (err) {
                 console.warn('[BrandingManager] Failed to update Capacitor StatusBar:', err);
             }
@@ -156,3 +156,4 @@ const BrandingManager = {
 
 window.BrandingManager = BrandingManager;
 BrandingManager.init();
+
