@@ -547,17 +547,17 @@ echo ==================================================
 echo       RESOLUTION DE CONFLITS
 echo ==================================================
 echo.
-echo   Git va lancer l'outil de fusion configure sur ton poste.
-echo   Si aucun outil n'est configure, VS Code sera utilise par defaut.
+echo   1. Voici les fichiers qui sont en conflit actuellement :
 echo.
-git config --global merge.tool vscode
-git config --global mergetool.vscode.cmd "code --wait $MERGED"
+git diff --name-only --diff-filter=U
 echo.
-git mergetool
+echo   2. Ouvre ton editeur (Antigravity, Cursor, VS Code...)
+echo   3. Cherche les balises de conflit (qui commencent par ^<^<^<^<^<^<^<)
+echo   4. Choisis le code a garder, efface les balises, et sauvegarde.
 echo.
 echo ==================================================
-echo   Resolution terminee.
-echo   Lance ensuite un commit pour finaliser la fusion.
+echo   Une fois que tu as TOUT corrige dans ton editeur...
+echo   Utilise l'Option 4 [FIN] du menu pour valider ta fusion !
 echo ==================================================
 echo.
 echo --------------------------------------------------
