@@ -48,16 +48,18 @@ IF "%branche_cible%"=="" (
 IF /I NOT "%branche_cible%"=="main" goto DO_PUSH
 
 echo.
+color 0C
 echo ================ ATTENTION ================
 echo Vous etes sur le point d'envoyer sur la branche 'main'.
 set /p confirm_main="Veuillez taper 'main' pour confirmer : "
 IF /I NOT "%confirm_main%"=="main" (
     echo.
-    color 0C
     echo ERREUR : Envoi annule. Confirmation incorrecte.
     pause
+    color 0A
     exit /b
 )
+color 0A
 
 :DO_PUSH
 IF "%branche%"=="" (
