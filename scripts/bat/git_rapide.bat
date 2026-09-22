@@ -47,19 +47,19 @@ IF "%branche_cible%"=="" (
 
 IF /I NOT "%branche_cible%"=="main" goto DO_PUSH
 
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+
 echo.
-color 0C
-echo ================ ATTENTION ================
-echo Vous etes sur le point d'envoyer sur la branche 'main'.
+echo %ESC%[91m================ ATTENTION ================%ESC%[0m
+echo %ESC%[91mVous etes sur le point d'envoyer sur la branche 'main'.%ESC%[0m
 set /p confirm_main="Veuillez taper 'main' pour confirmer : "
 IF /I NOT "%confirm_main%"=="main" (
     echo.
+    color 0C
     echo ERREUR : Envoi annule. Confirmation incorrecte.
     pause
-    color 0A
     exit /b
 )
-color 0A
 
 :DO_PUSH
 IF "%branche%"=="" (

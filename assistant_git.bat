@@ -174,10 +174,11 @@ for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_actu
 
 if /i not "%branche_actuelle%"=="main" goto DO_PUSH
 
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+
 echo.
-color 0C
-echo   ================ ATTENTION ================
-echo   Vous etes sur le point d'envoyer sur la branche 'main'.
+echo   %ESC%[91m================ ATTENTION ================%ESC%[0m
+echo   %ESC%[91mVous etes sur le point d'envoyer sur la branche 'main'.%ESC%[0m
 set /p confirm_main="   Veuillez taper 'main' pour confirmer : "
 if /i not "%confirm_main%"=="main" (
     echo.
@@ -185,10 +186,8 @@ if /i not "%confirm_main%"=="main" (
     echo --------------------------------------------------
     echo   Appuyez sur une touche pour revenir au menu...
     pause >nul
-    color 0B
     goto MENU
 )
-color 0B
 
 :DO_PUSH
 git push origin %branche_actuelle%
