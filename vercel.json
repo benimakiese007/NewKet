@@ -98,15 +98,15 @@
   "rewrites": [
     {
       "source": "/(catalog|login|product|shop|favorites|shops|support|faq|seller-onboarding|vendor-dashboard|customer-dashboard|publish|reset-password|achat|promo|settings|terms|privacy|mentions-legales|system-health|payment-success|payment-cancel|invoice-verify|about|seller|404|500|kinshasa|choose-role|notifications)",
-      "destination": "/src/pages/$1.html"
+      "destination": "/src/pages/$1"
     },
     {
       "source": "/admin",
-      "destination": "/src/pages/admin/index.html"
+      "destination": "/src/pages/admin/index"
     },
     {
-      "source": "/admin/(.*)",
-      "destination": "/src/pages/admin/$1.html"
+      "source": "/admin/:path*",
+      "destination": "/src/pages/admin/:path*"
     },
     {
       "source": "/signup/:code",
