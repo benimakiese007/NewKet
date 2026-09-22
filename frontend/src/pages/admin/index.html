@@ -1048,9 +1048,26 @@
             const labels = Object.keys(stats.categorySales || {});
             const data = Object.values(stats.categorySales || {});
 
+            const sk = document.getElementById('adminCategoryChartSkeleton');
             if (labels.length === 0) {
-                // Show empty state if needed
+                if (sk) sk.classList.add('hidden');
+                const container = canvas.parentElement;
+                if (!document.getElementById('emptyCategoryState')) {
+                    const emptyState = document.createElement('div');
+                    emptyState.id = 'emptyCategoryState';
+                    emptyState.className = 'absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-10 bg-white/80 rounded-2xl';
+                    emptyState.innerHTML = `
+                        <iconify-icon icon="solar:pie-chart-broken" width="32" class="mb-2 opacity-50"></iconify-icon>
+                        <span class="text-xs font-medium">Aucune donnée</span>
+                    `;
+                    container.appendChild(emptyState);
+                } else {
+                    document.getElementById('emptyCategoryState').classList.remove('hidden');
+                }
                 return;
+            } else {
+                const emptyState = document.getElementById('emptyCategoryState');
+                if (emptyState) emptyState.classList.add('hidden');
             }
 
             const defaultColors = ['#000000', '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#14B8A6', '#3B82F6', '#D946EF', '#EAB308', '#64748B'];
@@ -1087,7 +1104,7 @@
                     cutout: '70%'
                 }
             });
-            const sk = document.getElementById('adminCategoryChartSkeleton');
+            
             if (sk) sk.classList.add('hidden');
         }
     </script>

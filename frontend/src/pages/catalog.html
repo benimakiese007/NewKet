@@ -396,6 +396,19 @@
             background: #111827;
             box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
         }
+        /* ---- CATALOG GRID FIX ---- */
+        #catalog-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+            align-items: start !important;
+            gap: 1rem !important;
+        }
+        @media (min-width: 640px) {
+            #catalog-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+                gap: 1.5rem !important;
+            }
+        }
     </style>
 </head>
 

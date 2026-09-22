@@ -383,18 +383,18 @@
         async function resolveTicket(id) {
             const success = await SupportManager.updateStatus(id, 'resolu');
             if (success) {
-                showToast('Ticket résolu', 'success');
+                showToast('Ticket marqué comme résolu.', 'success');
             } else {
-                showToast('Erreur lors de la mise à jour', 'error');
+                showToast('Impossible de résoudre ce ticket. Réessayez dans un instant.', 'error');
             }
         }
 
         async function reopenTicket(id) {
             const success = await SupportManager.updateStatus(id, 'ouvert');
             if (success) {
-                showToast('Ticket rouvert', 'info');
+                showToast('Ticket rouvert avec succès.', 'info');
             } else {
-                showToast('Erreur lors de la mise à jour', 'error');
+                showToast('Impossible de rouvrir ce ticket. Réessayez dans un instant.', 'error');
             }
         }
 
@@ -402,9 +402,9 @@
             if (!confirm('Supprimer définitivement ce ticket ?')) return;
             const success = await SupportManager.deleteTicket(id);
             if (success) {
-                showToast('Ticket supprimé', 'success');
+                showToast('Ticket supprimé définitivement.', 'success');
             } else {
-                showToast('Erreur lors de la suppression', 'error');
+                showToast('Impossible de supprimer ce ticket. Réessayez ou rechargez la page.', 'error');
             }
         }
 

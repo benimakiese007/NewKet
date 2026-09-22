@@ -40,6 +40,26 @@ git commit -m "%msg%"
 echo.
 echo [3/3] Envoi vers GitHub (git push)...
 
+set "branche_cible=%branche%"
+IF "%branche_cible%"=="" (
+    for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_cible=%%a
+)
+
+IF /I NOT "%branche_cible%"=="main" goto DO_PUSH
+
+echo.
+echo ================ ATTENTION ================
+echo Vous etes sur le point d'envoyer sur la branche 'main'.
+set /p confirm_main="Veuillez taper 'main' pour confirmer : "
+IF /I NOT "%confirm_main%"=="main" (
+    echo.
+    color 0C
+    echo ERREUR : Envoi annule. Confirmation incorrecte.
+    pause
+    exit /b
+)
+
+:DO_PUSH
 IF "%branche%"=="" (
     REM Si l'utilisateur n'a rien tape, on fait un push normal
     git push

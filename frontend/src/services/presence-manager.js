@@ -23,6 +23,9 @@ const PresenceManager = {
         // Use user ID if logged in, otherwise a random ID for guest
         const presenceKey = user ? user.id : `guest-${Math.random().toString(36).substr(2, 9)}`;
 
+        // Clear skeletons immediately
+        this._notify();
+
         this.channel = client.channel('global_presence', {
             config: {
                 presence: {
@@ -86,3 +89,12 @@ const PresenceManager = {
 };
 
 window.PresenceManager = PresenceManager;
+
+// Auto-initialize when loaded (since it's a deferred import, main.js might have missed it)
+if (document.readyState === 'complete' || window.newketInitialized) {
+    PresenceManager.init().catch(e => console.warn('[PresenceManager] auto-init failed:', e?.message));
+} else {
+    window.addEventListener('newketInitialized', () => {
+        PresenceManager.init().catch(e => console.warn('[PresenceManager] auto-init failed:', e?.message));
+    });
+}

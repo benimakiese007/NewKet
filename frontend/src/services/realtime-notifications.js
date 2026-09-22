@@ -64,7 +64,7 @@ const AppNotifications = {
                         const favs = window.FavoritesManager ? FavoritesManager.getFavorites() : [];
                         if (favs.includes(payload.new.id)) {
                             this.showToast(
-                                'Baisse de prix ! 🎉',
+                                'Baisse de prix ! ',
                                 `Bonne nouvelle, un article de vos favoris ("${payload.new.name}") est maintenant à ${window.CurrencyManager ? CurrencyManager.formatPrice(payload.new.price) : payload.new.price + ' FC'}.`,
                                 'success',
                                 'solar:tag-price-bold'
@@ -377,7 +377,7 @@ const AppNotifications = {
         this.deferredPrompt.prompt();
         this.deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
-                this.showToast('Succès', "Merci d'avoir installé NewKet sur votre appareil ! 🎉", 'success');
+                this.showToast('Succès', "Merci d'avoir installé NewKet sur votre appareil ! ", 'success');
             }
             this.deferredPrompt = null;
         });

@@ -27,12 +27,12 @@ PHASE A : AVANT LE LANCEMENT — Créer l'attente
    * Teasers de l'interface de la plateforme (captures d'écran, vidéos courtes)
    * "Bientôt tu pourras vendre et acheter en toute sécurité en CDF ou en USD"
 
-2. CONSTRUIRE UNE COMMUNAUTÉ WHATSAPP/FACEBOOK
------------------------------------------------
-- Créer un groupe WhatsApp : "Vendeurs NewKet (Officiel)"
-- Créer un groupe WhatsApp : "Acheteurs NewKet (Officiel)"
-- Y partager les actualités, teasers et démonstrations de la plateforme.
-- Objectif avant le lancement : 200 à 300 personnes dans les groupes.
+2. CONSTRUIRE UNE COMMUNAUTÉ VIA CANAL WHATSAPP
+------------------------------------------------
+- Créer un CANAL WhatsApp (Channel) officiel NewKet (évite le spam et protège la vie privée/les numéros).
+- Réservé aux annonces des Admins : actualités, teasers de l'interface, démos.
+- Utiliser les réactions (emojis) pour créer de l'interaction (ex: "Quelle catégorie lancer en premier ? Votez 👗 ou 📱 !").
+- Objectif avant le lancement : 200 à 300 abonnés sur le Canal.
 
 
 ============================================================
@@ -41,13 +41,16 @@ PHASE B : AU LANCEMENT — Générer les premières ventes
 
 3. LES INFLUENCEURS LOCAUX (Levier le plus rapide)
 ---------------------------------------------------
-- Cibler des MICRO-INFLUENCEURS (5.000 à 50.000 abonnés) dans les niches :
+- Cibler des MICRO-INFLUENCEURS (5.000 à 50.000 abonnés) et des créateurs de contenu type "Review/Tech/Business" (ex: profil "Liman Talks About").
+- Privilégier les profils éducatifs qui peuvent bien expliquer le système de séquestre (confiance), dans ces niches :
+   * Tech & Business / Startups locales
    * Mode & Vêtements
    * Cuisine & Produits alimentaires
    * Beauté & Cosmétiques
    * Électronique & Téléphones
-- Deal proposé aux influenceurs :
-   "Tu fais une vidéo sur NewKet → On t'offre 1 mois de boutique gratuite
+- Deal et approche proposés :
+   * Fournir un compte test avec un peu de crédit pour qu'ils filment une vraie transaction (preuve à l'appui).
+   * "Tu fais une vidéo sur NewKet → On t'offre 1 mois de boutique gratuite
    + une commission sur chaque vente générée par ton lien de parrainage."
 - Budget estimé : 50$ à 100$ pour 3 à 5 influenceurs.
 

@@ -810,13 +810,13 @@
                     if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
                     const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier', seller_type: 'certified' }).eq('id', id);
                     if (error) throw error;
-                    if (window.showToast) showToast(`Vendeur activé !`, "success");
+                    if (window.showToast) showToast(`Le compte vendeur de ${name} est maintenant actif.`, "success");
                     UserManager.init().then(() => renderUsers());
                     if (window.LoaderManager) LoaderManager.hide();
                 } catch (err) {
                     console.error(err);
                     if (window.LoaderManager) LoaderManager.hide();
-                    if (window.showToast) showToast("Erreur activation.", "danger");
+                    if (window.showToast) showToast("Impossible d'activer ce vendeur. Vérifiez la connexion et réessayez.", "danger");
                 }
             });
         }
@@ -827,13 +827,13 @@
                     if (window.LoaderManager) LoaderManager.show(`Rejet...`);
                     const { error } = await window.supabaseClient.from('users').update({ status: 'rejected', seller_type: null }).eq('id', id);
                     if (error) throw error;
-                    if (window.showToast) showToast(`Rejeté.`, "warning");
+                    if (window.showToast) showToast(`Le dossier de ${name} a été refusé.`, "warning");
                     UserManager.init().then(() => renderUsers());
                     if (window.LoaderManager) LoaderManager.hide();
                 } catch (err) {
                     console.error(err);
                     if (window.LoaderManager) LoaderManager.hide();
-                    if (window.showToast) showToast("Erreur lors du rejet.", "danger");
+                    if (window.showToast) showToast("Impossible de rejeter ce dossier. Vérifiez la connexion et réessayez.", "danger");
                 }
             });
         }
@@ -868,7 +868,7 @@
                 showConfirm("Supprimer ?", `Voulez-vous supprimer définitivement ${name} ?`, async () => {
                     await UserManager.deleteUser(id);
                     renderUsers();
-                    showToast("Supprimé", "success");
+                    showToast(`Le compte de ${name} a été supprimé définitivement.`, "success");
                 });
             } else {
                 // Fallback for emergency

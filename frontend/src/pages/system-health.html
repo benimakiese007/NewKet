@@ -187,16 +187,16 @@
             try {
                 if (ackId) {
                     await ApiClient.fetch(`/system-health/incidents/${ackId}/ack`, { method: 'POST' });
-                    showToast('Incident acknowledged', 'success');
+                    showToast('Incident pris en charge.', 'success');
                     await loadIncidents();
                 }
                 if (resolveId) {
                     await ApiClient.fetch(`/system-health/incidents/${resolveId}/resolve`, { method: 'POST' });
-                    showToast('Incident resolved', 'success');
+                    showToast('Incident marqué comme résolu.', 'success');
                     await loadIncidents();
                 }
             } catch (err) {
-                showToast(err?.message || 'Erreur', 'error');
+                showToast(err?.message || 'Action impossible. Réessayez ou rechargez la page.', 'error');
             }
         });
 
@@ -205,10 +205,10 @@
             runCheckBtn.textContent = 'Scan en cours...';
             try {
                 const resp = await ApiClient.fetch('/system-health/check', { method: 'POST' });
-                showToast(`System-check: ${resp?.stored ?? 0} incident(s)`, 'success');
+                showToast(`Scan terminé : ${resp?.stored ?? 0} incident(s) détecté(s).`, 'success');
                 await loadIncidents();
             } catch (err) {
-                showToast(err?.message || 'Erreur system-check', 'error');
+                showToast(err?.message || 'Le scan a échoué. Vérifiez la connexion au serveur.', 'error');
             } finally {
                 runCheckBtn.disabled = false;
                 runCheckBtn.textContent = 'Lancer /system-check';
@@ -219,7 +219,7 @@
             try {
                 await loadIncidents();
             } catch (err) {
-                showToast(err?.message || 'Erreur refresh', 'error');
+                showToast(err?.message || 'Impossible de rafraîchir. Vérifiez votre connexion.', 'error');
             }
         });
 

@@ -1,0 +1,43 @@
+====================================================================
+🚀 PLAN DE BATAILLE NEWKET : OBJECTIF N°1 SUR GOOGLE EN RDC
+====================================================================
+
+Le site est techniquement optimisé à 100% (balises, sitemap, Vitesse, Mobile, Schema.org).
+Voici les actions obligatoires que TU dois réaliser pour atteindre la 1ère place :
+
+
+--- ÉTAPE 1 : LE DOMAINE (IMMÉDIAT) ---
+[ ] Acheter le nom de domaine "newket.market".
+[ ] Ajouter ce domaine sur Vercel (dans les paramètres "Domains" du projet).
+[ ] Vérifier que le site s'affiche bien sur https://newket.market.
+
+
+--- ÉTAPE 2 : GOOGLE (LE JOUR DU LANCEMENT) ---
+[ ] Créer un compte sur "Google Search Console".
+[ ] Ajouter la propriété "https://newket.market".
+[ ] Dans l'onglet "Sitemaps", soumettre l'URL : "https://newket.market/sitemap.xml".
+[ ] Créer une fiche "Google My Business" au nom de "NewKet" avec une adresse précise à Kinshasa (ajouter logo, description, lien du site).
+
+
+--- ÉTAPE 3 : LE CONTENU (LA CLÉ POUR LES RECHERCHES) ---
+[ ] Inscrire les premiers vendeurs.
+[ ] Publier un maximum de vrais produits. (Si quelqu'un cherche "acheter iPhone 15 Kinshasa", Google affichera la page du produit, pas l'accueil).
+[ ] S'assurer que les vendeurs mettent des descriptions détaillées pour leurs articles.
+
+
+--- ÉTAPE 4 : LA PRESSE & L'AUTORITÉ (SEO OFF-PAGE) ---
+/!\ C'est ce qui fait la différence entre le 1er et le 10ème sur Google.
+[ ] Contacter Mediacongo.net pour publier un article annonçant le lancement de la 1ère marketplace de RDC.
+[ ] Contacter Actualite.cd ou 7sur7.cd pour un article sponsorisé.
+[ ] S'assurer que ces articles contiennent un LIEN CLIQUABLE vers "https://newket.market". (C'est ce qu'on appelle un backlink, le signal de puissance ultime pour Google).
+
+
+--- ÉTAPE 5 : LE TRAFIC (RÉSEAUX SOCIAUX) ---
+[ ] Lancer des publicités ciblées sur Kinshasa et la RDC (Facebook Ads, TikTok, Instagram).
+[ ] Obtenir des avis 5 étoiles sur la fiche Google My Business dès les premières ventes.
+[ ] Google va mesurer le temps que les gens passent sur le site. Un bon trafic social va propulser le site naturellement.
+
+
+====================================================================
+RAPPEL : Le code est une Ferrari. À toi de mettre l'essence !
+====================================================================

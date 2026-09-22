@@ -339,7 +339,7 @@ export const ApiClient = {
                         // Erreur rate-limit : afficher sous le bouton qui a déclenché la requête
                         window.showInlineFeedback(btn, error.message || 'Trop de tentatives. Réessayez dans quelques minutes.', 'error');
                     } else if (typeof window.showToast === 'function') {
-                        window.showToast(error.message || "Une erreur est survenue.", "danger");
+                        window.showToast(error.message || "Une erreur inattendue est survenue. Rafraîchissez la page et réessayez.", "danger");
                     }
                 }
             }

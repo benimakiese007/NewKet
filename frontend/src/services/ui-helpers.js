@@ -75,15 +75,15 @@ async function _processToastQueue() {
     const defaultTitle = displayTitles[type] || type;
     
     toast.innerHTML = `
-        <div class="nk-toast-icon" aria-hidden="true">
-            <iconify-icon icon="${escape(icon)}" width="21"></iconify-icon>
-        </div>
-        <div class="nk-toast-body">
-            <div class="nk-toast-title">${safeTitle || defaultTitle}</div>
-            <div class="nk-toast-content">${safeMsg}</div>
+        <div class="nk-toast-body" style="padding-left: 0.5rem; flex-direction: row; align-items: center; justify-content: space-between;">
+            <div style="flex:1; display:flex; flex-direction:column; gap:0.2rem;">
+                <div class="nk-toast-title">${safeTitle || defaultTitle}</div>
+                <div class="nk-toast-content">
+                    <span>${safeMsg}</span>
+                </div>
+            </div>
         </div>
         <button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>
-        <div class="nk-toast-progress" aria-hidden="true"></div>
     `;
 
     container.appendChild(toast);
@@ -672,6 +672,7 @@ export function buildProductCardHTML(p, options = {}) {
         prioritizeAvatar = false,
         wrapperClass = ''
     } = options;
+    const safeName = String(p.name || 'Produit NewKet').replace(/"/g, '&quot;');
     const isFavorite = window.FavoritesManager ? FavoritesManager.isInFavorites(p.id) : false;
 
     // Handle image (could be comma separated or array-backed) — use the first real token.
@@ -769,7 +770,7 @@ export function buildProductCardHTML(p, options = {}) {
             : `/boutique/${encodeURIComponent(shopSlugFallback)}`);
 
     return `
-        <div class="product-card card-active-scale ${animationClass} ${wrapperClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
+        <div class="product-card card-active-scale ${animationClass} ${wrapperClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${safeName}">
             <div class="product-image">
                 ${badgeHTML}
                 <div style="position:absolute;left:12px;bottom:12px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;">
@@ -781,10 +782,10 @@ export function buildProductCardHTML(p, options = {}) {
                     title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
-                <a href="${productPagePath}" aria-label="Voir le produit : ${p.name}" title="${p.name}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
+                <a href="${productPagePath}" aria-label="Voir le produit : ${safeName}" title="${safeName}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
                     <img
                         ${productImgAttrs}
-                        alt="${p.name}"
+                        alt="${safeName}"
                         decoding="async"
                         width="400"
                         height="400"
@@ -796,7 +797,7 @@ export function buildProductCardHTML(p, options = {}) {
             </div>
             <div class="product-info">
                 <h3 class="product-title">
-                    <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
+                    <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${safeName}</a>
                 </h3>
                 <div class="product-price">
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
@@ -812,7 +813,7 @@ export function buildProductCardHTML(p, options = {}) {
                         <iconify-icon icon="solar:cart-plus-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
                         <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Ajouter' : 'Indisponible'}</span>
                     </button>
-                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id='); }"
+                    <button onclick="if(navigator.share){ navigator.share({title:'${safeName.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id='); }"
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 bg-white hover:bg-gray-50 flex-shrink-0 transition-all"
                         aria-label="Partager ce produit"
                         title="Partager">
