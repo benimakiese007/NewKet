@@ -162,7 +162,7 @@ class CartManager {
 
         const currentUserId = window.AuthManager?.user?.id;
         if (currentUserId && product.vendor_id && String(currentUserId) === String(product.vendor_id)) {
-            this.showInlineRestriction('Vous ne pouvez pas ajouter votre propre produit au panier.');
+            if (window.showToast) window.showToast('Vous ne pouvez pas ajouter votre propre produit au panier.', 'danger');
             return;
         }
 
@@ -398,7 +398,7 @@ class CartManager {
 
         const currentUserId = window.AuthManager?.user?.id;
         if (currentUserId && item.vendor_id && String(currentUserId) === String(item.vendor_id)) {
-            this.showInlineRestriction('Vous ne pouvez pas acheter votre propre produit.', anchor);
+            if (window.showToast) window.showToast('Vous ne pouvez pas acheter votre propre produit.', 'danger');
             return;
         }
 

@@ -1244,13 +1244,17 @@ body.search-focused .main-header {
 
 .newket-header-shell {
   background: var(--newket-header-bg, #1f2937) !important;
-  /* Fill notch/status-bar area with green so no white gap appears */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  /* Fill notch/status-bar area so no white gap appears */
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
 
 .newket-header-shell.scrolled {
   background: var(--newket-header-bg, #1f2937) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
@@ -9738,7 +9742,7 @@ html.dark .skeleton {
 
 @keyframes toast-slide-down {
   from {
-    transform: translateY(120%) scale(0.96);
+    transform: translateY(-120%) scale(0.96);
     opacity: 0;
   }
 
