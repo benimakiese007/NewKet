@@ -9615,7 +9615,7 @@ html.dark .skeleton {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 1.25rem;
   background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(248, 250, 252, 0.55)),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.00), rgba(248, 250, 252, 0.00)),
         radial-gradient(circle at top left, var(--nk-toast-accent-soft), transparent 42%);
   color: #111827;
   font-weight: 700;
