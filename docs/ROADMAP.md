@@ -61,4 +61,37 @@ Ce document liste les prochaines grandes fonctionnalités (features) prévues po
 *   *Avantage : Réactivité maximale pour corriger des bugs et déployer de nouvelles fonctionnalités, tout en évitant les processus de validation parfois longs d'Apple (App Store) et de Google (Play Store).*
 
 ---
+
+## 11. Notifications Push PWA — Demande Automatique au Bon Moment
+**Objectif :** Maximiser le taux d'activation des notifications push en demandant l'autorisation au moment où l'engagement de l'utilisateur est le plus fort.
+
+**Problème actuel :** La demande de permission est cachée dans le Dashboard — la majorité des users ne l'activent jamais.
+
+**Logique retenue (Approche combinée intelligente) :**
+1. L'user installe la PWA → on stocke un flag local `pwaJustInstalled = true`
+2. L'user se connecte pour la première fois après l'installation → on demande automatiquement la permission push
+3. Si l'user **accepte** → on sauvegarde le token push lié à son compte
+4. Si l'user **refuse** → on stocke un flag `notifAsked = true` pour ne plus re-demander automatiquement
+
+**Dashboard (conservé) :**
+- Affiche l'état actuel : Notifications activées ✅ / désactivées ❌
+- Bouton pour activer si l'user avait refusé au départ et change d'avis
+- Bouton pour désactiver si l'user veut couper les notifs
+
+**Flags à gérer :**
+
+| Flag | Stockage | Usage |
+|---|---|---|
+| `pwaJustInstalled` | `localStorage` | Détecter une installation fraîche |
+| `notifAsked` | `localStorage` | Éviter les demandes répétées |
+| Token push | Base de données | Associer l'appareil au compte user |
+
+**Cas limites traités :**
+- User installe sans être connecté → la demande attend le login
+- User désinstalle et réinstalle → `localStorage` vidé → flow se relance naturellement
+- User change d'appareil → flag absent → flow se relance
+
+*Priorité : À implémenter après stabilisation des fonctionnalités core.*
+
+---
 *Note technique : Conformément aux directives de sécurité et de simplification, NewKet ne gère pas de système de "Wallet" (portefeuille interne) stockant l'argent des utilisateurs sur la plateforme à long terme. Tous les flux passent directement par le système de paiement et le séquestre.*
