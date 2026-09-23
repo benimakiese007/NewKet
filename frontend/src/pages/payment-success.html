@@ -197,6 +197,26 @@
 
             function setSuccessUI() {
                 clearStatusPollTimer();
+
+                // Nettoyer le skeleton du statusLabel (non fait si on passe en mode mock sans refreshStatus)
+                const statusLabelEl = document.getElementById('statusLabel');
+                if (statusLabelEl) {
+                    statusLabelEl.classList.remove('skeleton');
+                    statusLabelEl.style.minWidth = '';
+                    statusLabelEl.style.height = '';
+                    statusLabelEl.textContent = 'Payé';
+                }
+                // Nettoyer le skeleton de txRef également si toujours actif
+                const txRefEl = document.getElementById('txRef');
+                if (txRefEl) {
+                    txRefEl.classList.remove('skeleton');
+                    txRefEl.style.minWidth = '';
+                    txRefEl.style.height = '';
+                    if (!txRefEl.textContent || txRefEl.textContent === 'Indisponible') {
+                        txRefEl.textContent = txRef || 'Indisponible';
+                    }
+                }
+
                 try {
                     localStorage.setItem(orderRefreshSignalKey, JSON.stringify({
                         txRef,
