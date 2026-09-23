@@ -5,22 +5,13 @@
  * then fetches the pre-rendered HTML from Prerender.io so Google/Bing/etc.
  * can index the full product catalog instead of seeing an empty SPA shell.
  *
+ * Compatible with Vite/static sites on Vercel (no Next.js dependency).
  * Real users are NOT affected — they get the normal JS app with zero overhead.
  */
 
 export const config = {
     matcher: [
-        // Pages that contain dynamic product content (worth indexing)
-        '/',
-        '/catalog',
-        '/product',
-        '/boutique/:path*',
-        '/shop',
-        '/shops',
-        '/promo',
-        '/about',
-        '/faq',
-        '/seller',
+        '/((?!_vercel|api|assets|vendor|icons|Images|src|manifest\\.json|sw\\.js|favicon|robots\\.txt).*)',
     ],
 };
 
@@ -50,66 +41,58 @@ const BOT_AGENTS = [
 
 /**
  * Checks whether the incoming request comes from a known crawler/bot.
- * @param {Request} request
+ * @param {string} ua - User-Agent string
  * @returns {boolean}
  */
-function isBot(request) {
-    const ua = (request.headers.get('user-agent') || '').toLowerCase();
-    // Honour Prerender's own escape hatch to avoid infinite loops
-    if (request.headers.get('x-prerender-bypass')) return false;
-    return BOT_AGENTS.some((bot) => ua.includes(bot));
+function isBot(ua) {
+    const lower = ua.toLowerCase();
+    return BOT_AGENTS.some((bot) => lower.includes(bot));
 }
 
 export default async function middleware(request) {
-    const { NextResponse } = await import('next/server').catch(() => ({
-        NextResponse: {
-            next: () => new Response(null, { status: 200 }),
-            rewrite: (url) => Response.redirect(url),
-        },
-    }));
+    const ua = request.headers.get('user-agent') || '';
 
-    if (!isBot(request)) {
-        // Regular user — serve the normal SPA, no overhead
-        return NextResponse.next();
+    // Honour Prerender's own escape hatch to avoid infinite loops
+    if (request.headers.get('x-prerender-bypass')) {
+        return; // pass through
+    }
+
+    // Regular user — serve the normal SPA, no overhead
+    if (!isBot(ua)) {
+        return; // pass through
     }
 
     // ── Bot detected ──────────────────────────────────────────────────────────
     const PRERENDER_TOKEN = process.env.PRERENDER_TOKEN;
 
     if (!PRERENDER_TOKEN) {
-        // Token not configured — fall back to normal SPA (won't break the site)
+        // Token not configured — fall back gracefully
         console.warn('[Prerender] PRERENDER_TOKEN env var is not set.');
-        return NextResponse.next();
+        return; // pass through
     }
 
-    const requestUrl = new URL(request.url);
-    // Build the Prerender.io service URL
-    const prerenderUrl =
-        `https://service.prerender.io/${requestUrl.href}`;
+    const prerenderUrl = `https://service.prerender.io/${request.url}`;
 
     try {
         const prerendered = await fetch(prerenderUrl, {
             headers: {
                 'X-Prerender-Token': PRERENDER_TOKEN,
-                // Pass original headers so Prerender can render accurately
-                'User-Agent': request.headers.get('user-agent') || '',
+                'User-Agent': ua,
             },
         });
 
-        // Stream the pre-rendered HTML back to the bot
         const html = await prerendered.text();
+
         return new Response(html, {
             status: prerendered.status,
             headers: {
                 'Content-Type': 'text/html; charset=utf-8',
-                // Tell CDNs not to cache this (Prerender has its own cache)
                 'Cache-Control': 'no-store',
                 'X-Prerendered': '1',
             },
         });
     } catch (err) {
         console.error('[Prerender] Fetch failed:', err);
-        // On error, fall back gracefully — bots get the SPA shell
-        return NextResponse.next();
+        return; // fall back gracefully — bots get the SPA shell
     }
 }
