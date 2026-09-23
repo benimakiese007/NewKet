@@ -796,7 +796,7 @@ export function buildProductCardHTML(p, options = {}) {
                 </a>
             </div>
             <div class="product-info">
-                <h3 class="product-title">
+                <h3 class="product-title" title="${safeName}">
                     <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${safeName}</a>
                 </h3>
                 <div class="product-price">
