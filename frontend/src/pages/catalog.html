@@ -399,9 +399,9 @@
         /* ---- CATALOG GRID FIX ---- */
         #catalog-grid {
             display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+            grid-template-columns: repeat(2, 1fr) !important;
             align-items: start !important;
-            gap: 1rem !important;
+            gap: 0.75rem !important;
         }
         @media (min-width: 640px) {
             #catalog-grid {
@@ -603,7 +603,7 @@
                 </div>
 
                 <!-- Product grid -->
-                <div class="product-grid grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 lg:gap-6" id="catalog-grid">
+                <div class="product-grid grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3 sm:gap-6 lg:gap-6" id="catalog-grid">
                     <!-- Skeletons Premium (Hardcoded) -->
                     <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
                         <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
