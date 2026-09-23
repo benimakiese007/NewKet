@@ -74,6 +74,7 @@ export default defineConfig({
             let headerHtml = readFileSync(resolve(__dirname, 'src/partials/header.html'), 'utf8');
             headerHtml = headerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
             headerHtml = headerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
+            headerHtml = headerHtml.replace(/{{ACCOUNT_PATH}}/g, 'login');
             newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml);
 
             let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
@@ -262,3 +263,4 @@ export default defineConfig({
     }
   }
 });
+
