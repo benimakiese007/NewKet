@@ -821,7 +821,7 @@ const AuthManager = {
             btnEl.disabled = true;
             btnEl.innerHTML = `
                 <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
-                <span>Déconnexion...</span>
+                <span class="hidden sm:inline">Déconnexion...</span>
             `;
 
             await this.logout(false); // We already confirmed

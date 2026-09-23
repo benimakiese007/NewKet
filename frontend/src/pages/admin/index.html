@@ -110,14 +110,15 @@
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
                 <!-- Leads Card -->
-                <div class="glass-panel p-6 flex flex-col gap-1 premium-gradient-green animate-premium stagger-1 group">
-                    <div class="w-14 h-14 rounded-2xl bg-white shadow-xl shadow-green-500/10 text-green-600 flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
-                        <iconify-icon icon="solar:card-send-bold" width="32"></iconify-icon>
+                <div class="glass-panel p-4 lg:p-6 flex flex-col gap-1 premium-gradient-green animate-premium stagger-1 group">
+                    <div class="w-10 h-10 lg:w-14 lg:h-14 rounded-2xl bg-white shadow-xl shadow-green-500/10 text-green-600 flex items-center justify-center mb-2 lg:mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                        <iconify-icon icon="solar:card-send-bold" width="24" class="lg:hidden"></iconify-icon>
+                        <iconify-icon icon="solar:card-send-bold" width="32" class="hidden lg:block"></iconify-icon>
                     </div>
                     <p class="stat-card-label">Commandes</p>
-                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsOrders"><div class="skeleton skeleton-text" style="width:45%;height:38px;margin:0;"></div></div>
+                    <div class="text-3xl lg:text-4xl font-black tracking-tight text-gray-900" id="statsOrders"><div class="skeleton skeleton-text" style="width:45%;height:38px;margin:0;"></div></div>
                     <div class="flex items-center gap-1 mt-2">
                         <span class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">+12%</span>
                         <span class="text-[10px] text-gray-400 font-medium">vs hier</span>
@@ -125,12 +126,13 @@
                 </div>
 
                 <!-- Views Card -->
-                <div class="glass-panel p-6 flex flex-col gap-1 premium-gradient-blue animate-premium stagger-2 group">
-                    <div class="w-14 h-14 rounded-2xl bg-white shadow-xl shadow-blue-500/10 text-blue-600 flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6">
-                        <iconify-icon icon="solar:eye-bold" width="32"></iconify-icon>
+                <div class="glass-panel p-4 lg:p-6 flex flex-col gap-1 premium-gradient-blue animate-premium stagger-2 group">
+                    <div class="w-10 h-10 lg:w-14 lg:h-14 rounded-2xl bg-white shadow-xl shadow-blue-500/10 text-blue-600 flex items-center justify-center mb-2 lg:mb-4 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6">
+                        <iconify-icon icon="solar:eye-bold" width="24" class="lg:hidden"></iconify-icon>
+                        <iconify-icon icon="solar:eye-bold" width="32" class="hidden lg:block"></iconify-icon>
                     </div>
                     <p class="stat-card-label">Vues Totales</p>
-                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsSales"><div class="skeleton skeleton-text" style="width:55%;height:38px;margin:0;"></div></div>
+                    <div class="text-3xl lg:text-4xl font-black tracking-tight text-gray-900" id="statsSales"><div class="skeleton skeleton-text" style="width:55%;height:38px;margin:0;"></div></div>
                     <div class="flex items-center gap-1 mt-2">
                         <span class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">+8%</span>
                         <span class="text-[10px] text-gray-400 font-medium">vs hier</span>
@@ -138,7 +140,7 @@
                 </div>
 
                 <!-- Conversion Card/Funnel -->
-                <div class="glass-panel p-6 flex flex-col gap-2 premium-gradient-orange animate-premium stagger-3 group">
+                <div class="glass-panel p-4 lg:p-6 flex flex-col gap-2 premium-gradient-orange animate-premium stagger-3 group">
                     <div class="flex justify-between items-start">
                         <div class="w-10 h-10 rounded-2xl bg-white shadow-xl shadow-orange-500/10 text-orange-500 flex items-center justify-center mb-2 transition-all duration-500 group-hover:scale-110">
                             <iconify-icon icon="solar:filter-bold-duotone" width="20"></iconify-icon>
@@ -172,19 +174,21 @@
                 </div>
 
                 <!-- Active Articles Card -->
-                <div class="glass-panel p-6 flex flex-col gap-1 premium-gradient-dark text-white animate-premium stagger-4 group">
-                    <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl text-white flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6">
-                        <iconify-icon icon="solar:stars-bold" width="32"></iconify-icon>
+                <div class="glass-panel p-4 lg:p-6 flex flex-col gap-1 premium-gradient-dark text-white animate-premium stagger-4 group">
+                    <div class="w-10 h-10 lg:w-14 lg:h-14 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl text-white flex items-center justify-center mb-2 lg:mb-4 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6">
+                        <iconify-icon icon="solar:stars-bold" width="24" class="lg:hidden"></iconify-icon>
+                        <iconify-icon icon="solar:stars-bold" width="32" class="hidden lg:block"></iconify-icon>
                     </div>
                     <p class="stat-card-label text-white/60">Articles Actifs</p>
-                    <div class="text-4xl font-black tracking-tight text-white" id="statsNetSales"><div class="skeleton skeleton-text" style="width:35%;height:38px;margin:0;"></div></div>
+                    <div class="text-3xl lg:text-4xl font-black tracking-tight text-white" id="statsNetSales"><div class="skeleton skeleton-text" style="width:35%;height:38px;margin:0;"></div></div>
                     <p class="text-[10px] text-white/40 mt-2 font-medium">Boutique en ligne</p>
                 </div>
 
                 <!-- Active Visitors Card (Real-time) -->
-                <div class="glass-panel p-6 flex flex-col gap-1 animate-premium stagger-5 group" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-bottom: 3px solid #7c3aed;">
-                    <div class="w-14 h-14 rounded-2xl bg-white text-purple-600 flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-purple-500/20">
-                        <iconify-icon icon="solar:users-group-rounded-bold" width="32"></iconify-icon>
+                <div class="glass-panel p-4 lg:p-6 flex flex-col gap-1 animate-premium stagger-5 group" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-bottom: 3px solid #7c3aed;">
+                    <div class="w-10 h-10 lg:w-14 lg:h-14 rounded-2xl bg-white text-purple-600 flex items-center justify-center mb-2 lg:mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-purple-500/20">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="24" class="lg:hidden"></iconify-icon>
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="32" class="hidden lg:block"></iconify-icon>
                     </div>
                     <div class="flex items-center gap-2 mb-1">
                         <p class="stat-card-label text-purple-500">Visiteurs en Direct</p>
@@ -193,7 +197,7 @@
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                         </span>
                     </div>
-                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsClients"><div class="skeleton skeleton-text" style="width:30%;height:38px;margin:0;"></div></div>
+                    <div class="text-3xl lg:text-4xl font-black tracking-tight text-gray-900" id="statsClients"><div class="skeleton skeleton-text" style="width:30%;height:38px;margin:0;"></div></div>
                     <div class="flex items-center gap-1 mt-2">
                         <span class="text-[10px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full" id="presenceLiveLabel">Temps réel</span>
                     </div>
