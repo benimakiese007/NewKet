@@ -1357,22 +1357,25 @@ body.search-focused .main-header {
 
   .newket-header-shell #mobileSearchContainer {
     width: 100%;
+    max-width: 100% !important;
+    box-sizing: border-box;
     margin-top: 0.1rem;
     margin-bottom: 0.1rem;
-    max-width: none !important;
   }
 
   .newket-header-shell #mobileSearchContainer .search-bar {
-    min-height: 3.3rem;
+    min-height: 2.75rem;
+    height: 2.75rem;
     border-radius: 1.15rem !important;
     box-shadow: 0 18px 36px rgba(5, 150, 105, 0.2);
+    overflow: hidden;
   }
 
   .newket-header-shell #mobileSearchContainer .search-input {
     font-size: 16px !important;
     font-weight: 600 !important;
-    padding-top: 0.8rem !important;
-    padding-bottom: 0.8rem !important;
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
   }
 
   .newket-header-shell #mobileSearchContainer .search-category-btn,
@@ -4273,13 +4276,14 @@ body.sidebar-resizing {
 
 .search-suggestions {
   position: absolute !important;
-  top: calc(100% + 8px) !important;
+  top: 100% !important;
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  background: rgba(255, 255, 255, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
-  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 1) !important;
+  backdrop-filter: none !important;
+  border-radius: 0 0 20px 20px !important;
+  margin-top: -1px !important;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
   z-index: 3000 !important;
