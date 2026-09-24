@@ -116,42 +116,46 @@ async function _processToastQueue() {
         dismiss();
     });
 
-    // Swipe to dismiss (Mobile - SWIPE UP)
+    // Swipe to dismiss (Touch + Mouse - SWIPE UP)
     let touchStartY = 0;
     let isSwiping = false;
 
-    toast.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
+    toast.addEventListener('pointerdown', (e) => {
+        // Only react to left clicks or touch
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        touchStartY = e.clientY;
         isSwiping = true;
         toast.style.transition = 'none';
-    }, { passive: true });
+        toast.setPointerCapture(e.pointerId);
+    });
 
-    toast.addEventListener('touchmove', (e) => {
+    toast.addEventListener('pointermove', (e) => {
         if (!isSwiping) return;
-        const touchY = e.touches[0].clientY;
-        const diffY = touchY - touchStartY;
+        const diffY = e.clientY - touchStartY;
         
         if (diffY < 0) { // Moving upwards
             toast.style.transform = `translateY(${diffY}px)`;
             toast.style.opacity = 1 + (diffY / 150);
         }
-    }, { passive: true });
+    });
 
-    toast.addEventListener('touchend', (e) => {
+    const handlePointerEnd = (e) => {
         if (!isSwiping) return;
         isSwiping = false;
-        const touchY = e.changedTouches[0].clientY;
-        const diffY = touchY - touchStartY;
+        const diffY = e.clientY - touchStartY;
         
         toast.style.transition = ''; // Restore transition
         
-        if (diffY < -60) { // Threshold reached
+        if (diffY < -40) { // Threshold reached (40px)
             dismiss();
         } else {
             toast.style.transform = '';
             toast.style.opacity = '';
         }
-    }, { passive: true });
+    };
+
+    toast.addEventListener('pointerup', handlePointerEnd);
+    toast.addEventListener('pointercancel', handlePointerEnd);
 
     // Auto close after 3s
     autoCloseTimer = window.setTimeout(dismiss, 3000);

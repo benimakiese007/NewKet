@@ -9589,15 +9589,15 @@ html.dark .skeleton {
 
 #toast-container {
   position: fixed;
-  top: auto;
-  bottom: 2rem;
-  right: 2rem;
-  left: auto;
-  transform: none;
+  top: 1.5rem;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
   z-index: 10000;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   pointer-events: none;
   width: 100%;
   max-width: 440px;
@@ -9605,37 +9605,33 @@ html.dark .skeleton {
 }
 
 .nk-toast {
-  --nk-toast-accent: #111827;
-  --nk-toast-accent-soft: rgba(17, 24, 39, 0.1);
-  --nk-toast-accent-glow: rgba(17, 24, 39, 0.18);
+  --nk-toast-accent: #f9fafb;
+  --nk-toast-accent-soft: rgba(255, 255, 255, 0.1);
+  --nk-toast-accent-glow: rgba(255, 255, 255, 0.18);
   pointer-events: auto;
-  width: 100%;
-  min-height: 78px;
-  padding: 1rem 3.75rem 1.05rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 1.25rem;
-  background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.20), rgba(248, 250, 252, 0.20)),
-        radial-gradient(circle at top left, var(--nk-toast-accent-soft), transparent 42%);
-  color: #111827;
-  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 1px rgba(255, 255, 255, 1);
-  font-weight: 700;
+  width: auto;
+  min-width: 300px;
+  max-width: 90vw;
+  min-height: 56px;
+  padding: 0.8rem 3.5rem 0.8rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  background: #898989;
+  color: #f9fafb;
+  font-weight: 600;
   font-size: 0.9rem;
-  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18), 0 8px 18px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   gap: 0.875rem;
   margin-bottom: 0.75rem;
   cursor: grab;
-  -webkit-user-select: none;
-  -moz-user-select: none;
+  touch-action: none;
   user-select: none;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
   animation: toast-slide-down 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .nk-toast:active {
@@ -9708,7 +9704,7 @@ html.dark .skeleton {
 .nk-toast-content {
   flex: 1;
   line-height: 1.45;
-  color: #374151;
+  color: #d1d5db;
   padding-right: 0.25rem;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -9716,28 +9712,29 @@ html.dark .skeleton {
 
 .nk-toast-close {
   position: absolute;
-  top: 0.85rem;
-  right: 0.85rem;
-  background: rgba(17, 24, 39, 0.06);
+  top: 50%;
+  transform: translateY(-50%);
+  right: 1.2rem;
+  background: transparent;
   border: none;
-  color: #6b7280;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  color: #9ca3af;
+  width: auto;
+  height: auto;
+  padding: 0.2rem;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
   line-height: 1;
   flex-shrink: 0;
 }
 
 .nk-toast-close:hover {
-  background: rgba(17, 24, 39, 0.12);
-  color: #111827;
-  transform: rotate(90deg);
+  background: transparent;
+  color: #ffffff;
 }
 
 
@@ -9754,13 +9751,8 @@ html.dark .skeleton {
 }
 
 @keyframes toast-slide-up {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
   to {
-    transform: translateY(120%) scale(0.96);
+    transform: translateY(-120%) scale(0.96);
     opacity: 0;
   }
 }
