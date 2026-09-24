@@ -115,96 +115,96 @@
 
     <link rel="stylesheet" href="src/assets/css/style.css">
     <link rel="stylesheet" href="src/assets/css/responsive.css">
-    <style>
-        html, body {
-            /* overscroll-behavior-y: contain; */
-        }
-
-        /* Evite le fond blanc visible dans la zone notch/overscroll */
-        html {
-            background-color: #1f2937;
-        }
-
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 999px;
-        }
-
-
-
-        .card-hover:hover {
-            transform: translateY(-4px) !important;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .img-zoom:hover img {
-            transform: scale(1);
-        }
-
-        .img-zoom img {
-            transition: transform 0.5s ease;
-        }
-
-        @keyframes marquee-scroll {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
-        }
-
-        .marquee-track {
-            display: flex;
-            width: max-content;
-            animation: marquee-scroll 40s linear infinite;
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-drag: none;
-            will-change: transform;
-        }
-
-        /* Force animation to NEVER pause — not on hover, focus, or any state */
-        .marquee-track,
-        .marquee-track:hover,
-        .marquee-track:focus,
-        .marquee-track:active,
-        .marquee-wrapper:hover .marquee-track,
-        .marquee-wrapper:focus-within .marquee-track {
-            animation-play-state: running !important;
-        }
-
-        .marquee-wrapper {
-            overflow: hidden;
-            pointer-events: none;
-            mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-        }
-
-        .marquee-item {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            flex-shrink: 0;
-            padding-right: 5rem;
-        }
-
-        @media (min-width: 640px) {
-            .marquee-item { padding-right: 8rem; }
-        }
-
-    </style>
 </head>
 
 <body class="bg-white text-gray-900 antialiased home-page">
+    <!-- Splash Screen -->
+    <script>
+        // Si l'utilisateur a déjà vu le splash screen durant cette session (ex: clic sur Accueil)
+        if (sessionStorage.getItem('nk_splash_shown')) {
+            document.documentElement.classList.add('skip-splash');
+        }
+    </script>
+    <style>
+        html.skip-splash #nk-splash {
+            display: none !important;
+        }
+        @keyframes nk-splash-in {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes nk-logo-in {
+            from {
+                opacity: 0;
+                transform: translateX(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes nk-logo-out {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(1.12);
+            }
+        }
+        #nk-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            animation: nk-splash-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @media (prefers-color-scheme: dark) {
+            #nk-splash {
+                background-color: #000000;
+            }
+        }
+        #nk-splash img {
+            width: 200px;
+            height: auto;
+            object-fit: contain;
+            animation: nk-logo-in 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        #nk-splash.hiding {
+            opacity: 0;
+            transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #nk-splash.hiding img {
+            animation: nk-logo-out 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+    </style>
+    <div id="nk-splash">
+        <img src="/icons/icon-512-v2.png" alt="NewKet">
+    </div>
+    <script>
+        // Si déjà vu (via skip-splash), on nettoie juste le DOM sans attendre
+        if (document.documentElement.classList.contains('skip-splash')) {
+            const s = document.getElementById('nk-splash');
+            if (s) s.remove();
+        } else {
+            // Sinon, on marque comme vu pour les prochains clics, et on joue l'animation
+            sessionStorage.setItem('nk_splash_shown', 'true');
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const s = document.getElementById('nk-splash');
+                    if (!s) return;
+                    s.classList.add('hiding');
+                    setTimeout(() => s.remove(), 450);
+                }, 3000); // 3 secondes total (2s d'animation + 1s de pause)
+            });
+        }
+    </script>
+    <!-- End Splash Screen -->
+
     <!--
         Fallback rendered with the initial HTML.  The full interactive header
         replaces it once ComponentLoader is available, but this keeps the

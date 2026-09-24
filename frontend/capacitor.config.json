@@ -7,6 +7,14 @@
       "backgroundColor": "#1f2937",
       "style": "DARK",
       "overlaysWebView": false
+    },
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
     }
   }
 }
