@@ -120,8 +120,13 @@
 <body class="bg-white text-gray-900 antialiased home-page">
     <!-- Splash Screen -->
     <script>
-        // Si l'utilisateur a déjà vu le splash screen durant cette session (ex: clic sur Accueil)
-        if (sessionStorage.getItem('nk_splash_shown')) {
+        // Détection de l'environnement : PWA (standalone) ou App Mobile (Capacitor)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const isCapacitor = !!window.Capacitor || (window.origin && window.origin.includes('capacitor'));
+        const isAlreadySeen = sessionStorage.getItem('nk_splash_shown');
+        
+        // Si c'est juste le site web classique (ni PWA, ni Capacitor) OU si déjà vu
+        if (!isStandalone && !isCapacitor || isAlreadySeen) {
             document.documentElement.classList.add('skip-splash');
         }
     </script>
