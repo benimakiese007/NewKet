@@ -840,6 +840,21 @@ const ComponentLoader = {
                 if (window.AppNotifications) AppNotifications.promptInstall();
             }
         });
+
+        // Prevent full page reload when clicking "Accueil" (home link) while already on the homepage.
+        // Instead, smoothly scroll to the top of the page.
+        document.addEventListener('click', (event) => {
+            const homeLink = event.target.closest('a[href="/"], a[href="/index.html"]');
+            if (!homeLink) return;
+
+            const currentPath = window.location.pathname;
+            const isOnHomePage = currentPath === '/' || currentPath === '/index.html';
+
+            if (isOnHomePage) {
+                event.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
     },
 
     normalizeSocialUrl(value, network) {
