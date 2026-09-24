@@ -37,6 +37,7 @@
     "@capacitor/geolocation": "^8.2.2",
     "@capacitor/ios": "^8.5.2",
     "@capacitor/push-notifications": "^8.1.2",
+    "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.3",
     "@iconify-json/line-md": "^1.2.16",
     "@iconify-json/logos": "^1.2.11",
@@ -57,6 +58,7 @@
     "node-cache": "^5.1.2",
     "nodemailer": "^9.0.3",
     "qrcode": "^1.5.4",
+    "sharp": "^0.35.4",
     "web-push": "^3.6.7"
   }
 }
