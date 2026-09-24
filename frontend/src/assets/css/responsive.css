@@ -22,7 +22,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
+    overscroll-behavior-y: none;
     touch-action: pan-y pinch-zoom;
     min-height: 100vh;
     min-height: 100dvh;
@@ -151,8 +151,11 @@ canvas {
 
     .header-content {
         row-gap: 0.625rem !important;
-        padding: 0.625rem 1rem calc(1.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        padding: 0.625rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
         align-items: stretch !important;
+        /* Ensure flex children don't exceed header width */
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .header-brand-row {
@@ -174,9 +177,13 @@ canvas {
     }
 
     #mobileSearchContainer {
-        flex-basis: 100% !important;
+        /* Override Tailwind flex-none: allow the bar to shrink on small screens */
+        flex: 1 1 100% !important;
         display: flex !important;
         width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        min-width: 0 !important;
         order: 3 !important;
         padding-top: 0 !important;
         margin-top: 0 !important;

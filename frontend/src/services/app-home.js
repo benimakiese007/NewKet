@@ -55,7 +55,7 @@ function runIdle(callback) {
 
 runIdle(async () => {
     try {
-        await import('./pull-to-refresh.js');
+
         await import('./realtime-notifications.js');
         await import('./presence-manager.js');
         await import('./behavior-tracking.js');
