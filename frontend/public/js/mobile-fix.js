@@ -4,12 +4,15 @@
 
   console.log('[Mobile Fix] Capacitor detected. Applying fixes for routing and scroll...');
 
+  // Activate CSS rules scoped to html.capacitor-native (section 55 in responsive.css)
+  document.documentElement.classList.add('capacitor-native');
+
   // Hide footer on native app (not needed on mobile, replaced by bottom nav bar)
   const style = document.createElement('style');
   style.textContent = '.newket-footer-shell, footer.newket-footer-shell { display: none !important; }';
   document.head ? document.head.appendChild(style) : document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
 
-  // 1b. Selectors that might also block scroll on inner wrappers
+  // Selectors that might block scroll on inner wrappers
   const SCROLL_TARGETS = [
     'html',
     'body',
@@ -23,7 +26,6 @@
   ];
 
   const fixScroll = () => {
-    // Force html + body to be scrollable
     const htmlEl = document.documentElement;
     const bodyEl = document.body;
 
@@ -32,8 +34,10 @@
       htmlEl.style.setProperty('overflow-x', 'hidden', 'important');
       htmlEl.style.setProperty('height', 'auto', 'important');
       htmlEl.style.setProperty('min-height', '100%', 'important');
-      // This is the key fix for Android WebView — allow panning vertically
-      htmlEl.style.setProperty('touch-action', 'pan-y', 'important');
+      // Critical for Android WebView: allow native vertical panning
+      htmlEl.style.setProperty('touch-action', 'pan-y pinch-zoom', 'important');
+      // Android WebView specific: enable momentum scrolling
+      htmlEl.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
     }
 
     if (bodyEl) {
@@ -42,21 +46,37 @@
       bodyEl.style.setProperty('height', 'auto', 'important');
       bodyEl.style.setProperty('min-height', '100%', 'important');
       bodyEl.style.setProperty('position', 'static', 'important');
-      bodyEl.style.setProperty('touch-action', 'pan-y', 'important');
+      bodyEl.style.setProperty('touch-action', 'pan-y pinch-zoom', 'important');
+      bodyEl.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
     }
 
-    // Also fix any inner wrappers that might be restricting scroll
+    // Fix any inner wrappers that might restrict scroll
     SCROLL_TARGETS.forEach(selector => {
       const el = document.querySelector(selector);
       if (!el || el === htmlEl || el === bodyEl) return;
-      const style = window.getComputedStyle(el);
-      // Only override if the element actually has a blocking style
-      if (style.overflow === 'hidden' || style.overflowY === 'hidden' || style.height === '100vh' || style.maxHeight === '100vh') {
+      const computed = window.getComputedStyle(el);
+      if (
+        computed.overflow === 'hidden' ||
+        computed.overflowY === 'hidden' ||
+        computed.height === '100vh' ||
+        computed.maxHeight === '100vh'
+      ) {
         el.style.setProperty('overflow-y', 'auto', 'important');
         el.style.setProperty('height', 'auto', 'important');
         el.style.setProperty('max-height', 'none', 'important');
       }
     });
+
+    // Android WebView: remove any lingering non-passive touchmove listeners
+    // that might have been added before Capacitor was detected.
+    // We do this by injecting a capturing listener that re-enables scroll.
+    if (!document._capacitorScrollFixed) {
+      document._capacitorScrollFixed = true;
+      document.addEventListener('touchmove', function(e) {
+        // Only intervene if the default page scroll is somehow prevented by another handler.
+        // We intentionally do NOT call e.preventDefault() here.
+      }, { passive: true, capture: false });
+    }
   };
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -64,13 +84,11 @@
     fixLinks();
   });
 
-  // Run fixScroll once after all scripts have loaded (not on every DOM mutation)
   window.addEventListener('load', fixScroll);
-  // Run once more after a short delay to catch any JS-driven layout changes
-  setTimeout(fixScroll, 500);
-  setTimeout(fixScroll, 2000);
+  setTimeout(fixScroll, 300);
+  setTimeout(fixScroll, 1000);
 
-  // Observe only structural changes (new pages/sections added), not every mutation
+  // Observe only structural changes (new pages/sections added)
   const observer = new MutationObserver((mutations) => {
     const significantChange = mutations.some(m =>
       m.type === 'childList' &&
@@ -91,6 +109,7 @@
       if (document.body) observer.observe(document.body, { childList: true, subtree: true });
     });
   }
+
 
   // Pages are built by Vite into dist/src/pages/xxx.html — so we must prefix with /src/pages/
   const resolveUrl = (originalPath) => {

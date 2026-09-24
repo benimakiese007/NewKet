@@ -1916,3 +1916,44 @@ html.dark .glass-panel {
         display: none !important;
     }
 }
+
+/* ==========================================
+   55. CAPACITOR NATIVE APP — Scroll & Layout fixes
+   ========================================== */
+
+/*
+ * These rules apply ONLY when the app runs inside a Capacitor
+ * native shell (Android WebView / iOS WKWebView).
+ * The class `.capacitor-native` is added to <html> by mobile-fix.js.
+ *
+ * Root cause of scroll freeze: any non-passive touchmove listener
+ * calling preventDefault() blocks the entire WebView scroll chain.
+ * We enforce scrollability here as a CSS safety net on top of the JS fix.
+ */
+
+html.capacitor-native,
+html.capacitor-native body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y pinch-zoom !important;
+    height: auto !important;
+    min-height: 100% !important;
+    position: static !important;
+}
+
+html.capacitor-native .main-header,
+html.capacitor-native #mobileMenu {
+    touch-action: none;
+}
+
+html.capacitor-native body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html.capacitor-native {
+    background-color: #1f2937;
+    overscroll-behavior: none;
+}
+

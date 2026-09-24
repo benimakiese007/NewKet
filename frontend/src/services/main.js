@@ -1,5 +1,7 @@
-/* NewKet EMarket - Main Orchestrator */
+﻿/* NewKet EMarket - Main Orchestrator */
 import { initSentry, setSentryUser } from './sentry.js';
+import { initCapacitorPlugins } from './capacitor-plugins.js';
+
 
 window.newketConfig = {
     exchangeRate: 2500
@@ -22,7 +24,7 @@ const resolveLocalBackendReady = async () => {
 };
 
 // Admin emails are made available early by auth/admin-config so shell code can read them.
-// ADMIN_PASSWORD intentionally removed — use Supabase Auth only.
+// ADMIN_PASSWORD intentionally removed â€” use Supabase Auth only.
 
 const App = {
     async init() {
@@ -46,8 +48,12 @@ const App = {
         // 1 & 2. Initialize Managers
         // AuthManager is critical for session state, we usually await it.
         if (window.AuthManager) await AuthManager.init();
+        // Initialize Capacitor native plugins (push notifications + geolocation)
+        // Non-blocking — runs after auth is ready so FCM token can be linked to the user.
+        initCapacitorPlugins().catch(e => console.warn('[App] Capacitor plugins init:', e?.message));
 
-        // Initialize Presence Tracking (non-blocking — fire & forget)
+
+        // Initialize Presence Tracking (non-blocking â€” fire & forget)
         if (window.PresenceManager) PresenceManager.init().catch(e => console.warn('[App] PresenceManager init failed:', e?.message));
         if (window.BehaviorTracking) BehaviorTracking.init();
 
@@ -124,10 +130,10 @@ const App = {
                         <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:8px 14px; border-radius:999px; background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;">
                             Maintenance en cours
                         </div>
-                        <h1 style="font-size:clamp(1.9rem, 4vw, 2.6rem); font-weight:900; line-height:1.1; margin:0 0 14px;">Accès public suspendu</h1>
+                        <h1 style="font-size:clamp(1.9rem, 4vw, 2.6rem); font-weight:900; line-height:1.1; margin:0 0 14px;">AccÃ¨s public suspendu</h1>
                         <p style="color:#cbd5e1; max-width:460px; margin:0 auto; line-height:1.7; font-size:15px;">
-                            Les clients, vendeurs et invités ne peuvent pas utiliser la plateforme pendant cette fenêtre de maintenance.
-                            L’espace administrateur reste disponible pour la connexion et la supervision.
+                            Les clients, vendeurs et invitÃ©s ne peuvent pas utiliser la plateforme pendant cette fenÃªtre de maintenance.
+                            Lâ€™espace administrateur reste disponible pour la connexion et la supervision.
                         </p>
                         <div style="margin-top:28px; display:flex; justify-content:center;">
                             <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/login';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
@@ -169,16 +175,16 @@ const App = {
             return; // Halt further initialization
         }
 
-        // ── AFFICHAGE IMMÉDIAT ──────────────────────────────────────────────
-        // L'auth est vérifiée (AuthManager.init() est terminé).
+        // â”€â”€ AFFICHAGE IMMÃ‰DIAT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // L'auth est vÃ©rifiÃ©e (AuthManager.init() est terminÃ©).
         // On retire la classe de chargement maintenant pour afficher les skeletons
-        // déjà présents dans le HTML, pendant que les managers chargent en arrière-plan.
+        // dÃ©jÃ  prÃ©sents dans le HTML, pendant que les managers chargent en arriÃ¨re-plan.
         document.documentElement.classList.remove('auth-loading');
         window.newketInitialized = true;
         window.dispatchEvent(new CustomEvent('newketInitialized'));
-        // ───────────────────────────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-        // 3. Initialize UI State (synchrone, instantané)
+        // 3. Initialize UI State (synchrone, instantanÃ©)
         if (window.CurrencyManager) {
             CurrencyManager.init();
         }
@@ -189,9 +195,9 @@ const App = {
         // 4. Global Event Listeners
         this.bindGlobalEvents();
 
-        // ── MANAGERS EN ARRIÈRE-PLAN (non-bloquants) ────────────────────────
+        // â”€â”€ MANAGERS EN ARRIÃˆRE-PLAN (non-bloquants) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // On ne bloque plus l'affichage. Les skeletons se remplacent par les vraies
-        // données dès que chaque manager a fini de charger.
+        // donnÃ©es dÃ¨s que chaque manager a fini de charger.
         (async () => {
             const backendReady = await resolveLocalBackendReady();
             window.newketBackendReady = backendReady;
@@ -220,12 +226,12 @@ const App = {
                 }
             });
 
-            // Mettre à jour les favoris une fois les données prêtes
+            // Mettre Ã  jour les favoris une fois les donnÃ©es prÃªtes
             if (window.FavoritesManager) {
                 FavoritesManager.updateUI();
             }
         })().catch(e => console.warn('[App] Background init error:', e?.message));
-        // ───────────────────────────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     },
 
     bindGlobalEvents() {
@@ -573,7 +579,7 @@ const App = {
         applyHeaderScrollState(lastScrollTop);
         window.addEventListener('scroll', queueHeaderScrollUpdate, { passive: true });
 
-        // Global Modal Manager — with robust touch scroll-lock and reference counting
+        // Global Modal Manager â€” with robust touch scroll-lock and reference counting
         const setupGlobalModals = () => {
             window.NewKet = window.NewKet || {};
             
@@ -598,7 +604,7 @@ const App = {
                 clearTimeout(_failsafeTimer);
                 _failsafeTimer = setTimeout(() => {
                     if (_lockCount > 0) {
-                        console.warn('[NewKet] Scroll lock failsafe triggered (15s) — force releasing lock.');
+                        console.warn('[NewKet] Scroll lock failsafe triggered (15s) â€” force releasing lock.');
                         resetScrollLock();
                     }
                 }, 15000);
@@ -659,7 +665,7 @@ const App = {
                     }
                     node = node.parentElement;
                 }
-                // No scrollable ancestor inside modal — block to prevent background scroll
+                // No scrollable ancestor inside modal â€” block to prevent background scroll
                 e.preventDefault();
             }, { passive: false });
 

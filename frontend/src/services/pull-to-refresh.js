@@ -21,12 +21,17 @@ const PullToRefresh = {
 
     init() {
         if (document.body?.dataset.ptrInitialized === '1') return;
+        // On native Capacitor (Android/iOS), the OS handles pull-to-refresh natively.
+        // We must NOT register non-passive touchmove listeners here — they block the
+        // native WebView scroll entirely.
         if (isNativeCapacitor()) return;
         document.body.dataset.ptrInitialized = '1';
 
         this.injectStyles();
         this.createIndicator();
 
+        // All listeners are passive on web — only touchmove is non-passive to allow
+        // preventDefault when the user is clearly doing a pull-down gesture.
         document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
         document.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
         document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
