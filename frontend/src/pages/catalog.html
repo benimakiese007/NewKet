@@ -993,7 +993,7 @@
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
                     const options = {
-                        select: '*, users!supplier_email(company_name, name, avatar)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         range: [from, to],
                         skipCache: true // Always fresh for catalog browsing
                     };

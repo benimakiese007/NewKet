@@ -319,7 +319,7 @@ const SearchManager = {
             const popOptions = {
                 limit: 20, // Fetch more to ensure we get 4 distinct sellers
                 order: ['created_at', { ascending: false }],
-                select: 'id, name, category, price, image, user_id',
+                select: '*, users!supplier_email(seller_type)',
                 eq: [['is_archived', false]]
             };
             
@@ -346,21 +346,25 @@ const SearchManager = {
                         <div class="py-1">`;
                 
                 html += recentProducts.map(p => {
-                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image, { width: 120, quality: 70 }) : p.image) || '';
-                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(p.image, [48, 72, 120], { quality: 70 }) : '';
+                    const mappedP = window.ProductManager && typeof window.ProductManager._mapProduct === 'function' ? window.ProductManager._mapProduct(p) : p;
+                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mappedP.image, { width: 120, quality: 70 }) : mappedP.image) || '';
+                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(mappedP.image, [48, 72, 120], { quality: 70 }) : '';
                     const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+                    const isCertified = mappedP.users?.seller_type === 'certified';
+                    const certifiedBadge = isCertified ? `<iconify-icon icon="solar:verified-check-bold" class="inline-block align-text-bottom ml-1" style="color: #3b82f6 !important;" width="14" title="Vendeur Certifié"></iconify-icon>` : '';
                         
                     return `
-                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : '/product') + '?id=' + p.id)}" class="suggestion-item">
+                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: mappedP.name, productId: mappedP.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : '/product') + '?id=' + mappedP.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
-                            <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(p.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
+                            <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(mappedP.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${escapeHTML(p.category)}</div>
+                            <div class="suggestion-text truncate">${escapeHTML(mappedP.name)}</div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${escapeHTML(mappedP.category)}</div>
                         </div>
-                        <div class="text-xs font-black text-slate-900">
-                            ${window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC'}
+                        <div class="text-xs font-black text-slate-900 flex items-center">
+                            ${window.CurrencyManager ? CurrencyManager.formatPrice(mappedP.price) : mappedP.price + ' FC'}
+                            ${certifiedBadge}
                         </div>
                     </a>`;
                 }).join('');
@@ -445,7 +449,7 @@ const SearchManager = {
             const searchOptions = {
                 or: `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`,
                 limit: 6,
-                select: 'id, name, category, price, image',
+                select: '*, users!supplier_email(seller_type)',
                 eq: [['is_archived', false]]
             };
 
@@ -473,21 +477,25 @@ const SearchManager = {
                         <div class="py-1">`;
                 
                 html += filtered.map(p => {
-                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image, { width: 120, quality: 70 }) : p.image) || '';
-                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(p.image, [48, 72, 120], { quality: 70 }) : '';
+                    const mappedP = window.ProductManager && typeof window.ProductManager._mapProduct === 'function' ? window.ProductManager._mapProduct(p) : p;
+                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mappedP.image, { width: 120, quality: 70 }) : mappedP.image) || '';
+                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(mappedP.image, [48, 72, 120], { quality: 70 }) : '';
                     const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+                    const isCertified = mappedP.users?.seller_type === 'certified';
+                    const certifiedBadge = isCertified ? `<iconify-icon icon="solar:verified-check-bold" class="inline-block align-text-bottom ml-1" style="color: #3b82f6 !important;" width="14" title="Vendeur Certifié"></iconify-icon>` : '';
                         
                     return `
-                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : '/product') + '?id=' + p.id)}" class="suggestion-item">
+                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: mappedP.name, productId: mappedP.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : '/product') + '?id=' + mappedP.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
-                            <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(p.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
+                            <img src="${escapeHTML(optImg || fallbackImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="${escapeHTML(mappedP.name)}" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';">
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${escapeHTML(p.category)}</div>
+                            <div class="suggestion-text truncate">${escapeHTML(mappedP.name)}</div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${escapeHTML(mappedP.category)}</div>
                         </div>
-                        <div class="text-xs font-black text-slate-900">
-                            ${window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC'}
+                        <div class="text-xs font-black text-slate-900 flex items-center">
+                            ${window.CurrencyManager ? CurrencyManager.formatPrice(mappedP.price) : mappedP.price + ' FC'}
+                            ${certifiedBadge}
                         </div>
                     </a>`;
                 }).join('');

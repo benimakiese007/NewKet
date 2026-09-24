@@ -773,6 +773,10 @@ export function buildProductCardHTML(p, options = {}) {
             ? `/src/pages/shop.html?shop=${encodeURIComponent(shopSlugFallback)}`
             : `/boutique/${encodeURIComponent(shopSlugFallback)}`);
 
+    const certifiedBadge = vendor?.seller_type === 'certified' 
+        ? `<iconify-icon icon="solar:verified-check-bold" class="inline-block align-text-bottom ml-1" style="color: #3b82f6 !important;" width="18" title="Vendeur Certifié"></iconify-icon>`
+        : '';
+
     return `
         <div class="product-card card-active-scale ${animationClass} ${wrapperClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${safeName}">
             <div class="product-image">
@@ -804,7 +808,10 @@ export function buildProductCardHTML(p, options = {}) {
                     <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${safeName}</a>
                 </h3>
                 <div class="product-price">
-                    <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
+                    <div class="flex items-center">
+                        <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
+                        ${certifiedBadge}
+                    </div>
                     ${priceMetaHTML}
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
