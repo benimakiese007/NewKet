@@ -177,14 +177,14 @@
             width: 200px;
             height: auto;
             object-fit: contain;
-            animation: nk-logo-in 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: nk-logo-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         #nk-splash.hiding {
             opacity: 0;
-            transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #nk-splash.hiding img {
-            animation: nk-logo-out 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: nk-logo-out 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
     </style>
     <div id="nk-splash">
@@ -203,8 +203,8 @@
                     const s = document.getElementById('nk-splash');
                     if (!s) return;
                     s.classList.add('hiding');
-                    setTimeout(() => s.remove(), 450);
-                }, 3000); // 3 secondes total (2s d'animation + 1s de pause)
+                    setTimeout(() => s.remove(), 500);
+                }, 1000); // 1 seconde totale (0.5s animation + 0.5s pause) avant de déclencher la disparition
             });
         }
     </script>

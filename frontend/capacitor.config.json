@@ -9,7 +9,7 @@
       "overlaysWebView": false
     },
     "SplashScreen": {
-      "launchShowDuration": 3000,
+      "launchShowDuration": 1500,
       "launchAutoHide": true,
       "backgroundColor": "#ffffff",
       "showSpinner": false,
