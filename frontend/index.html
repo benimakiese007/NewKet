@@ -134,20 +134,6 @@
         html.skip-splash #nk-splash {
             display: none !important;
         }
-        @keyframes nk-splash-in {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes nk-logo-in {
-            from {
-                opacity: 0;
-                transform: translateX(-40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
         @keyframes nk-logo-out {
             from {
                 opacity: 1;
@@ -166,7 +152,6 @@
             justify-content: center;
             align-items: center;
             background-color: #ffffff;
-            animation: nk-splash-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         @media (prefers-color-scheme: dark) {
             #nk-splash {
@@ -177,7 +162,7 @@
             width: 200px;
             height: auto;
             object-fit: contain;
-            animation: nk-logo-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
         }
         #nk-splash.hiding {
             opacity: 0;
