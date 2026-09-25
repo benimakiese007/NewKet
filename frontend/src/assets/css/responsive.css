@@ -93,6 +93,8 @@ canvas {
     .main-header.newket-header-shell {
         padding-top: env(safe-area-inset-top, 0px) !important;
         overflow: visible !important;
+        /* Always stay above search-overlay (z-index: 9000): prevents backdrop-filter blur from bleeding onto the search bar on mobile */
+        z-index: 9999 !important;
     }
 
     /* Universal Mobile Notch Cover: Fixed to body so it never scrolls when headers retract */
@@ -151,11 +153,12 @@ canvas {
 
     .header-content {
         row-gap: 0.625rem !important;
-        padding: 0.625rem 1rem calc(1.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        padding: 0.625rem 1rem 0.625rem !important;
         align-items: stretch !important;
         /* Ensure flex children don't exceed header width */
         width: 100% !important;
         box-sizing: border-box !important;
+        overflow: visible !important;
     }
 
     .header-brand-row {

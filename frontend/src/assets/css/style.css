@@ -1601,10 +1601,20 @@ body.mobile-menu-open {
   #mobileSearchContainer {
     transform-origin: top center;
     transition: max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), margin 0.28s ease;
-    max-height: 80px;
+    max-height: none;
     opacity: 1;
     overflow: visible;
     will-change: max-height, opacity, transform;
+  }
+
+  /* Ensure the header-content never clips the search bar vertically on mobile */
+  .main-header .header-content {
+    overflow: visible !important;
+  }
+
+  /* Safe fade-in for the mobile search bar — no translateY to avoid top clipping */
+  #mobileSearchContainer:not(.hidden):not(.user-hidden-on-mobile) {
+    animation: mobileSearchFadeIn 0.2s ease forwards;
   }
 
   #mobileSearchContainer.search-bar-hidden {
@@ -1624,6 +1634,11 @@ body.mobile-menu-open {
     gap: 0 !important;
     padding-bottom: 3px !important;
   }
+}
+
+@keyframes mobileSearchFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .category-list {
@@ -4445,7 +4460,14 @@ body.sidebar-resizing {
   flex-direction: row !important;
   align-items: center !important;
   gap: 0.75rem !important;
-  animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* slideDown animation: only on sm+ screens (≥640px).
+   On mobile the translateY(-8px) start frame clips the top of the bar. */
+@media (min-width: 640px) {
+  #mobileSearchContainer:not(.hidden) {
+    animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
 
 /* Suggestions panel stays block */
