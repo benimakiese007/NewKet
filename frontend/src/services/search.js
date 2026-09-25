@@ -249,9 +249,16 @@ const SearchManager = {
         this.ensureOverlayPortal();
         this.searchActive = true;
         const overlay = document.getElementById('searchOverlay');
+        const header = document.querySelector('.main-header');
         if (overlay) {
-            overlay.classList.add('active');
             document.body.classList.add('search-focused');
+            if (header) {
+                // Fix for iOS Safari backdrop-filter bleed bug: 
+                // Measure after class is applied so any CSS transforms are reset.
+                const headerRect = header.getBoundingClientRect();
+                overlay.style.top = `${headerRect.bottom}px`;
+            }
+            overlay.classList.add('active');
         }
     },
 
@@ -507,7 +514,7 @@ const SearchManager = {
                 const searchUrl = `${catalogPath}?q=${encodeURIComponent(query)}${this.selectedCategory !== 'all' ? '&category=' + encodeURIComponent(this.selectedCategory) : ''}`;
                 
                 html += `
-                    <div class="p-3 bg-slate-50/80 border-t border-gray-100 mt-2">
+                    <div class="p-3 bg-white border-t border-gray-100 mt-2">
                         <a href="${searchUrl}" class="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
                             Voir les 10+ résultats
                             <iconify-icon icon="solar:alt-arrow-right-linear" width="14"></iconify-icon>
