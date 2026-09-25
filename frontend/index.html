@@ -121,12 +121,12 @@
     <!-- Splash Screen -->
     <script>
         // Détection de l'environnement : PWA (standalone) ou App Mobile (Capacitor)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         const isCapacitor = !!window.Capacitor || (window.origin && window.origin.includes('capacitor'));
         const isAlreadySeen = sessionStorage.getItem('nk_splash_shown');
         
-        // Si c'est juste le site web classique (ni PWA, ni Capacitor) OU si déjà vu
-        if (!isStandalone && !isCapacitor || isAlreadySeen) {
+        // Bloquer l'affichage si c'est le site web normal (onglet de navigateur classique) OU si déjà vu
+        if ((!isStandalone && !isCapacitor) || isAlreadySeen) {
             document.documentElement.classList.add('skip-splash');
         }
     </script>
@@ -151,12 +151,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #ffffff;
-        }
-        @media (prefers-color-scheme: dark) {
-            #nk-splash {
-                background-color: #000000;
-            }
+            background-color: #ffffff; /* Toujours blanc, jamais noir pour éviter le flash */
         }
         #nk-splash img {
             width: 200px;
