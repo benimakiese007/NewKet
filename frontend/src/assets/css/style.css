@@ -1601,7 +1601,7 @@ body.mobile-menu-open {
   #mobileSearchContainer {
     transform-origin: top center;
     transition: max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), margin 0.28s ease;
-    max-height: none;
+    max-height: 80px;
     opacity: 1;
     overflow: visible;
     will-change: max-height, opacity, transform;
@@ -4425,20 +4425,32 @@ body.sidebar-resizing {
   color: #ef4444;
 }
 
-/* Make header allow overflow for dropdown — but .newket-header-shell overrides to hidden to block top-edge bleed */
+/* Make header allow overflow for dropdown */
 
 .main-header:not(.newket-header-shell),
 .main-header:not(.newket-header-shell) > div {
   overflow: visible !important;
 }
 
-.search-suggestions.active,
+/* Allow dropdown to escape the newket header too */
+.main-header.newket-header-shell,
+.main-header.newket-header-shell > div,
+.main-header.newket-header-shell .header-content {
+  overflow: visible !important;
+}
+
+/* Search container layout (row) — does NOT apply to suggestions panel */
 #mobileSearchContainer:not(.hidden) {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   gap: 0.75rem !important;
   animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Suggestions panel stays block */
+.search-suggestions.active {
+  display: block !important;
 }
 
 @keyframes slideDown {
