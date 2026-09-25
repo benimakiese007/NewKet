@@ -4304,6 +4304,11 @@ body.sidebar-resizing {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Ensure the main header always stays above the search overlay */
+.main-header.newket-header-shell {
+  z-index: 9999 !important;
+}
+
 #selectedCategoryName {
   color: #0f172a;
   opacity: 1;
