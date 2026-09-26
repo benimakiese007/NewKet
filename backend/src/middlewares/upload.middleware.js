@@ -15,7 +15,8 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'newket_assets', // Le dossier qui sera créé sur votre compte Cloudinary
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'], // Formats autorisés par sécurité
-    // Vous pouvez ajouter d'autres options ici si besoin
+    // Optimisation : largeur max 1000px, qualité "good" automatique (vise ~100Ko), et format automatique (WebP/AVIF)
+    transformation: [{ width: 1000, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }]
   },
 });
 
