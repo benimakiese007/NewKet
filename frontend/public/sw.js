@@ -25,9 +25,10 @@ const ASSETS_TO_CACHE = [
     '/offline.html'
 ];
 
-// Install Event
+// Install Event — ne pas appeler skipWaiting() ici.
+// Le SW attend que l'utilisateur confirme via le toast "Recharger"
+// avant de s'activer (message SKIP_WAITING envoyé par realtime-notifications.js).
 self.addEventListener('install', (event) => {
-    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[Service Worker] Caching critical assets');
