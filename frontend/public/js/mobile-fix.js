@@ -112,7 +112,7 @@
 
 
   // Pages are built by Vite into dist/src/pages/xxx.html — so we must prefix with /src/pages/
-  const resolveUrl = (originalPath) => {
+  function resolveUrl(originalPath) {
     let path = originalPath.split('?')[0];
     let search = originalPath.includes('?') ? '?' + originalPath.split('?').slice(1).join('?') : '';
 
@@ -155,7 +155,7 @@
   };
 
   // 3. Fix Links Interceptor
-  const fixLinks = (element = document) => {
+  function fixLinks(element = document) {
     const links = element.querySelectorAll('a[href]');
     links.forEach(a => {
       let href = a.getAttribute('href');
