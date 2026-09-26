@@ -21,3 +21,4 @@ Avant le lancement final, migrer tous les services tiers du compte personnel ("b
 - [ ] **Sentry (Suivi des erreurs)** : Transférer le projet Sentry sur un compte Pro ou l'assigner à l'adresse email de l'entreprise. Mettre à jour le DSN dans le code (fichier .env et Vercel) si le lien change.
 - [ ] **Vercel (Hébergement)** : S'assurer que le projet Vercel est bien hébergé sur le compte de l'entreprise (ou créer une Vercel Team).
 - [ ] **Autres services (Prerender.io, Cloudinary, Analytics, etc.)** : Mettre à jour l'email de facturation et de connexion pour tous les autres services utilisés par l'application pour centraliser les accès.
+
