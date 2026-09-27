@@ -35,7 +35,7 @@
     <meta property="og:site_name" content="NewKet">
 
     <!-- Twitter / X -->
-    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:card" content="summary">
     <meta property="twitter:url" content="https://newket.market/">
     <meta property="twitter:title" content="NewKet — Marketplace N°1 à Kinshasa & en RDC">
     <meta property="twitter:description" content="Achetez et vendez en ligne à Kinshasa. Mode, électronique, accessoires. Paiement Mobile Money sécurisé.">
@@ -222,7 +222,15 @@
                         <span>TOUT</span>
                         <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
                     </div>
-                    <div class="search-input flex items-center text-sm font-semibold text-slate-500">Rechercher sur NewKet...</div>
+                    <div class="search-input flex items-center justify-between text-sm font-semibold text-slate-500 w-full pr-2">
+                        <span>Rechercher sur NewKet...</span>
+                        
+                        <!-- 🧠 Bouton Google Lens -->
+                        <div id="lens-btn" class="flex items-center justify-center p-1.5 rounded-full hover:bg-slate-100 cursor-pointer transition-colors" title="Recherche par image (Google Lens)">
+                            <iconify-icon icon="solar:camera-linear" width="18" class="text-orange-500"></iconify-icon>
+                        </div>
+                        <input type="file" id="lens-input" accept="image/*" class="hidden" capture="environment">
+                    </div>
                 </div>
             </div>
 
