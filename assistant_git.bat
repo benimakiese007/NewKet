@@ -38,52 +38,54 @@ echo    1. [VOIR]            Voir mes modifications           (git status)
 echo    2. [DEPART]          Commencer une nouvelle tache     (git checkout -b)
 echo    3. [MAJ]             Mettre le projet a jour          (git pull)
 echo    4. [FIN]             Sauvegarder et envoyer           (git add, commit, push)
-echo    5. [PAUSE]           Mettre mon travail en attente    (git stash)
-echo    6. [REPRISE]         Recuperer mon travail en attente (git stash pop)
-echo    7. [URGENCE]         Tout annuler, repartir de zero   (git reset --hard)
+echo    5. [PUSH]            Envoyer vos commits locaux       (git push)
+echo    6. [PAUSE]           Mettre mon travail en attente    (git stash)
+echo    7. [REPRISE]         Recuperer mon travail en attente (git stash pop)
+echo    8. [URGENCE]         Tout annuler, repartir de zero   (git reset --hard)
 echo   --- Erreurs et Corrections -----------------------
-echo    8. [MODIFIER MSG]    Corriger le dernier message      (git commit --amend)
-echo    9. [ANNULER COMMIT]  Annuler le dernier commit        (git reset --soft HEAD~1)
+echo    9. [MODIFIER MSG]    Corriger le dernier message      (git commit --amend)
+echo   10. [ANNULER COMMIT]  Annuler le dernier commit        (git reset --soft HEAD~1)
 echo   --- Exploration ----------------------------------
-echo   10. [HISTORIQUE]      Voir les derniers commits        (git log)
-echo   11. [BRANCHES]        Voir et changer de branche       (git branch + checkout)
-echo   12. [DIFFERENCES]     Voir ce qui a change en detail   (git diff)
-echo   13. [QUI A MODIFIE]   Voir qui a touche chaque ligne   (git blame)
-echo   14. [RECHERCHER]      Trouver un commit par mot-cle    (git log --grep)
-echo   15. [MON PROFIL]      Voir mon compte Git actuel       (git config)
+echo   11. [HISTORIQUE]      Voir les derniers commits        (git log)
+echo   12. [BRANCHES]        Voir et changer de branche       (git branch + checkout)
+echo   13. [DIFFERENCES]     Voir ce qui a change en detail   (git diff)
+echo   14. [QUI A MODIFIE]   Voir qui a touche chaque ligne   (git blame)
+echo   15. [RECHERCHER]      Trouver un commit par mot-cle    (git log --grep)
+echo   16. [MON PROFIL]      Voir mon compte Git actuel       (git config)
 echo   --- Gestion avancee ------------------------------
-echo   16. [FUSIONNER]       Fusionner une branche dans main  (git merge)
-echo   17. [SUPPR. BRANCHE]  Supprimer une branche terminee   (git branch -d)
-echo   18. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
-echo   19. [VERSION]         Marquer une version stable       (git tag)
-echo   20. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
+echo   17. [FUSIONNER]       Fusionner une branche dans main  (git merge)
+echo   18. [SUPPR. BRANCHE]  Supprimer une branche terminee   (git branch -d)
+echo   19. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
+echo   20. [VERSION]         Marquer une version stable       (git tag)
+echo   21. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
 echo   --------------------------------------------------
-echo   21. [AIDE]            Comprendre chaque option
+echo   22. [AIDE]            Comprendre chaque option
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-21) : "
+set /p choix="   Choix (0-22) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
 if "%choix%"=="3"  goto PULL
 if "%choix%"=="4"  goto PUSH
-if "%choix%"=="5"  goto STASH
-if "%choix%"=="6"  goto UNSTASH
-if "%choix%"=="7"  goto RESET
-if "%choix%"=="8"  goto AMEND
-if "%choix%"=="9"  goto UNDO_COMMIT
-if "%choix%"=="10" goto HISTORIQUE
-if "%choix%"=="11" goto BRANCHES
-if "%choix%"=="12" goto DIFFERENCES
-if "%choix%"=="13" goto BLAME
-if "%choix%"=="14" goto RECHERCHE
-if "%choix%"=="15" goto PROFIL
-if "%choix%"=="16" goto FUSIONNER
-if "%choix%"=="17" goto SUPPRBRANCH
-if "%choix%"=="18" goto RETOURRAPIDE
-if "%choix%"=="19" goto VERSION
-if "%choix%"=="20" goto CONFLITS
-if "%choix%"=="21" goto HELP
+if "%choix%"=="5"  goto PUSH_SEUL
+if "%choix%"=="6"  goto STASH
+if "%choix%"=="7"  goto UNSTASH
+if "%choix%"=="8"  goto RESET
+if "%choix%"=="9"  goto AMEND
+if "%choix%"=="10" goto UNDO_COMMIT
+if "%choix%"=="11" goto HISTORIQUE
+if "%choix%"=="12" goto BRANCHES
+if "%choix%"=="13" goto DIFFERENCES
+if "%choix%"=="14" goto BLAME
+if "%choix%"=="15" goto RECHERCHE
+if "%choix%"=="16" goto PROFIL
+if "%choix%"=="17" goto FUSIONNER
+if "%choix%"=="18" goto SUPPRBRANCH
+if "%choix%"=="19" goto RETOURRAPIDE
+if "%choix%"=="20" goto VERSION
+if "%choix%"=="21" goto CONFLITS
+if "%choix%"=="22" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -578,29 +580,74 @@ echo   1  - VOIR          : Consulter les fichiers modifies.
 echo   2  - DEPART        : Creer une branche pour commencer.
 echo   3  - MAJ           : Recuperer le code de l'equipe.
 echo   4  - FIN           : Sauvegarder et envoyer (add+commit+push).
-echo   5  - PAUSE         : Mettre son travail de cote.
-echo   6  - REPRISE       : Restaurer le travail mis en attente.
-echo   7  - URGENCE       : Tout annuler et revenir a la version propre.
+echo   5  - PUSH          : Envoyer vos commits locaux vers le serveur.
+echo   6  - PAUSE         : Mettre son travail de cote.
+echo   7  - REPRISE       : Restaurer le travail mis en attente.
+echo   8  - URGENCE       : Tout annuler et revenir a la version propre.
 echo.
 echo   --- ERREURS ET CORRECTIONS ---
-echo   8  - MODIFIER MSG  : Corriger une faute dans le nom du commit.
-echo   9  - ANNULER COMMIT: Annuler la sauvegarde (mais garder le code).
+echo   9  - MODIFIER MSG  : Corriger une faute dans le nom du commit.
+echo  10  - ANNULER COMMIT: Annuler la sauvegarde (mais garder le code).
 echo.
 echo   --- EXPLORATION ---
-echo  10  - HISTORIQUE    : Voir les 20 derniers commits de l'equipe.
-echo  11  - BRANCHES      : Lister et changer de branche.
-echo  12  - DIFFERENCES   : Voir les modifications ligne par ligne.
-echo  13  - QUI A MODIFIE : Trouver l'auteur de chaque ligne d'un fichier.
-echo  14  - RECHERCHER    : Retrouver un ancien commit contenant un mot-cle.
-echo  15  - MON PROFIL    : Verifier/Modifier son identifiant Git.
+echo  11  - HISTORIQUE    : Voir les 20 derniers commits de l'equipe.
+echo  12  - BRANCHES      : Lister et changer de branche.
+echo  13  - DIFFERENCES   : Voir les modifications ligne par ligne.
+echo  14  - QUI A MODIFIE : Trouver l'auteur de chaque ligne d'un fichier.
+echo  15  - RECHERCHER    : Retrouver un ancien commit contenant un mot-cle.
+echo  16  - MON PROFIL    : Verifier/Modifier son identifiant Git.
 echo.
 echo   --- GESTION AVANCEE ---
-echo  16  - FUSIONNER     : Integrer une branche dans main.
-echo  17  - SUPPR. BRANCHE: Supprimer une ancienne branche.
-echo  18  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
-echo  19  - VERSION       : Marquer une version stable (v1.0).
-echo  20  - CONFLITS      : Ouvrir VS Code pour resoudre un conflit.
+echo  17  - FUSIONNER     : Integrer une branche dans main.
+echo  18  - SUPPR. BRANCHE: Supprimer une ancienne branche.
+echo  19  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
+echo  20  - VERSION       : Marquer une version stable (v1.0).
+echo  21  - CONFLITS      : Ouvrir VS Code pour resoudre un conflit.
 echo.
+echo ==================================================
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
+
+:PUSH_SEUL
+cls
+echo ==================================================
+echo          ENVOI DES COMMITS VERS LE SERVEUR
+echo ==================================================
+echo.
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_actuelle=%%a
+
+echo   Voici les fichiers qui seront envoyes :
+echo   --------------------------------------------------
+git diff --stat origin/%branche_actuelle%..HEAD 2>nul
+if errorlevel 1 echo   (Nouvelle branche ou aucune difference detectee)
+echo   --------------------------------------------------
+echo.
+
+if /i not "%branche_actuelle%"=="main" goto DO_PUSH_SEUL
+
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+
+echo.
+echo   %ESC%[91m================ ATTENTION ================%ESC%[0m
+echo   %ESC%[91mVous etes sur le point d'envoyer sur la branche 'main'.%ESC%[0m
+set /p confirm_main="   Veuillez taper 'main' pour confirmer : "
+if /i not "%confirm_main%"=="main" (
+    echo.
+    echo   Envoi annule.
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir au menu...
+    pause >nul
+    goto MENU
+)
+
+:DO_PUSH_SEUL
+git push origin %branche_actuelle%
+echo.
+echo ==================================================
+echo   Vos commits locaux ont ete envoyes avec succes !
 echo ==================================================
 echo.
 echo --------------------------------------------------
