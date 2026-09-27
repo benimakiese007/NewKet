@@ -1020,7 +1020,18 @@
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Publication...';
+                
+                let publishProgress = 0;
+                submitBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Publication... <span id="pubProgress">0%</span>';
+                const progressSpan = document.getElementById('pubProgress');
+                
+                const progressInterval = setInterval(() => {
+                    if (publishProgress < 90) {
+                        publishProgress += Math.floor(Math.random() * 8) + 2; // Increments by 2 to 9%
+                        if (publishProgress > 90) publishProgress = 90;
+                        if (progressSpan) progressSpan.innerText = `${publishProgress}%`;
+                    }
+                }, 400);
 
                 try {
                     const acceptedAt = new Date().toISOString();
@@ -1119,6 +1130,10 @@
                         }
                     }
                     
+                    clearInterval(progressInterval);
+                    if (progressSpan) progressSpan.innerText = `100%`;
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                    
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
@@ -1155,6 +1170,7 @@
                     if (!isEditMode) this.reset();
                     else setTimeout(() => window.location.href = window.resolvePath('pages/vendor-dashboard') + '#products', 2000);
                 } catch (error) {
+                    clearInterval(progressInterval);
                     console.error('Publish error:', error);
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
