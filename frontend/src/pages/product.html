@@ -229,7 +229,7 @@
                                 <iconify-icon icon="solar:heart-bold" width="28"></iconify-icon>
                             </button>
                         </div>
-                        <p id="productActionFeedback" class="hidden rounded-2xl px-4 py-3 text-sm font-semibold" role="alert" aria-live="assertive"></p>
+
                     </div>
                 </div>
             </div>
@@ -684,7 +684,6 @@
                     };
 
                     window.CartManager.add(itemPayload, quantity);
-                    showProductActionFeedback('Article ajouté au panier.', 'success');
                 }
             };
             document.getElementById('mainWishlistBtn').onclick = () => {
