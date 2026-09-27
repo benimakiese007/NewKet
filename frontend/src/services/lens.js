@@ -1,0 +1,75 @@
+// Module Lens - Event Delegation (Compatible avec l'injection dynamique du header)
+
+export function initGoogleLens() {
+    // Écoute des clics sur le bouton (même s'il est injecté plus tard)
+    document.addEventListener('click', (e) => {
+        const lensBtn = e.target.closest('#lens-btn');
+        if (lensBtn) {
+            e.stopPropagation();
+            const lensInput = document.getElementById('lens-input');
+            if (lensInput) {
+                lensInput.click();
+            }
+        }
+    });
+
+    // Écoute du changement de fichier
+    document.addEventListener('change', async (e) => {
+        if (e.target.id !== 'lens-input') return;
+
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const lensBtn = document.getElementById('lens-btn');
+        
+        // Afficher un état de chargement visuel
+        if (lensBtn) {
+            lensBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-orange-500"></iconify-icon>';
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            // Appel à l'API via fetch natif (pour que le navigateur gère le multipart/form-data)
+            const response = await fetch('/api/products/search-by-image', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+            
+            const result = await response.json();
+
+            if (result && result.data) {
+                // Stocker les résultats pour la page de recherche
+                sessionStorage.setItem('lensResults', JSON.stringify(result.data));
+                
+                // Rediriger vers la vue catalogue avec le flag "lens"
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('q', 'Recherche visuelle');
+                urlParams.set('lens', 'true');
+                window.location.search = urlParams.toString();
+            }
+        } catch (error) {
+            console.error('Erreur Google Lens:', error);
+            alert('Impossible de chercher par image pour le moment.');
+            // Remettre l'icône normale
+            if (lensBtn) {
+                lensBtn.innerHTML = '<iconify-icon icon="solar:camera-linear" width="18" class="text-orange-500"></iconify-icon>';
+            }
+        }
+        
+        // Reset l'input file pour permettre de reprendre la même photo
+        e.target.value = '';
+    });
+}
+
+// Auto-initialisation robuste
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGoogleLens);
+} else {
+    initGoogleLens();
+}

@@ -225,6 +225,29 @@ const ProductManager = {
         try {
             let products = [];
 
+            // 🧠 GOOGLE LENS : Intercepter le chargement initial si une recherche visuelle vient d'être faite
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('lens') === 'true') {
+                const cachedResults = sessionStorage.getItem('lensResults');
+                if (cachedResults) {
+                    try {
+                        const parsedResults = JSON.parse(cachedResults);
+                        const mappedResults = parsedResults.map(p => this._mapProduct(p));
+                        
+                        this.products = mappedResults;
+                        this._totalCount = mappedResults.length;
+                        this._totalCountKnown = true;
+                        this._hasMore = false; // Tout tient sur une page pour une recherche d'image
+                        
+                        // Déclencher l'event pour l'UI
+                        window.dispatchEvent(new CustomEvent('productsUpdated'));
+                        return; // 🛑 On arrête ici, on n'appelle pas Supabase !
+                    } catch (e) {
+                        console.error('[GoogleLens] Erreur lecture des résultats:', e);
+                    }
+                }
+            }
+
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
                     const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {

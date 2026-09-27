@@ -129,3 +129,4 @@ window.addEventListener('error', function(e) {
         }
     }
 }, true); // Use capture phase to catch the error event
+import './lens.js';

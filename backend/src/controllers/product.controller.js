@@ -266,6 +266,27 @@ export const createProduct = async (req, res, next) => {
             console.warn('[ProductImageWatchdog] Immediate audit failed after create:', watchError.message);
         });
 
+        // 🧠 Google Lens : Génération du vecteur d'image en arrière-plan
+        void (async () => {
+            try {
+                if (!data.image) return;
+                const { default: embeddingService } = await import('../services/embedding.service.js');
+                // Extraire la première image valide (gère les galeries)
+                const imageUrl = data.image.split(',')[0].split('||').pop().trim();
+                const embedding = await embeddingService.generateImageEmbedding(imageUrl);
+                if (embedding) {
+                    const { error: vectorError } = await supabaseAdmin
+                        .from('products')
+                        .update({ image_embedding: embedding })
+                        .eq('id', data.id);
+                    if (vectorError) console.error('[GoogleLens] Erreur update DB:', vectorError);
+                    else console.log(`[GoogleLens] Vecteur généré et sauvegardé pour le produit ${data.id}`);
+                }
+            } catch (e) {
+                console.error('[GoogleLens] Erreur asynchrone:', e.message);
+            }
+        })();
+
         res.status(201).json(data);
     } catch (err) {
         console.error('❌ createProduct error:', err);
@@ -315,6 +336,27 @@ export const updateProduct = async (req, res, next) => {
         void auditProductImageNow(data).catch((watchError) => {
             console.warn('[ProductImageWatchdog] Immediate audit failed after update:', watchError.message);
         });
+
+        // 🧠 Google Lens : Mise à jour du vecteur si l'image a changé
+        if (updateData.image) {
+            void (async () => {
+                try {
+                    const { default: embeddingService } = await import('../services/embedding.service.js');
+                    const imageUrl = data.image.split(',')[0].split('||').pop().trim();
+                    const embedding = await embeddingService.generateImageEmbedding(imageUrl);
+                    if (embedding) {
+                        const { error: vectorError } = await supabaseAdmin
+                            .from('products')
+                            .update({ image_embedding: embedding })
+                            .eq('id', data.id);
+                        if (vectorError) console.error('[GoogleLens] Erreur update DB:', vectorError);
+                        else console.log(`[GoogleLens] Vecteur mis à jour pour le produit ${data.id}`);
+                    }
+                } catch (e) {
+                    console.error('[GoogleLens] Erreur asynchrone update:', e.message);
+                }
+            })();
+        }
 
         res.json(data);
     } catch (err) {
@@ -539,3 +581,55 @@ export const getRankedCategories = async (req, res, next) => {
         next(err);
     }
 };
+
+// ============================================================================
+// 🧠 GOOGLE LENS : RECHERCHE PAR IMAGE
+// ============================================================================
+export const searchByImage = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'Aucune image fournie pour la recherche.' });
+        }
+
+        // 1. L'image de recherche a été uploadée temporairement via le middleware
+        const searchImageUrl = req.file.path;
+        const cloudinaryId = req.file.filename; // Pour le nettoyage
+
+        // 2. L'IA analyse l'image et génère son vecteur (signature mathématique)
+        const { default: embeddingService } = await import('../services/embedding.service.js');
+        const queryEmbedding = await embeddingService.generateImageEmbedding(searchImageUrl);
+
+        if (!queryEmbedding) {
+            return res.status(500).json({ error: 'Échec de l\'analyse de l\'image.' });
+        }
+
+        // 3. Interroger Supabase avec notre fonction RPC pour trouver les produits similaires
+        const supabase = getScopedClient(req);
+        const { data: matchedProducts, error } = await supabase.rpc('search_products_by_image', {
+            query_embedding: queryEmbedding,
+            match_threshold: 0.65, // Ajustable : 65% de similarité minimum
+            match_count: 20 // Retourne les 20 meilleurs résultats max
+        });
+
+        if (error) throw error;
+
+        // 4. Nettoyage : On supprime l'image de recherche de Cloudinary (tâche de fond)
+        // Pas besoin d'attendre que ce soit fini pour répondre à l'utilisateur
+        void (async () => {
+            try {
+                const { v2: cloudinary } = await import('cloudinary');
+                await cloudinary.uploader.destroy(cloudinaryId);
+            } catch (e) {
+                console.error('[GoogleLens] Erreur nettoyage image de recherche:', e.message);
+            }
+        })();
+
+        // 5. Renvoyer les produits trouvés !
+        res.json({ data: matchedProducts || [], count: matchedProducts?.length || 0 });
+
+    } catch (err) {
+        console.error('❌ searchByImage error:', err);
+        next(err);
+    }
+};
+

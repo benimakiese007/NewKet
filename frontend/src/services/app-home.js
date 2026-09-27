@@ -73,3 +73,4 @@ runIdle(async () => {
         console.warn('[NewKet Home] Deferred home modules failed:', err?.message || err);
     }
 });
+import './lens.js';

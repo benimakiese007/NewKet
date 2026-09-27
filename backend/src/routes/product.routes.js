@@ -10,10 +10,12 @@ import {
     getRankedCategories,
     archiveProduct,
     restoreProduct,
-    getVendorArchivedProducts
+    getVendorArchivedProducts,
+    searchByImage
 } from '../controllers/product.controller.js';
 import { optionalAuth, requireAuth } from '../middlewares/auth.js';
 import { cacheMiddleware } from '../middlewares/cache.js';
+import { uploadMiddleware } from '../middlewares/upload.middleware.js';
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
 import rateLimit from 'express-rate-limit';
@@ -34,6 +36,7 @@ const productsReadLimiter = rateLimit({
 router.get('/', productsReadLimiter, optionalAuth, cacheMiddleware(0), getProducts);
 router.get('/categories/ranked', productsReadLimiter, cacheMiddleware(300), getRankedCategories);
 router.get('/:id', productsReadLimiter, optionalAuth, cacheMiddleware(0), getProductById);
+router.post('/search-by-image', productsReadLimiter, uploadMiddleware.single('image'), searchByImage);
 
 // Routes sécurisées
 router.post('/', 
