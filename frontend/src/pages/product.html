@@ -436,7 +436,7 @@
             await initPage();
         };
 
-        function renderProductDetails(p) {
+        async function renderProductDetails(p) {
             hideSkeleton();
 
             // Initialiser les images du produit
@@ -514,19 +514,31 @@
 
             // --- Vendor info ---
             const vendor = Array.isArray(p.users) ? p.users[0] : (p.users || null);
-            const vendorName = vendor?.company_name || vendor?.store_name || vendor?.name || p.vendor_name || p.store_name || 'NewKet Shop';
-            const vendorId   = p.user_id || vendor?.id || '';
-            const vendorAvatar = vendor?.avatar || vendor?.avatar_url || null;
+            // Fallback : si la jointure users!supplier_email a échoué, tenter une requête directe
+            if (!vendor && p.supplier_email && window.supabaseClient) {
+                try {
+                    const { data: vendorData } = await window.supabaseClient
+                        .from('users')
+                        .select('company_name, name, avatar, seller_type, shop_slug')
+                        .eq('email', p.supplier_email)
+                        .single();
+                    if (vendorData) p.users = vendorData;
+                } catch (_e) {}
+            }
+            const resolvedVendor = Array.isArray(p.users) ? p.users[0] : (p.users || vendor || null);
+            const vendorName = resolvedVendor?.company_name || resolvedVendor?.store_name || resolvedVendor?.name || p.vendor_name || p.store_name || 'NewKet Shop';
+            const vendorId   = p.user_id || resolvedVendor?.id || '';
+            const vendorAvatar = resolvedVendor?.avatar || resolvedVendor?.avatar_url || null;
 
             const vendorLinkEl = document.getElementById('vendorLink');
             if (vendorLinkEl) {
                 vendorLinkEl.innerHTML = `
                     <span class="inline-flex items-center gap-2 flex-wrap">
                         <span class="align-middle">${vendorName}</span>
-                        ${vendor?.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 align-middle shrink-0" width="16" title="Vendeur Pro"></iconify-icon>' : ''}
+                        ${resolvedVendor?.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 align-middle shrink-0" width="16" title="Vendeur Pro"></iconify-icon>' : ''}
                     </span>
                 `;
-                const shopSlug = vendor?.shop_slug
+                const shopSlug = resolvedVendor?.shop_slug
                     || (vendorName && vendorName !== 'NewKet Shop'
                         ? (window.NewKetLinks?.buildShopSlug
                             ? window.NewKetLinks.buildShopSlug(vendorName)
