@@ -1,0 +1,258 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "Ouvrir le menu" [ref=e7] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e12] [cursor=pointer]:
+          - /url: /
+          - img "NewKet" [ref=e13]
+      - generic [ref=e15]:
+        - generic "Choisir une catégorie" [ref=e16] [cursor=pointer]: Tout
+        - textbox "Rechercher des produits" [ref=e21]:
+          - /placeholder: Rechercher sur NewKet...
+        - button "Rechercher par image" [ref=e22] [cursor=pointer]
+      - generic [ref=e28]:
+        - generic "Devise d'affichage" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]:
+            - generic [ref=e33]: USD
+            - generic [ref=e34]: CDF
+        - link "Voir les notifications" [ref=e35] [cursor=pointer]:
+          - /url: /notifications
+        - link "Voir les favoris" [ref=e41] [cursor=pointer]:
+          - /url: /favorites
+        - button "Voir le panier" [ref=e45] [cursor=pointer]
+        - link "Mon compte" [ref=e46] [cursor=pointer]:
+          - /url: /login
+  - navigation [ref=e52]:
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - button "Ouvrir le menu" [ref=e56] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e61] [cursor=pointer]:
+          - /url: /
+          - img "NewKet" [ref=e62]
+      - generic [ref=e64]:
+        - generic "Choisir une catégorie" [ref=e65] [cursor=pointer]: TOUT
+        - textbox "Rechercher des produits" [ref=e70]:
+          - /placeholder: Rechercher sur NewKet...
+        - button "Rechercher par image" [ref=e71] [cursor=pointer]
+      - generic [ref=e77]:
+        - generic "Devise d'affichage" [ref=e79] [cursor=pointer]:
+          - generic [ref=e80]:
+            - generic [ref=e82]: USD
+            - generic [ref=e83]: CDF
+        - link "Voir les notifications" [ref=e84] [cursor=pointer]:
+          - /url: /notifications
+        - link "Voir les favoris" [ref=e90] [cursor=pointer]:
+          - /url: /favorites
+        - button "Voir le panier" [ref=e94] [cursor=pointer]
+        - link "Mon compte" [ref=e95] [cursor=pointer]:
+          - /url: /login
+  - main [ref=e101]:
+    - generic:
+      - generic [aria-hidden]:
+        - generic: Mise à jour...
+    - generic [ref=e103]:
+      - heading "Produits Sponsorisés" [level=2] [ref=e105]
+      - link [ref=e106] [cursor=pointer]:
+        - /url: /catalog
+    - generic [ref=e126]:
+      - heading "NewKet MarketPlace" [level=1] [ref=e127]
+      - paragraph [ref=e128]: L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment. NEWKET
+      - link "Découvrir" [ref=e130] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+    - generic [ref=e131]:
+      - generic [ref=e132]:
+        - heading "Tous les produits" [level=2] [ref=e133]
+        - generic [ref=e134]:
+          - button "Toutes les pièces" [ref=e135] [cursor=pointer]
+          - button "Mode Femme" [ref=e136] [cursor=pointer]
+          - button "Mode Homme" [ref=e137] [cursor=pointer]
+          - button "High-Tech & Gadgets" [ref=e138] [cursor=pointer]
+          - button "Maison, Déco & Meubles" [ref=e139] [cursor=pointer]
+          - button "Bricolage & Construction" [ref=e140] [cursor=pointer]
+          - button "Beauté & Santé" [ref=e141] [cursor=pointer]
+          - button "Sports & Loisirs" [ref=e142] [cursor=pointer]
+          - button "Jouets & Enfants" [ref=e143] [cursor=pointer]
+          - button "Culture & Divertissement" [ref=e144] [cursor=pointer]
+          - button "Véhicules & Mobilité" [ref=e145] [cursor=pointer]
+          - button "Alimentation & Boissons" [ref=e146] [cursor=pointer]
+          - button "Animalerie" [ref=e147] [cursor=pointer]
+          - button "Autres" [ref=e148] [cursor=pointer]
+          - button "Promos" [ref=e149] [cursor=pointer]
+          - combobox "Trier les produits par" [ref=e151] [cursor=pointer]:
+            - option "Plus récents" [selected]
+            - option "Prix croissant"
+            - option "Prix décroissant"
+      - generic [ref=e153]:
+        - paragraph [ref=e154]: Aucun produit trouvé
+        - button "Réessayer" [ref=e155] [cursor=pointer]
+  - contentinfo [ref=e156]:
+    - generic [ref=e157]:
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - paragraph [ref=e160]: L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
+          - generic [ref=e161]:
+            - link "+243990924254" [ref=e162] [cursor=pointer]:
+              - /url: tel:+243990924254
+            - link "newketmarket@gmail.com" [ref=e164] [cursor=pointer]:
+              - /url: mailto:newketmarket@gmail.com
+          - generic [ref=e166]:
+            - link "NewKet sur Instagram" [ref=e167] [cursor=pointer]:
+              - /url: https://www.instagram.com/Benimakiese007
+            - link "NewKet sur Facebook" [ref=e168] [cursor=pointer]:
+              - /url: https://www.facebook.com/Benimakiese007
+            - link "NewKet sur X" [ref=e169] [cursor=pointer]:
+              - /url: https://x.com/lephoenixman
+            - link "NewKet sur LinkedIn" [ref=e170] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/beni-makiese/
+        - generic [ref=e171]:
+          - heading "Services" [level=4] [ref=e172]
+          - list [ref=e173]:
+            - listitem [ref=e174]:
+              - link "À propos de nous" [ref=e175] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e176]:
+              - link "Devenir Vendeur" [ref=e177] [cursor=pointer]:
+                - /url: /seller
+            - listitem [ref=e178]:
+              - link "Support Technique" [ref=e179] [cursor=pointer]:
+                - /url: /support
+            - listitem [ref=e180]:
+              - link "FAQ" [ref=e181] [cursor=pointer]:
+                - /url: /faq
+            - listitem
+        - generic [ref=e182]:
+          - heading "Inspiration & Offres" [level=4] [ref=e183]
+          - paragraph [ref=e184]: Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.
+          - generic [ref=e185]:
+            - textbox "Votre email" [ref=e186]
+            - button "S'inscrire" [ref=e187] [cursor=pointer]
+      - generic [ref=e188]:
+        - generic [ref=e189]: Paiements acceptés
+        - generic [ref=e190]:
+          - img "Orange Money"
+          - img "Airtel Money"
+          - img "M-Pesa"
+          - img "Afri Money"
+          - img "Mastercard"
+          - img "Visa"
+      - generic [ref=e191]:
+        - paragraph [ref=e192]: © 2026 NEWKET — Expérience Luxe
+        - generic [ref=e193]:
+          - link "Mentions légales" [ref=e194] [cursor=pointer]:
+            - /url: /mentions-legales
+          - link "CGV" [ref=e195] [cursor=pointer]:
+            - /url: /terms
+          - link "Confidentialité" [ref=e196] [cursor=pointer]:
+            - /url: /privacy
+  - dialog "Préférences de cookies" [ref=e197]:
+    - generic [ref=e198]:
+      - generic [ref=e199]:
+        - paragraph [ref=e200]: 🍪 Nous respectons votre vie privée
+        - paragraph [ref=e201]:
+          - text: Nous utilisons des cookies pour améliorer votre expérience. Voir notre
+          - link "politique de confidentialité" [ref=e202] [cursor=pointer]:
+            - /url: /privacy
+          - text: .
+      - generic [ref=e203]:
+        - button "Personnaliser" [ref=e204] [cursor=pointer]
+        - button "Refuser tout" [ref=e205] [cursor=pointer]
+        - button "Accepter tout ✓" [ref=e206] [cursor=pointer]
