@@ -1,6 +1,73 @@
 // Module Lens - Event Delegation (Compatible avec l'injection dynamique du header)
 
 let isSearchingByImage = false;
+const VISUAL_SEARCH_DB = 'newket-visual-search';
+const VISUAL_SEARCH_STORE = 'pending-image';
+
+function openVisualSearchStore(mode = 'readonly') {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(VISUAL_SEARCH_DB, 1);
+        request.onupgradeneeded = () => {
+            if (!request.result.objectStoreNames.contains(VISUAL_SEARCH_STORE)) {
+                request.result.createObjectStore(VISUAL_SEARCH_STORE);
+            }
+        };
+        request.onsuccess = () => {
+            const database = request.result;
+            const transaction = database.transaction(VISUAL_SEARCH_STORE, mode);
+            resolve({ database, store: transaction.objectStore(VISUAL_SEARCH_STORE), transaction });
+        };
+        request.onerror = () => reject(request.error || new Error('Stockage de recherche visuelle indisponible'));
+    });
+}
+
+async function savePendingImage(file) {
+    const { database, store, transaction } = await openVisualSearchStore('readwrite');
+    store.put(file, 'image');
+    await new Promise((resolve, reject) => {
+        transaction.oncomplete = resolve;
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+    });
+    database.close();
+}
+
+async function takePendingImage() {
+    const { database, store, transaction } = await openVisualSearchStore('readwrite');
+    const request = store.get('image');
+    const file = await new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+    });
+    store.delete('image');
+    await new Promise((resolve, reject) => {
+        transaction.oncomplete = resolve;
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+    });
+    database.close();
+    return file;
+}
+
+export async function searchByImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('/api/products/search-by-image', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) throw new Error('Erreur réseau');
+    const result = await response.json();
+    if (!result || !Array.isArray(result.data)) throw new Error('Réponse Lens invalide');
+    return result.data;
+}
+
+window.NewKetVisualSearch = {
+    takePendingImage,
+    searchByImage
+};
 
 function setLensLoading(isLoading) {
     const lensBtn = document.getElementById('lens-btn');
@@ -57,36 +124,15 @@ export function initGoogleLens() {
         setLensLoading(true);
         
         try {
-            const formData = new FormData();
-            formData.append('image', file);
+            // IndexedDB conserve le fichier pendant la navigation. Catalogue fera
+            // l'analyse et affichera ses skeletons sans attendre cette page.
+            await savePendingImage(file);
+            sessionStorage.removeItem('lensResults');
 
-            // Appel à l'API via fetch natif (pour que le navigateur gère le multipart/form-data)
-            const response = await fetch('/api/products/search-by-image', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur réseau');
-            }
-            
-            const result = await response.json();
-
-            if (result && result.data) {
-                // Stocker les résultats pour la page de recherche
-                sessionStorage.setItem('lensResults', JSON.stringify(result.data));
-                
-                // Afficher les correspondances dans la vraie page Catalogue.
-                const catalogPath = window.ComponentLoader?.getAdjustedPath
-                    ? window.ComponentLoader.getAdjustedPath('pages/catalog')
-                    : '/catalog';
-                const urlParams = new URLSearchParams();
-                urlParams.set('q', 'Recherche visuelle');
-                urlParams.set('lens', 'true');
-                window.location.assign(`${catalogPath}?${urlParams.toString()}`);
-            } else {
-                throw new Error('Réponse Lens invalide');
-            }
+            const catalogPath = window.ComponentLoader?.getAdjustedPath
+                ? window.ComponentLoader.getAdjustedPath('pages/catalog')
+                : '/catalog';
+            window.location.assign(`${catalogPath}?q=Recherche+visuelle&lens=true`);
         } catch (error) {
             console.error('Erreur Google Lens:', error);
             alert('Impossible de chercher par image pour le moment.');

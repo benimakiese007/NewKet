@@ -666,7 +666,7 @@
             const isVisualSearch = urlParams.get('lens') === 'true';
             const catalogTitle = document.getElementById('catalogTitle');
             if (isVisualSearch && catalogTitle) {
-                catalogTitle.textContent = 'Résultats de la recherche visuelle';
+                catalogTitle.textContent = 'Recherche visuelle en cours…';
             }
             
             const prefillSearchInput = () => {
@@ -773,7 +773,11 @@
                 input.addEventListener('input', handleSearchChange);
             });
 
-            renderCatalog();
+            if (isVisualSearch) {
+                startVisualSearch();
+            } else {
+                renderCatalog();
+            }
         }
 
         function initializePriceSlider() {
@@ -955,6 +959,30 @@
         const CATALOG_PAGE_SIZE = 24;
         let catalogPage = 0;
         let catalogHasMore = true;
+        let catalogVisualSearchLoading = false;
+        let catalogVisualSearchError = false;
+
+        async function startVisualSearch() {
+            catalogVisualSearchLoading = true;
+            catalogVisualSearchError = false;
+            await renderCatalog(false);
+
+            try {
+                const image = await window.NewKetVisualSearch?.takePendingImage?.();
+                if (!image) throw new Error('Image de recherche introuvable');
+
+                const results = await window.NewKetVisualSearch.searchByImage(image);
+                sessionStorage.setItem('lensResults', JSON.stringify(results));
+            } catch (error) {
+                console.error('[NewKet Catalog] Visual search failed:', error);
+                catalogVisualSearchError = true;
+            } finally {
+                catalogVisualSearchLoading = false;
+                const title = document.getElementById('catalogTitle');
+                if (title) title.textContent = 'Résultats de la recherche visuelle';
+                await renderCatalog(false);
+            }
+        }
 
         async function renderCatalog(append = false) {
             const searchInput = document.getElementById('searchInput');
@@ -1124,14 +1152,25 @@
             }
 
             // Show skeletons if still loading and no products yet
-            const isLoading = window.ProductManager && window.ProductManager.loading;
+            const isLoading = catalogVisualSearchLoading || (window.ProductManager && window.ProductManager.loading);
             if (isLoading && products.length === 0 && !append) {
                 grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
                 return;
             }
 
             if (products.length === 0 && !append) {
-                if (hasError && (!window.ProductManager || window.ProductManager.getProducts().length === 0)) {
+                if (catalogVisualSearchError) {
+                    grid.innerHTML = `
+                        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+                            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                                <iconify-icon icon="solar:danger-triangle-linear" width="40" class="text-red-400"></iconify-icon>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Recherche visuelle indisponible</h3>
+                            <p class="text-gray-500 mb-6 max-w-sm mx-auto">Réessayez avec une autre image dans la barre de recherche.</p>
+                            <a href="/catalog" class="bg-black text-white px-6 py-3 rounded-2xl font-bold shadow hover:scale-[1.02] active:scale-[0.98] transition-all">Voir le catalogue</a>
+                        </div>
+                    `;
+                } else if (hasError && (!window.ProductManager || window.ProductManager.getProducts().length === 0)) {
                     grid.innerHTML = `
                         <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
                             <div class="w-24 h-24 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
