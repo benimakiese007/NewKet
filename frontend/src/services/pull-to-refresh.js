@@ -3,9 +3,6 @@ const PTR_TRIGGER_DISTANCE = 80;
 const PTR_MAX_PULL_DISTANCE = 110;
 const PTR_MAX_TRANSLATE = 60;
 
-const isNativeCapacitor = () =>
-    Boolean(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.getPlatform?.() === 'android' || window.Capacitor?.getPlatform?.() === 'ios');
-
 const PullToRefresh = {
     state: {
         refreshing: false,
@@ -21,10 +18,6 @@ const PullToRefresh = {
 
     init() {
         if (document.body?.dataset.ptrInitialized === '1') return;
-        // On native Capacitor (Android/iOS), the OS handles pull-to-refresh natively.
-        // We must NOT register non-passive touchmove listeners here — they block the
-        // native WebView scroll entirely.
-        if (isNativeCapacitor()) return;
         document.body.dataset.ptrInitialized = '1';
 
         this.injectStyles();
@@ -44,9 +37,14 @@ const PullToRefresh = {
         const style = document.createElement('style');
         style.id = 'nk-ptr-styles';
         style.textContent = `
+            /* Prevent the page itself from being pulled beyond its scroll bounds. */
+            html, body {
+                overscroll-behavior-y: none;
+            }
+
             /* Fixed at top of viewport — immune to DOM position, overflow:hidden, and z-index of parent containers */
             .nk-ptr-indicator-wrapper {
-                position: fixed;
+                position: absolute;
                 top: 0;
                 left: 0;
                 right: 0;
@@ -55,6 +53,10 @@ const PullToRefresh = {
                 justify-content: center;
                 padding-top: 14px;
                 pointer-events: none;
+            }
+
+            main {
+                position: relative;
             }
 
             .nk-ptr-indicator {
@@ -157,12 +159,12 @@ const PullToRefresh = {
         const headerPlaceholder = document.getElementById('header-placeholder');
         const main = document.querySelector('main');
         
-        if (categoryNav && categoryNav.parentNode) {
+        if (main) {
+            main.prepend(wrapper);
+        } else if (categoryNav && categoryNav.parentNode) {
             categoryNav.parentNode.insertBefore(wrapper, categoryNav.nextSibling);
         } else if (headerPlaceholder && headerPlaceholder.parentNode) {
             headerPlaceholder.parentNode.insertBefore(wrapper, headerPlaceholder.nextSibling);
-        } else if (main && main.parentNode) {
-            main.parentNode.insertBefore(wrapper, main);
         } else {
             document.body.prepend(wrapper);
         }
@@ -283,6 +285,8 @@ const PullToRefresh = {
     applyPullVisuals(pullDistance) {
         const progress = Math.min(1, pullDistance / PTR_TRIGGER_DISTANCE);
 
+        this.applyContentTranslate(pullDistance);
+
         // Drive the pill in from above — no wrapper height needed since wrapper is now position:fixed
         if (this.state.indicator) {
             this.state.indicator.classList.remove('is-refreshing');
@@ -305,6 +309,30 @@ const PullToRefresh = {
             this.state.spinnerAngle = angle;
             this.state.spinner.style.transform = `rotate(${angle}deg)`;
         }
+    },
+
+    applyContentTranslate(distance) {
+        const main = document.querySelector('main');
+        if (!main) return;
+
+        const translateDistance = Math.min(PTR_MAX_TRANSLATE, Math.max(0, distance));
+
+        Array.from(main.children).forEach((child) => {
+            if (child === this.state.wrapper) return;
+            child.style.transition = 'none';
+            child.style.transform = `translateY(${Math.round(translateDistance)}px)`;
+        });
+    },
+
+    resetContentTranslate() {
+        const main = document.querySelector('main');
+        if (!main) return;
+
+        Array.from(main.children).forEach((child) => {
+            if (child === this.state.wrapper) return;
+            child.style.transition = 'transform 0.35s cubic-bezier(0.2, 0, 0, 1)';
+            child.style.transform = '';
+        });
     },
 
     async startRefresh() {
@@ -361,6 +389,8 @@ const PullToRefresh = {
     },
 
     resetVisuals() {
+        this.resetContentTranslate();
+
         if (this.state.indicator) {
             this.state.indicator.classList.remove('is-refreshing');
             // Slide pill back above viewport

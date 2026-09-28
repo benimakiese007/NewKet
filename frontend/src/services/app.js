@@ -21,6 +21,7 @@ import './user-manager.js';
 
 import './ui-helpers.js';
 import './ui.js';
+import './pull-to-refresh.js';
 import './components-loader.js';
 import './search.js';
 

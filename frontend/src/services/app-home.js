@@ -18,6 +18,7 @@ import './products.js';
 
 import './ui-helpers.js';
 import './ui.js';
+import './pull-to-refresh.js';
 import './search.js';
 import './components-loader.js';
 import './main.js';
