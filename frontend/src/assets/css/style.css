@@ -848,6 +848,36 @@ body.search-focused .main-header {
   color: #ffffff !important;
 }
 
+.search-bar.lens-is-loading .search-input,
+.search-bar.lens-is-loading .search-category-btn,
+.search-bar.lens-is-loading .lens-button {
+  pointer-events: none;
+}
+
+.lens-loading-status {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 10030;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.6rem;
+  background: #1f2937;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.26);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lens-loading-status iconify-icon {
+  color: #ffffff !important;
+}
+
 /* Category Toggle inside search bar */
 
 .search-category-btn {
