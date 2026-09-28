@@ -418,7 +418,7 @@
             <!-- Main content -->
             <main class="flex-1 animate-fade-in w-full w-full px-4 sm:px-8 lg:px-12 mt-2" style="animation-delay: 0.1s;">
                 <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Explorez l'Exceptionnel</h1>
+                    <h1 id="catalogTitle" class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Explorez l'Exceptionnel</h1>
 
                     <!-- New Horizontal Action Bar -->
                     <div class="sticky-filter-bar px-2 py-4 w-full lg:max-w-[calc(100%-24rem)] lg:ml-auto">
@@ -663,6 +663,11 @@
             window.__newketCatalogInitialized = true;
             const urlParams = new URLSearchParams(window.location.search);
             const sortSelect = document.getElementById('sortSelect');
+            const isVisualSearch = urlParams.get('lens') === 'true';
+            const catalogTitle = document.getElementById('catalogTitle');
+            if (isVisualSearch && catalogTitle) {
+                catalogTitle.textContent = 'Résultats de la recherche visuelle';
+            }
             
             const prefillSearchInput = () => {
                 const qp = urlParams.get('q');
@@ -825,7 +830,10 @@
 
         function getCatalogQueryState() {
             const urlParams = new URLSearchParams(window.location.search);
-            const query = (document.getElementById('searchInput')?.value || urlParams.get('q') || '').trim().toLowerCase();
+            const isVisualSearch = urlParams.get('lens') === 'true';
+            const query = isVisualSearch
+                ? ''
+                : (document.getElementById('searchInput')?.value || urlParams.get('q') || '').trim().toLowerCase();
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeCategories = [...selectedCategories];
             if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme');
@@ -950,9 +958,11 @@
 
         async function renderCatalog(append = false) {
             const searchInput = document.getElementById('searchInput');
-            // Fallback: read ?q= from URL directly when header input not yet injected
-            const urlQ = new URLSearchParams(window.location.search).get('q') || '';
-            const query = (searchInput?.value || urlQ).trim().toLowerCase();
+            const urlParams = new URLSearchParams(window.location.search);
+            const isVisualSearch = urlParams.get('lens') === 'true';
+            // "Recherche visuelle" est un libellé dans le champ, pas une recherche texte.
+            const urlQ = isVisualSearch ? '' : (urlParams.get('q') || '');
+            const query = isVisualSearch ? '' : (searchInput?.value || urlQ).trim().toLowerCase();
 
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeCategories = [...selectedCategories];
@@ -989,8 +999,20 @@
             let products = [];
             let hasError = false;
 
+            if (isVisualSearch) {
+                try {
+                    const storedResults = JSON.parse(sessionStorage.getItem('lensResults') || '[]');
+                    products = Array.isArray(storedResults)
+                        ? storedResults.map(product => window.ProductManager?._mapProduct?.(product) || product)
+                        : [];
+                    catalogHasMore = false;
+                } catch (error) {
+                    console.warn('[NewKet Catalog] Invalid visual search results:', error.message);
+                    products = [];
+                    catalogHasMore = false;
+                }
             // Try server-side query first
-            if (window.SupabaseAdapter && window.supabaseClient) {
+            } else if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
                     const options = {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',

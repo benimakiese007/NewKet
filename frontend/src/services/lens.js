@@ -44,11 +44,14 @@ export function initGoogleLens() {
                 // Stocker les résultats pour la page de recherche
                 sessionStorage.setItem('lensResults', JSON.stringify(result.data));
                 
-                // Rediriger vers la vue catalogue avec le flag "lens"
-                const urlParams = new URLSearchParams(window.location.search);
+                // Afficher les correspondances dans la vraie page Catalogue.
+                const catalogPath = window.ComponentLoader?.getAdjustedPath
+                    ? window.ComponentLoader.getAdjustedPath('pages/catalog')
+                    : '/catalog';
+                const urlParams = new URLSearchParams();
                 urlParams.set('q', 'Recherche visuelle');
                 urlParams.set('lens', 'true');
-                window.location.search = urlParams.toString();
+                window.location.assign(`${catalogPath}?${urlParams.toString()}`);
             }
         } catch (error) {
             console.error('Erreur Google Lens:', error);
