@@ -521,7 +521,7 @@ const ComponentLoader = {
         // The home page ships a small static fallback for static/PWA-cache
         // failures. It is no longer needed once the real header is available.
         document.getElementById('header-fallback')?.remove();
-        this.loadSearchCategories();
+        await this.loadSearchCategories();
         this.bindGlobalActions();
         this.applyConfiguredSocialLinks();
         window.addEventListener('configUpdated', () => this.applyConfiguredSocialLinks());
@@ -777,10 +777,10 @@ const ComponentLoader = {
             'Autres',
         ];
 
-        const select = document.getElementById('mobileSearchCategorySelect');
-        const menuList = document.getElementById('searchCategoryMenuList');
+        const selects = document.querySelectorAll('#mobileSearchCategorySelect');
+        const menuLists = document.querySelectorAll('#searchCategoryMenuList');
 
-        if (select) {
+        selects.forEach(select => {
             select.innerHTML = '<option value="all">Tout</option>';
             FIXED_CATEGORIES.forEach(cat => {
                 const option = document.createElement('option');
@@ -788,9 +788,9 @@ const ComponentLoader = {
                 option.textContent = cat;
                 select.appendChild(option);
             });
-        }
+        });
 
-        if (menuList) {
+        menuLists.forEach(menuList => {
             menuList.innerHTML = '<button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>';
             FIXED_CATEGORIES.forEach(cat => {
                 const btn = document.createElement('button');
@@ -799,7 +799,7 @@ const ComponentLoader = {
                 btn.textContent = cat;
                 menuList.appendChild(btn);
             });
-        }
+        });
     },
 
     attachCategoryNavToHeader() {

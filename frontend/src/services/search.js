@@ -97,11 +97,12 @@ const SearchManager = {
         let menuOpen = false;
         let menuTrigger = null;
         let menuPositionObserver = null;
+        let menuElement = null;
         const supportsAnchorPositioning =
             CSS.supports('anchor-name: --search-category-trigger') &&
             CSS.supports('top: anchor(bottom)');
 
-        const getMenu = () => document.getElementById('searchCategoryMenu');
+        const getMenu = () => menuElement || document.querySelector('#searchCategoryMenu');
         const mobileSelect = document.getElementById('mobileSearchCategorySelect');
         const nativeShell = document.getElementById('mobileSearchCategoryNativeShell');
         const customBtn = document.getElementById('searchCategoryBtn');
@@ -180,6 +181,13 @@ const SearchManager = {
 
         const openMenu = (trigger) => {
             menuTrigger = trigger || customBtn;
+            menuElement = menuTrigger.querySelector('#searchCategoryMenu') || menuElement || document.querySelector('#searchCategoryMenu');
+
+            // The server/fallback markup contains only "Tout". Make sure the
+            // complete fixed category list exists before the first paint.
+            if (window.ComponentLoader?.loadSearchCategories) {
+                window.ComponentLoader.loadSearchCategories();
+            }
             ensureMenuPortal();
             positionMenu();
             const menu = getMenu();
