@@ -1170,6 +1170,23 @@
                             <a href="/catalog" class="bg-black text-white px-6 py-3 rounded-2xl font-bold shadow hover:scale-[1.02] active:scale-[0.98] transition-all">Voir le catalogue</a>
                         </div>
                     `;
+                } else if (isVisualSearch) {
+                    grid.innerHTML = `
+                        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+                            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-5">
+                                <iconify-icon icon="solar:camera-linear" width="40" class="text-slate-500"></iconify-icon>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Aucun article similaire trouvé</h3>
+                            <p class="text-gray-500 mb-7 max-w-sm mx-auto">Essayez une image plus nette, mieux cadrée, ou explorez les articles disponibles.</p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                                <button type="button" onclick="document.getElementById('lens-input')?.click()" class="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-2xl font-bold shadow hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                    <iconify-icon icon="solar:camera-linear" width="18"></iconify-icon>
+                                    Essayer une autre image
+                                </button>
+                                <a href="/catalog" class="px-6 py-3 rounded-2xl font-bold text-slate-700 border border-slate-200 hover:border-slate-400 transition-colors">Voir le catalogue</a>
+                            </div>
+                        </div>
+                    `;
                 } else if (hasError && (!window.ProductManager || window.ProductManager.getProducts().length === 0)) {
                     grid.innerHTML = `
                         <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
