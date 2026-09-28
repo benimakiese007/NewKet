@@ -323,6 +323,12 @@ const AppNotifications = {
     },
 
     _setupServiceWorkerUpdates() {
+        // Vite development must stay network-first and must not show production
+        // service-worker update prompts while testing interactive uploads.
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return;
+        }
+
         const reloadKey = 'newket-sw-reloading';
         sessionStorage.removeItem(reloadKey);
 
