@@ -16,6 +16,9 @@ const SearchManager = {
         this.initialized = true;
 
         this.ensureOverlayPortal();
+        this.ensureSuggestionsPortal();
+        window.addEventListener('scroll', () => this.positionSuggestions(), { passive: true });
+        window.addEventListener('resize', () => this.positionSuggestions(), { passive: true });
 
         // Initialize Category Selector
         this.initCategorySelector();
@@ -44,6 +47,7 @@ const SearchManager = {
                         this.showRecentAndPopular(container);
                     } else {
                         container.classList.add('active');
+                        this.positionSuggestions();
                     }
                 }
             }
@@ -91,6 +95,11 @@ const SearchManager = {
 
     initCategorySelector() {
         let menuOpen = false;
+        let menuTrigger = null;
+        let menuPositionObserver = null;
+        const supportsAnchorPositioning =
+            CSS.supports('anchor-name: --search-category-trigger') &&
+            CSS.supports('top: anchor(bottom)');
 
         const getMenu = () => document.getElementById('searchCategoryMenu');
         const mobileSelect = document.getElementById('mobileSearchCategorySelect');
@@ -130,42 +139,61 @@ const SearchManager = {
             }
         };
 
-        // ONE-TIME teleport: move menu to <body> to escape header stacking context
-        const ensurePortal = () => {
+        const ensureMenuPortal = () => {
             const menu = getMenu();
-            if (!menu) return;
-            if (menu.dataset.ported === '1') return; // already done
+            if (!menu || menu.dataset.ported === '1') return;
+
             menu.dataset.ported = '1';
             menu.style.setProperty('position', 'fixed', 'important');
-            menu.style.setProperty('z-index', '99999', 'important');
+            menu.style.setProperty('z-index', '10020', 'important');
             menu.style.setProperty('margin', '0', 'important');
             document.body.appendChild(menu);
         };
 
         const positionMenu = () => {
-            const btn  = document.getElementById('searchCategoryBtn');
             const menu = getMenu();
-            if (!btn || !menu) return;
-            const r = btn.getBoundingClientRect();
-            const menuWidth = Math.max(r.width, 180);
-            const gutter = 8;
-            const maxLeft = Math.max(gutter, window.innerWidth - menuWidth - gutter);
-            const left = Math.min(Math.max(gutter, r.left), maxLeft);
+            if (!menu || !menuTrigger) return;
+            if (supportsAnchorPositioning) return;
 
-            menu.style.setProperty('top', `${r.bottom + 6}px`, 'important');
+            const rect = menuTrigger.getBoundingClientRect();
+            const menuWidth = Math.max(rect.width, 180);
+            const gutter = 8;
+            const left = Math.min(
+                Math.max(gutter, rect.left),
+                Math.max(gutter, window.innerWidth - menuWidth - gutter)
+            );
+
+            menu.style.setProperty('top', `${rect.bottom + 6}px`, 'important');
             menu.style.setProperty('left', `${left}px`, 'important');
-            menu.style.setProperty('right', 'auto', 'important');
             menu.style.setProperty('min-width', `${menuWidth}px`, 'important');
         };
 
-        const openMenu = () => {
-            ensurePortal();
+        const scheduleMenuPosition = () => {
+            requestAnimationFrame(() => {
+                if (!menuOpen) return;
+                positionMenu();
+                requestAnimationFrame(() => {
+                    if (menuOpen) positionMenu();
+                });
+            });
+        };
+
+        const openMenu = (trigger) => {
+            menuTrigger = trigger || customBtn;
+            ensureMenuPortal();
             positionMenu();
             const menu = getMenu();
             if (menu) { menu.classList.remove('hidden'); menuOpen = true; }
             
             // Dim the page background
             this.openSearchOverlay();
+            scheduleMenuPosition();
+
+            if (window.ResizeObserver && menuTrigger) {
+                menuPositionObserver?.disconnect();
+                menuPositionObserver = new ResizeObserver(scheduleMenuPosition);
+                menuPositionObserver.observe(menuTrigger);
+            }
             
             // Blur the search suggestions while category menu is open
             const suggestions = document.getElementById('searchSuggestions');
@@ -180,6 +208,9 @@ const SearchManager = {
         const closeMenu = () => {
             const menu = getMenu();
             if (menu) { menu.classList.add('hidden'); menuOpen = false; }
+            menuPositionObserver?.disconnect();
+            menuPositionObserver = null;
+            menuTrigger = null;
             
             // Remove blur from search suggestions
             const suggestions = document.getElementById('searchSuggestions');
@@ -200,14 +231,6 @@ const SearchManager = {
 
         // Single unified click handler
         document.addEventListener('click', (e) => {
-            // 1. Click on the TOUT button
-            if (e.target.closest('#searchCategoryBtn')) {
-                menuOpen ? closeMenu() : openMenu();
-                e.stopPropagation();
-                return;
-            }
-
-            // 2. Click on a category option inside the dropdown
             const option = e.target.closest('.category-option');
             if (option) {
                 this.selectedCategory = option.dataset.value;
@@ -216,14 +239,21 @@ const SearchManager = {
                 return;
             }
 
-            // 3. Click anywhere else → close
+            // 1. Click on the TOUT button
+            const trigger = e.target.closest('#searchCategoryBtn');
+            if (trigger) {
+                menuOpen ? closeMenu() : openMenu(trigger);
+                e.stopPropagation();
+                return;
+            }
+
+            // 2. Click anywhere else → close
             if (menuOpen) closeMenu();
         });
 
-        // Keep positioned while open
-        window.addEventListener('scroll', () => { if (menuOpen) positionMenu(); }, { passive: true });
-        window.addEventListener('resize', () => { if (menuOpen) positionMenu(); }, { passive: true });
         window.addEventListener('resize', applyCategoryMode, { passive: true });
+        window.addEventListener('resize', () => { if (menuOpen) scheduleMenuPosition(); }, { passive: true });
+        window.addEventListener('scroll', () => { if (menuOpen) scheduleMenuPosition(); }, { passive: true });
 
         if (mobileSelect && mobileSelect.dataset.bound !== 'true') {
             mobileSelect.addEventListener('change', () => {
@@ -243,6 +273,40 @@ const SearchManager = {
 
         document.body.appendChild(overlay);
         this.overlayPortaled = true;
+    },
+
+    ensureSuggestionsPortal() {
+        const suggestions = document.getElementById('searchSuggestions');
+        if (!suggestions || suggestions.dataset.ported === '1') return;
+
+        suggestions.dataset.ported = '1';
+        document.body.appendChild(suggestions);
+    },
+
+    positionSuggestions() {
+        const suggestions = document.getElementById('searchSuggestions');
+        if (!suggestions || !suggestions.classList.contains('active')) return;
+
+        const supportsAnchorPositioning =
+            CSS.supports('anchor-name: --global-search-surface') &&
+            CSS.supports('top: anchor(bottom)');
+        if (supportsAnchorPositioning) return;
+
+        const input = document.getElementById('searchInput') || document.getElementById('mobileSearchInput');
+        const searchSurface = input?.closest('.search-bar');
+        if (!searchSurface) return;
+
+        const rect = searchSurface.getBoundingClientRect();
+        const gutter = 8;
+        const width = Math.min(rect.width, window.innerWidth - gutter * 2);
+        const left = Math.min(Math.max(gutter, rect.left), window.innerWidth - width - gutter);
+
+        suggestions.style.setProperty('position', 'fixed', 'important');
+        suggestions.style.setProperty('z-index', '10020', 'important');
+        suggestions.style.setProperty('top', `${rect.bottom + 6}px`, 'important');
+        suggestions.style.setProperty('left', `${left}px`, 'important');
+        suggestions.style.setProperty('right', 'auto', 'important');
+        suggestions.style.setProperty('width', `${width}px`, 'important');
     },
 
     openSearchOverlay() {
@@ -384,6 +448,7 @@ const SearchManager = {
 
         container.innerHTML = html;
         container.classList.add('active');
+        this.positionSuggestions();
     },
 
     executeSearch(query) {
@@ -438,6 +503,7 @@ const SearchManager = {
                 <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Exploration du catalogue...</span>
             </div>`;
         container.classList.add('active');
+        this.positionSuggestions();
 
         try {
             const cacheKey = `${this.selectedCategory}::${query.toLowerCase()}`;

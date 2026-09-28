@@ -1,0 +1,811 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "Ouvrir le menu" [ref=e7] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e12] [cursor=pointer]:
+          - /url: /
+          - img "NewKet" [ref=e13]
+      - generic [ref=e15]:
+        - generic "Choisir une catégorie" [ref=e16] [cursor=pointer]: Tout
+        - textbox "Rechercher des produits" [ref=e21]:
+          - /placeholder: Rechercher sur NewKet...
+        - button "Rechercher par image" [ref=e22] [cursor=pointer]
+      - generic [ref=e28]:
+        - generic "Devise d'affichage" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]:
+            - generic [ref=e33]: USD
+            - generic [ref=e34]: CDF
+        - link "Voir les notifications" [ref=e35] [cursor=pointer]:
+          - /url: /notifications
+        - link "Voir les favoris" [ref=e41] [cursor=pointer]:
+          - /url: /favorites
+        - button "Voir le panier" [ref=e45] [cursor=pointer]
+        - link "Mon compte" [ref=e52] [cursor=pointer]:
+          - /url: /login
+  - navigation [ref=e58]:
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - button "Ouvrir le menu" [ref=e62] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e67] [cursor=pointer]:
+          - /url: /
+          - img "NewKet" [ref=e68]
+      - generic [ref=e70]:
+        - generic "Choisir une catégorie" [ref=e71] [cursor=pointer]: TOUT
+        - textbox "Rechercher des produits" [ref=e76]:
+          - /placeholder: Rechercher sur NewKet...
+        - button "Rechercher par image" [ref=e77] [cursor=pointer]
+      - generic [ref=e83]:
+        - generic "Devise d'affichage" [ref=e85] [cursor=pointer]:
+          - generic [ref=e86]:
+            - generic [ref=e88]: USD
+            - generic [ref=e89]: CDF
+        - link "Voir les notifications" [ref=e90] [cursor=pointer]:
+          - /url: /notifications
+        - link "Voir les favoris" [ref=e96] [cursor=pointer]:
+          - /url: /favorites
+        - button "Voir le panier" [ref=e100] [cursor=pointer]
+        - link "Mon compte" [ref=e107] [cursor=pointer]:
+          - /url: /login
+  - main [ref=e113]:
+    - generic [ref=e114]:
+      - generic [ref=e115]:
+        - heading "Produits Sponsorisés" [level=2] [ref=e117]
+        - link [ref=e118] [cursor=pointer]:
+          - /url: /catalog
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e124]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e125] [cursor=pointer]
+            - 'link "Voir le produit : Robe de soirée bordeaux" [ref=e129] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Robe_de_soiree_bordeaux?id=a946224a-dea3-4a3a-9fe1-30040d2a2e14
+              - img "Robe de soirée bordeaux" [ref=e130]
+          - generic [ref=e131]:
+            - heading [level=3] [ref=e132]:
+              - link "Robe de soirée bordeaux" [ref=e133] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Robe_de_soiree_bordeaux?id=a946224a-dea3-4a3a-9fe1-30040d2a2e14
+            - generic [ref=e134]: 195 000 FC
+            - generic [ref=e137]:
+              - button "Ajouter Robe de soirée bordeaux au panier" [ref=e138] [cursor=pointer]:
+                - generic [ref=e139]: Ajouter
+              - button "Partager ce produit" [ref=e140] [cursor=pointer]
+        - generic [ref=e147]:
+          - generic [ref=e148]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e149] [cursor=pointer]
+            - 'link "Voir le produit : Table basse bois flotté" [ref=e153] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Table_basse_bois_flotte?id=fa3cb74b-4e4f-4e10-9121-770f1b386aa1
+              - img "Table basse bois flotté" [ref=e154]
+          - generic [ref=e155]:
+            - heading [level=3] [ref=e156]:
+              - link "Table basse bois flotté" [ref=e157] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Table_basse_bois_flotte?id=fa3cb74b-4e4f-4e10-9121-770f1b386aa1
+            - generic [ref=e158]: 210 000 FC
+            - generic [ref=e161]:
+              - button "Ajouter Table basse bois flotté au panier" [ref=e162] [cursor=pointer]:
+                - generic [ref=e163]: Ajouter
+              - button "Partager ce produit" [ref=e164] [cursor=pointer]
+    - generic [ref=e174]:
+      - heading "NewKet MarketPlace" [level=1] [ref=e175]
+      - paragraph [ref=e176]: L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment. NEWKET
+      - link "Découvrir" [ref=e178] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+    - generic [ref=e179]:
+      - generic [ref=e180]:
+        - heading "Tous les produits" [level=2] [ref=e181]
+        - generic [ref=e182]:
+          - button "Toutes les pièces" [ref=e183] [cursor=pointer]
+          - button "Mode Femme" [ref=e184] [cursor=pointer]
+          - button "Mode Homme" [ref=e185] [cursor=pointer]
+          - button "High-Tech & Gadgets" [ref=e186] [cursor=pointer]
+          - button "Maison, Déco & Meubles" [ref=e187] [cursor=pointer]
+          - button "Bricolage & Construction" [ref=e188] [cursor=pointer]
+          - button "Beauté & Santé" [ref=e189] [cursor=pointer]
+          - button "Sports & Loisirs" [ref=e190] [cursor=pointer]
+          - button "Jouets & Enfants" [ref=e191] [cursor=pointer]
+          - button "Culture & Divertissement" [ref=e192] [cursor=pointer]
+          - button "Véhicules & Mobilité" [ref=e193] [cursor=pointer]
+          - button "Alimentation & Boissons" [ref=e194] [cursor=pointer]
+          - button "Animalerie" [ref=e195] [cursor=pointer]
+          - button "Autres" [ref=e196] [cursor=pointer]
+          - button "Promos" [ref=e197] [cursor=pointer]
+          - combobox "Trier les produits par" [ref=e199] [cursor=pointer]:
+            - option "Plus récents" [selected]
+            - option "Prix croissant"
+            - option "Prix décroissant"
+      - generic [ref=e200]:
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - generic [ref=e203]: Nouveau
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e204] [cursor=pointer]
+            - 'link "Voir le produit : RIEN PHX" [ref=e205] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/RIEN_PHX?id=77d645cc-42fa-48b8-a371-7651d592e921
+              - img "RIEN PHX" [ref=e206]
+          - generic [ref=e207]:
+            - heading [level=3] [ref=e208]:
+              - link "RIEN PHX" [ref=e209] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/RIEN_PHX?id=77d645cc-42fa-48b8-a371-7651d592e921
+            - generic [ref=e210]: 230 000 FC
+            - generic [ref=e213]:
+              - button "Ajouter RIEN PHX au panier" [ref=e214] [cursor=pointer]:
+                - generic [ref=e215]: Ajouter
+              - button "Partager ce produit" [ref=e216] [cursor=pointer]
+        - generic [ref=e217]:
+          - generic [ref=e218]:
+            - generic [ref=e219]: Nouveau
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e220] [cursor=pointer]
+            - 'link "Voir le produit : Random Catalog" [ref=e221] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Random_Catalog?id=54331746-43d4-4ee6-a684-6281bb812b10
+              - img "Random Catalog" [ref=e222]
+          - generic [ref=e223]:
+            - heading [level=3] [ref=e224]:
+              - link "Random Catalog" [ref=e225] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Random_Catalog?id=54331746-43d4-4ee6-a684-6281bb812b10
+            - generic [ref=e226]:
+              - generic [ref=e227]: 5 000 FC
+              - generic [ref=e229]: 5 000 FC
+            - generic [ref=e230]:
+              - button "Ajouter Random Catalog au panier" [ref=e231] [cursor=pointer]:
+                - generic [ref=e232]: Ajouter
+              - button "Partager ce produit" [ref=e233] [cursor=pointer]
+        - generic [ref=e234]:
+          - generic [ref=e235]:
+            - generic [ref=e236]: Nouveau
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e237] [cursor=pointer]
+            - 'link "Voir le produit : Montre Luxe Premium One" [ref=e238] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Montre_Luxe_Premium_One?id=19fe502e-6322-4af0-a2a4-811ec2bbffa0
+              - img "Montre Luxe Premium One" [ref=e239]
+          - generic [ref=e240]:
+            - heading [level=3] [ref=e241]:
+              - link "Montre Luxe Premium One" [ref=e242] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Montre_Luxe_Premium_One?id=19fe502e-6322-4af0-a2a4-811ec2bbffa0
+            - generic [ref=e243]: 110 000 FC
+            - generic [ref=e246]:
+              - button "Ajouter Montre Luxe Premium One au panier" [ref=e247] [cursor=pointer]:
+                - generic [ref=e248]: Ajouter
+              - button "Partager ce produit" [ref=e249] [cursor=pointer]
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - generic [ref=e252]: Nouveau
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e253] [cursor=pointer]
+            - 'link "Voir le produit : POLO" [ref=e254] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/POLO?id=20e4668c-c3d6-4c97-b9b0-f3478f63b02b
+              - img "POLO" [ref=e255]
+          - generic [ref=e256]:
+            - heading [level=3] [ref=e257]:
+              - link "POLO" [ref=e258] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/POLO?id=20e4668c-c3d6-4c97-b9b0-f3478f63b02b
+            - generic [ref=e259]: 22 490 FC
+            - generic [ref=e262]:
+              - button "Ajouter POLO au panier" [ref=e263] [cursor=pointer]:
+                - generic [ref=e264]: Ajouter
+              - button "Partager ce produit" [ref=e265] [cursor=pointer]
+        - generic [ref=e266]:
+          - generic [ref=e267]:
+            - generic [ref=e268]: Nouveau
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e269] [cursor=pointer]
+            - 'link "Voir le produit : Matelas PHX" [ref=e270] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Matelas_PHX?id=ca2863cf-2c4e-4c9f-b964-fe28bbdf1fa7
+              - img "Matelas PHX" [ref=e271]
+          - generic [ref=e272]:
+            - heading [level=3] [ref=e273]:
+              - link "Matelas PHX" [ref=e274] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Matelas_PHX?id=ca2863cf-2c4e-4c9f-b964-fe28bbdf1fa7
+            - generic [ref=e275]: 337 500 FC
+            - generic [ref=e278]:
+              - button "Ajouter Matelas PHX au panier" [ref=e279] [cursor=pointer]:
+                - generic [ref=e280]: Ajouter
+              - button "Partager ce produit" [ref=e281] [cursor=pointer]
+        - generic [ref=e282]:
+          - generic [ref=e283]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e284] [cursor=pointer]
+            - 'link "Voir le produit : Polo avec Colle Lacoste" [ref=e285] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Polo_avec_Colle_Lacoste?id=ace9025f-811e-46a6-bfc7-ed1a704d40f9
+              - img "Polo avec Colle Lacoste" [ref=e286]
+          - generic [ref=e287]:
+            - heading [level=3] [ref=e288]:
+              - link "Polo avec Colle Lacoste" [ref=e289] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Polo_avec_Colle_Lacoste?id=ace9025f-811e-46a6-bfc7-ed1a704d40f9
+            - generic [ref=e290]:
+              - generic [ref=e291]: 34 500 FC
+              - generic [ref=e293]: 34 500 FC
+            - generic [ref=e294]:
+              - button "Ajouter Polo avec Colle Lacoste au panier" [ref=e295] [cursor=pointer]:
+                - generic [ref=e296]: Ajouter
+              - button "Partager ce produit" [ref=e297] [cursor=pointer]
+        - generic [ref=e298]:
+          - generic [ref=e299]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e300] [cursor=pointer]
+            - 'link "Voir le produit : ALLOM" [ref=e301] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/ALLOM?id=26f6dd3e-0a1c-4ac7-92db-961da3d6e1e1
+              - img "ALLOM" [ref=e302]
+          - generic [ref=e303]:
+            - heading [level=3] [ref=e304]:
+              - link "ALLOM" [ref=e305] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/ALLOM?id=26f6dd3e-0a1c-4ac7-92db-961da3d6e1e1
+            - generic [ref=e306]: 23 000 FC
+            - generic [ref=e309]:
+              - button "Ajouter ALLOM au panier" [ref=e310] [cursor=pointer]:
+                - generic [ref=e311]: Ajouter
+              - button "Partager ce produit" [ref=e312] [cursor=pointer]
+        - generic [ref=e313]:
+          - generic [ref=e314]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e315] [cursor=pointer]
+            - 'link "Voir le produit : Affiche NK, POSTER" [ref=e316] [cursor=pointer]':
+              - /url: /boutique/terra_mining/produit/Affiche_NK_POSTER?id=99acab9f-494a-4070-96c3-0a54ae5de20b
+              - img "Affiche NK, POSTER" [ref=e317]
+          - generic [ref=e318]:
+            - heading [level=3] [ref=e319]:
+              - link "Affiche NK, POSTER" [ref=e320] [cursor=pointer]:
+                - /url: /boutique/terra_mining/produit/Affiche_NK_POSTER?id=99acab9f-494a-4070-96c3-0a54ae5de20b
+            - generic [ref=e321]:
+              - generic [ref=e322]:
+                - generic [ref=e323]: 28 000 FC
+                - generic "Vendeur Certifié"
+              - generic [ref=e324]: 28 000 FC
+            - generic [ref=e325]:
+              - button "Ajouter Affiche NK, POSTER au panier" [ref=e326] [cursor=pointer]:
+                - generic [ref=e327]: Ajouter
+              - button "Partager ce produit" [ref=e328] [cursor=pointer]
+        - generic [ref=e329]:
+          - generic [ref=e330]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e331] [cursor=pointer]
+            - 'link "Voir le produit : Montre Rolex Submariner Acier" [ref=e332] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Montre_Rolex_Submariner_Acier?id=e50fa24e-945f-4195-a15f-e1767681e78c
+              - img "Montre Rolex Submariner Acier" [ref=e333]
+          - generic [ref=e334]:
+            - heading [level=3] [ref=e335]:
+              - link "Montre Rolex Submariner Acier" [ref=e336] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Montre_Rolex_Submariner_Acier?id=e50fa24e-945f-4195-a15f-e1767681e78c
+            - generic [ref=e337]: 2 850 000 FC
+            - generic [ref=e340]:
+              - button "Ajouter Montre Rolex Submariner Acier au panier" [ref=e341] [cursor=pointer]:
+                - generic [ref=e342]: Ajouter
+              - button "Partager ce produit" [ref=e343] [cursor=pointer]
+        - generic [ref=e344]:
+          - generic [ref=e345]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e346] [cursor=pointer]
+            - 'link "Voir le produit : Service de vaisselle 18 pièces grès" [ref=e347] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Service_de_vaisselle_18_pieces_gres?id=eec46960-b1cf-4704-9286-ad7bb07a99f7
+              - img "Service de vaisselle 18 pièces grès" [ref=e348]
+          - generic [ref=e349]:
+            - heading [level=3] [ref=e350]:
+              - link "Service de vaisselle 18 pièces grès" [ref=e351] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Service_de_vaisselle_18_pieces_gres?id=eec46960-b1cf-4704-9286-ad7bb07a99f7
+            - generic [ref=e352]:
+              - generic [ref=e353]: 132 500 FC
+              - generic [ref=e355]:
+                - generic [ref=e356]: 180 000 FC
+                - generic [ref=e357]: "-26%"
+            - generic [ref=e358]:
+              - button "Ajouter Service de vaisselle 18 pièces grès au panier" [ref=e359] [cursor=pointer]:
+                - generic [ref=e360]: Ajouter
+              - button "Partager ce produit" [ref=e361] [cursor=pointer]
+        - generic [ref=e362]:
+          - generic [ref=e363]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e364] [cursor=pointer]
+            - 'link "Voir le produit : TV OLED LG 55 pouces C3" [ref=e365] [cursor=pointer]':
+              - /url: /boutique/maison_momo/produit/TV_OLED_LG_55_pouces_C3?id=a6a24e66-2d66-4c74-a26a-76ea6a461c52
+              - img "TV OLED LG 55 pouces C3" [ref=e366]
+          - generic [ref=e367]:
+            - heading [level=3] [ref=e368]:
+              - link "TV OLED LG 55 pouces C3" [ref=e369] [cursor=pointer]:
+                - /url: /boutique/maison_momo/produit/TV_OLED_LG_55_pouces_C3?id=a6a24e66-2d66-4c74-a26a-76ea6a461c52
+            - generic [ref=e370]:
+              - generic [ref=e371]:
+                - generic [ref=e372]: 1 658 000 FC
+                - generic "Vendeur Certifié"
+              - generic [ref=e373]:
+                - generic [ref=e374]: 2 100 000 FC
+                - generic [ref=e375]: "-21%"
+            - generic [ref=e376]:
+              - button "Ajouter TV OLED LG 55 pouces C3 au panier" [ref=e377] [cursor=pointer]:
+                - generic [ref=e378]: Ajouter
+              - button "Partager ce produit" [ref=e379] [cursor=pointer]
+        - generic [ref=e380]:
+          - generic [ref=e381]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e382] [cursor=pointer]
+            - 'link "Voir le produit : Tente de camping 4 personnes" [ref=e383] [cursor=pointer]':
+              - /url: /boutique/ye_store/produit/Tente_de_camping_4_personnes?id=1133c42a-7081-42c2-ae19-4e41a2541835
+              - img "Tente de camping 4 personnes" [ref=e384]
+          - generic [ref=e385]:
+            - heading [level=3] [ref=e386]:
+              - link "Tente de camping 4 personnes" [ref=e387] [cursor=pointer]:
+                - /url: /boutique/ye_store/produit/Tente_de_camping_4_personnes?id=1133c42a-7081-42c2-ae19-4e41a2541835
+            - generic [ref=e388]: 250 000 FC
+            - generic [ref=e391]:
+              - button "Ajouter Tente de camping 4 personnes au panier" [ref=e392] [cursor=pointer]:
+                - generic [ref=e393]: Ajouter
+              - button "Partager ce produit" [ref=e394] [cursor=pointer]
+        - generic [ref=e395]:
+          - generic [ref=e396]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e397] [cursor=pointer]
+            - 'link "Voir le produit : Escarpins Louboutin Pigalle 100mm" [ref=e398] [cursor=pointer]':
+              - /url: /boutique/ye_store/produit/Escarpins_Louboutin_Pigalle_100mm?id=c0c64d0e-9f59-4f57-941e-5bf0777061a4
+              - img "Escarpins Louboutin Pigalle 100mm" [ref=e399]
+          - generic [ref=e400]:
+            - heading [level=3] [ref=e401]:
+              - link "Escarpins Louboutin Pigalle 100mm" [ref=e402] [cursor=pointer]:
+                - /url: /boutique/ye_store/produit/Escarpins_Louboutin_Pigalle_100mm?id=c0c64d0e-9f59-4f57-941e-5bf0777061a4
+            - generic [ref=e403]: 1 100 000 FC
+            - generic [ref=e406]:
+              - button "Ajouter Escarpins Louboutin Pigalle 100mm au panier" [ref=e407] [cursor=pointer]:
+                - generic [ref=e408]: Ajouter
+              - button "Partager ce produit" [ref=e409] [cursor=pointer]
+        - generic [ref=e410]:
+          - generic [ref=e411]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e412] [cursor=pointer]
+            - 'link "Voir le produit : Montre Seiko automatique acier" [ref=e413] [cursor=pointer]':
+              - /url: /boutique/maison_momo/produit/Montre_Seiko_automatique_acier?id=2b42f215-8b54-4998-8baf-4df926dfadf9
+              - img "Montre Seiko automatique acier" [ref=e414]
+          - generic [ref=e415]:
+            - heading [level=3] [ref=e416]:
+              - link "Montre Seiko automatique acier" [ref=e417] [cursor=pointer]:
+                - /url: /boutique/maison_momo/produit/Montre_Seiko_automatique_acier?id=2b42f215-8b54-4998-8baf-4df926dfadf9
+            - generic [ref=e419]:
+              - generic [ref=e420]: 350 000 FC
+              - generic "Vendeur Certifié"
+            - generic [ref=e421]:
+              - button "Ajouter Montre Seiko automatique acier au panier" [ref=e422] [cursor=pointer]:
+                - generic [ref=e423]: Ajouter
+              - button "Partager ce produit" [ref=e424] [cursor=pointer]
+        - generic [ref=e425]:
+          - generic [ref=e426]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e427] [cursor=pointer]
+            - 'link "Voir le produit : Piano Numérique Yamaha P-45" [ref=e428] [cursor=pointer]':
+              - /url: /boutique/zando_na_palais/produit/Piano_Numerique_Yamaha_P_45?id=7afa69c5-2b16-4d67-a256-ef9ae2a206a9
+              - img "Piano Numérique Yamaha P-45" [ref=e429]
+          - generic [ref=e430]:
+            - heading [level=3] [ref=e431]:
+              - link "Piano Numérique Yamaha P-45" [ref=e432] [cursor=pointer]:
+                - /url: /boutique/zando_na_palais/produit/Piano_Numerique_Yamaha_P_45?id=7afa69c5-2b16-4d67-a256-ef9ae2a206a9
+            - generic [ref=e433]: 850 000 FC
+            - generic [ref=e436]:
+              - button "Ajouter Piano Numérique Yamaha P-45 au panier" [ref=e437] [cursor=pointer]:
+                - generic [ref=e438]: Ajouter
+              - button "Partager ce produit" [ref=e439] [cursor=pointer]
+        - generic [ref=e440]:
+          - generic [ref=e441]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e442] [cursor=pointer]
+            - 'link "Voir le produit : Manette Xbox Elite Series 2" [ref=e443] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Manette_Xbox_Elite_Series_2?id=8f3604de-2fe7-431a-ae87-5ed155c99ac1
+              - img "Manette Xbox Elite Series 2" [ref=e444]
+          - generic [ref=e445]:
+            - heading [level=3] [ref=e446]:
+              - link "Manette Xbox Elite Series 2" [ref=e447] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Manette_Xbox_Elite_Series_2?id=8f3604de-2fe7-431a-ae87-5ed155c99ac1
+            - generic [ref=e448]: 280 000 FC
+            - generic [ref=e451]:
+              - button "Ajouter Manette Xbox Elite Series 2 au panier" [ref=e452] [cursor=pointer]:
+                - generic [ref=e453]: Ajouter
+              - button "Partager ce produit" [ref=e454] [cursor=pointer]
+        - generic [ref=e455]:
+          - generic [ref=e456]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e457] [cursor=pointer]
+            - 'link "Voir le produit : Microphone Blue Yeti USB" [ref=e458] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Microphone_Blue_Yeti_USB?id=a444b3bd-b5a4-40be-8edc-0e6695e7f43f
+              - img "Microphone Blue Yeti USB" [ref=e459]
+          - generic [ref=e460]:
+            - heading [level=3] [ref=e461]:
+              - link "Microphone Blue Yeti USB" [ref=e462] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Microphone_Blue_Yeti_USB?id=a444b3bd-b5a4-40be-8edc-0e6695e7f43f
+            - generic [ref=e463]:
+              - generic [ref=e464]: 182 500 FC
+              - generic [ref=e466]:
+                - generic [ref=e467]: 220 000 FC
+                - generic [ref=e468]: "-17%"
+            - generic [ref=e469]:
+              - button "Ajouter Microphone Blue Yeti USB au panier" [ref=e470] [cursor=pointer]:
+                - generic [ref=e471]: Ajouter
+              - button "Partager ce produit" [ref=e472] [cursor=pointer]
+        - generic [ref=e473]:
+          - generic [ref=e474]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e475] [cursor=pointer]
+            - 'link "Voir le produit : Liseuse Kindle Paperwhite 16Go" [ref=e476] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Liseuse_Kindle_Paperwhite_16Go?id=f13bc549-4524-4705-a270-9053c5569c04
+              - img "Liseuse Kindle Paperwhite 16Go" [ref=e477]
+          - generic [ref=e478]:
+            - heading [level=3] [ref=e479]:
+              - link "Liseuse Kindle Paperwhite 16Go" [ref=e480] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Liseuse_Kindle_Paperwhite_16Go?id=f13bc549-4524-4705-a270-9053c5569c04
+            - generic [ref=e481]: 210 000 FC
+            - generic [ref=e484]:
+              - button "Ajouter Liseuse Kindle Paperwhite 16Go au panier" [ref=e485] [cursor=pointer]:
+                - generic [ref=e486]: Ajouter
+              - button "Partager ce produit" [ref=e487] [cursor=pointer]
+        - generic [ref=e488]:
+          - generic [ref=e489]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e490] [cursor=pointer]
+            - 'link "Voir le produit : Tondeuse à barbe Philips Series 9000" [ref=e491] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Tondeuse_a_barbe_Philips_Series_9000?id=3cd64d1a-c21b-4748-a7fe-23abb18fda24
+              - img "Tondeuse à barbe Philips Series 9000" [ref=e492]
+          - generic [ref=e493]:
+            - heading [level=3] [ref=e494]:
+              - link "Tondeuse à barbe Philips Series 9000" [ref=e495] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Tondeuse_a_barbe_Philips_Series_9000?id=3cd64d1a-c21b-4748-a7fe-23abb18fda24
+            - generic [ref=e496]: 150 000 FC
+            - generic [ref=e499]:
+              - button "Ajouter Tondeuse à barbe Philips Series 9000 au panier" [ref=e500] [cursor=pointer]:
+                - generic [ref=e501]: Ajouter
+              - button "Partager ce produit" [ref=e502] [cursor=pointer]
+        - generic [ref=e503]:
+          - generic [ref=e504]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e505] [cursor=pointer]
+            - 'link "Voir le produit : Set de clubs de golf Titleist" [ref=e506] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Set_de_clubs_de_golf_Titleist?id=b8cda8c7-5043-4dd7-91c9-f1876ee9cd90
+              - img "Set de clubs de golf Titleist" [ref=e507]
+          - generic [ref=e508]:
+            - heading [level=3] [ref=e509]:
+              - link "Set de clubs de golf Titleist" [ref=e510] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Set_de_clubs_de_golf_Titleist?id=b8cda8c7-5043-4dd7-91c9-f1876ee9cd90
+            - generic [ref=e511]: 1 800 000 FC
+            - generic [ref=e514]:
+              - button "Ajouter Set de clubs de golf Titleist au panier" [ref=e515] [cursor=pointer]:
+                - generic [ref=e516]: Ajouter
+              - button "Partager ce produit" [ref=e517] [cursor=pointer]
+        - generic [ref=e518]:
+          - generic [ref=e519]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e520] [cursor=pointer]
+            - 'link "Voir le produit : Écouteurs Apple AirPods Pro 2" [ref=e521] [cursor=pointer]':
+              - /url: /boutique/ye_store/produit/Ecouteurs_Apple_AirPods_Pro_2?id=d69faa47-cc2b-49ef-b3f1-72bfb3838698
+              - img "Écouteurs Apple AirPods Pro 2" [ref=e522]
+          - generic [ref=e523]:
+            - heading [level=3] [ref=e524]:
+              - link "Écouteurs Apple AirPods Pro 2" [ref=e525] [cursor=pointer]:
+                - /url: /boutique/ye_store/produit/Ecouteurs_Apple_AirPods_Pro_2?id=d69faa47-cc2b-49ef-b3f1-72bfb3838698
+            - generic [ref=e526]: 450 000 FC
+            - generic [ref=e529]:
+              - button "Ajouter Écouteurs Apple AirPods Pro 2 au panier" [ref=e530] [cursor=pointer]:
+                - generic [ref=e531]: Ajouter
+              - button "Partager ce produit" [ref=e532] [cursor=pointer]
+        - generic [ref=e533]:
+          - generic [ref=e534]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e535] [cursor=pointer]
+            - 'link "Voir le produit : Appareil Photo Hybride Fujifilm X-T5" [ref=e536] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Appareil_Photo_Hybride_Fujifilm_X_T5?id=69a35356-6179-4b4f-a4eb-4e72d26dc43c
+              - img "Appareil Photo Hybride Fujifilm X-T5" [ref=e537]
+          - generic [ref=e538]:
+            - heading [level=3] [ref=e539]:
+              - link "Appareil Photo Hybride Fujifilm X-T5" [ref=e540] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Appareil_Photo_Hybride_Fujifilm_X_T5?id=69a35356-6179-4b4f-a4eb-4e72d26dc43c
+            - generic [ref=e541]: 2 900 000 FC
+            - generic [ref=e544]:
+              - button "Ajouter Appareil Photo Hybride Fujifilm X-T5 au panier" [ref=e545] [cursor=pointer]:
+                - generic [ref=e546]: Ajouter
+              - button "Partager ce produit" [ref=e547] [cursor=pointer]
+        - generic [ref=e548]:
+          - generic [ref=e549]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e550] [cursor=pointer]
+            - 'link "Voir le produit : Coffret intégrale Harry Potter" [ref=e551] [cursor=pointer]':
+              - /url: /boutique/zando_na_palais/produit/Coffret_integrale_Harry_Potter?id=aa0af863-a579-4f05-ba59-d24156768133
+              - img "Coffret intégrale Harry Potter" [ref=e552]
+          - generic [ref=e553]:
+            - heading [level=3] [ref=e554]:
+              - link "Coffret intégrale Harry Potter" [ref=e555] [cursor=pointer]:
+                - /url: /boutique/zando_na_palais/produit/Coffret_integrale_Harry_Potter?id=aa0af863-a579-4f05-ba59-d24156768133
+            - generic [ref=e556]:
+              - generic [ref=e557]: 91 000 FC
+              - generic [ref=e559]:
+                - generic [ref=e560]: 120 000 FC
+                - generic [ref=e561]: "-24%"
+            - generic [ref=e562]:
+              - button "Ajouter Coffret intégrale Harry Potter au panier" [ref=e563] [cursor=pointer]:
+                - generic [ref=e564]: Ajouter
+              - button "Partager ce produit" [ref=e565] [cursor=pointer]
+        - generic [ref=e566]:
+          - generic [ref=e567]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e568] [cursor=pointer]
+            - 'link "Voir le produit : Robe de soirée bordeaux" [ref=e569] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Robe_de_soiree_bordeaux?id=a946224a-dea3-4a3a-9fe1-30040d2a2e14
+              - img "Robe de soirée bordeaux" [ref=e570]
+          - generic [ref=e571]:
+            - heading [level=3] [ref=e572]:
+              - link "Robe de soirée bordeaux" [ref=e573] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Robe_de_soiree_bordeaux?id=a946224a-dea3-4a3a-9fe1-30040d2a2e14
+            - generic [ref=e574]: 195 000 FC
+            - generic [ref=e577]:
+              - button "Ajouter Robe de soirée bordeaux au panier" [ref=e578] [cursor=pointer]:
+                - generic [ref=e579]: Ajouter
+              - button "Partager ce produit" [ref=e580] [cursor=pointer]
+        - generic [ref=e581]:
+          - generic [ref=e582]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e583] [cursor=pointer]
+            - 'link "Voir le produit : Diffuseur d''huiles essentielles Muji" [ref=e584] [cursor=pointer]':
+              - /url: /boutique/zando_na_palais/produit/Diffuseur_dhuiles_essentielles_Muji?id=44b4dc98-4c55-4635-b767-28282443fe77
+              - img "Diffuseur d'huiles essentielles Muji" [ref=e585]
+          - generic [ref=e586]:
+            - heading [level=3] [ref=e587]:
+              - link "Diffuseur d'huiles essentielles Muji" [ref=e588] [cursor=pointer]:
+                - /url: /boutique/zando_na_palais/produit/Diffuseur_dhuiles_essentielles_Muji?id=44b4dc98-4c55-4635-b767-28282443fe77
+            - generic [ref=e589]: 95 000 FC
+            - generic [ref=e592]:
+              - button "Ajouter Diffuseur d'huiles essentielles Muji au panier" [ref=e593] [cursor=pointer]:
+                - generic [ref=e594]: Ajouter
+              - button "Partager ce produit" [ref=e595] [cursor=pointer]
+        - generic [ref=e596]:
+          - generic [ref=e597]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e598] [cursor=pointer]
+            - 'link "Voir le produit : Ceinture en cuir véritable réversible" [ref=e599] [cursor=pointer]':
+              - /url: /boutique/zando_na_palais/produit/Ceinture_en_cuir_veritable_reversible?id=f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b
+              - img "Ceinture en cuir véritable réversible" [ref=e600]
+          - generic [ref=e601]:
+            - heading [level=3] [ref=e602]:
+              - link "Ceinture en cuir véritable réversible" [ref=e603] [cursor=pointer]:
+                - /url: /boutique/zando_na_palais/produit/Ceinture_en_cuir_veritable_reversible?id=f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b
+            - generic [ref=e604]:
+              - generic [ref=e605]: 39 000 FC
+              - generic [ref=e607]:
+                - generic [ref=e608]: 45 000 FC
+                - generic [ref=e609]: "-13%"
+            - generic [ref=e610]:
+              - button "Ajouter Ceinture en cuir véritable réversible au panier" [ref=e611] [cursor=pointer]:
+                - generic [ref=e612]: Ajouter
+              - button "Partager ce produit" [ref=e613] [cursor=pointer]
+        - generic [ref=e614]:
+          - generic [ref=e615]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e616] [cursor=pointer]
+            - 'link "Voir le produit : Table basse bois flotté" [ref=e617] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Table_basse_bois_flotte?id=fa3cb74b-4e4f-4e10-9121-770f1b386aa1
+              - img "Table basse bois flotté" [ref=e618]
+          - generic [ref=e619]:
+            - heading [level=3] [ref=e620]:
+              - link "Table basse bois flotté" [ref=e621] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Table_basse_bois_flotte?id=fa3cb74b-4e4f-4e10-9121-770f1b386aa1
+            - generic [ref=e622]: 210 000 FC
+            - generic [ref=e625]:
+              - button "Ajouter Table basse bois flotté au panier" [ref=e626] [cursor=pointer]:
+                - generic [ref=e627]: Ajouter
+              - button "Partager ce produit" [ref=e628] [cursor=pointer]
+        - generic [ref=e629]:
+          - generic [ref=e630]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e631] [cursor=pointer]
+            - 'link "Voir le produit : MacBook Air M2 13\" argent" [ref=e632] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/MacBook_Air_M2_13_argent?id=cc233e33-163b-47bf-bc9b-d1fb06eb121c
+              - img "MacBook Air M2 13\" argent" [ref=e633]
+          - generic [ref=e634]:
+            - heading [level=3] [ref=e635]:
+              - link "MacBook Air M2 13\" argent" [ref=e636] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/MacBook_Air_M2_13_argent?id=cc233e33-163b-47bf-bc9b-d1fb06eb121c
+            - generic [ref=e637]: 2 200 000 FC
+            - generic [ref=e640]:
+              - button "Ajouter MacBook Air M2 13\" argent au panier" [ref=e641] [cursor=pointer]:
+                - generic [ref=e642]: Ajouter
+              - button "Partager ce produit" [ref=e643] [cursor=pointer]
+        - generic [ref=e644]:
+          - generic [ref=e645]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e646] [cursor=pointer]
+            - 'link "Voir le produit : Polo Lacoste L.12.12 Bleu Marine" [ref=e647] [cursor=pointer]':
+              - /url: /boutique/maison_momo/produit/Polo_Lacoste_L_12_12_Bleu_Marine?id=3b761bee-1155-4dc1-82b8-bf0f5063132a
+              - img "Polo Lacoste L.12.12 Bleu Marine" [ref=e648]
+          - generic [ref=e649]:
+            - heading [level=3] [ref=e650]:
+              - link "Polo Lacoste L.12.12 Bleu Marine" [ref=e651] [cursor=pointer]:
+                - /url: /boutique/maison_momo/produit/Polo_Lacoste_L_12_12_Bleu_Marine?id=3b761bee-1155-4dc1-82b8-bf0f5063132a
+            - generic [ref=e652]:
+              - generic [ref=e653]:
+                - generic [ref=e654]: 115 500 FC
+                - generic "Vendeur Certifié"
+              - generic [ref=e655]:
+                - generic [ref=e656]: 130 000 FC
+                - generic [ref=e657]: "-11%"
+            - generic [ref=e658]:
+              - button "Ajouter Polo Lacoste L.12.12 Bleu Marine au panier" [ref=e659] [cursor=pointer]:
+                - generic [ref=e660]: Ajouter
+              - button "Partager ce produit" [ref=e661] [cursor=pointer]
+        - generic [ref=e662]:
+          - generic [ref=e663]:
+            - generic: En stock
+            - button "Ajouter aux favoris" [ref=e664] [cursor=pointer]
+            - 'link "Voir le produit : Lunettes de soleil Céline Triomphe" [ref=e665] [cursor=pointer]':
+              - /url: /boutique/zando_na_palais/produit/Lunettes_de_soleil_Celine_Triomphe?id=6578778b-c83d-4598-b956-bcda33f53b0b
+              - img "Lunettes de soleil Céline Triomphe" [ref=e666]
+          - generic [ref=e667]:
+            - heading [level=3] [ref=e668]:
+              - link "Lunettes de soleil Céline Triomphe" [ref=e669] [cursor=pointer]:
+                - /url: /boutique/zando_na_palais/produit/Lunettes_de_soleil_Celine_Triomphe?id=6578778b-c83d-4598-b956-bcda33f53b0b
+            - generic [ref=e670]: 580 000 FC
+            - generic [ref=e673]:
+              - button "Ajouter Lunettes de soleil Céline Triomphe au panier" [ref=e674] [cursor=pointer]:
+                - generic [ref=e675]: Ajouter
+              - button "Partager ce produit" [ref=e676] [cursor=pointer]
+      - button "Voir plus de produits" [ref=e678] [cursor=pointer]
+  - contentinfo [ref=e680]:
+    - generic [ref=e681]:
+      - generic [ref=e682]:
+        - generic [ref=e683]:
+          - paragraph [ref=e684]: L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
+          - generic [ref=e685]:
+            - link "+243990924254" [ref=e686] [cursor=pointer]:
+              - /url: tel:+243990924254
+            - link "newketmarket@gmail.com" [ref=e688] [cursor=pointer]:
+              - /url: mailto:newketmarket@gmail.com
+          - generic [ref=e690]:
+            - link "NewKet sur Instagram" [ref=e691] [cursor=pointer]:
+              - /url: https://www.instagram.com/Benimakiese007
+            - link "NewKet sur Facebook" [ref=e692] [cursor=pointer]:
+              - /url: https://www.facebook.com/Benimakiese007
+            - link "NewKet sur X" [ref=e693] [cursor=pointer]:
+              - /url: https://x.com/lephoenixman
+            - link "NewKet sur LinkedIn" [ref=e694] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/beni-makiese/
+        - generic [ref=e695]:
+          - heading "Services" [level=4] [ref=e696]
+          - list [ref=e697]:
+            - listitem [ref=e698]:
+              - link "À propos de nous" [ref=e699] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e700]:
+              - link "Devenir Vendeur" [ref=e701] [cursor=pointer]:
+                - /url: /seller
+            - listitem [ref=e702]:
+              - link "Support Technique" [ref=e703] [cursor=pointer]:
+                - /url: /support
+            - listitem [ref=e704]:
+              - link "FAQ" [ref=e705] [cursor=pointer]:
+                - /url: /faq
+            - listitem
+        - generic [ref=e706]:
+          - heading "Inspiration & Offres" [level=4] [ref=e707]
+          - paragraph [ref=e708]: Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.
+          - generic [ref=e709]:
+            - textbox "Votre email" [ref=e710]
+            - button "S'inscrire" [ref=e711] [cursor=pointer]
+      - generic [ref=e712]:
+        - generic [ref=e713]: Paiements acceptés
+        - generic [ref=e714]:
+          - img "Orange Money"
+          - img "Airtel Money"
+          - img "M-Pesa"
+          - img "Afri Money"
+          - img "Mastercard"
+          - img "Visa"
+      - generic [ref=e715]:
+        - paragraph [ref=e716]: © 2026 NEWKET — Expérience Luxe
+        - generic [ref=e717]:
+          - link "Mentions légales" [ref=e718] [cursor=pointer]:
+            - /url: /mentions-legales
+          - link "CGV" [ref=e719] [cursor=pointer]:
+            - /url: /terms
+          - link "Confidentialité" [ref=e720] [cursor=pointer]:
+            - /url: /privacy
+  - dialog "Préférences de cookies" [ref=e721]:
+    - generic [ref=e722]:
+      - generic [ref=e723]:
+        - paragraph [ref=e724]: 🍪 Nous respectons votre vie privée
+        - paragraph [ref=e725]:
+          - text: Nous utilisons des cookies pour améliorer votre expérience. Voir notre
+          - link "politique de confidentialité" [ref=e726] [cursor=pointer]:
+            - /url: /privacy
+          - text: .
+      - generic [ref=e727]:
+        - button "Personnaliser" [ref=e728] [cursor=pointer]
+        - button "Refuser tout" [ref=e729] [cursor=pointer]
+        - button "Accepter tout ✓" [ref=e730] [cursor=pointer]

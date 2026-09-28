@@ -10452,6 +10452,35 @@ html.dark #searchCategoryMenu {
   backdrop-filter: none !important;
 }
 
+/* Keep the portaled category menu anchored to its visible trigger. */
+@supports (top: anchor(bottom)) {
+  #searchCategoryBtn {
+    anchor-name: --search-category-trigger;
+  }
+
+  #mobileSearchContainer .search-bar {
+    anchor-name: --global-search-surface;
+  }
+
+  #searchCategoryMenu[data-ported="1"] {
+    position: fixed !important;
+    position-anchor: --search-category-trigger;
+    top: anchor(bottom) !important;
+    left: anchor(left) !important;
+    margin-top: 6px !important;
+  }
+
+  #searchSuggestions[data-ported="1"] {
+    position: fixed !important;
+    position-anchor: --global-search-surface;
+    top: anchor(bottom) !important;
+    left: anchor(left) !important;
+    width: anchor-size(width) !important;
+    margin-top: 6px !important;
+    z-index: 10020 !important;
+  }
+}
+
 /* Final global skeleton override */
 
 .skeleton {
