@@ -216,18 +216,18 @@
                 </div>
             </div>
 
-            <div class="header-search-row hidden sm:flex flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0" style="max-width: 720px;">
+            <div class="header-search-row flex flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0" style="max-width: 720px;">
                 <div class="search-bar">
                     <div class="search-category-btn">
                         <span>TOUT</span>
                         <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
                     </div>
-                    <div class="search-input flex items-center justify-between text-sm font-semibold text-slate-500 w-full pr-2">
+                    <div class="search-input relative flex items-center justify-between text-sm font-semibold text-slate-500 w-full pr-12">
                         <span>Rechercher sur NewKet...</span>
                         
                         <!-- 🧠 Bouton Google Lens -->
-                        <div id="lens-btn" class="flex items-center justify-center p-1.5 rounded-full hover:bg-slate-100 cursor-pointer transition-colors" title="Recherche par image (Google Lens)">
-                            <iconify-icon icon="solar:camera-linear" width="22" style="color: #f97316 !important;"></iconify-icon>
+                        <div id="lens-btn" role="button" tabindex="0" aria-label="Rechercher par image" class="lens-button absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1.5 rounded-full cursor-pointer transition-colors z-[100]" title="Recherche par image (Google Lens)">
+                            <iconify-icon icon="solar:camera-linear" width="22" style="color: #ffffff !important;"></iconify-icon>
                         </div>
                         <input type="file" id="lens-input" accept="image/*" class="hidden" capture="environment">
                     </div>
