@@ -226,9 +226,9 @@
                         <span>Rechercher sur NewKet...</span>
                         
                         <!-- 🧠 Bouton Google Lens -->
-                        <div id="lens-btn" role="button" tabindex="0" aria-label="Rechercher par image" class="lens-button absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1.5 rounded-full cursor-pointer transition-colors z-[100]" title="Recherche par image (Google Lens)">
+                        <label id="lens-btn" for="lens-input" role="button" tabindex="0" aria-label="Rechercher par image" class="lens-button absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1.5 rounded-full cursor-pointer transition-colors z-[100]" title="Recherche par image (Google Lens)">
                             <iconify-icon icon="solar:camera-linear" width="22" style="color: #ffffff !important;"></iconify-icon>
-                        </div>
+                        </label>
                         <input type="file" id="lens-input" accept="image/*" class="hidden" capture="environment">
                     </div>
                 </div>
@@ -427,7 +427,7 @@
     <!-- ========== TOUS LES PRODUITS + FILTRE ========== -->
     <section class="w-full w-full px-4 sm:px-8 lg:px-12 mt-12 md:mt-16 mb-12 md:mb-16">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900">Tous les produits</h2>
+            <h2 id="allProductsHeading" class="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900">Tous les produits</h2>
                 <div class="flex flex-wrap items-center gap-2" id="filterBar">
                     <button type="button" id="btnFilterAll" data-filter="all" data-filter-all-products="all" class="filter-btn btn-active-scale active px-4 py-2 rounded-xl text-xs font-bold bg-gray-900 text-white transition-all">Toutes les pièces</button>
                     <button type="button" data-filter="Mode Femme" data-filter-all-products="Mode Femme" class="filter-btn btn-active-scale px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Mode Femme</button>

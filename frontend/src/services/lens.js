@@ -1,16 +1,13 @@
 // Module Lens - Event Delegation (Compatible avec l'injection dynamique du header)
 
 export function initGoogleLens() {
-    // Écoute des clics sur le bouton (même s'il est injecté plus tard)
-    document.addEventListener('click', (e) => {
+    // Le label lié au champ fichier ouvre le sélecteur nativement. Ce handler
+    // conserve aussi l'accès clavier quand le header est injecté dynamiquement.
+    document.addEventListener('keydown', (e) => {
         const lensBtn = e.target.closest('#lens-btn');
-        if (lensBtn) {
-            e.stopPropagation();
-            const lensInput = document.getElementById('lens-input');
-            if (lensInput) {
-                lensInput.click();
-            }
-        }
+        if (!lensBtn || (e.key !== 'Enter' && e.key !== ' ')) return;
+        e.preventDefault();
+        document.getElementById('lens-input')?.click();
     });
 
     // Écoute du changement de fichier

@@ -43,13 +43,29 @@ const UI = {
         if (!window.ProductManager) return;
         
         const allProducts = ProductManager.getProducts();
+        const isVisualSearch = ProductManager.isVisualSearch?.() === true;
         console.log(`[NewKet UI] Rendering home grid. Product count: ${allProducts.length}`);
 
-        // 1. Pinned Products Section
-        this.renderPinned(allProducts);
+        const pinnedSection = document.getElementById('pinnedSection');
+        const recentSection = document.getElementById('recentProductGrid')?.closest('section');
+        const allProductsHeading = document.getElementById('allProductsHeading');
+        if (isVisualSearch) {
+            pinnedSection?.classList.add('hidden');
+            recentSection?.classList.add('hidden');
+            if (allProductsHeading) allProductsHeading.textContent = 'Résultats de la recherche visuelle';
+        } else {
+            pinnedSection?.classList.remove('hidden');
+            recentSection?.classList.remove('hidden');
+            if (allProductsHeading) allProductsHeading.textContent = 'Tous les produits';
+        }
 
-        // 2. Recent Products Section
-        this.renderRecent(allProducts);
+        if (!isVisualSearch) {
+            // 1. Pinned Products Section
+            this.renderPinned(allProducts);
+
+            // 2. Recent Products Section
+            this.renderRecent(allProducts);
+        }
 
         // 3. Main/All Products Section
         this.renderAll(allProducts);
@@ -160,7 +176,7 @@ const UI = {
         if (!grid) return;
 
         if (!products || products.length === 0) {
-            grid.innerHTML = window.buildSkeletonCardHTML(8);
+            this.renderFilteredBatch(products, grid, this.getHomeBatchSize(grid), false);
             return;
         }
 
@@ -231,11 +247,12 @@ const UI = {
                 if (isLoading) {
                     container.innerHTML = window.buildSkeletonCardHTML(batchSize);
                 } else {
+                    const isVisualSearch = window.ProductManager?.isVisualSearch?.() === true;
                     container.innerHTML = `
                         <div class="col-span-full py-20 text-center">
                             <iconify-icon icon="solar:box-minimalistic-broken" width="64" class="text-gray-300 mb-4" style="color: #cbd5e1;"></iconify-icon>
-                            <p class="text-gray-500 font-medium">Aucun produit trouvé</p>
-                            <button onclick="location.reload()" class="mt-4 text-sm text-primary hover:underline rounded-xl">Réessayer</button>
+                            <p class="text-gray-500 font-medium">${isVisualSearch ? 'Aucun article similaire n’a été trouvé.' : 'Aucun produit trouvé'}</p>
+                            <button onclick="${isVisualSearch ? "location.href=location.pathname" : 'location.reload()'}" class="mt-4 text-sm text-primary hover:underline rounded-xl">${isVisualSearch ? 'Voir tous les produits' : 'Réessayer'}</button>
                         </div>
                     `;
                 }

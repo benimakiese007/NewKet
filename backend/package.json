@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "index:image-embeddings": "node scripts/index-product-image-embeddings.mjs"
   },
   "keywords": [],
   "author": "",

@@ -41,6 +41,7 @@ const ProductManager = {
     loading: false,
     _error: false,
     _realtimeChannel: null,
+    _isVisualSearch: false,
 
     // ========== QUICK CACHE (localStorage, par produit) ==========
     // TTL : 10 minutes — assez long pour une session normale, assez court pour
@@ -233,20 +234,27 @@ const ProductManager = {
 
             // 🧠 GOOGLE LENS : Intercepter le chargement initial si une recherche visuelle vient d'être faite
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('lens') === 'true') {
+            this._isVisualSearch = urlParams.get('lens') === 'true';
+            if (this._isVisualSearch) {
                 const cachedResults = sessionStorage.getItem('lensResults');
                 if (cachedResults) {
                     try {
                         const parsedResults = JSON.parse(cachedResults);
-                        const mappedResults = parsedResults.map(p => this._mapProduct(p));
+                        const mappedResults = Array.isArray(parsedResults)
+                            ? parsedResults.map(p => this._mapProduct(p))
+                            : [];
                         
                         this.products = mappedResults;
+                        this._currentPage = 1;
                         this._totalCount = mappedResults.length;
                         this._totalCountKnown = true;
                         this._hasMore = false; // Tout tient sur une page pour une recherche d'image
+                        this.loading = false;
                         
-                        // Déclencher l'event pour l'UI
+                        // Les résultats Lens sont déjà disponibles en session : ne laissez
+                        // jamais les skeletons attendre une requête Supabase inutile.
                         window.dispatchEvent(new CustomEvent('productsUpdated'));
+                        setTimeout(() => window.dispatchEvent(new CustomEvent('productsUpdated')), 0);
                         return; // 🛑 On arrête ici, on n'appelle pas Supabase !
                     } catch (e) {
                         console.error('[GoogleLens] Erreur lecture des résultats:', e);
@@ -446,6 +454,10 @@ const ProductManager = {
      */
     hasMore() {
         return this._hasMore;
+    },
+
+    isVisualSearch() {
+        return this._isVisualSearch === true;
     },
 
     /**
