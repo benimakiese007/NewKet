@@ -24,7 +24,7 @@ export function initGoogleLens() {
         
         // Afficher un état de chargement visuel
         if (lensBtn) {
-            lensBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-orange-500"></iconify-icon>';
+            lensBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-white"></iconify-icon>';
         }
         
         try {
@@ -58,7 +58,7 @@ export function initGoogleLens() {
             alert('Impossible de chercher par image pour le moment.');
             // Remettre l'icône normale
             if (lensBtn) {
-                lensBtn.innerHTML = '<iconify-icon icon="solar:camera-linear" width="18" class="text-orange-500"></iconify-icon>';
+                lensBtn.innerHTML = '<iconify-icon icon="solar:camera-linear" width="18" class="text-white"></iconify-icon>';
             }
         }
         

@@ -834,6 +834,20 @@ body.search-focused .main-header {
   transform: translateY(-1px);
 }
 
+/* Match the visual-search control to the anthracite header. */
+.search-bar .lens-button {
+  background: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+.search-bar .lens-button:hover {
+  background: #111827 !important;
+}
+
+.search-bar .lens-button iconify-icon {
+  color: #ffffff !important;
+}
+
 /* Category Toggle inside search bar */
 
 .search-category-btn {

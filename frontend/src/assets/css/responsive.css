@@ -197,7 +197,7 @@ canvas {
     }
 
     .search-input {
-        padding: 0.8rem 1rem !important;
+        padding: 0.8rem 3.25rem 0.8rem 1rem !important;
         font-size: 1rem !important;
         height: 100% !important;
         min-width: 0 !important;
@@ -206,6 +206,17 @@ canvas {
         overflow: hidden;
         background-color: transparent !important;
         border-radius: inherit !important;
+    }
+
+    /* Keep the visual-search control visible and tappable on narrow screens. */
+    .search-bar .lens-button {
+        display: flex !important;
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+        background: #1f2937 !important;
+        right: 0.35rem !important;
+        z-index: 20 !important;
+        flex: 0 0 2.25rem !important;
     }
 
     /* Mobile/tablet: category nav stays desktop-only */
