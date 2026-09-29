@@ -1,48 +1,48 @@
-import { pipeline, env } from '@xenova/transformers';
-
-// Configuration optionnelle : permet de forcer le cache local et éviter de re-télécharger le modèle
-// env.cacheDir = './.cache/transformers';
+import { HfInference } from '@huggingface/inference';
 
 class EmbeddingService {
   constructor() {
-    this.extractor = null;
-    // CLIP ViT-B/32 : le standard de l'industrie pour la similarité Image/Texte (512 dimensions)
-    this.modelName = 'Xenova/clip-vit-base-patch32'; 
-    this.initPromise = this.init();
-  }
-
-  async init() {
-    try {
-      console.log(`[EmbeddingService] Chargement du modèle IA ${this.modelName}...`);
-      // pipeline() va télécharger le modèle la première fois et le garder en cache
-      this.extractor = await pipeline('image-feature-extraction', this.modelName);
-      console.log(`[EmbeddingService] Modèle IA prêt !`);
-    } catch (error) {
-      console.error(`[EmbeddingService] Erreur d'initialisation :`, error);
-    }
+    this.modelName = 'openai/clip-vit-base-patch32';
+    // Initialise HF Inference
+    const token = process.env.HUGGINGFACE_TOKEN || process.env.HF_TOKEN;
+    this.hf = new HfInference(token);
   }
 
   /**
-   * Génère un vecteur (embedding) à partir de l'URL d'une image
+   * Genere un vecteur (embedding) a partir de l'URL d'une image via HF API
    * @param {string} imageUrl URL publique de l'image
-   * @returns {Promise<number[]>} Le vecteur à 512 dimensions
+   * @returns {Promise<number[]>} Le vecteur a 512 dimensions
    */
   async generateImageEmbedding(imageUrl) {
-    await this.initPromise;
-    
-    if (!this.extractor) {
-      throw new Error("L'IA n'est pas initialisée");
+    if (!process.env.HUGGINGFACE_TOKEN && !process.env.HF_TOKEN) {
+      console.warn("[EmbeddingService] ATTENTION: HUGGINGFACE_TOKEN est manquant.");
     }
 
     try {
-      // Génère l'embedding. L'IA s'occupe de télécharger l'image depuis l'URL, 
-      // de la redimensionner, et de l'analyser.
-      const output = await this.extractor(imageUrl);
+      // 1. Telecharger l'image car HF API prefere souvent un Blob binaire plutot qu'une URL
+      const imageRes = await fetch(imageUrl);
+      if (!imageRes.ok) {
+        throw new Error("Impossible de telecharger l'image source");
+      }
+      const imageBlob = await imageRes.blob();
+
+      // 2. Appel a l'API Serverless d'Hugging Face (hyper rapide)
+      const output = await this.hf.featureExtraction({
+        model: this.modelName,
+        inputs: imageBlob,
+      });
+
+      // 3. Formater la reponse pour Supabase
+      let vector = Array.isArray(output) ? output : Array.from(output);
       
-      // Le résultat est un Float32Array. On le convertit en Array standard pour Supabase.
-      return Array.from(output.data);
+      // Parfois CLIP retourne un tableau 2D (ex: [ [0.1, 0.2, ... 512] ])
+      if (vector.length > 0 && Array.isArray(vector[0])) {
+        vector = vector[0];
+      }
+
+      return vector;
     } catch (error) {
-      console.error(`[EmbeddingService] Erreur lors de l'analyse de l'image :`, error.message);
+      console.error("[EmbeddingService] Erreur API HF:", error.message);
       return null;
     }
   }

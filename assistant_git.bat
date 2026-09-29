@@ -220,13 +220,18 @@ echo.
 echo   Fichiers modifies detectes :
 echo.
 
+REM Ecriture dans un fichier temporaire pour eviter les bugs de buffer
+set "tmpfile=%temp%\newket_git_status.tmp"
+git status --porcelain > "%tmpfile%"
+
 set compteur=0
-for /f "usebackq delims=" %%F in (`git status --porcelain`) do (
+for /f "usebackq tokens=* delims=" %%F in ("%tmpfile%") do (
     set /a compteur+=1
     set "ligne=%%F"
     set "fichier!compteur!=!ligne:~3!"
     echo   [!compteur!] !ligne:~3!
 )
+del "%tmpfile%" >nul 2>&1
 
 echo.
 if !compteur!==0 (
