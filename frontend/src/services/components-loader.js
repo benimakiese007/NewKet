@@ -88,7 +88,7 @@ const HEADER_HTML = `
                         <label id="lens-btn" for="lens-input" role="button" tabindex="0" aria-label="Rechercher par image" class="lens-button absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center p-1.5 rounded-full hover:bg-slate-100 cursor-pointer transition-colors z-[100]" title="Recherche par image (Google Lens)">
                             <iconify-icon icon="solar:camera-linear" width="18" class="text-white"></iconify-icon>
                         </label>
-                    <input type="file" id="lens-input" accept="image/*" class="hidden" capture="environment">
+                    <input type="file" id="lens-input" accept="image/*" class="hidden">
 
                     <div id="searchSuggestions" class="search-suggestions"></div>
                 </div>
