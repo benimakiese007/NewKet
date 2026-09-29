@@ -3067,6 +3067,54 @@ window.showOrderSuccessModal = function() {
     });
 };
 
+window.showPaymentSuccessModal = function() {
+    // Inject the success animation container
+    const modalHtml = `
+        <div id="paymentSuccessOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white/90 backdrop-blur-sm transition-opacity duration-500 opacity-0">
+            <div class="flex flex-col items-center justify-center p-8 text-center transform scale-75 opacity-0" id="paymentSuccessContent">
+                <div class="relative w-32 h-32 mb-6">
+                    <svg class="absolute inset-0 w-full h-full text-green-500" viewBox="0 0 52 52">
+                        <circle class="stroke-current text-green-200" cx="26" cy="26" r="25" fill="none" stroke-width="2"/>
+                        <circle id="paymentSuccessCircle" class="stroke-current text-green-500" cx="26" cy="26" r="25" fill="none" stroke-width="2" stroke-dasharray="157" stroke-dashoffset="157" style="transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 0.8s ease-in-out;"/>
+                        <path id="paymentSuccessCheck" class="stroke-current text-green-500" fill="none" stroke-width="3" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke-dasharray="35" stroke-dashoffset="35" style="transition: stroke-dashoffset 0.5s ease-out 0.8s;"/>
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Paiement accepté !</h2>
+                <p class="text-gray-500 font-medium mb-8 max-w-sm">Votre transaction a bien été effectuée. Vous allez être redirigé vers vos achats.</p>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    const overlay = document.getElementById('paymentSuccessOverlay');
+    const content = document.getElementById('paymentSuccessContent');
+    const circle = document.getElementById('paymentSuccessCircle');
+    const check = document.getElementById('paymentSuccessCheck');
+    
+    // Trigger animations
+    requestAnimationFrame(() => {
+        overlay.classList.remove('opacity-0');
+        content.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease';
+        content.classList.remove('scale-75', 'opacity-0');
+        
+        setTimeout(() => {
+            circle.style.strokeDashoffset = '0';
+            check.style.strokeDashoffset = '0';
+        }, 300);
+        
+        // Redirect after animation completes
+        setTimeout(() => {
+            const role = window.AuthManager ? window.AuthManager.role : null;
+            let targetDashboard = 'customer-dashboard';
+            if (role === 'vendor' || role === 'supplier') {
+                targetDashboard = 'vendor-dashboard';
+            }
+            window.location.href = window.resolvePath(targetDashboard) + '#purchases';
+        }, 2800);
+    });
+};
+
 window.copyAndAnimateButton = async function(event, text, successText = 'Copié !') {
     const btn = event.currentTarget;
     if (!btn || btn._isAnimatingCopy) return;
