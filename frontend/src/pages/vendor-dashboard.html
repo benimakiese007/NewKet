@@ -1588,6 +1588,13 @@
                     const validTabs = ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'promos', 'payouts', 'settings'];
                     if (baseTab && validTabs.includes(baseTab)) {
                         switchVendorTab(baseTab);
+                        if (baseTab === 'purchases') {
+                            const params = new URLSearchParams(hash.split('?')[1] || '');
+                            const filter = params.get('filter');
+                            if (filter && typeof window.renderVendorPurchases === 'function') {
+                                window.renderVendorPurchases(filter);
+                            }
+                        }
                     } else {
                         switchVendorTab('dashboard');
                     }

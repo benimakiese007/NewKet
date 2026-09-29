@@ -962,6 +962,10 @@
         let catalogVisualSearchLoading = false;
         let catalogVisualSearchError = false;
 
+        // ⏱️ Délai max avant d'afficher le empty state (en ms)
+        // Vercel maxDuration = 60s — on coupe côté client à 30s pour une meilleure UX
+        const LENS_TIMEOUT_MS = 30_000;
+
         async function startVisualSearch() {
             catalogVisualSearchLoading = true;
             catalogVisualSearchError = false;
@@ -971,10 +975,23 @@
                 const image = await window.NewKetVisualSearch?.takePendingImage?.();
                 if (!image) throw new Error('Image de recherche introuvable');
 
-                const results = await window.NewKetVisualSearch.searchByImage(image);
+                // Course entre la vraie recherche et le timeout
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('LENS_TIMEOUT')), LENS_TIMEOUT_MS)
+                );
+
+                const results = await Promise.race([
+                    window.NewKetVisualSearch.searchByImage(image),
+                    timeoutPromise
+                ]);
+
                 sessionStorage.setItem('lensResults', JSON.stringify(results));
             } catch (error) {
-                console.error('[NewKet Catalog] Visual search failed:', error);
+                if (error.message === 'LENS_TIMEOUT') {
+                    console.warn('[NewKet Catalog] Visual search timed out after', LENS_TIMEOUT_MS / 1000, 's');
+                } else {
+                    console.error('[NewKet Catalog] Visual search failed:', error);
+                }
                 catalogVisualSearchError = true;
             } finally {
                 catalogVisualSearchLoading = false;
@@ -1151,8 +1168,60 @@
                 catalogHasMore = allProducts.length > to + 1;
             }
 
-            // Show skeletons if still loading and no products yet
-            const isLoading = catalogVisualSearchLoading || (window.ProductManager && window.ProductManager.loading);
+            // 🎯 Animation de scan Lens pendant la recherche visuelle
+            if (catalogVisualSearchLoading && products.length === 0 && !append) {
+                grid.innerHTML = `
+                    <style>
+                        @keyframes nk-scan {
+                            0%   { top: 4px; opacity: 1; }
+                            48%  { top: calc(100% - 6px); opacity: 1; }
+                            50%  { opacity: 0; }
+                            52%  { top: 4px; opacity: 0; }
+                            54%  { opacity: 1; }
+                            100% { top: calc(100% - 6px); opacity: 1; }
+                        }
+                        @keyframes nk-ring {
+                            0%, 100% { transform: scale(1); opacity: .15; }
+                            50%      { transform: scale(1.08); opacity: .35; }
+                        }
+                        @keyframes nk-dot {
+                            0%, 80%, 100% { transform: scale(0.6); opacity: .3; }
+                            40%           { transform: scale(1.2); opacity: 1; }
+                        }
+                        .nk-scan-line { animation: nk-scan 2.2s ease-in-out infinite; position: absolute; left: 8px; right: 8px; height: 2px; border-radius: 9999px; background: linear-gradient(90deg, transparent, #f97316, transparent); filter: drop-shadow(0 0 5px #f97316); }
+                        .nk-ring      { animation: nk-ring 2.2s ease-in-out infinite; }
+                        .nk-dot-1     { animation: nk-dot 1.4s ease-in-out infinite; }
+                        .nk-dot-2     { animation: nk-dot 1.4s ease-in-out infinite .2s; }
+                        .nk-dot-3     { animation: nk-dot 1.4s ease-in-out infinite .4s; }
+                    </style>
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 select-none">
+                        <div class="relative w-44 h-44 mb-8">
+                            <div class="nk-ring absolute -inset-3 rounded-[28px] border border-orange-400/40 bg-orange-500/5"></div>
+                            <div class="relative w-full h-full rounded-3xl border-2 border-orange-500/70 bg-gradient-to-br from-orange-50 to-white overflow-hidden">
+                                <span class="absolute top-2 left-2 w-5 h-5 border-t-[3px] border-l-[3px] border-orange-500 rounded-tl-lg"></span>
+                                <span class="absolute top-2 right-2 w-5 h-5 border-t-[3px] border-r-[3px] border-orange-500 rounded-tr-lg"></span>
+                                <span class="absolute bottom-2 left-2 w-5 h-5 border-b-[3px] border-l-[3px] border-orange-500 rounded-bl-lg"></span>
+                                <span class="absolute bottom-2 right-2 w-5 h-5 border-b-[3px] border-r-[3px] border-orange-500 rounded-br-lg"></span>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <iconify-icon icon="solar:camera-linear" width="52" style="color:#f97316;opacity:.5;"></iconify-icon>
+                                </div>
+                                <div class="nk-scan-line"></div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Analyse visuelle en cours&hellip;</h3>
+                        <p class="text-sm text-gray-400 max-w-xs text-center mb-6">Notre IA compare votre image avec le catalogue NewKet</p>
+                        <div class="flex items-center gap-2">
+                            <span class="nk-dot-1 inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                            <span class="nk-dot-2 inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                            <span class="nk-dot-3 inline-block w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Skeletons normaux pour le chargement initial du catalogue
+            const isLoading = window.ProductManager && window.ProductManager.loading;
             if (isLoading && products.length === 0 && !append) {
                 grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
                 return;

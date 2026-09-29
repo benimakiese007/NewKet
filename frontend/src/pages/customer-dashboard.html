@@ -4654,8 +4654,15 @@
                     const decoded = decodeURIComponent(raw);
                     const tab = (decoded.split(/[?&]/)[0] || '').trim();
                     if (typeof window.switchTab !== 'function') return;
-                    if (['dashboard', 'orders', 'achat', 'favorites', 'notifications', 'settings'].includes(tab)) {
+                    if (['dashboard', 'orders', 'achat', 'favorites', 'notifications', 'settings', 'purchases'].includes(tab)) {
                         window.switchTab(tab);
+                        if (tab === 'purchases') {
+                            const params = new URLSearchParams(decoded.split('?')[1] || '');
+                            const filter = params.get('filter');
+                            if (filter && typeof window.renderCustomerPurchasesTab === 'function') {
+                                window.renderCustomerPurchasesTab(filter);
+                            }
+                        }
                     }
                 } catch (e) {}
             }

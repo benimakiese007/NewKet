@@ -55,9 +55,9 @@
                     </div>
                 </div>
 
-                <h1 id="statusTitle" class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Paiement confirme !</h1>
+                <h1 id="statusTitle" class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">PAIEMENT ACCEPTÉ !</h1>
                 <p id="statusDescription" class="mb-12 text-lg font-medium leading-relaxed text-gray-500">
-                    Merci pour votre confiance. Votre commande est maintenant securisee et le vendeur a ete alerte.
+                    Votre transaction a bien été effectuée. Vous allez être redirigé vers vos achats...
                 </p>
 
                 <div class="mb-12 space-y-4 rounded-3xl border border-gray-100/50 bg-gray-50/50 p-6 text-left">
@@ -231,12 +231,12 @@
                     clearTimeout(window.__newketPaymentRedirectTimer);
                 }
                 window.__newketPaymentRedirectTimer = setTimeout(() => {
-                    const target = resolvedOrderId
-                        ? `/customer-dashboard.html#achat?order_id=${encodeURIComponent(resolvedOrderId)}`
-                        : (txRef
-                            ? `/customer-dashboard.html#orders?tx_ref=${encodeURIComponent(txRef)}`
-                            : '/customer-dashboard.html#orders');
-                    window.location.href = target;
+                    const role = window.AuthManager ? window.AuthManager.role : localStorage.getItem('newketRole');
+                    let targetDashboard = '/customer-dashboard.html';
+                    if (role === 'vendor' || role === 'supplier') {
+                        targetDashboard = '/vendor-dashboard.html';
+                    }
+                    window.location.href = `${targetDashboard}#purchases?filter=paid`;
                 }, 3000);
 
                 const count = 200;

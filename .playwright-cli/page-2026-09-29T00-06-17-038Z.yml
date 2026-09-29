@@ -1,0 +1,85 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "Ouvrir le menu" [ref=e7] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e12] [cursor=pointer]:
+          - /url: /
+          - img "NewKet" [ref=e13]
+      - generic [ref=e15]:
+        - generic "Choisir une catégorie" [ref=e16] [cursor=pointer]: Tout
+        - textbox "Rechercher des produits" [ref=e21]:
+          - /placeholder: Rechercher sur NewKet...
+          - text: Recherche visuelle
+        - button "Rechercher par image" [ref=e22] [cursor=pointer]
+      - generic [ref=e28]:
+        - generic "Devise d'affichage" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]:
+            - generic [ref=e33]: USD
+            - generic [ref=e34]: CDF
+        - link "Voir les notifications" [ref=e35] [cursor=pointer]:
+          - /url: /notifications
+        - link "Voir les favoris" [ref=e41] [cursor=pointer]:
+          - /url: /favorites
+        - button "Voir le panier" [ref=e45] [cursor=pointer]
+        - link "Mon compte" [ref=e52] [cursor=pointer]:
+          - /url: /login
+  - navigation [ref=e58]:
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - button "Ouvrir le menu" [ref=e62] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e67] [cursor=pointer]:
+          - /url: /
+          - img "NewKet" [ref=e68]
+      - generic [ref=e70]:
+        - generic "Choisir une catégorie" [ref=e71] [cursor=pointer]: TOUT
+        - textbox "Rechercher des produits" [ref=e76]:
+          - /placeholder: Rechercher sur NewKet...
+          - text: Recherche visuelle
+        - button "Rechercher par image" [ref=e77] [cursor=pointer]
+      - generic [ref=e83]:
+        - generic "Devise d'affichage" [ref=e85] [cursor=pointer]:
+          - generic [ref=e86]:
+            - generic [ref=e88]: USD
+            - generic [ref=e89]: CDF
+        - link "Voir les notifications" [ref=e90] [cursor=pointer]:
+          - /url: /notifications
+        - link "Voir les favoris" [ref=e96] [cursor=pointer]:
+          - /url: /favorites
+        - button "Voir le panier" [ref=e100] [cursor=pointer]
+        - link "Mon compte" [ref=e107] [cursor=pointer]:
+          - /url: /login
+  - main [ref=e113]:
+    - generic:
+      - generic [aria-hidden]:
+        - generic: Mise à jour...
+    - generic [ref=e114]:
+      - heading "Résultats de la recherche visuelle" [level=1] [ref=e115]
+      - generic [ref=e117]:
+        - combobox [ref=e120] [cursor=pointer]:
+          - option "Pertinence" [selected]
+          - option "Prix Croissant"
+          - option "Prix Décroissant"
+          - option "Nouveautés"
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - button "Catégorie" [ref=e124] [cursor=pointer]
+            - button "Prix" [ref=e136] [cursor=pointer]
+            - button "État" [ref=e148] [cursor=pointer]
+            - button "Note" [ref=e160] [cursor=pointer]
+          - generic [ref=e170]:
+            - generic [ref=e171]: En Promo
+            - button "Réinitialiser" [ref=e176] [cursor=pointer]
+  - dialog "Préférences de cookies" [ref=e193]:
+    - generic [ref=e194]:
+      - generic [ref=e195]:
+        - paragraph [ref=e196]: 🍪 Nous respectons votre vie privée
+        - paragraph [ref=e197]:
+          - text: Nous utilisons des cookies pour améliorer votre expérience. Voir notre
+          - link "politique de confidentialité" [ref=e198] [cursor=pointer]:
+            - /url: /privacy
+          - text: .
+      - generic [ref=e199]:
+        - button "Personnaliser" [ref=e200] [cursor=pointer]
+        - button "Refuser tout" [ref=e201] [cursor=pointer]
+        - button "Accepter tout ✓" [ref=e202] [cursor=pointer]
