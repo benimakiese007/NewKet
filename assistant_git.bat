@@ -38,54 +38,56 @@ echo    1. [VOIR]            Voir mes modifications           (git status)
 echo    2. [DEPART]          Commencer une nouvelle tache     (git checkout -b)
 echo    3. [MAJ]             Mettre le projet a jour          (git pull)
 echo    4. [FIN]             Sauvegarder et envoyer           (git add, commit, push)
-echo    5. [PUSH]            Envoyer vos commits locaux       (git push)
-echo    6. [PAUSE]           Mettre mon travail en attente    (git stash)
-echo    7. [REPRISE]         Recuperer mon travail en attente (git stash pop)
-echo    8. [URGENCE]         Tout annuler, repartir de zero   (git reset --hard)
+echo    5. [PARTIEL]         Choisir les fichiers a envoyer   (git add selectif)
+echo    6. [PUSH]            Envoyer vos commits locaux       (git push)
+echo    7. [PAUSE]           Mettre mon travail en attente    (git stash)
+echo    8. [REPRISE]         Recuperer mon travail en attente (git stash pop)
+echo    9. [URGENCE]         Tout annuler, repartir de zero   (git reset --hard)
 echo   --- Erreurs et Corrections -----------------------
-echo    9. [MODIFIER MSG]    Corriger le dernier message      (git commit --amend)
-echo   10. [ANNULER COMMIT]  Annuler le dernier commit        (git reset --soft HEAD~1)
+echo   10. [MODIFIER MSG]    Corriger le dernier message      (git commit --amend)
+echo   11. [ANNULER COMMIT]  Annuler le dernier commit        (git reset --soft HEAD~1)
 echo   --- Exploration ----------------------------------
-echo   11. [HISTORIQUE]      Voir les derniers commits        (git log)
-echo   12. [BRANCHES]        Voir et changer de branche       (git branch + checkout)
-echo   13. [DIFFERENCES]     Voir ce qui a change en detail   (git diff)
-echo   14. [QUI A MODIFIE]   Voir qui a touche chaque ligne   (git blame)
-echo   15. [RECHERCHER]      Trouver un commit par mot-cle    (git log --grep)
-echo   16. [MON PROFIL]      Voir mon compte Git actuel       (git config)
+echo   12. [HISTORIQUE]      Voir les derniers commits        (git log)
+echo   13. [BRANCHES]        Voir et changer de branche       (git branch + checkout)
+echo   14. [DIFFERENCES]     Voir ce qui a change en detail   (git diff)
+echo   15. [QUI A MODIFIE]   Voir qui a touche chaque ligne   (git blame)
+echo   16. [RECHERCHER]      Trouver un commit par mot-cle    (git log --grep)
+echo   17. [MON PROFIL]      Voir mon compte Git actuel       (git config)
 echo   --- Gestion avancee ------------------------------
-echo   17. [FUSIONNER]       Fusionner une branche dans main  (git merge)
-echo   18. [SUPPR. BRANCHE]  Supprimer une branche terminee   (git branch -d)
-echo   19. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
-echo   20. [VERSION]         Marquer une version stable       (git tag)
-echo   21. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
+echo   18. [FUSIONNER]       Fusionner une branche dans main  (git merge)
+echo   19. [SUPPR. BRANCHE]  Supprimer une branche terminee   (git branch -d)
+echo   20. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
+echo   21. [VERSION]         Marquer une version stable       (git tag)
+echo   22. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
 echo   --------------------------------------------------
-echo   22. [AIDE]            Comprendre chaque option
+echo   23. [AIDE]            Comprendre chaque option
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-22) : "
+set /p choix="   Choix (0-23) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
 if "%choix%"=="3"  goto PULL
 if "%choix%"=="4"  goto PUSH
-if "%choix%"=="5"  goto PUSH_SEUL
-if "%choix%"=="6"  goto STASH
-if "%choix%"=="7"  goto UNSTASH
-if "%choix%"=="8"  goto RESET
-if "%choix%"=="9"  goto AMEND
-if "%choix%"=="10" goto UNDO_COMMIT
-if "%choix%"=="11" goto HISTORIQUE
-if "%choix%"=="12" goto BRANCHES
-if "%choix%"=="13" goto DIFFERENCES
-if "%choix%"=="14" goto BLAME
-if "%choix%"=="15" goto RECHERCHE
-if "%choix%"=="16" goto PROFIL
-if "%choix%"=="17" goto FUSIONNER
-if "%choix%"=="18" goto SUPPRBRANCH
-if "%choix%"=="19" goto RETOURRAPIDE
-if "%choix%"=="20" goto VERSION
-if "%choix%"=="21" goto CONFLITS
-if "%choix%"=="22" goto HELP
+if "%choix%"=="5"  goto PARTIEL
+if "%choix%"=="6"  goto PUSH_SEUL
+if "%choix%"=="7"  goto STASH
+if "%choix%"=="8"  goto UNSTASH
+if "%choix%"=="9"  goto RESET
+if "%choix%"=="10" goto AMEND
+if "%choix%"=="11" goto UNDO_COMMIT
+if "%choix%"=="12" goto HISTORIQUE
+if "%choix%"=="13" goto BRANCHES
+if "%choix%"=="14" goto DIFFERENCES
+if "%choix%"=="15" goto BLAME
+if "%choix%"=="16" goto RECHERCHE
+if "%choix%"=="17" goto PROFIL
+if "%choix%"=="18" goto FUSIONNER
+if "%choix%"=="19" goto SUPPRBRANCH
+if "%choix%"=="20" goto RETOURRAPIDE
+if "%choix%"=="21" goto VERSION
+if "%choix%"=="22" goto CONFLITS
+if "%choix%"=="23" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -203,6 +205,102 @@ echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
 pause >nul
+goto MENU
+
+REM ============================================================
+REM  OPTION 5 - COMMIT PARTIEL : choisir les fichiers par numero
+REM ============================================================
+:PARTIEL
+cls
+setlocal enabledelayedexpansion
+echo ==================================================
+echo      COMMIT PARTIEL - CHOISIR LES FICHIERS
+echo ==================================================
+echo.
+echo   Fichiers modifies detectes :
+echo.
+
+set compteur=0
+for /f "usebackq delims=" %%F in (`git status --porcelain`) do (
+    set /a compteur+=1
+    set "ligne=%%F"
+    set "fichier!compteur!=!ligne:~3!"
+    echo   [!compteur!] !ligne:~3!
+)
+
+echo.
+if !compteur!==0 (
+    echo   Aucun fichier modifie. Rien a commiter.
+    echo.
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir au menu...
+    pause >nul
+    endlocal
+    goto MENU
+)
+
+echo   --------------------------------------------------
+echo   Tape les numeros separes par des espaces (ex: 1 3)
+echo   ou tape TOUT pour ajouter tous les fichiers.
+echo.
+set /p selection="   Votre selection : "
+echo.
+
+if /i "!selection!"=="TOUT" (
+    echo   + Ajout de tous les fichiers...
+    git add .
+    goto PARTIEL_COMMIT
+)
+
+REM Ajouter uniquement les fichiers selectionnes
+for %%N in (!selection!) do (
+    if defined fichier%%N (
+        echo   + Ajout de : !fichier%%N!
+        git add "!fichier%%N!"
+    ) else (
+        echo   [IGNORE] Le numero %%N n'existe pas dans la liste.
+    )
+)
+
+:PARTIEL_COMMIT
+echo.
+set /p message_commit="   Message de commit : "
+echo.
+echo   [2/3] Sauvegarde locale (commit)...
+git commit -m "!message_commit!"
+echo   [3/3] Envoi vers GitHub (push)...
+
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_actuelle=%%a
+
+if /i not "!branche_actuelle!"=="main" goto DO_PUSH_PARTIEL
+
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+echo.
+echo   !ESC![91m================ ATTENTION ================ !ESC![0m
+echo   !ESC![91mVous etes sur le point d'envoyer sur 'main'.!ESC![0m
+set /p confirm_main="   Veuillez taper 'main' pour confirmer : "
+if /i not "!confirm_main!"=="main" (
+    echo.
+    echo   Envoi annule.
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir au menu...
+    pause >nul
+    endlocal
+    goto MENU
+)
+
+:DO_PUSH_PARTIEL
+git push origin !branche_actuelle!
+echo.
+echo ==================================================
+echo   Fichiers selectionnes envoyes avec succes !
+echo   Pense a creer une Pull Request sur GitHub.
+echo ==================================================
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+endlocal
 goto MENU
 
 :STASH
@@ -576,33 +674,34 @@ echo              GUIDE D'UTILISATION
 echo ==================================================
 echo.
 echo   --- TRAVAIL QUOTIDIEN ---
-echo   1  - VOIR          : Consulter les fichiers modifies.
-echo   2  - DEPART        : Creer une branche pour commencer.
-echo   3  - MAJ           : Recuperer le code de l'equipe.
-echo   4  - FIN           : Sauvegarder et envoyer (add+commit+push).
-echo   5  - PUSH          : Envoyer vos commits locaux vers le serveur.
-echo   6  - PAUSE         : Mettre son travail de cote.
-echo   7  - REPRISE       : Restaurer le travail mis en attente.
-echo   8  - URGENCE       : Tout annuler et revenir a la version propre.
+echo    1  - VOIR          : Consulter les fichiers modifies.
+echo    2  - DEPART        : Creer une branche pour commencer.
+echo    3  - MAJ           : Recuperer le code de l'equipe.
+echo    4  - FIN           : Sauvegarder et envoyer (add+commit+push).
+echo    5  - PARTIEL       : Choisir fichier(s) par numero a commiter.
+echo    6  - PUSH          : Envoyer vos commits locaux vers le serveur.
+echo    7  - PAUSE         : Mettre son travail de cote.
+echo    8  - REPRISE       : Restaurer le travail mis en attente.
+echo    9  - URGENCE       : Tout annuler et revenir a la version propre.
 echo.
 echo   --- ERREURS ET CORRECTIONS ---
-echo   9  - MODIFIER MSG  : Corriger une faute dans le nom du commit.
-echo  10  - ANNULER COMMIT: Annuler la sauvegarde (mais garder le code).
+echo   10  - MODIFIER MSG  : Corriger une faute dans le nom du commit.
+echo   11  - ANNULER COMMIT: Annuler la sauvegarde (mais garder le code).
 echo.
 echo   --- EXPLORATION ---
-echo  11  - HISTORIQUE    : Voir les 20 derniers commits de l'equipe.
-echo  12  - BRANCHES      : Lister et changer de branche.
-echo  13  - DIFFERENCES   : Voir les modifications ligne par ligne.
-echo  14  - QUI A MODIFIE : Trouver l'auteur de chaque ligne d'un fichier.
-echo  15  - RECHERCHER    : Retrouver un ancien commit contenant un mot-cle.
-echo  16  - MON PROFIL    : Verifier/Modifier son identifiant Git.
+echo   12  - HISTORIQUE    : Voir les 20 derniers commits de l'equipe.
+echo   13  - BRANCHES      : Lister et changer de branche.
+echo   14  - DIFFERENCES   : Voir les modifications ligne par ligne.
+echo   15  - QUI A MODIFIE : Trouver l'auteur de chaque ligne d'un fichier.
+echo   16  - RECHERCHER    : Retrouver un ancien commit contenant un mot-cle.
+echo   17  - MON PROFIL    : Verifier/Modifier son identifiant Git.
 echo.
 echo   --- GESTION AVANCEE ---
-echo  17  - FUSIONNER     : Integrer une branche dans main.
-echo  18  - SUPPR. BRANCHE: Supprimer une ancienne branche.
-echo  19  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
-echo  20  - VERSION       : Marquer une version stable (v1.0).
-echo  21  - CONFLITS      : Ouvrir VS Code pour resoudre un conflit.
+echo   18  - FUSIONNER     : Integrer une branche dans main.
+echo   19  - SUPPR. BRANCHE: Supprimer une ancienne branche.
+echo   20  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
+echo   21  - VERSION       : Marquer une version stable (v1.0).
+echo   22  - CONFLITS      : Ouvrir VS Code pour resoudre un conflit.
 echo.
 echo ==================================================
 echo.
