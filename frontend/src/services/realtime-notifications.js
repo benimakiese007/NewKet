@@ -340,80 +340,16 @@ const AppNotifications = {
 
         navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
             .then((registration) => {
-                const showUpdateToast = () => {
-                    if (document.getElementById('newket-sw-update-toast')) return;
-
-                    // Réutilise le container partagé des toasts existants
-                    let container = document.getElementById('toast-container');
-                    if (!container) {
-                        container = document.createElement('div');
-                        container.id = 'toast-container';
-                        document.documentElement.appendChild(container);
+                // Appliquer la mise à jour silencieusement quand l'utilisateur clique sur le logo
+                document.addEventListener('click', (e) => {
+                    const logoLink = e.target.closest('.header-logo-link') || e.target.closest('.nk-header-logo-link');
+                    if (logoLink && registration.waiting) {
+                        e.preventDefault();
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                     }
-
-                    const toast = document.createElement('div');
-                    toast.id = 'newket-sw-update-toast';
-                    toast.className = 'nk-toast nk-toast-info';
-
-                    toast.innerHTML = `
-                        <div class="nk-toast-icon">
-                            <iconify-icon icon="solar:refresh-circle-bold" width="22"></iconify-icon>
-                        </div>
-                        <div class="nk-toast-body" style="flex-direction: row; align-items: center; justify-content: space-between;">
-                            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.2rem;">
-                                <div class="nk-toast-title">Mise a jour</div>
-                                <div class="nk-toast-content">
-                                    <span>Une nouvelle version est disponible.</span>
-                                </div>
-                            </div>
-                            <button id="sw-update-btn" style="margin-left: 1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #f9fafb; padding: 6px 14px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; cursor: pointer; white-space: nowrap; letter-spacing: 0.04em; transition: background 0.2s;">
-                                Recharger
-                            </button>
-                        </div>
-                        <button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>
-                    `;
-
-                    container.appendChild(toast);
-
-                    const closeBtn = toast.querySelector('.nk-toast-close');
-                    let isDismissed = false;
-                    const dismiss = () => {
-                        if (isDismissed) return;
-                        isDismissed = true;
-                        toast.classList.add('exit');
-                        // Fallback si animationend ne fire pas (ex: animation déjà consommée)
-                        const t = setTimeout(() => toast.remove(), 450);
-                        toast.addEventListener('animationend', () => { clearTimeout(t); toast.remove(); }, { once: true });
-                    };
-
-                    closeBtn.addEventListener('click', dismiss);
-
-                    document.getElementById('sw-update-btn').addEventListener('click', () => {
-                        dismiss();
-                        if (registration.waiting) {
-                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                        }
-                        // Fallback : si controllerchange ne fire pas, on recharge directement
-                        setTimeout(() => window.location.reload(), 300);
-                    });
-                };
-
-                registration.addEventListener('updatefound', () => {
-                    const installingWorker = registration.installing;
-                    if (!installingWorker) return;
-
-                    installingWorker.addEventListener('statechange', () => {
-                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateToast();
-                        }
-                    });
                 });
 
-                if (registration.waiting) {
-                    showUpdateToast();
-                }
-                registration.update().catch(() => {});
-
+                // On garde la vérification périodique silencieuse (sans toast)
                 window.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'visible') {
                         registration.update().catch(() => {});
