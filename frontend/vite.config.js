@@ -260,7 +260,9 @@ export default defineConfig({
           }
         }
       }
-    }
+    }  },
+  optimizeDeps: {
+    exclude: ['@xenova/transformers']
   }
 });
 
@@ -270,3 +272,4 @@ export default defineConfig({
 // Test
 
 // Test2
+

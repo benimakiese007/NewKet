@@ -1,12 +1,21 @@
-// Module Lens - Event Delegation (Compatible avec l'injection dynamique du header)
+/**
+ * lens.js — Recherche visuelle côté navigateur
+ * Le modèle CLIP tourne directement dans le navigateur (WebAssembly).
+ * Aucune API externe payante n'est nécessaire.
+ * Le vecteur est généré localement puis envoyé à Supabase pour la comparaison.
+ */
+
+import { generateEmbedding } from './clip-embedder.js';
 
 let isSearchingByImage = false;
 const VISUAL_SEARCH_DB = 'newket-visual-search';
 const VISUAL_SEARCH_STORE = 'pending-image';
 
+// ─── IndexedDB helpers ────────────────────────────────────────────────────────
+
 function openVisualSearchStore(mode = 'readonly') {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(VISUAL_SEARCH_DB, 1);
+        const request = indexedDB.open(VISUAL_SEARCH_DB, 2);
         request.onupgradeneeded = () => {
             if (!request.result.objectStoreNames.contains(VISUAL_SEARCH_STORE)) {
                 request.result.createObjectStore(VISUAL_SEARCH_STORE);
@@ -21,9 +30,9 @@ function openVisualSearchStore(mode = 'readonly') {
     });
 }
 
-async function savePendingImage(file) {
+async function savePendingEmbedding(vector) {
     const { database, store, transaction } = await openVisualSearchStore('readwrite');
-    store.put(file, 'image');
+    store.put(vector, 'embedding');
     await new Promise((resolve, reject) => {
         transaction.oncomplete = resolve;
         transaction.onerror = () => reject(transaction.error);
@@ -32,80 +41,95 @@ async function savePendingImage(file) {
     database.close();
 }
 
-async function takePendingImage() {
+export async function takePendingEmbedding() {
     const { database, store, transaction } = await openVisualSearchStore('readwrite');
-    const request = store.get('image');
-    const file = await new Promise((resolve, reject) => {
+    const request = store.get('embedding');
+    const vector = await new Promise((resolve, reject) => {
         request.onsuccess = () => resolve(request.result || null);
         request.onerror = () => reject(request.error);
     });
-    store.delete('image');
+    store.delete('embedding');
     await new Promise((resolve, reject) => {
         transaction.oncomplete = resolve;
         transaction.onerror = () => reject(transaction.error);
         transaction.onabort = () => reject(transaction.error);
     });
     database.close();
-    return file;
+    return vector;
 }
 
-export async function searchByImage(file) {
-    const formData = new FormData();
-    formData.append('image', file);
+// ─── Supabase visual search (direct, pas de backend) ─────────────────────────
 
-    const response = await fetch('/api/products/search-by-image', {
+export async function searchByEmbedding(queryEmbedding) {
+    // Appel Supabase RPC directement depuis le frontend (lecture publique)
+    const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/search_products_by_image`, {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseAnon,
+            'Authorization': `Bearer ${supabaseAnon}`
+        },
+        body: JSON.stringify({
+            query_embedding: queryEmbedding,
+            match_threshold: 0.65,
+            match_count: 20
+        })
     });
 
-    if (!response.ok) throw new Error('Erreur réseau');
-    const result = await response.json();
-    if (!result || !Array.isArray(result.data)) throw new Error('Réponse Lens invalide');
-    return result.data;
+    if (!res.ok) throw new Error(`Supabase RPC error: ${res.status}`);
+    return res.json(); // Retourne directement le tableau de produits
+}
+
+// Compat avec l'ancien code catalog.html qui appelle searchByImage(file)
+export async function searchByImage(file) {
+    const vector = await generateEmbedding(file);
+    return searchByEmbedding(vector);
 }
 
 window.NewKetVisualSearch = {
-    takePendingImage,
+    takePendingEmbedding,
+    searchByEmbedding,
     searchByImage
 };
 
-function setLensLoading(isLoading) {
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+
+function setLensStatus(text) {
     const lensBtn = document.getElementById('lens-btn');
-    const searchBar = lensBtn?.closest('.search-bar');
+    const searchBar = lensBtn?.closest('.search-bar') || lensBtn?.closest('div');
     let status = searchBar?.querySelector('.lens-loading-status');
 
-    if (isLoading) {
+    if (text) {
         if (lensBtn) {
             lensBtn.setAttribute('aria-busy', 'true');
-            lensBtn.setAttribute('aria-label', 'Analyse de l’image en cours');
+            lensBtn.setAttribute('aria-label', text);
             lensBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-white"></iconify-icon>';
         }
-        if (searchBar) {
-            searchBar.classList.add('lens-is-loading');
-            if (!status) {
-                status = document.createElement('div');
-                status.className = 'lens-loading-status';
-                status.setAttribute('role', 'status');
-                status.setAttribute('aria-live', 'polite');
-                status.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon><span>Analyse de l’image…</span>';
-                searchBar.appendChild(status);
-            }
+        if (searchBar && !status) {
+            status = document.createElement('div');
+            status.className = 'lens-loading-status';
+            status.setAttribute('role', 'status');
+            status.setAttribute('aria-live', 'polite');
+            searchBar.appendChild(status);
         }
+        if (status) status.textContent = text;
         return;
     }
 
     if (lensBtn) {
         lensBtn.removeAttribute('aria-busy');
         lensBtn.setAttribute('aria-label', 'Rechercher par image');
-        lensBtn.innerHTML = '<iconify-icon icon="solar:camera-linear" width="18" class="text-white"></iconify-icon>';
+        lensBtn.innerHTML = '<iconify-icon icon="solar:camera-linear" width="18" style="color: #f97316 !important;"></iconify-icon>';
     }
-    searchBar?.classList.remove('lens-is-loading');
     status?.remove();
 }
 
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
 export function initGoogleLens() {
-    // Le label lié au champ fichier ouvre le sélecteur nativement. Ce handler
-    // conserve aussi l'accès clavier quand le header est injecté dynamiquement.
     document.addEventListener('keydown', (e) => {
         const lensBtn = e.target.closest('#lens-btn');
         if (!lensBtn || (e.key !== 'Enter' && e.key !== ' ')) return;
@@ -113,7 +137,6 @@ export function initGoogleLens() {
         document.getElementById('lens-input')?.click();
     });
 
-    // Écoute du changement de fichier
     document.addEventListener('change', async (e) => {
         if (e.target.id !== 'lens-input') return;
 
@@ -121,12 +144,17 @@ export function initGoogleLens() {
         if (!file || isSearchingByImage) return;
 
         isSearchingByImage = true;
-        setLensLoading(true);
-        
+
         try {
-            // IndexedDB conserve le fichier pendant la navigation. Catalogue fera
-            // l'analyse et affichera ses skeletons sans attendre cette page.
-            await savePendingImage(file);
+            setLensStatus('Chargement du modèle IA…');
+
+            // Génère l'embedding dans le navigateur (WebAssembly)
+            const vector = await generateEmbedding(file, ({ message }) => {
+                setLensStatus(message || 'Analyse en cours…');
+            });
+
+            // Sauvegarde le vecteur dans IndexedDB pour catalog.html
+            await savePendingEmbedding(vector);
             sessionStorage.removeItem('lensResults');
 
             const catalogPath = window.ComponentLoader?.getAdjustedPath
@@ -134,13 +162,12 @@ export function initGoogleLens() {
                 : '/catalog';
             window.location.assign(`${catalogPath}?q=Recherche+visuelle&lens=true`);
         } catch (error) {
-            console.error('Erreur Google Lens:', error);
+            console.error('[Lens] Erreur:', error);
+            setLensStatus(null);
             alert('Impossible de chercher par image pour le moment.');
-            setLensLoading(false);
             isSearchingByImage = false;
         }
-        
-        // Reset l'input file pour permettre de reprendre la même photo
+
         e.target.value = '';
     });
 }

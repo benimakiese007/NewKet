@@ -962,9 +962,9 @@
         let catalogVisualSearchLoading = false;
         let catalogVisualSearchError = false;
 
-        // ⏱️ Délai max avant d'afficher le empty state (en ms)
-        // Vercel maxDuration = 60s — on coupe côté client à 30s pour une meilleure UX
-        const LENS_TIMEOUT_MS = 30_000;
+        // ⏱️ Délai max pour la recherche visuelle (ms)
+        // Le modèle tourne dans le navigateur — 10s max (cold start WASM)
+        const LENS_TIMEOUT_MS = 10_000;
 
         async function startVisualSearch() {
             catalogVisualSearchLoading = true;
@@ -972,16 +972,17 @@
             await renderCatalog(false);
 
             try {
-                const image = await window.NewKetVisualSearch?.takePendingImage?.();
-                if (!image) throw new Error('Image de recherche introuvable');
+                // 1. Lit le vecteur pré-calculé dans le navigateur par lens.js
+                const embedding = await window.NewKetVisualSearch?.takePendingEmbedding?.();
+                if (!embedding) throw new Error('Vecteur de recherche introuvable');
 
-                // Course entre la vraie recherche et le timeout
+                // 2. Appel Supabase RPC directement (pas de backend nécessaire)
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('LENS_TIMEOUT')), LENS_TIMEOUT_MS)
                 );
 
                 const results = await Promise.race([
-                    window.NewKetVisualSearch.searchByImage(image),
+                    window.NewKetVisualSearch.searchByEmbedding(embedding),
                     timeoutPromise
                 ]);
 
