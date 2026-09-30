@@ -408,11 +408,117 @@
                 grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
                 gap: 1.5rem !important;
             }
+        }        /* --- Visual Search Scanner Overlay --- */
+        #lens-scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        #lens-scanner-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .lens-scanner-container {
+            position: relative;
+            width: 85vw;
+            max-width: 400px;
+            aspect-ratio: 3/4;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .lens-scanner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6);
+        }
+        /* Corners framing (Pinterest style) */
+        .lens-scanner-frame {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 2px solid transparent;
+        }
+        .lens-scanner-frame::before, .lens-scanner-frame::after {
+            content: ''; position: absolute; width: 40px; height: 40px; border-color: rgba(255,255,255,0.8); border-style: solid;
+        }
+        .lens-scanner-frame::before { top: 0; left: 0; border-width: 3px 0 0 3px; border-top-left-radius: 12px; }
+        .lens-scanner-frame::after { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-bottom-right-radius: 12px; }
+        .lens-scanner-frame-inner::before, .lens-scanner-frame-inner::after {
+            content: ''; position: absolute; width: 40px; height: 40px; border-color: rgba(255,255,255,0.8); border-style: solid;
+        }
+        .lens-scanner-frame-inner::before { top: 0; right: 0; border-width: 3px 3px 0 0; border-top-right-radius: 12px; }
+        .lens-scanner-frame-inner::after { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-bottom-left-radius: 12px; }
+        
+        /* Laser scanning line */
+        .lens-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #f97316; /* NewKet Orange */
+            box-shadow: 0 0 15px 5px rgba(249, 115, 22, 0.4);
+            animation: scan-laser 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+        }
+        @keyframes scan-laser {
+            0% { top: 5%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 95%; opacity: 0; }
+        }
+        
+        .lens-scanner-text {
+            margin-top: 2rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .lens-scanner-text iconify-icon {
+            color: #f97316;
+            animation: pulse-icon 1.5s infinite;
+        }
+        @keyframes pulse-icon {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
         }
     </style>
 </head>
 
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
+
+    <!-- LENS SCANNER OVERLAY (Fullscreen) -->
+    <div id="lens-scanner-overlay">
+        <div class="lens-scanner-container">
+            <img id="lens-scanner-img" class="lens-scanner-img" src="" alt="Scan in progress" />
+            <div class="lens-scanner-frame">
+                <div class="lens-scanner-frame-inner"></div>
+            </div>
+            <div class="lens-laser"></div>
+        </div>
+        <div class="lens-scanner-text">
+            <iconify-icon icon="solar:camera-bold" width="24"></iconify-icon>
+            Analyse visuelle en cours...
+        </div>
+    </div>
     <div id="header-placeholder"></div>
 
             <!-- Main content -->
@@ -969,14 +1075,25 @@
         async function startVisualSearch() {
             catalogVisualSearchLoading = true;
             catalogVisualSearchError = false;
+
+            // 1. Affiche l'overlay de scan Pinterest-style
+            const overlay = document.getElementById('lens-scanner-overlay');
+            const scannerImg = document.getElementById('lens-scanner-img');
+            const dataUrl = sessionStorage.getItem('lensScanImage');
+            
+            if (dataUrl && scannerImg && overlay) {
+                scannerImg.src = dataUrl;
+                overlay.classList.add('active');
+            }
+
             await renderCatalog(false);
 
             try {
-                // 1. Lit le vecteur pré-calculé dans le navigateur par lens.js
+                // Lit le vecteur pré-calculé dans le navigateur par lens.js
                 const embedding = await window.NewKetVisualSearch?.takePendingEmbedding?.();
                 if (!embedding) throw new Error('Vecteur de recherche introuvable');
 
-                // 2. Appel Supabase RPC directement (pas de backend nécessaire)
+                // Appel Supabase RPC directement
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('LENS_TIMEOUT')), LENS_TIMEOUT_MS)
                 );
@@ -995,6 +1112,13 @@
                 }
                 catalogVisualSearchError = true;
             } finally {
+                // Cache l'overlay avec un fondu
+                if (overlay) {
+                    overlay.classList.remove('active');
+                    // On nettoie l'image du session storage pour la prochaine fois
+                    setTimeout(() => { sessionStorage.removeItem('lensScanImage'); }, 400);
+                }
+
                 catalogVisualSearchLoading = false;
                 const title = document.getElementById('catalogTitle');
                 if (title) title.textContent = 'Résultats de la recherche visuelle';

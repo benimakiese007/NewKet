@@ -146,9 +146,18 @@ export function initGoogleLens() {
             await savePendingEmbedding(vector);
             sessionStorage.removeItem('lensResults');
 
+            // Sauvegarde l'image en Base64 dans sessionStorage pour l'afficher dans l'overlay "Scanner"
+            const dataUrl = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => resolve(ev.target.result);
+                reader.readAsDataURL(file);
+            });
+            sessionStorage.setItem('lensScanImage', dataUrl);
+
             const catalogPath = window.ComponentLoader?.getAdjustedPath
                 ? window.ComponentLoader.getAdjustedPath('pages/catalog')
                 : '/catalog';
+
             window.location.assign(`${catalogPath}?q=Recherche+visuelle&lens=true`);
         } catch (error) {
             console.error('[Lens] Erreur:', error);
