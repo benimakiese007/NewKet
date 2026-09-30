@@ -17,23 +17,28 @@ async function loadModel(onProgress) {
 
   if (!loadPromise) {
     loadPromise = (async () => {
-      const { pipeline, env } = await import('@xenova/transformers');
+      // Importe d'abord env seul pour configurer avant que le runtime ONNX ne s'initialise
+      const transformers = await import('@xenova/transformers');
+      const { env } = transformers;
 
-      // Indispensable pour Vite : force le mode single-thread
-      // (SharedArrayBuffer non disponible sans en-têtes COOP/COEP)
+      // Configuration AVANT toute initialisation de pipeline
       env.allowLocalModels = false;
-      env.backends.onnx.wasm.numThreads = 1;
-      // Pointe les fichiers WASM vers jsDelivr CDN pour éviter les problèmes de build Vite
-      env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/';
+
+      // Force single-thread (pas de SharedArrayBuffer requis)
+      if (env.backends?.onnx?.wasm) {
+        env.backends.onnx.wasm.numThreads = 1;
+        env.backends.onnx.wasm.wasmPaths =
+          'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/';
+      }
 
       if (onProgress) {
         onProgress({ status: 'loading', message: 'Chargement du modèle IA...' });
       }
 
-      extractor = await pipeline(
+      extractor = await transformers.pipeline(
         'image-feature-extraction',
         'Xenova/clip-vit-base-patch32',
-        { quantized: true } // version quantisée : ~22MB au lieu de 80MB !
+        { quantized: true }
       );
 
       if (onProgress) {

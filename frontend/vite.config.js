@@ -262,7 +262,7 @@ export default defineConfig({
       }
     }  },
   optimizeDeps: {
-    exclude: ['@xenova/transformers']
+    exclude: ['@xenova/transformers', 'onnxruntime-web', 'onnxruntime-node']
   }
 });
 
@@ -272,4 +272,5 @@ export default defineConfig({
 // Test
 
 // Test2
+
 
