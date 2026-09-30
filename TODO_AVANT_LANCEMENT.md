@@ -1,5 +1,16 @@
 # À faire avant le lancement en production
 
+## 🔴 Critique — Recherche Visuelle (Lens)
+
+- [ ] **Finaliser le moteur d'embedding (Replicate API)** : L'embedding service (`backend/src/services/embedding.service.js`) doit être branché sur Replicate pour générer les vecteurs CLIP au moment d'une recherche visuelle. Tester en production que la route `/api/products/search-by-image` retourne des résultats en moins de 5 secondes.
+- [ ] **Migrer vers Google Vertex AI** *(priorité dès qu'une vraie carte bancaire est disponible)* : Google Vertex AI est plus rapide (500ms), plus fiable et moins cher (~2$/mois pour 10 000 requêtes). Nécessite :
+  - Une carte bancaire non-prépayée (ex: Rawbank, Equity Bank DRC)
+  - Activer la facturation sur `console.cloud.google.com` (projet `newket-market`)
+  - Modifier `embedding.service.js` pour appeler `multimodalembedding@001` via `google-auth-library`
+  - Migrer le champ `image_embedding` de `vector(512)` → `vector(1408)` dans Supabase
+  - Re-générer les embeddings des 90 produits existants avec le nouveau modèle
+  - Mettre à jour la fonction RPC `search_products_by_image` dans Supabase
+
 ## Sécurité & Nettoyage de code
 - [ ] **Paiement (Frontend)** : Dans `frontend/src/pages/payment-success.html`, retirer le bloc de code lié au mode simulation `?mock=true` (autour de la ligne 329-334) pour s'assurer que la page vérifie toujours le vrai statut de la transaction via le backend.
 

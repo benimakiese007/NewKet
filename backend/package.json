@@ -25,6 +25,7 @@
     "express-rate-limit": "^8.5.2",
     "express-validator": "^7.3.2",
     "file-type": "^22.0.2",
+    "google-auth-library": "^11.1.0",
     "helmet": "^8.1.0",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
@@ -32,6 +33,7 @@
     "nodemailer": "^9.0.3",
     "path-to-regexp": "^8.4.2",
     "qs": "^6.15.3",
+    "replicate": "^1.4.0",
     "sharp": "^0.35.4",
     "web-push": "^3.6.7",
     "ws": "^8.21.0"

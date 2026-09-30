@@ -39,3 +39,5 @@ antigravity-workflows/
 .secrets
 scripts/bat/.secrets
 scripts/bat/_secrets.bat
+
+google-credentials.json
