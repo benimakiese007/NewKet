@@ -35,7 +35,7 @@ export default defineConfig({
       enforce: 'pre',
       transformIndexHtml(html, ctx) {
         const path = ctx.path || '';
-        const isMinimalPage = path.includes('/login') || path.includes('/publish') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding');
+        const isMinimalPage = path.includes('/login') || path.includes('/publish') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding') || path.includes('/lens');
         const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
 
         // Inject build version meta tag into every page

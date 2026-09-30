@@ -119,11 +119,26 @@ function setLensStatus(text) {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 export function initGoogleLens() {
+    // Force navigation to /lens on click, even if old cached header with label+input is used
+    document.addEventListener('click', (e) => {
+        const lensBtn = e.target.closest('#lens-btn');
+        if (lensBtn) {
+            e.preventDefault();
+            const lensPath = window.ComponentLoader?.getAdjustedPath
+                ? window.ComponentLoader.getAdjustedPath('pages/lens')
+                : '/lens';
+            window.location.assign(lensPath);
+        }
+    });
+
     document.addEventListener('keydown', (e) => {
         const lensBtn = e.target.closest('#lens-btn');
         if (!lensBtn || (e.key !== 'Enter' && e.key !== ' ')) return;
         e.preventDefault();
-        document.getElementById('lens-input')?.click();
+        const lensPath = window.ComponentLoader?.getAdjustedPath
+            ? window.ComponentLoader.getAdjustedPath('pages/lens')
+            : '/lens';
+        window.location.assign(lensPath);
     });
 
     document.addEventListener('change', async (e) => {

@@ -9,8 +9,7 @@
     <meta name="theme-color" content="#0f0f0f">
     <title>Recherche visuelle — NewKet Lens</title>
     <meta name="description" content="Prenez ou uploadez une photo pour trouver des produits similaires sur NewKet.">
-    <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js"></script>
-    <script type="module" src="/src/main.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -80,6 +79,17 @@
             align-items: center;
             justify-content: center;
             animation: pulse-ring 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .upload-icon-ring:hover {
+            background: rgba(249, 115, 22, 0.15);
+            border-color: rgba(249, 115, 22, 0.6);
+            transform: scale(1.05);
+        }
+        .upload-icon-ring:active {
+            transform: scale(0.96);
         }
         @keyframes pulse-ring {
             0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
@@ -214,7 +224,7 @@
         #results-section {
             display: none;
             flex-direction: column;
-            padding: 0 1rem 2rem;
+            padding: 5rem 1rem 2rem;
             gap: 1rem;
         }
         #results-section.active { display: flex; }
@@ -324,29 +334,22 @@
 
     <!-- ── Upload Zone (état initial) ───────────────────────────────── -->
     <div id="upload-zone">
-        <div class="upload-icon-ring">
+
+        <!-- Input unique — le navigateur gère nativement caméra/galerie/fichier -->
+        <input type="file" id="lens-file-input" accept="image/*" style="display:none">
+
+        <!-- Zone cliquable : icône caméra -->
+        <div class="upload-icon-ring" id="upload-trigger" role="button" tabindex="0"
+             aria-label="Choisir ou prendre une photo"
+             onclick="document.getElementById('lens-file-input').click()"
+             onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('lens-file-input').click()">
             <iconify-icon icon="solar:camera-broken" width="52" style="color:#f97316"></iconify-icon>
         </div>
 
         <div class="upload-hint">
             <h1>Recherche par image</h1>
-            <p>Prenez une photo ou importez une image<br>pour trouver des produits similaires.</p>
+            <p>Appuyez sur l'icône pour prendre une photo<br>ou importer une image.</p>
         </div>
-
-        <div class="cta-grid">
-            <button class="cta-btn primary" id="btn-camera">
-                <iconify-icon icon="solar:camera-bold"></iconify-icon>
-                Prendre<br>une photo
-            </button>
-            <button class="cta-btn" id="btn-gallery">
-                <iconify-icon icon="solar:gallery-bold"></iconify-icon>
-                Choisir<br>une image
-            </button>
-        </div>
-
-        <!-- Inputs cachés -->
-        <input type="file" id="input-camera" accept="image/*" capture="environment" class="hidden" style="display:none">
-        <input type="file" id="input-gallery" accept="image/*" class="hidden" style="display:none">
     </div>
 
     <!-- ── Scanner (état scan en cours) ─────────────────────────────── -->
@@ -386,15 +389,15 @@
         const resultsGrid  = document.getElementById('results-grid');
         const seeAllLink   = document.getElementById('see-all-link');
 
-        document.getElementById('btn-camera').addEventListener('click', () => {
-            document.getElementById('input-camera').click();
-        });
-        document.getElementById('btn-gallery').addEventListener('click', () => {
-            document.getElementById('input-gallery').click();
-        });
         document.getElementById('btn-retry').addEventListener('click', () => {
             resultsSection.classList.remove('active');
             uploadZone.classList.remove('hidden');
+        });
+
+        // Input unique — caméra/galerie/fichier géré nativement par le navigateur
+        document.getElementById('lens-file-input').addEventListener('change', e => {
+            handleFile(e.target.files[0]);
+            e.target.value = '';
         });
 
         async function handleFile(file) {
@@ -469,14 +472,6 @@
 
             resultsSection.classList.add('active');
         }
-
-        // Branche les deux inputs sur le même handler
-        ['input-camera', 'input-gallery'].forEach(id => {
-            document.getElementById(id).addEventListener('change', e => {
-                handleFile(e.target.files[0]);
-                e.target.value = '';
-            });
-        });
     </script>
 </body>
 </html>
