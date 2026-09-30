@@ -7,6 +7,7 @@ module.exports = {
     "./src/**/*.{html,js}",
     "./public/**/*.{html,js}"
   ],
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
       colors: {
