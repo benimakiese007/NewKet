@@ -19,12 +19,14 @@ async function loadModel(onProgress) {
     loadPromise = (async () => {
       const { pipeline, env } = await import('@xenova/transformers');
 
-      // Utilise le CDN WASM de HuggingFace (pas de backend nécessaire)
+      // Indispensable pour Vite : force le mode single-thread
+      // (SharedArrayBuffer non disponible sans en-têtes COOP/COEP)
       env.allowLocalModels = false;
+      env.backends.onnx.wasm.numThreads = 1;
+      // Pointe les fichiers WASM vers jsDelivr CDN pour éviter les problèmes de build Vite
+      env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/';
 
       if (onProgress) {
-        // On ne peut pas facilement hooker le progress de @xenova ici
-        // mais on peut indiquer à l'utilisateur que ça charge
         onProgress({ status: 'loading', message: 'Chargement du modèle IA...' });
       }
 
