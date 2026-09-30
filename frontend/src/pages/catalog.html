@@ -1076,24 +1076,25 @@
             catalogVisualSearchLoading = true;
             catalogVisualSearchError = false;
 
-            // 1. Affiche l'overlay de scan Pinterest-style
+            // L'overlay (scanner) est déjà visible — on récupère juste la référence
+            // pour le masquer quand les résultats seront prêts.
             const overlay = document.getElementById('lens-scanner-overlay');
             const scannerImg = document.getElementById('lens-scanner-img');
             const dataUrl = sessionStorage.getItem('lensScanImage');
-            
+
             if (dataUrl && scannerImg && overlay) {
                 scannerImg.src = dataUrl;
                 overlay.classList.add('active');
             }
 
-            await renderCatalog(false);
+            // ⚠️ On ne fait PAS renderCatalog ici pour éviter l'apparition des skeletons.
+            // La grille reste vide derrière l'overlay jusqu'à ce que les résultats soient prêts.
 
             try {
                 // Lit le vecteur pré-calculé dans le navigateur par lens.js
                 const embedding = await window.NewKetVisualSearch?.takePendingEmbedding?.();
                 if (!embedding) throw new Error('Vecteur de recherche introuvable');
 
-                // Appel Supabase RPC directement
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('LENS_TIMEOUT')), LENS_TIMEOUT_MS)
                 );
@@ -1112,17 +1113,17 @@
                 }
                 catalogVisualSearchError = true;
             } finally {
-                // Cache l'overlay avec un fondu
-                if (overlay) {
-                    overlay.classList.remove('active');
-                    // On nettoie l'image du session storage pour la prochaine fois
-                    setTimeout(() => { sessionStorage.removeItem('lensScanImage'); }, 400);
-                }
-
                 catalogVisualSearchLoading = false;
                 const title = document.getElementById('catalogTitle');
                 if (title) title.textContent = 'Résultats de la recherche visuelle';
+
+                // Rend le catalogue avec les résultats, PUIS cache l'overlay
                 await renderCatalog(false);
+
+                if (overlay) {
+                    overlay.classList.remove('active');
+                    setTimeout(() => { sessionStorage.removeItem('lensScanImage'); }, 400);
+                }
             }
         }
 

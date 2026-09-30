@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>Recherche visuelle — NewKet Lens</title>
+    <meta name="description" content="Prenez ou uploadez une photo pour trouver des produits similaires sur NewKet.">
+    <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js"></script>
+    <script type="module" src="/src/main.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header back button ─────────────────────────────────── */
+        .lens-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(to bottom, rgba(0,0,0,.8), transparent);
+        }
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .btn-back:hover { opacity: 1; }
+        .lens-title {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lens-title span { color: #f97316; }
+
+        /* ── Upload zone ─────────────────────────────────────────── */
+        #upload-zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 1.5rem 2rem;
+            gap: 2rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-icon-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(249, 115, 22, 0.08);
+            border: 2px solid rgba(249, 115, 22, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-ring 3s ease-in-out infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+            50% { box-shadow: 0 0 0 16px rgba(249, 115, 22, 0.08); }
+        }
+
+        .upload-hint {
+            text-align: center;
+        }
+        .upload-hint h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .upload-hint p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ── CTA buttons ─────────────────────────────────────────── */
+        .cta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .cta-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 1.4rem 1rem;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .cta-btn:hover, .cta-btn:active {
+            background: rgba(249, 115, 22, 0.12);
+            border-color: rgba(249, 115, 22, 0.4);
+            transform: scale(0.98);
+        }
+        .cta-btn.primary {
+            background: #f97316;
+            border-color: #f97316;
+            color: #fff;
+        }
+        .cta-btn.primary:hover {
+            background: #ea6b0f;
+            border-color: #ea6b0f;
+        }
+        .cta-btn iconify-icon { font-size: 28px; }
+
+        /* ── Scanner overlay ─────────────────────────────────────── */
+        #lens-scanner {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 6rem 1.5rem 2rem;
+            gap: 2rem;
+        }
+        #lens-scanner.active { display: flex; }
+        #upload-zone.hidden { display: none; }
+
+        .scanner-frame-wrap {
+            position: relative;
+            width: 85vw;
+            max-width: 400px;
+            aspect-ratio: 3/4;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,.6);
+        }
+        .scanner-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.65);
+        }
+        /* Corner frames */
+        .scanner-corners {
+            position: absolute;
+            inset: 10px;
+        }
+        .scanner-corners::before, .scanner-corners::after,
+        .scanner-corners-inner::before, .scanner-corners-inner::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-color: rgba(255,255,255,0.85);
+            border-style: solid;
+        }
+        .scanner-corners::before { top:0; left:0; border-width: 3px 0 0 3px; border-top-left-radius: 12px; }
+        .scanner-corners::after  { bottom:0; right:0; border-width: 0 3px 3px 0; border-bottom-right-radius: 12px; }
+        .scanner-corners-inner::before { top:0; right:0; border-width: 3px 3px 0 0; border-top-right-radius: 12px; }
+        .scanner-corners-inner::after  { bottom:0; left:0; border-width: 0 0 3px 3px; border-bottom-left-radius: 12px; }
+        /* Laser */
+        .laser-line {
+            position: absolute;
+            left: 0; width: 100%; height: 3px;
+            background: #f97316;
+            box-shadow: 0 0 16px 6px rgba(249, 115, 22, 0.45);
+            animation: scan-laser 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+        }
+        @keyframes scan-laser {
+            0%   { top: 5%;  opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { top: 95%; opacity: 0; }
+        }
+        .scanner-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .scanner-label iconify-icon { color: #f97316; }
+
+        /* ── Results section ─────────────────────────────────────── */
+        #results-section {
+            display: none;
+            flex-direction: column;
+            padding: 0 1rem 2rem;
+            gap: 1rem;
+        }
+        #results-section.active { display: flex; }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.25rem;
+        }
+        .results-header h2 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .results-header a {
+            font-size: 0.82rem;
+            color: #f97316;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (min-width: 480px) {
+            .results-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 768px) {
+            .results-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .result-card {
+            background: #1a1a1a;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .result-card:hover { transform: scale(0.98); }
+        .result-card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+        .result-card-info {
+            padding: 0.6rem 0.75rem;
+        }
+        .result-card-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 2px;
+        }
+        .result-card-price {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255,255,255,0.4);
+        }
+        .no-results iconify-icon { font-size: 48px; margin-bottom: 1rem; display: block; }
+
+        /* ── Retry button ─────────────────────────────────────────── */
+        .btn-retry {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.9rem 2rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: background 0.2s;
+        }
+        .btn-retry:hover { background: rgba(255,255,255,0.12); }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="lens-header">
+        <a class="btn-back" href="javascript:history.back()">
+            <iconify-icon icon="solar:arrow-left-linear" width="20"></iconify-icon>
+            Retour
+        </a>
+        <div class="lens-title">
+            <iconify-icon icon="solar:camera-bold" width="20"></iconify-icon>
+            NewKet <span>Lens</span>
+        </div>
+        <div style="width:60px"></div>
+    </header>
+
+    <!-- ── Upload Zone (état initial) ───────────────────────────────── -->
+    <div id="upload-zone">
+        <div class="upload-icon-ring">
+            <iconify-icon icon="solar:camera-broken" width="52" style="color:#f97316"></iconify-icon>
+        </div>
+
+        <div class="upload-hint">
+            <h1>Recherche par image</h1>
+            <p>Prenez une photo ou importez une image<br>pour trouver des produits similaires.</p>
+        </div>
+
+        <div class="cta-grid">
+            <button class="cta-btn primary" id="btn-camera">
+                <iconify-icon icon="solar:camera-bold"></iconify-icon>
+                Prendre<br>une photo
+            </button>
+            <button class="cta-btn" id="btn-gallery">
+                <iconify-icon icon="solar:gallery-bold"></iconify-icon>
+                Choisir<br>une image
+            </button>
+        </div>
+
+        <!-- Inputs cachés -->
+        <input type="file" id="input-camera" accept="image/*" capture="environment" class="hidden" style="display:none">
+        <input type="file" id="input-gallery" accept="image/*" class="hidden" style="display:none">
+    </div>
+
+    <!-- ── Scanner (état scan en cours) ─────────────────────────────── -->
+    <div id="lens-scanner">
+        <div class="scanner-frame-wrap">
+            <img id="scanner-photo" class="scanner-photo" src="" alt="Photo en cours d'analyse" />
+            <div class="scanner-corners"><div class="scanner-corners-inner"></div></div>
+            <div class="laser-line"></div>
+        </div>
+        <div class="scanner-label">
+            <iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>
+            Analyse visuelle en cours...
+        </div>
+    </div>
+
+    <!-- ── Résultats ─────────────────────────────────────────────────── -->
+    <div id="results-section">
+        <div class="results-header">
+            <h2>Produits similaires</h2>
+            <a id="see-all-link" href="/catalog?lens=true">Voir tout →</a>
+        </div>
+        <div id="results-grid" class="results-grid"></div>
+        <button class="btn-retry" id="btn-retry">
+            <iconify-icon icon="solar:camera-linear" width="18"></iconify-icon>
+            Nouvelle recherche
+        </button>
+    </div>
+
+    <script type="module">
+        import { generateEmbedding } from '/src/services/clip-embedder.js';
+        import { searchByEmbedding } from '/src/services/lens.js';
+
+        const uploadZone   = document.getElementById('upload-zone');
+        const lensScanner  = document.getElementById('lens-scanner');
+        const resultsSection = document.getElementById('results-section');
+        const scannerPhoto = document.getElementById('scanner-photo');
+        const resultsGrid  = document.getElementById('results-grid');
+        const seeAllLink   = document.getElementById('see-all-link');
+
+        document.getElementById('btn-camera').addEventListener('click', () => {
+            document.getElementById('input-camera').click();
+        });
+        document.getElementById('btn-gallery').addEventListener('click', () => {
+            document.getElementById('input-gallery').click();
+        });
+        document.getElementById('btn-retry').addEventListener('click', () => {
+            resultsSection.classList.remove('active');
+            uploadZone.classList.remove('hidden');
+        });
+
+        async function handleFile(file) {
+            if (!file) return;
+
+            // 1. Lit l'image immédiatement pour affichage
+            const dataUrl = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+
+            // 2. Montre le scanner instantanément
+            scannerPhoto.src = dataUrl;
+            uploadZone.classList.add('hidden');
+            lensScanner.classList.add('active');
+
+            try {
+                // 3. Génère l'embedding (IA locale WebAssembly)
+                const vector = await generateEmbedding(file);
+
+                // 4. Recherche dans Supabase
+                const results = await searchByEmbedding(vector);
+
+                // 5. Sauvegarde pour "Voir tout"
+                sessionStorage.setItem('lensResults', JSON.stringify(results));
+                sessionStorage.setItem('lensScanImage', dataUrl);
+                seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
+
+                // 6. Affiche les résultats
+                renderResults(results);
+            } catch (err) {
+                console.error('[Lens]', err);
+                resultsGrid.innerHTML = `
+                    <div class="no-results" style="grid-column:1/-1">
+                        <iconify-icon icon="solar:sad-circle-linear"></iconify-icon>
+                        Impossible d'analyser cette image.<br>
+                        <small style="color:rgba(255,255,255,.3)">${err.message}</small>
+                    </div>`;
+                lensScanner.classList.remove('active');
+                resultsSection.classList.add('active');
+            }
+        }
+
+        function renderResults(products) {
+            lensScanner.classList.remove('active');
+
+            if (!products || products.length === 0) {
+                resultsGrid.innerHTML = `
+                    <div class="no-results" style="grid-column:1/-1">
+                        <iconify-icon icon="solar:magnifer-linear"></iconify-icon>
+                        Aucun produit similaire trouvé.<br>
+                        <small style="color:rgba(255,255,255,.3)">Essayez avec une autre photo.</small>
+                    </div>`;
+                resultsSection.classList.add('active');
+                return;
+            }
+
+            resultsGrid.innerHTML = products.slice(0, 12).map(p => {
+                const img = (p.image || '').split('||')[0].split(',')[0] || '/Images/placeholder.jpg';
+                const price = new Intl.NumberFormat('fr-CD').format(p.price || 0);
+                const url = `/product?id=${p.id}`;
+                return `
+                    <a class="result-card" href="${url}">
+                        <img src="${img}" alt="${p.name}" loading="lazy" onerror="this.src='/Images/placeholder.jpg'">
+                        <div class="result-card-info">
+                            <div class="result-card-name">${p.name}</div>
+                            <div class="result-card-price">${price} FC</div>
+                        </div>
+                    </a>`;
+            }).join('');
+
+            resultsSection.classList.add('active');
+        }
+
+        // Branche les deux inputs sur le même handler
+        ['input-camera', 'input-gallery'].forEach(id => {
+            document.getElementById(id).addEventListener('change', e => {
+                handleFile(e.target.files[0]);
+                e.target.value = '';
+            });
+        });
+    </script>
+</body>
+</html>

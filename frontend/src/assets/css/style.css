@@ -287,6 +287,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  min-height: 100vh; /* Fix short page background */
 }
 
 /* Prevent mobile auto-zoom on focus by ensuring font-size is at least 16px */
@@ -6590,6 +6591,7 @@ video {
 
 .overflow-x-hidden{
   overflow-x: hidden;
+  min-height: 100vh; /* Fix short page background */
 }
 
 .truncate{
@@ -13164,6 +13166,7 @@ video {
 
 .overflow-x-hidden{
   overflow-x: hidden;
+  min-height: 100vh; /* Fix short page background */
 }
 
 .overflow-y-scroll{
@@ -20897,6 +20900,7 @@ video {
 
 .overflow-x-hidden{
   overflow-x: hidden;
+  min-height: 100vh; /* Fix short page background */
 }
 
 .overflow-y-scroll{
