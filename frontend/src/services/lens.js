@@ -99,8 +99,6 @@ window.NewKetVisualSearch = {
 
 function setLensStatus(text) {
     const lensBtn = document.getElementById('lens-btn');
-    const searchBar = lensBtn?.closest('.search-bar') || lensBtn?.closest('div');
-    let status = searchBar?.querySelector('.lens-loading-status');
 
     if (text) {
         if (lensBtn) {
@@ -108,14 +106,6 @@ function setLensStatus(text) {
             lensBtn.setAttribute('aria-label', text);
             lensBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-white"></iconify-icon>';
         }
-        if (searchBar && !status) {
-            status = document.createElement('div');
-            status.className = 'lens-loading-status';
-            status.setAttribute('role', 'status');
-            status.setAttribute('aria-live', 'polite');
-            searchBar.appendChild(status);
-        }
-        if (status) status.textContent = text;
         return;
     }
 
@@ -124,7 +114,6 @@ function setLensStatus(text) {
         lensBtn.setAttribute('aria-label', 'Rechercher par image');
         lensBtn.innerHTML = '<iconify-icon icon="solar:camera-linear" width="18" style="color: #f97316 !important;"></iconify-icon>';
     }
-    status?.remove();
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
