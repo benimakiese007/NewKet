@@ -226,6 +226,13 @@ echo ==================================================
 echo          SAUVEGARDE ET ENVOI DU TRAVAIL
 echo ==================================================
 echo.
+echo   Fichiers qui seront envoyes :
+echo   --------------------------------------------------
+git status --short
+echo   --------------------------------------------------
+echo.
+git diff --stat
+echo.
 set /p message_commit="   Decris brievement ce que tu viens de faire : "
 echo.
 echo   [1/3] Preparation des fichiers...
