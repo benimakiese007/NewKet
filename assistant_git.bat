@@ -32,38 +32,81 @@ cls
 echo ==================================================
 echo        ASSISTANT GIT  -  EQUIPE NEWKET
 echo ==================================================
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set menu_branche=%%a
+echo.
+echo   Tu es actuellement sur la branche :
+echo.
+echo              [ %menu_branche% ]
+echo.
+echo ==================================================
 echo.
 echo   --- Travail quotidien ----------------------------
+echo.
 echo    1. [VOIR]            Voir mes modifications           (git status)
+echo.
 echo    2. [DEPART]          Commencer une nouvelle tache     (git checkout -b)
+echo.
 echo    3. [MAJ]             Mettre le projet a jour          (git pull)
+echo.
 echo    4. [FIN]             Sauvegarder et envoyer           (git add, commit, push)
+echo.
 echo    5. [PARTIEL]         Choisir les fichiers a envoyer   (git add selectif)
+echo.
 echo    6. [PUSH]            Envoyer vos commits locaux       (git push)
+echo.
 echo    7. [PAUSE]           Mettre mon travail en attente    (git stash)
+echo.
 echo    8. [REPRISE]         Recuperer mon travail en attente (git stash pop)
+echo.
 echo    9. [URGENCE]         Tout annuler, repartir de zero   (git reset --hard)
+echo.
 echo   --- Erreurs et Corrections -----------------------
+echo.
 echo   10. [MODIFIER MSG]    Corriger le dernier message      (git commit --amend)
+echo.
 echo   11. [ANNULER COMMIT]  Annuler le dernier commit        (git reset --soft HEAD~1)
+echo.
 echo   --- Exploration ----------------------------------
+echo.
 echo   12. [HISTORIQUE]      Voir les derniers commits        (git log)
+echo.
 echo   13. [BRANCHES]        Voir et changer de branche       (git branch + checkout)
+echo.
 echo   14. [DIFFERENCES]     Voir ce qui a change en detail   (git diff)
+echo.
 echo   15. [QUI A MODIFIE]   Voir qui a touche chaque ligne   (git blame)
+echo.
 echo   16. [RECHERCHER]      Trouver un commit par mot-cle    (git log --grep)
+echo.
 echo   17. [MON PROFIL]      Voir mon compte Git actuel       (git config)
+echo.
 echo   --- Gestion avancee ------------------------------
+echo.
 echo   18. [FUSIONNER]       Fusionner une branche dans main  (git merge)
-echo   19. [SUPPR. BRANCHE]  Supprimer une branche terminee   (git branch -d)
+echo.
+echo   19. [SUPPR. BRANCHE]  Supprimer une branche (local + GitHub)
+echo.
 echo   20. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
+echo.
 echo   21. [VERSION]         Marquer une version stable       (git tag)
+echo.
 echo   22. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
+echo.
+echo   --- Equipe NewKet --------------------------------
+echo.
+echo   23. [EQUIPE]          Contributions de chaque membre   (git shortlog)
+echo.
+echo   24. [MES BRANCHES]    Branches locales et sur GitHub   (git branch -vv)
+echo.
+echo   25. [RETOUR BRANCHE]  Revenir a la branche precedente  (git checkout -)
+echo.
 echo   --------------------------------------------------
-echo   23. [AIDE]            Comprendre chaque option
+echo.
+echo   26. [AIDE]            Comprendre chaque option
+echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-23) : "
+set /p choix="   Choix (0-26) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -87,7 +130,10 @@ if "%choix%"=="19" goto SUPPRBRANCH
 if "%choix%"=="20" goto RETOURRAPIDE
 if "%choix%"=="21" goto VERSION
 if "%choix%"=="22" goto CONFLITS
-if "%choix%"=="23" goto HELP
+if "%choix%"=="23" goto EQUIPE
+if "%choix%"=="24" goto MES_BRANCHES
+if "%choix%"=="25" goto RETOUR_BRANCHE
+if "%choix%"=="26" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -141,18 +187,33 @@ echo ==================================================
 echo           MISE A JOUR DU PROJET
 echo ==================================================
 echo.
-echo   [1/2] Retour sur la branche principale...
-git checkout main
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_courante=%%a
+echo   Branche actuelle : %branche_courante%
 echo.
-echo   [2/2] Telechargement des dernieres modifications...
-git pull origin main
+echo   [1/2] Recuperation des derniers changements de main...
+git fetch origin main
 echo.
 echo ==================================================
-echo   Le projet est a jour !
+echo   main est a jour en local !
 echo ==================================================
 echo.
-echo   Remarque : en cas de conflit, ouvre VS Code
-echo   pour le resoudre manuellement.
+set /p integrer="   Veux-tu integrer ces changements dans ta branche '%branche_courante%' ? (O/N) : "
+if /i "%integrer%"=="O" (
+    echo.
+    echo   [2/2] Integration de main dans ta branche...
+    git merge origin/main
+    echo.
+    echo ==================================================
+    echo   Ta branche est maintenant a jour avec main !
+    echo   Si des conflits apparaissent, utilise l'option 22.
+    echo ==================================================
+) else (
+    echo.
+    echo ==================================================
+    echo   D'accord ! Tu restes sur %branche_courante% sans changement.
+    echo   Tu pourras integrer main plus tard quand tu seras pret.
+    echo ==================================================
+)
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
@@ -195,12 +256,7 @@ if /i not "%confirm_main%"=="main" (
 
 :DO_PUSH
 git push origin %branche_actuelle%
-
-echo.
-echo ==================================================
-echo   Travail envoye avec succes !
-echo   Pense a creer une Pull Request sur GitHub.
-echo ==================================================
+call :PR_CHECK
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
@@ -296,11 +352,7 @@ if /i not "!confirm_main!"=="main" (
 
 :DO_PUSH_PARTIEL
 git push origin !branche_actuelle!
-echo.
-echo ==================================================
-echo   Fichiers selectionnes envoyes avec succes !
-echo   Pense a creer une Pull Request sur GitHub.
-echo ==================================================
+call :PR_CHECK
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
@@ -591,9 +643,21 @@ if /i not "%confirm_suppr%"=="O" goto MENU
 
 git branch -d %branche_suppr%
 echo.
-echo ==================================================
-echo   La branche '%branche_suppr%' a ete supprimee.
-echo ==================================================
+set /p suppr_remote="   Supprimer aussi cette branche sur GitHub ? (O/N) : "
+if /i "%suppr_remote%"=="O" (
+    git push origin --delete %branche_suppr%
+    echo.
+    echo ==================================================
+    echo   Branche '%branche_suppr%' supprimee
+    echo   localement ET sur GitHub. Propre !
+    echo ==================================================
+) else (
+    echo.
+    echo ==================================================
+    echo   Branche '%branche_suppr%' supprimee localement.
+    echo   Elle existe encore sur GitHub.
+    echo ==================================================
+)
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
@@ -703,10 +767,15 @@ echo   17  - MON PROFIL    : Verifier/Modifier son identifiant Git.
 echo.
 echo   --- GESTION AVANCEE ---
 echo   18  - FUSIONNER     : Integrer une branche dans main.
-echo   19  - SUPPR. BRANCHE: Supprimer une ancienne branche.
+echo   19  - SUPPR. BRANCHE: Supprimer localement ET sur GitHub.
 echo   20  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
 echo   21  - VERSION       : Marquer une version stable (v1.0).
-echo   22  - CONFLITS      : Ouvrir VS Code pour resoudre un conflit.
+echo   22  - CONFLITS      : Ouvrir l'editeur pour resoudre un conflit.
+echo.
+echo   --- EQUIPE NEWKET ---
+echo   23  - EQUIPE        : Voir les contributions de chaque membre.
+echo   24  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
+echo   25  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
 echo.
 echo ==================================================
 echo.
@@ -749,9 +818,86 @@ if /i not "%confirm_main%"=="main" (
 
 :DO_PUSH_SEUL
 git push origin %branche_actuelle%
+call :PR_CHECK
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
+
+
+REM ============================================================
+REM  OPTION 23 - EQUIPE : Contributions de chaque membre
+REM ============================================================
+:EQUIPE
+cls
+echo ==================================================
+echo       CONTRIBUTIONS DE L'EQUIPE NEWKET
+echo ==================================================
+echo.
+echo   Commits par membre (tous les temps) :
+echo.
+git shortlog -sn --all
+echo.
+echo --------------------------------------------------
+set /p membre_eq="   Voir les commits d'un membre ? (nom ou laisser vide = tout) : "
+echo.
+if "%membre_eq%"=="" (
+    echo   --- 20 derniers commits de l'equipe ---
+    echo.
+    git log --oneline --all -20
+) else (
+    echo   --- Commits de %membre_eq% ---
+    echo.
+    git log --author="%membre_eq%" --oneline -20
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
+
+REM ============================================================
+REM  OPTION 24 - MES BRANCHES : locales vs envoyees sur GitHub
+REM ============================================================
+:MES_BRANCHES
+cls
+echo ==================================================
+echo     MES BRANCHES - LOCALES ET ENVOYEES SUR GITHUB
+echo ==================================================
+echo.
+echo   (* = ta branche actuelle)
+echo.
+echo   LEGENDE :
+echo   [origin/...] = aussi presente sur GitHub        (envoyee)
+echo   (sans mention)= locale uniquement               (non envoyee)
+echo   "ahead X"    = tu as X commit(s) non envoyes   (push requis)
+echo   "behind X"   = il y a X commit(s) a recuperer  (pull requis)
+echo.
+echo   --------------------------------------------------
+git branch -vv
+echo   --------------------------------------------------
+echo.
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
+
+REM ============================================================
+REM  OPTION 25 - RETOUR BRANCHE : revenir a la branche precedente
+REM ============================================================
+:RETOUR_BRANCHE
+cls
+echo ==================================================
+echo       RETOUR A LA BRANCHE PRECEDENTE
+echo ==================================================
+echo.
+echo   Comme le bouton "Retour" d'un navigateur.
+echo   Tu vas revenir sur la branche ou tu etais juste avant.
+echo.
+git checkout -
 echo.
 echo ==================================================
-echo   Vos commits locaux ont ete envoyes avec succes !
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do echo   Tu es maintenant sur : %%a
 echo ==================================================
 echo.
 echo --------------------------------------------------
@@ -759,5 +905,43 @@ echo   Appuyez sur une touche pour revenir au menu...
 pause >nul
 goto MENU
 
+REM ============================================================
+REM  SOUS-ROUTINE : Proposition de Pull Request apres un push
+REM  Appelee avec : call :PR_CHECK
+REM  Retour avec  : goto :eof (automatique)
+REM ============================================================
+:PR_CHECK
+echo.
+echo ==================================================
+echo   Travail envoye avec succes sur GitHub !
+echo ==================================================
+echo.
+where gh >nul 2>&1
+if errorlevel 1 (
+    echo   Pense a creer une Pull Request sur GitHub.
+    echo.
+    echo   Astuce : pour automatiser les PR ici, installe
+    echo   GitHub CLI une seule fois :
+    echo   1. Ouvre PowerShell en Administrateur
+    echo   2. Tape : winget install GitHub.cli
+    echo   3. Relance cet assistant - les PR seront automatiques !
+    goto :eof
+)
+set faire_pr=
+set /p faire_pr="   Veux-tu creer une Pull Request maintenant ? (O/N) : "
+if /i not "%faire_pr%"=="O" goto :eof
+echo.
+set titre_pr=
+set /p titre_pr="   Titre de la PR (Entree = titre automatique) : "
+echo.
+if "%titre_pr%"=="" (
+    gh pr create --base main --fill
+) else (
+    gh pr create --base main --title "%titre_pr%" --fill
+)
+echo.
+goto :eof
+
 :END
 exit
+
