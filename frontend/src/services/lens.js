@@ -89,10 +89,32 @@ export async function searchByImage(file) {
     return searchByEmbedding(vector);
 }
 
+export async function getSimilarProducts(productId, matchCount = 10) {
+    const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_similar_products`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseAnon,
+            'Authorization': `Bearer ${supabaseAnon}`
+        },
+        body: JSON.stringify({
+            target_product_id: productId,
+            match_count: matchCount
+        })
+    });
+
+    if (!res.ok) throw new Error(`Supabase RPC error: ${res.status}`);
+    return res.json();
+}
+
 window.NewKetVisualSearch = {
     takePendingEmbedding,
     searchByEmbedding,
-    searchByImage
+    searchByImage,
+    getSimilarProducts
 };
 
 // ─── UI helpers ───────────────────────────────────────────────────────────────

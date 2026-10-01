@@ -418,7 +418,7 @@
 
             renderProductDetails(p);
             loadReviews(p.id);
-            renderRecommended(p.category); // async — lance en parallèle, pas bloquant
+            renderRecommended(p.category, p.id); // async — lance en parallèle, pas bloquant
             setupListeners(p);
             initRecentlyViewed(p);
             refreshAuthSensitiveProductUI();
@@ -912,7 +912,7 @@
             }
         };
 
-        async function renderRecommended(cat) {
+        async function renderRecommended(cat, actualProductId) {
             const grid = document.getElementById('recommendedGrid');
             if (!grid) return;
 
@@ -930,21 +930,41 @@
 
             let products = [];
 
+            // Essayer d'abord la similarité visuelle (Vector Search)
             try {
-                // Fetch depuis l'API directement par catégorie (fiable, pas dépendant du cache)
-                if (window.ApiClient && cat) {
+                // Attendre que le module se charge (Vite async loading)
+                let retries = 0;
+                while (!window.NewKetVisualSearch && retries < 10) {
+                    await new Promise(r => setTimeout(r, 100));
+                    retries++;
+                }
+
+                if (window.NewKetVisualSearch && typeof window.NewKetVisualSearch.getSimilarProducts === 'function') {
+                    const similarProducts = await window.NewKetVisualSearch.getSimilarProducts(actualProductId || productId, 5);
+                    if (similarProducts && similarProducts.length > 0) {
+                        products = similarProducts.map(p => typeof ProductManager._mapProduct === 'function'
+                            ? ProductManager._mapProduct(p)
+                            : p
+                        );
+                    }
+                }
+            } catch (err) {
+                console.warn("[Similar Products] Vector search failed, falling back to category", err);
+            }
+
+            try {
+                // Fallback : si la similarité visuelle n'a rien retourné (ex: produit sans vecteur), on utilise la catégorie
+                if (!products.length && window.ApiClient && cat) {
                     const encodedCat = encodeURIComponent(cat);
                     const result = await window.ApiClient.get(
                         `/products?category=${encodedCat}&limit=5&page=1`,
                         { suppressToast: true, suppressErrorLogging: true }
                     );
 
-                    // Extraire le tableau selon la forme de la réponse
                     const raw = Array.isArray(result)
                         ? result
                         : (Array.isArray(result?.products) ? result.products : []);
 
-                    // Exclure le produit actuel et mapper via ProductManager
                     products = raw
                         .filter(p => p && p.id !== productId)
                         .slice(0, 4)
@@ -954,7 +974,8 @@
                         );
                 }
             } catch (err) {
-                // Silencieux — fallback en dessous
+                // Erreur globale de l'API fallback
+                console.warn("[Similar Products] Fallback API failed", err);
             }
 
             // Fallback : si l'API n'a rien retourné, utiliser le cache mémoire (même catégorie)
