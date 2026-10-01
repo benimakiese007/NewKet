@@ -382,8 +382,12 @@ const ProductManager = {
             }
 
             // Cache subset for instant next load
+            // Ensure pinned products are prioritized in the cache so the sponsored section doesn't flash skeletons
             if (this.products.length > 0) {
-                localStorage.setItem('newket_products_cache', JSON.stringify(this.products.slice(0, 20)));
+                const pinnedForCache = this.products.filter(p => p.pinned);
+                const regularForCache = this.products.filter(p => !p.pinned);
+                const cacheSubset = [...pinnedForCache, ...regularForCache].slice(0, 30);
+                localStorage.setItem('newket_products_cache', JSON.stringify(cacheSubset));
             }
 
             // Always dispatch to clear loading state
