@@ -82,31 +82,29 @@ echo   17. [MON PROFIL]      Voir mon compte Git actuel       (git config)
 echo.
 echo   --- Gestion avancee ------------------------------
 echo.
-echo   18. [FUSIONNER]       Fusionner une branche dans main  (git merge)
+echo   18. [SUPPR. BRANCHE]  Supprimer une branche (local + GitHub)
 echo.
-echo   19. [SUPPR. BRANCHE]  Supprimer une branche (local + GitHub)
+echo   19. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
 echo.
-echo   20. [RETOUR RAPIDE]   Revenir a l'ancienne version     (git checkout --)
+echo   20. [VERSION]         Marquer une version stable       (git tag)
 echo.
-echo   21. [VERSION]         Marquer une version stable       (git tag)
-echo.
-echo   22. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
+echo   21. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
 echo.
 echo   --- Equipe NewKet --------------------------------
 echo.
-echo   23. [EQUIPE]          Contributions de chaque membre   (git shortlog)
+echo   22. [EQUIPE]          Contributions de chaque membre   (git shortlog)
 echo.
-echo   24. [MES BRANCHES]    Branches locales et sur GitHub   (git branch -vv)
+echo   23. [MES BRANCHES]    Branches locales et sur GitHub   (git branch -vv)
 echo.
-echo   25. [RETOUR BRANCHE]  Revenir a la branche precedente  (git checkout -)
+echo   24. [RETOUR BRANCHE]  Revenir a la branche precedente  (git checkout -)
 echo.
 echo   --------------------------------------------------
 echo.
-echo   26. [AIDE]            Comprendre chaque option
+echo   25. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-26) : "
+set /p choix="   Choix (0-25) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -125,15 +123,14 @@ if "%choix%"=="14" goto DIFFERENCES
 if "%choix%"=="15" goto BLAME
 if "%choix%"=="16" goto RECHERCHE
 if "%choix%"=="17" goto PROFIL
-if "%choix%"=="18" goto FUSIONNER
-if "%choix%"=="19" goto SUPPRBRANCH
-if "%choix%"=="20" goto RETOURRAPIDE
-if "%choix%"=="21" goto VERSION
-if "%choix%"=="22" goto CONFLITS
-if "%choix%"=="23" goto EQUIPE
-if "%choix%"=="24" goto MES_BRANCHES
-if "%choix%"=="25" goto RETOUR_BRANCHE
-if "%choix%"=="26" goto HELP
+if "%choix%"=="18" goto SUPPRBRANCH
+if "%choix%"=="19" goto RETOURRAPIDE
+if "%choix%"=="20" goto VERSION
+if "%choix%"=="21" goto CONFLITS
+if "%choix%"=="22" goto EQUIPE
+if "%choix%"=="23" goto MES_BRANCHES
+if "%choix%"=="24" goto RETOUR_BRANCHE
+if "%choix%"=="25" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -773,16 +770,15 @@ echo   16  - RECHERCHER    : Retrouver un ancien commit contenant un mot-cle.
 echo   17  - MON PROFIL    : Verifier/Modifier son identifiant Git.
 echo.
 echo   --- GESTION AVANCEE ---
-echo   18  - FUSIONNER     : Integrer une branche dans main.
-echo   19  - SUPPR. BRANCHE: Supprimer localement ET sur GitHub.
-echo   20  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
-echo   21  - VERSION       : Marquer une version stable (v1.0).
-echo   22  - CONFLITS      : Ouvrir l'editeur pour resoudre un conflit.
+echo   18  - SUPPR. BRANCHE: Supprimer localement ET sur GitHub.
+echo   19  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
+echo   20  - VERSION       : Marquer une version stable (v1.0).
+echo   21  - CONFLITS      : Ouvrir l'editeur pour resoudre un conflit.
 echo.
 echo   --- EQUIPE NEWKET ---
-echo   23  - EQUIPE        : Voir les contributions de chaque membre.
-echo   24  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
-echo   25  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
+echo   22  - EQUIPE        : Voir les contributions de chaque membre.
+echo   23  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
+echo   24  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
 echo.
 echo ==================================================
 echo.
