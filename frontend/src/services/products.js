@@ -86,6 +86,27 @@ const ProductManager = {
     },
 
 
+    /**
+     * Reads the localStorage cache and fires 'productsUpdated' immediately —
+     * BEFORE auth resolves. Called at script-load time so the home page
+     * shows cached images instantly on every navigation back to "/".
+     * Idempotent: safe to call multiple times (no-op if products already loaded).
+     */
+    initFromCache() {
+        // Skip if products are already loaded (e.g. called twice)
+        if (this.products.length > 0) return;
+        try {
+            const raw = localStorage.getItem('newket_products_cache');
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                this.products = parsed;
+                // Notify UI immediately — no auth needed to display cached products
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+            }
+        } catch (e) { /* cache corrupt or unavailable — silent fail */ }
+    },
+
     async init() {
         if (!window.SupabaseAdapter) {
             console.error('[NewKet] SupabaseAdapter not found. Cannot initialize ProductManager.');
@@ -95,16 +116,19 @@ const ProductManager = {
         this.loading = true;
 
         // --- FLASH CACHE (LOAD) ---
-        // Reads from localStorage to display UI instantly before network finishes
-        const localCache = localStorage.getItem('newket_products_cache');
-        if (localCache) {
-            try {
-                const parsed = JSON.parse(localCache);
-                if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-                    this.products = parsed;
-                    window.dispatchEvent(new CustomEvent('productsUpdated'));
-                }
-            } catch (e) {
+        // initFromCache() already ran at script-load time and pre-populated
+        // this.products. Only re-read cache here if products are still empty
+        // (e.g. first ever visit where initFromCache had no data yet).
+        if (this.products.length === 0) {
+            const localCache = localStorage.getItem('newket_products_cache');
+            if (localCache) {
+                try {
+                    const parsed = JSON.parse(localCache);
+                    if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                        this.products = parsed;
+                        window.dispatchEvent(new CustomEvent('productsUpdated'));
+                    }
+                } catch (e) {}
             }
         }
 
@@ -975,3 +999,10 @@ const ProductManager = {
 };
 
 window.ProductManager = ProductManager;
+
+// Auto-prime cache on home/catalog pages: call initFromCache() right after
+// the module is evaluated so products are ready when ui.js's DOMContentLoaded
+// listener fires. This guarantees zero skeleton flash on return navigation.
+if (isProductFeedPage()) {
+    ProductManager.initFromCache();
+}

@@ -109,9 +109,15 @@ const UI = {
             .slice(0, 12);
 
         if (pinned.length === 0) {
-            if (section) section.classList.add('hidden');
-            grid.innerHTML = '';
-            return;
+            if (window.ProductManager && window.ProductManager.loading) {
+                if (section) section.classList.remove('hidden');
+                grid.innerHTML = window.buildSkeletonCardHTML(12);
+                return;
+            } else {
+                if (section) section.classList.add('hidden');
+                grid.innerHTML = '';
+                return;
+            }
         }
 
         if (section) section.classList.remove('hidden');
@@ -428,7 +434,10 @@ window.showMoreProducts = async function () {
     }
 };
 
-// Initialize: guard against DOMContentLoaded already fired (ES module behavior)
+// ── PHASE 1 : Render from cache immediately at DOM ready ───────────────────
+// We subscribe to 'productsUpdated' right away so that when initFromCache()
+// fires the event (before auth resolves), the grid already has a listener.
+// This eliminates the skeleton flash on every return navigation.
 const uiBootstrap = () => {
     const hasHomeGrids =
         document.getElementById('pinnedProductGrid') ||
@@ -437,10 +446,36 @@ const uiBootstrap = () => {
 
     if (!hasHomeGrids) return;
 
-    if (window.newketInitialized) {
+    // Kick off cache render immediately — no auth wait needed.
+    // If ProductManager isn't on window yet (ES module load order), it will
+    // fire 'productsUpdated' itself once ready, which earlyRender will catch.
+    if (window.ProductManager) {
+        window.ProductManager.initFromCache();
+    }
+
+    // Subscribe to updates so any pre-auth cache dispatch is caught
+    const earlyRender = () => {
+        if (!window._isFetchingHome && window.ProductManager) {
+            UI.renderHomeGrid();
+        }
+    };
+    window.addEventListener('productsUpdated', earlyRender);
+    window.addEventListener('productsError', earlyRender);
+
+    // ── PHASE 2 : Full UI.init() once auth resolves ─────────────────────────
+    // UI.init() sets up resize, currency listeners and calls renderHomeGrid()
+    // again with auth-aware data (e.g. personalized content).
+    const fullInit = () => {
+        // Remove early listeners to avoid double-firing after UI.init() re-adds them
+        window.removeEventListener('productsUpdated', earlyRender);
+        window.removeEventListener('productsError', earlyRender);
         UI.init();
+    };
+
+    if (window.newketInitialized) {
+        fullInit();
     } else {
-        window.addEventListener('newketInitialized', () => UI.init());
+        window.addEventListener('newketInitialized', fullInit, { once: true });
     }
 };
 
