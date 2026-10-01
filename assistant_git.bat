@@ -187,12 +187,34 @@ echo.
 for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_courante=%%a
 echo   Branche actuelle : %branche_courante%
 echo.
-echo   [1/2] Recuperation des derniers changements de main...
+echo   [1/2] Verification des nouveaux changements sur GitHub...
 git fetch origin main
 echo.
+
+REM Compte les commits de GitHub que tu n'as pas encore
+for /f "tokens=*" %%n in ('git rev-list HEAD..origin/main --count') do set nb_commits=%%n
+
+if "%nb_commits%"=="0" (
+    echo ==================================================
+    echo   Deja a jour ! Aucun nouveau changement sur main.
+    echo   Ton projet est synchronise avec GitHub.
+    echo ==================================================
+    echo.
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir au menu...
+    pause >nul
+    goto MENU
+)
+
 echo ==================================================
-echo   main est a jour en local !
+echo   %nb_commits% nouveau(x) commit(s) disponible(s) sur main !
 echo ==================================================
+echo.
+echo   [COMMITS AJOUTES]
+git log HEAD..origin/main --oneline
+echo.
+echo   [FICHIERS MODIFIES]
+git diff --stat HEAD..origin/main
 echo.
 set /p integrer="   Veux-tu integrer ces changements dans ta branche '%branche_courante%' ? (O/N) : "
 if /i "%integrer%"=="O" (
@@ -202,7 +224,7 @@ if /i "%integrer%"=="O" (
     echo.
     echo ==================================================
     echo   Ta branche est maintenant a jour avec main !
-    echo   Si des conflits apparaissent, utilise l'option 22.
+    echo   Si des conflits apparaissent, utilise l'option 21.
     echo ==================================================
 ) else (
     echo.
@@ -919,6 +941,21 @@ echo ==================================================
 echo   Travail envoye avec succes sur GitHub !
 echo ==================================================
 echo.
+
+REM Verifie si une PR existe deja pour cette branche
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_pr=%%a
+gh pr view "%branche_pr%" --json url --jq ".url" >nul 2>&1
+if not errorlevel 1 (
+    echo   Une Pull Request existe deja pour cette branche.
+    echo.
+    for /f "tokens=*" %%u in ('gh pr view "%branche_pr%" --json url --jq ".url"') do (
+        echo   Tes nouveaux commits sont deja inclus dedans :
+        echo   %%u
+    )
+    echo.
+    goto :eof
+)
+
 set faire_pr=
 set /p faire_pr="   Veux-tu creer une Pull Request maintenant ? (O/N) : "
 if /i not "%faire_pr%"=="O" goto :eof
@@ -933,18 +970,11 @@ if "%titre_pr%"=="" (
 )
 if errorlevel 1 (
     echo.
-    echo   La PR n'a pas pu etre creee automatiquement.
-    echo   Raison possible : GitHub CLI pas installe ou pas connecte.
+    echo   La PR n'a pas pu etre creee.
+    echo   Verifie que gh est installe et connecte :
+    echo   → gh auth login
     echo.
-    echo   Pour installer GitHub CLI :
-    echo   1. Ouvre PowerShell en Administrateur
-    echo   2. Tape : winget install GitHub.cli
-    echo.
-    echo   Pour te connecter :
-    echo   3. Tape : gh auth login
-    echo   4. Choisis : GitHub.com - HTTPS - Yes - Login with web browser
-    echo.
-    echo   Ensuite cree ta PR manuellement sur :
+    echo   Ou cree ta PR manuellement sur :
     echo   https://github.com/benimakiese007/NewKet
 ) else (
     echo.
