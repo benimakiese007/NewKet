@@ -956,8 +956,16 @@ if errorlevel 1 (
     set /p connect_gh="   Veux-tu te connecter a GitHub maintenant ? (O/N) : "
     if /i "!connect_gh!"=="O" (
         echo.
-        echo   Suis les instructions ci-dessous :
-        echo   (Choisis : GitHub.com - HTTPS - Yes - Login with web browser)
+        echo   --- INSTRUCTIONS DE CONNEXION ---
+        echo   1. Choisis : GitHub.com
+        echo   2. Choisis : HTTPS
+        echo   3. Choisis : Yes
+        echo   4. Choisis : Login with a web browser
+        echo.
+        echo   ATTENTION : L'assistant va t'afficher un CODE A 8 CARACTERES.
+        echo   Copie-le ! Appuie ensuite sur Entree pour ouvrir ton navigateur,
+        echo   et colle ce code sur la page web de GitHub.
+        echo   ---------------------------------
         echo.
         gh auth login
         echo.
