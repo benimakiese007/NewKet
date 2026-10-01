@@ -411,6 +411,16 @@
 
             currentProduct = p;
 
+            // ✅ Rediriger vers le catalogue si le produit est épuisé (stock = 0)
+            const productStock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? -1);
+            if (productStock === 0) {
+                const catalogUrl = (typeof window.resolvePath === 'function')
+                    ? window.resolvePath('pages/catalog')
+                    : '/catalog';
+                window.location.replace(catalogUrl);
+                return;
+            }
+
             // Record view for analytics
             if (window.ProductManager && ProductManager.recordView) {
                 ProductManager.recordView(p.id);
