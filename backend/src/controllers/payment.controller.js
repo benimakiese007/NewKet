@@ -194,7 +194,8 @@ function getActivePaymentProvider(req) {
     if (isFlexpaieConfigured()) {
         return 'flexpaie';
     }
-    return null;
+    // Pas de clés configurées → mode simulation (retourne un provider virtuel)
+    return 'simulation';
 }
 
 function getCheckoutSuccessUrl(req, orderId, txId) {
@@ -256,10 +257,6 @@ export const initiatePayment = async (req, res, next) => {
             customer_city,
             customer_email
         } = req.body;
-
-        if (!isFlexpaieConfigured()) {
-            return next(err);
-        }
 
         let order = null;
         let orderId = order_id || null;
@@ -378,7 +375,11 @@ export const initiatePayment = async (req, res, next) => {
 
         // Guard : aucun provider de paiement n'est configuré
         if (!provider) {
-            return next(err);
+            return res.status(503).json({
+                success: false,
+                error: 'Le système de paiement est temporairement indisponible. Veuillez réessayer plus tard.',
+                code: 'PAYMENT_PROVIDER_NOT_CONFIGURED'
+            });
         }
 
         if (!orderId) {
@@ -490,7 +491,10 @@ export const initiatePayment = async (req, res, next) => {
         let successfulProvider = null;
 
         // Liste des fournisseurs configurés à essayer
-        const providersToTry = ['flexpaie'].filter(p => isFlexpaieConfigured());
+        // 'simulation' est toujours en fallback quand aucun vrai provider n'est disponible
+        const providersToTry = isFlexpaieConfigured()
+            ? ['flexpaie']
+            : ['simulation'];
 
         // Mettre le provider actif initial en premier dans la liste s'il y est
         if (providersToTry.includes(provider) && providersToTry[0] !== provider) {
@@ -507,11 +511,25 @@ export const initiatePayment = async (req, res, next) => {
                         amount: payinCurrency === 'USD' ? finalAmountUSD : verifiedAmount,
                         currency: payinCurrency,
                         ref: txId,
+                        order_id: orderId,
                         referer_url: getRedirectUrl(req),
                         label: `NewKet Marketplace - ${product.name}`
                     };
                     const flexpaie = await createFlexpaiePaymentRequest(paymentRequestPayload);
                     paymentUrl = flexpaie.payment_url;
+                }
+
+                if (p === 'simulation') {
+                    // ─── MODE SIMULATION ───
+                    // Aucune clé API disponible : on génère directement une URL de succès simulée.
+                    // L'auto-traitement (mock=true) déclenchera la finalisation de la commande.
+                    console.warn('[SIMULATION] Aucun fournisseur de paiement configuré. Mode simulation activé.');
+                    const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.headers.host}`;
+                    const mockSuccessUrl = new URL('/src/pages/payment-success.html', baseUrl);
+                    mockSuccessUrl.searchParams.set('order_id', orderId);
+                    mockSuccessUrl.searchParams.set('transaction_id', txId);
+                    mockSuccessUrl.searchParams.set('mock', 'true');
+                    paymentUrl = mockSuccessUrl.toString();
                 }
 
                 if (paymentUrl) {

@@ -7,11 +7,7 @@ import crypto from 'crypto';
  */
 
 export const isFlexpaieConfigured = () => {
-    const hasKeys = Boolean(process.env.FLEXPAIE_API_KEY && process.env.FLEXPAIE_SECRET_KEY);
-    const isDev = process.env.NODE_ENV !== 'production';
-    
-    // En développement, si les clés manquent, on active le mode SIMULATION
-    return hasKeys || isDev;
+    return Boolean(process.env.FLEXPAIE_API_KEY && process.env.FLEXPAIE_SECRET_KEY);
 };
 
 export const createFlexpaiePaymentRequest = async (payload) => {
