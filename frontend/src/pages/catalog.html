@@ -1196,6 +1196,10 @@
                         options.or = `name.ilike.%${query}%,category.ilike.%${query}%`;
                     }
 
+                    // ✅ Toujours masquer les produits épuisés et archivés côté public
+                    options.eq = [['is_archived', false]];
+                    options.gt = [['stock', 0]];
+
                     // Category filter
                     if (activeCategories.length > 0) {
                         options.in = [['category', activeCategories]];
@@ -1211,7 +1215,7 @@
 
                     // Condition filter
                     if (activeConditions.length === 1) {
-                        options.eq = [['is_new', activeConditions[0] === 'true']];
+                        options.eq.push(['is_new', activeConditions[0] === 'true']);
                     }
 
                     // Promo filter (is_promo flag OR products with an old price)
