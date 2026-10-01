@@ -109,7 +109,7 @@ const UI = {
             .slice(0, 12);
 
         if (pinned.length === 0) {
-            if (window.ProductManager && window.ProductManager.loading) {
+            if (window.ProductManager && (!window.ProductManager._initialFetchDone || window.ProductManager.loading)) {
                 if (section) section.classList.remove('hidden');
                 grid.innerHTML = window.buildSkeletonCardHTML(12);
                 return;

@@ -39,6 +39,7 @@ const ProductManager = {
     _hasMore: true,
     _loading: false,
     loading: false,
+    _initialFetchDone: false,
     _error: false,
     _realtimeChannel: null,
     _isVisualSearch: false,
@@ -138,6 +139,7 @@ const ProductManager = {
         this._hasMore = true;
         this.fetchFreshData().finally(() => {
             this.loading = false;
+            this._initialFetchDone = true;
             window.dispatchEvent(new CustomEvent('productsUpdated'));
         });
 
