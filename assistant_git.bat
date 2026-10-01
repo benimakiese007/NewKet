@@ -918,22 +918,59 @@ REM  Appelee avec : call :PR_CHECK
 REM  Retour avec  : goto :eof (automatique)
 REM ============================================================
 :PR_CHECK
+setlocal enabledelayedexpansion
 echo.
 echo ==================================================
 echo   Travail envoye avec succes sur GitHub !
 echo ==================================================
 echo.
+
+REM --- Etape 1 : gh est-il installe ? ---
 where gh >nul 2>&1
 if errorlevel 1 (
-    echo   Pense a creer une Pull Request sur GitHub.
+    echo   Pour creer des Pull Requests directement ici,
+    echo   GitHub CLI doit etre installe.
     echo.
-    echo   Astuce : pour automatiser les PR ici, installe
-    echo   GitHub CLI une seule fois :
-    echo   1. Ouvre PowerShell en Administrateur
-    echo   2. Tape : winget install GitHub.cli
-    echo   3. Relance cet assistant - les PR seront automatiques !
+    set /p install_gh="   Veux-tu l'installer maintenant ? (O/N) : "
+    if /i "!install_gh!"=="O" (
+        echo.
+        echo   Installation en cours...
+        echo   (Une fenetre administrateur peut s'ouvrir)
+        echo.
+        winget install GitHub.cli --accept-package-agreements --accept-source-agreements
+        echo.
+        echo   Relance l'assistant pour activer les PR automatiques.
+    ) else (
+        echo.
+        echo   OK ! Cree ta PR manuellement sur :
+        echo   https://github.com/benimakiese007/NewKet
+    )
     goto :eof
 )
+
+REM --- Etape 2 : gh est-il connecte ? ---
+gh auth status >nul 2>&1
+if errorlevel 1 (
+    echo   GitHub CLI est installe mais pas encore connecte.
+    echo.
+    set /p connect_gh="   Veux-tu te connecter a GitHub maintenant ? (O/N) : "
+    if /i "!connect_gh!"=="O" (
+        echo.
+        echo   Suis les instructions ci-dessous :
+        echo   (Choisis : GitHub.com - HTTPS - Yes - Login with web browser)
+        echo.
+        gh auth login
+        echo.
+        echo   Connexion terminee ! Tu peux maintenant creer des PR.
+        echo.
+    ) else (
+        echo   OK ! Cree ta PR manuellement sur :
+        echo   https://github.com/benimakiese007/NewKet
+        goto :eof
+    )
+)
+
+REM --- Etape 3 : gh est pret, on cree la PR ---
 set faire_pr=
 set /p faire_pr="   Veux-tu creer une Pull Request maintenant ? (O/N) : "
 if /i not "%faire_pr%"=="O" goto :eof
