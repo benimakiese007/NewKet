@@ -346,6 +346,13 @@ window.SupabaseAdapter = {
                         }
                     }
 
+                    // Apply .gt() filters (strictly greater than)
+                    if (options.gt) {
+                        for (const [col, val] of options.gt) {
+                            query = query.gt(col, val);
+                        }
+                    }
+
                     // Apply .lte() filters (less than or equal)
                     if (options.lte) {
                         for (const [col, val] of options.lte) {
@@ -442,6 +449,12 @@ window.SupabaseAdapter = {
                     if (options.gte) {
                         for (const [col, val] of options.gte) {
                             query = query.gte(col, val);
+                        }
+                    }
+
+                    if (options.gt) {
+                        for (const [col, val] of options.gt) {
+                            query = query.gt(col, val);
                         }
                     }
 
