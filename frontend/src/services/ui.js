@@ -25,7 +25,7 @@ const UI = {
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
-                    this.renderAll(ProductManager.getProducts());
+                    this.renderAll(ProductManager.getPublicProducts());
                 }, 150);
             });
             this._homeResizeBound = true;
@@ -42,7 +42,7 @@ const UI = {
     renderHomeGrid() {
         if (!window.ProductManager) return;
         
-        const allProducts = ProductManager.getProducts();
+        const allProducts = ProductManager.getPublicProducts();
         const isVisualSearch = ProductManager.isVisualSearch?.() === true;
         console.log(`[NewKet UI] Rendering home grid. Product count: ${allProducts.length}`);
 
@@ -206,14 +206,14 @@ const UI = {
 
         const batchSize = this.getHomeBatchSize(grid);
         while (
-            ProductManager.getProducts()
+            ProductManager.getPublicProducts()
                 .filter(product => this.matchesHomeFilter(product, category))
                 .filter(product => !alreadyRenderedIds.has(String(product.id))).length < batchSize
             && ProductManager.hasMore()
         ) {
-            const beforeCount = ProductManager.getProducts().length;
+            const beforeCount = ProductManager.getPublicProducts().length;
             await ProductManager.loadMore();
-            if (ProductManager.getProducts().length === beforeCount) break;
+            if (ProductManager.getPublicProducts().length === beforeCount) break;
         }
     },
 
@@ -372,7 +372,7 @@ window.filterAllProducts = async function (category) {
     if (grid && !window._isFetchingHome) {
         window._isFetchingHome = true;
         try {
-            UI.renderFilteredBatch(ProductManager.getProducts(), grid, UI.getHomeBatchSize(grid), false);
+            UI.renderFilteredBatch(ProductManager.getPublicProducts(), grid, UI.getHomeBatchSize(grid), false);
             await UI.ensureHomeFilterBatch(category, grid);
         } catch (err) {
             console.error("Error loading filtered products:", err);
@@ -382,11 +382,11 @@ window.filterAllProducts = async function (category) {
         }
     }
 
-    UI.renderAll(ProductManager.getProducts());
+    UI.renderAll(ProductManager.getPublicProducts());
 };
 
 window.sortAndRenderAll = function () {
-    UI.renderAll(ProductManager.getProducts());
+    UI.renderAll(ProductManager.getPublicProducts());
 };
 
 window.showMoreProducts = async function () {
@@ -410,7 +410,7 @@ window.showMoreProducts = async function () {
         // With an active filter, several pages may be needed to find enough matching products.
         await UI.ensureHomeFilterBatch(currentFilter, grid, renderedIds);
 
-        UI.renderFilteredBatch(ProductManager.getProducts(), grid, batchSize, true);
+        UI.renderFilteredBatch(ProductManager.getPublicProducts(), grid, batchSize, true);
     } catch (err) {
         console.error("Error loading more products:", err);
         if (buttonLabel) {

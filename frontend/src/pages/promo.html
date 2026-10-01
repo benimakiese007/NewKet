@@ -312,7 +312,7 @@
             const activeCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const sortBy = document.getElementById('sortSelect').value;
             
-            let allProducts = ProductManager.getProducts();
+            let allProducts = ProductManager.getPublicProducts();
             
             // FILTER ONLY PROMO PRODUCTS (Those with an old price)
             let products = allProducts.filter(p => p.oldPrice > 0 || p.isPromo);

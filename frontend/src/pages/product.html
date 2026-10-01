@@ -981,7 +981,7 @@
 
             // Fallback : si l'API n'a rien retourné, utiliser le cache mémoire (même catégorie)
             if (!products.length) {
-                products = ProductManager.getProducts()
+                products = ProductManager.getPublicProducts()
                     .filter(p => p.id !== productId && p.category === cat)
                     .slice(0, 4);
             }

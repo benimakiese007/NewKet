@@ -502,22 +502,30 @@
                             <span id="vendorProductsCountBadge" class="bg-black text-white text-[10px] font-black px-2 py-0.5 rounded-full hidden">0</span>
                         </h2>
                         <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
-                            <!-- Toggle En ligne / Archivés / Garde-fou -->
-                            <div class="flex bg-gray-100 rounded-xl p-1 gap-1 w-fit max-w-full self-start" role="group" aria-label="Vue produits">
+                            <!-- Toggle En ligne / Archivés / Indisponible -->
+                            <div class="flex bg-gray-100 rounded-xl p-1 gap-1 w-fit max-w-full self-start overflow-x-auto scrollbar-hide" role="group" aria-label="Vue produits">
                                 <button type="button" id="vendorTabOnline"
                                     onclick="switchProductsView('online')"
-                                    class="px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm"
+                                    class="px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm flex-shrink-0"
                                     aria-pressed="true">
-                                    <iconify-icon icon="solar:check-circle-bold" width="12" class="mr-1"></iconify-icon>
+                                    <iconify-icon icon="solar:check-circle-bold" width="12" class="mr-1 inline-block align-text-bottom"></iconify-icon>
                                     En ligne
                                 </button>
                                 <button type="button" id="vendorTabArchived"
                                     onclick="switchProductsView('archived')"
-                                    class="px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800"
+                                    class="px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800 flex-shrink-0"
                                     aria-pressed="false">
-                                    <iconify-icon icon="solar:archive-bold" width="12" class="mr-1"></iconify-icon>
+                                    <iconify-icon icon="solar:archive-bold" width="12" class="mr-1 inline-block align-text-bottom"></iconify-icon>
                                     Archivés
                                     <span id="vendorArchivedCountBadge" class="ml-1 hidden bg-gray-400 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">0</span>
+                                </button>
+                                <button type="button" id="vendorTabUnavailable"
+                                    onclick="switchProductsView('unavailable')"
+                                    class="px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800 flex-shrink-0"
+                                    aria-pressed="false">
+                                    <iconify-icon icon="solar:close-circle-bold" width="12" class="mr-1 inline-block align-text-bottom"></iconify-icon>
+                                    Indisponible
+                                    <span id="vendorUnavailableCountBadge" class="ml-1 hidden bg-gray-400 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">0</span>
                                 </button>
                             </div>
                             <!-- Search -->
@@ -569,6 +577,23 @@
                                 </div>
                                 <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun produit archivé</h3>
                                 <p class="text-sm text-gray-500 mb-0 max-w-sm mx-auto">Les produits que vous archivez apparaîtront ici. Ils restent sauvegardés mais invisibles dans le catalogue.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ── INDISPONIBLES VIEW (hidden by default) ── -->
+                    <div id="vendor-unavailable-view" class="hidden flex flex-col gap-6">
+                        <div id="vendor-unavailable-grid"
+                            class="product-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+                        </div>
+                        <!-- Empty State Indisponibles -->
+                        <div id="vendor-unavailable-empty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+                            <div class="w-full max-w-xl bg-gray-50/80 border border-gray-100 rounded-[2rem] px-6 sm:px-10 py-12 sm:py-14 shadow-sm">
+                                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner border border-gray-100">
+                                    <iconify-icon icon="solar:close-circle-bold-duotone" width="40" class="text-gray-300"></iconify-icon>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun produit indisponible</h3>
+                                <p class="text-sm text-gray-500 mb-0 max-w-sm mx-auto">Vos produits en rupture de stock apparaîtront ici.</p>
                             </div>
                         </div>
                     </div>
@@ -3336,17 +3361,19 @@
                     const view = window.newketVendorProductsView || 'online';
                     const onlineBtn = document.getElementById('vendorTabOnline');
                     const archivedBtn = document.getElementById('vendorTabArchived');
+                    const unavailableBtn = document.getElementById('vendorTabUnavailable');
                     const fallbackBtn = document.getElementById('vendorTabFallback');
                     const searchWrapper = document.getElementById('vendorSearchWrapper');
                     const searchInput = document.getElementById('dashboardSearch');
                     const onlineView = document.getElementById('vendor-online-view');
                     const archivedView = document.getElementById('vendor-archived-view');
+                    const unavailableView = document.getElementById('vendor-unavailable-view');
                     const fallbackView = document.getElementById('vendor-fallback-view');
 
-                    const activeClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm';
-                    const inactiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800';
-                    const fallbackActiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-yellow-500 text-white shadow-sm';
-                    const fallbackInactiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-yellow-600 hover:text-yellow-800';
+                    const activeClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm flex-shrink-0';
+                    const inactiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800 flex-shrink-0';
+                    const fallbackActiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-yellow-500 text-white shadow-sm flex-shrink-0';
+                    const fallbackInactiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-yellow-600 hover:text-yellow-800 flex-shrink-0';
 
                     if (onlineBtn) {
                         onlineBtn.className = view === 'online' ? activeClass : inactiveClass;
@@ -3356,6 +3383,10 @@
                         archivedBtn.className = view === 'archived' ? activeClass : inactiveClass;
                         archivedBtn.setAttribute('aria-pressed', view === 'archived' ? 'true' : 'false');
                     }
+                    if (unavailableBtn) {
+                        unavailableBtn.className = view === 'unavailable' ? activeClass : inactiveClass;
+                        unavailableBtn.setAttribute('aria-pressed', view === 'unavailable' ? 'true' : 'false');
+                    }
                     if (fallbackBtn) {
                         fallbackBtn.className = view === 'fallback' ? fallbackActiveClass : fallbackInactiveClass;
                         fallbackBtn.setAttribute('aria-pressed', view === 'fallback' ? 'true' : 'false');
@@ -3364,15 +3395,17 @@
                     if (searchWrapper) searchWrapper.classList.remove('hidden');
                     if (searchInput) {
                         searchInput.placeholder = view === 'archived' ? 'Rechercher dans les archivés...' :
+                                                  view === 'unavailable' ? 'Rechercher dans les indisponibles...' :
                                                   'Rechercher...';
                     }
                     if (onlineView) onlineView.classList.toggle('hidden', view !== 'online');
                     if (archivedView) archivedView.classList.toggle('hidden', view !== 'archived');
+                    if (unavailableView) unavailableView.classList.toggle('hidden', view !== 'unavailable');
                     if (fallbackView) fallbackView.classList.toggle('hidden', view !== 'fallback');
                 }
 
                 async function switchProductsView(view) {
-                    window.newketVendorProductsView = (view === 'archived') ? 'archived' : 'online';
+                    window.newketVendorProductsView = (view === 'archived') ? 'archived' : (view === 'unavailable' ? 'unavailable' : 'online');
                     syncVendorProductsViewControls();
 
                     if (window.newketVendorProductsView === 'archived' && window.ProductManager && typeof ProductManager.fetchVendorArchived === 'function') {
@@ -3653,18 +3686,29 @@
                     if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
-                    const totalActive = ProductManager.getProducts().filter((p) =>
+                    const myProducts = ProductManager.getProducts().filter((p) =>
                         (p?.supplier_email === email || p?.user_id === userId) && !p?.is_archived
-                    ).length;
+                    );
+                    
+                    const onlineCount = myProducts.filter(p => Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0) > 0).length;
+                    const unavailableCount = myProducts.filter(p => Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0) === 0).length;
+
                     const countBadge = document.getElementById('vendorProductsCountBadge');
                     if (countBadge) {
-                        countBadge.textContent = totalActive;
-                        countBadge.classList.toggle('hidden', totalActive === 0);
+                        countBadge.textContent = onlineCount;
+                        countBadge.classList.toggle('hidden', onlineCount === 0);
+                    }
+
+                    const unavailableBadge = document.getElementById('vendorUnavailableCountBadge');
+                    if (unavailableBadge) {
+                        unavailableBadge.textContent = unavailableCount;
+                        unavailableBadge.classList.toggle('hidden', unavailableCount === 0);
                     }
                 }
 
                 function renderVendorProducts() {
-                    const grid = document.getElementById('vendor-products-grid');
+                    const isUnavailable = window.newketVendorProductsView === 'unavailable';
+                    const grid = document.getElementById(isUnavailable ? 'vendor-unavailable-grid' : 'vendor-products-grid');
                     if (!grid) return;
 
                     syncVendorProductsViewControls();
@@ -3697,6 +3741,30 @@
                         (product?.supplier_email === email || product?.user_id === userId) && !product?.is_archived
                     );
 
+                    // Séparer les produits en stock et en rupture de stock
+                    const onlineProducts = myProducts.filter(p => Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0) > 0);
+                    const unavailableProducts = myProducts.filter(p => Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0) === 0);
+
+                    // Mettre à jour les badges
+                    const countBadge = document.getElementById('vendorProductsCountBadge');
+                    if (countBadge) {
+                        countBadge.textContent = onlineProducts.length;
+                        countBadge.classList.toggle('hidden', onlineProducts.length === 0);
+                    }
+                    
+                    const unavailableBadge = document.getElementById('vendorUnavailableCountBadge');
+                    if (unavailableBadge) {
+                        unavailableBadge.textContent = unavailableProducts.length;
+                        unavailableBadge.classList.toggle('hidden', unavailableProducts.length === 0);
+                    }
+
+                    // Sélectionner la bonne liste selon la vue
+                    if (window.newketVendorProductsView === 'unavailable') {
+                        myProducts = unavailableProducts;
+                    } else {
+                        myProducts = onlineProducts; // 'online' vue par défaut
+                    }
+
                     // Trier par le plus récent d'abord (created_at DESC)
                     myProducts.sort((a, b) => {
                         const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
@@ -3704,9 +3772,6 @@
                         if (dateA !== dateB) return dateB - dateA;
                         return String(b.id || '').localeCompare(String(a.id || ''));
                     });
-
-                    // Mettre à jour le badge avec le TOTAL (avant filtre de recherche)
-                    updateVendorProductsCountBadge();
 
                     // Render fallback alert + start async broken image check
                     renderVendorFallbackAlert(myProducts);
@@ -3752,11 +3817,15 @@
                                 input?.focus?.();
                             });
                         } else {
+                            const title = isUnavailable ? "Aucun produit indisponible" : "Aucun produit en ligne";
+                            const msg = isUnavailable ? "Vos produits en rupture de stock apparaîtront ici." : "Ajoutez votre premier produit pour commencer à recevoir des demandes et des paiements.";
+                            const icon = isUnavailable ? "solar:close-circle-bold-duotone" : "solar:box-minimalistic-linear";
+                            
                             grid.innerHTML = `
                                 <div class="col-span-full glass-panel p-12 text-center text-gray-500">
-                                    <iconify-icon icon="solar:box-minimalistic-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                                    <h4 class="font-black text-gray-900 mb-2">Aucun produit en ligne</h4>
-                                    <p class="text-xs text-gray-400 max-w-[340px] leading-relaxed mx-auto mb-8">Ajoutez votre premier produit pour commencer à recevoir des demandes et des paiements.</p>
+                                    <iconify-icon icon="${icon}" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                                    <h4 class="font-black text-gray-900 mb-2">${title}</h4>
+                                    <p class="text-xs text-gray-400 max-w-[340px] leading-relaxed mx-auto mb-8">${msg}</p>
                                     <a href="${publishUrl}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                                         Ajouter un produit
                                     </a>

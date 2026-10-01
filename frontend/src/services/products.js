@@ -700,6 +700,10 @@ const ProductManager = {
         return this.products;
     },
 
+    getPublicProducts() {
+        return this.products.filter(p => Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0) > 0 && !p.is_archived);
+    },
+
     getTotalCount() {
         return Math.max(this._totalCount || 0, this.products.length || 0);
     },

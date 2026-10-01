@@ -124,6 +124,7 @@ export const getProducts = async (req, res, next) => {
                 { count: 'estimated' }
             )
             .eq('is_archived', false)
+            .gt('stock', 0)
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
 
