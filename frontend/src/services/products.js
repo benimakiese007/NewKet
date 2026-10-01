@@ -94,8 +94,11 @@ const ProductManager = {
      * Idempotent: safe to call multiple times (no-op if products already loaded).
      */
     initFromCache() {
-        // Skip if products are already loaded (e.g. called twice)
-        if (this.products.length > 0) return;
+        // If products are already loaded, just notify anyone who missed the first event (like ui.js)
+        if (this.products.length > 0) {
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+            return;
+        }
         try {
             const raw = localStorage.getItem('newket_products_cache');
             if (!raw) return;
