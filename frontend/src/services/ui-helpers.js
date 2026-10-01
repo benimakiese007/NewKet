@@ -727,8 +727,9 @@ export function buildProductCardHTML(p, options = {}) {
         badgeHTML = `<span class="badge badge-new">Nouveau</span>`;
     }
 
+    const hasStockDefined = p.stock !== undefined || p.stock_quantity !== undefined || p.quantity !== undefined;
     const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
-    const isAvailable = Number.isFinite(stock) && stock > 0;
+    const isAvailable = hasStockDefined ? (Number.isFinite(stock) && stock > 0) : true;
     const availabilityBadge = isAvailable
         ? `<span class="badge" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;display:inline-flex;align-items:center;gap:4px;"><iconify-icon icon="solar:check-circle-bold" width="10"></iconify-icon> En stock</span>`
         : `<span class="badge" style="background:#f3f4f6;color:#4b5563;border:1px solid #e5e7eb;display:inline-flex;align-items:center;gap:4px;"><iconify-icon icon="solar:close-circle-bold" width="10"></iconify-icon> Indisponible</span>`;

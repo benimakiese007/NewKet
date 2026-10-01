@@ -942,10 +942,11 @@
                 if (window.NewKetVisualSearch && typeof window.NewKetVisualSearch.getSimilarProducts === 'function') {
                     const similarProducts = await window.NewKetVisualSearch.getSimilarProducts(actualProductId || productId, 5);
                     if (similarProducts && similarProducts.length > 0) {
-                        products = similarProducts.map(p => typeof ProductManager._mapProduct === 'function'
-                            ? ProductManager._mapProduct(p)
-                            : p
-                        );
+                        products = similarProducts.map(p => {
+                            const cached = window.ProductManager && typeof window.ProductManager.getProduct === 'function' ? window.ProductManager.getProduct(p.id) : null;
+                            const mapped = typeof ProductManager._mapProduct === 'function' ? ProductManager._mapProduct(p) : p;
+                            return cached ? { ...cached, ...mapped, stock: cached.stock ?? mapped.stock } : mapped;
+                        });
                     }
                 }
             } catch (err) {
