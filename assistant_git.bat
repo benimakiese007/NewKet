@@ -972,7 +972,7 @@ if errorlevel 1 (
         echo   Connexion terminee ! Tu peux maintenant creer des PR.
         echo.
     ) else (
-        echo   OK ! Cree ta PR manuellement sur :
+        echo   ✅ OK ! Cree ta PR manuellement sur :
         echo   https://github.com/benimakiese007/NewKet
         goto :eof
     )
