@@ -61,13 +61,23 @@ function assertOrderMutableOrFail({ order, user, res, actionLabel }) {
 
     if (order.payment_locked_at) {
         if (isAdminActor(user)) return true;
-        res.status(409).json({ error: `Commande verrouill\u00E9e (paiement en cours): action "${actionLabel}" impossible.` });
-        return false;
+
+        // Un verrou fantôme (> 10 minutes) est ignoré : le paiement a probablement échoué
+        // ou le client a fermé la page sans finaliser. On débloque silencieusement.
+        const LOCK_STALE_MS = 10 * 60 * 1000; // 10 minutes
+        const lockedAt = new Date(order.payment_locked_at).getTime();
+        const ageMs = Date.now() - lockedAt;
+        if (ageMs < LOCK_STALE_MS) {
+            res.status(409).json({ error: `Commande verrouillée (paiement en cours): action "${actionLabel}" impossible.` });
+            return false;
+        }
+        // Verrou fantôme : on laisse l'action continuer (le verrou sera nettoyé par initiatePayment au prochain essai)
+        console.warn(`[PaymentLock] Verrou fantôme ignoré pour la commande ${order.id} (${Math.round(ageMs / 60000)} min) — action: ${actionLabel}`);
     }
 
     if (order.status === ORDER_STATUSES.CANCELLED) {
         if (isAdminActor(user)) return true;
-        res.status(409).json({ error: `Commande annul\u00E9e: action "${actionLabel}" impossible.` });
+        res.status(409).json({ error: `Commande annulée: action "${actionLabel}" impossible.` });
         return false;
     }
 
@@ -760,6 +770,8 @@ export const markOrderInDelivery = async (req, res, next) => {
             .update({
                 status: ORDER_STATUSES.IN_DELIVERY,
                 in_delivery_at: nowIso,
+                payment_locked_at: null,
+                payment_lock_reason: null,
                 updated_at: nowIso
             })
             .eq('id', id)
