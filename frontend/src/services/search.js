@@ -399,7 +399,8 @@ const SearchManager = {
                 limit: 20, // Fetch more to ensure we get 4 distinct sellers
                 order: ['created_at', { ascending: false }],
                 select: '*, users!supplier_email(seller_type)',
-                eq: [['is_archived', false]]
+                eq: [['is_archived', false]],
+                gt: [['stock', 0]]   // ✅ Masquer les produits en rupture de stock
             };
             
             // Apply category filter if selected
@@ -531,7 +532,8 @@ const SearchManager = {
                 or: `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`,
                 limit: 6,
                 select: '*, users!supplier_email(seller_type)',
-                eq: [['is_archived', false]]
+                eq: [['is_archived', false]],
+                gt: [['stock', 0]]   // ✅ Masquer les produits en rupture de stock
             };
 
             // Apply category filter if selected
