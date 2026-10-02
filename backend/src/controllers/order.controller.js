@@ -753,7 +753,15 @@ export const markOrderInDelivery = async (req, res, next) => {
             return res.status(403).json({ error: 'Seul le vendeur peut démarrer la livraison.' });
         }
 
-        if (order.status !== ORDER_STATUSES.PAID_HELD) {
+        const normalizedStatus = mapLegacyOrderStatus(order.status);
+        // Statuts de paiement qui autorisent le lancement de la livraison :
+        // - PAID : paiement confirmé normalement
+        // - INITIATED avec verrou fantôme (> 10 min) : paiement simulé dont le RPC n'a pas finalisé proprement
+        const LOCK_STALE_MS = 10 * 60 * 1000;
+        const lockedAgeMs = order.payment_locked_at ? Date.now() - new Date(order.payment_locked_at).getTime() : Infinity;
+        const isPaidOrSettled = order.payment_status === 'PAID'
+            || (order.payment_status === 'INITIATED' && lockedAgeMs >= LOCK_STALE_MS);
+        if (normalizedStatus !== ORDER_STATUSES.PAID_HELD && !isPaidOrSettled) {
             return res.status(400).json({ error: `La commande doit être en ${ORDER_STATUSES.PAID_HELD} pour lancer la livraison.` });
         }
 
@@ -770,6 +778,10 @@ export const markOrderInDelivery = async (req, res, next) => {
             .update({
                 status: ORDER_STATUSES.IN_DELIVERY,
                 in_delivery_at: nowIso,
+                // Auto-correction : s'assure que le paiement est bien finalisé
+                // avant de passer en livraison (cas de désynchronisation RPC/simulation)
+                payment_status: 'PAID',
+                escrow_status: 'HELD',
                 payment_locked_at: null,
                 payment_lock_reason: null,
                 updated_at: nowIso
