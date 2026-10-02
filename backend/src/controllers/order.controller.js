@@ -129,7 +129,7 @@ async function fetchOrderOr404(orderId, res) {
 
     order.status = mapLegacyOrderStatus(order.status);
 
-    if (order.status === ORDER_STATUSES.PAID_HELD && !String(order.otp_code || '').trim()) {
+    if ((order.status === ORDER_STATUSES.PAID_HELD || order.status === ORDER_STATUSES.IN_DELIVERY) && !String(order.otp_code || '').trim()) {
         const otpCode = generateOtpCode();
         const { error: otpUpdateError } = await client
             .from('orders')
