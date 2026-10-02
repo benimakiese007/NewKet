@@ -100,7 +100,7 @@ const UI = {
         }
 
         const pinned = products
-            .filter(p => p.pinned === true)
+            .filter(p => p.pinned === true && Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0) > 0)
             .sort((a, b) => {
                 const aDate = new Date(a.created_at || 0).getTime();
                 const bDate = new Date(b.created_at || 0).getTime();

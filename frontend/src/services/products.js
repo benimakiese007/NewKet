@@ -563,7 +563,8 @@ const ProductManager = {
                 products = await window.SupabaseAdapter.fetchWithFilters('products', {
                     select: '*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug)',
                     order: ['created_at', { ascending: false }],
-                    eq: [['pinned', true]],
+                    eq: [['pinned', true], ['is_archived', false]],
+                    gt: [['stock', 0]],   // ✅ Masquer les produits en rupture de stock
                     skipCache: true
                 });
             }
