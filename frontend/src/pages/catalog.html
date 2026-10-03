@@ -867,16 +867,18 @@
             window.addEventListener('currencyChanged', () => renderCatalog());
 
             // Instant filter on search input
-            const handleSearchChange = () => {
-                if (typeof debounce === 'function') {
-                    debounce(renderCatalog, 300)();
-                } else {
-                    renderCatalog();
-                }
-            };
+            // ✅ Fix: debounce créé UNE SEULE FOIS (évite de le recréer à chaque frappe)
+            const debouncedRenderCatalog = typeof debounce === 'function'
+                ? debounce(renderCatalog, 300)
+                : renderCatalog;
 
-            document.querySelectorAll('.search-input, #searchInput').forEach(input => {
-                input.addEventListener('input', handleSearchChange);
+            // ✅ Fix: délégation d'événement sur document pour capturer #searchInput
+            // même s'il est injecté dynamiquement par ComponentLoader APRÈS DOMContentLoaded
+            document.addEventListener('input', (e) => {
+                if (e.target.matches('.search-input, #searchInput')) {
+                    console.log('[CATALOG DEBUG] input event fired, value:', e.target.value);
+                    debouncedRenderCatalog();
+                }
             });
 
             if (isVisualSearch) {
@@ -1067,6 +1069,8 @@
         let catalogHasMore = true;
         let catalogVisualSearchLoading = false;
         let catalogVisualSearchError = false;
+        // ✅ Compteur de séquence pour ignorer les réponses Supabase périmées (race condition fix)
+        let catalogRenderSeq = 0;
 
         // ⏱️ Délai max pour la recherche visuelle (ms)
         // Le modèle tourne dans le navigateur — 10s max (cold start WASM)
@@ -1128,12 +1132,16 @@
         }
 
         async function renderCatalog(append = false) {
+            // ✅ Séquence pour annuler les réponses réseau périmées (race condition)
+            const mySeq = ++catalogRenderSeq;
+
             const searchInput = document.getElementById('searchInput');
             const urlParams = new URLSearchParams(window.location.search);
             const isVisualSearch = urlParams.get('lens') === 'true';
             // "Recherche visuelle" est un libellé dans le champ, pas une recherche texte.
             const urlQ = isVisualSearch ? '' : (urlParams.get('q') || '');
             const query = isVisualSearch ? '' : (searchInput?.value || urlQ).trim().toLowerCase();
+            console.log('[CATALOG DEBUG] renderCatalog called, query:', JSON.stringify(query), '| searchInput exists:', !!searchInput, '| searchInput.value:', searchInput?.value);
 
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeCategories = [...selectedCategories];
@@ -1159,7 +1167,32 @@
             const grid = document.getElementById('catalog-grid');
 
             if (!append) {
-                grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
+                // ✅ Optimistic local-first: si on a un query texte et un cache local,
+                // on affiche les résultats locaux IMMÉDIATEMENT sans skeleton,
+                // Supabase remplace ensuite avec les vrais résultats en arrière-plan.
+                const localCache = getCachedCatalogProducts();
+                if (query && localCache.length > 0 && !isVisualSearch) {
+                    const localState = getCatalogQueryState();
+                    const localFiltered = filterCatalogProducts(localCache, localState);
+                    if (localFiltered.length > 0) {
+                        const localHTML = localFiltered.slice(0, CATALOG_PAGE_SIZE).map((p, idx) =>
+                            window.buildProductCardHTML(p, {
+                                animationClass: 'animate-fade-in',
+                                delay: `${idx * 0.02}s`,
+                                imageLoading: idx < 4 ? 'eager' : 'lazy',
+                            })
+                        ).join('');
+                        grid.innerHTML = localHTML;
+                        if (window.initLazyImages) window.initLazyImages(grid);
+                    } else {
+                        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-20 text-slate-400">
+                            <iconify-icon icon="solar:magnifer-zoom-out-linear" width="48" class="mb-4 text-slate-200"></iconify-icon>
+                            <p class="text-sm font-bold">Aucun résultat pour "<span class="text-slate-700">${query}</span>"</p>
+                        </div>`;
+                    }
+                } else {
+                    grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
+                }
                 catalogPage = 0;
                 catalogHasMore = true;
             }
@@ -1193,7 +1226,8 @@
 
                     // Search filter (or across name and category)
                     if (query) {
-                        options.or = `name.ilike.%${query}%,category.ilike.%${query}%`;
+                        const safeQuery = query.replace(/"/g, '');
+                        options.or = `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`;
                     }
 
                     // ✅ Toujours masquer les produits épuisés et archivés côté public
@@ -1247,7 +1281,10 @@
                     }
 
                     products = await SupabaseAdapter.fetchWithFilters('products', options);
-                    
+
+                    // ✅ Si une requête plus récente a démarré pendant l'await → on abandonne
+                    if (mySeq !== catalogRenderSeq) return;
+
                     // Map raw products to standardization format (converts snake_case to camelCase)
                     if (products && products.length > 0 && typeof ProductManager._mapProduct === 'function') {
                         products = products.map(p => ProductManager._mapProduct(p));
