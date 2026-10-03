@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
     createOrder,
     getOrders,
+    getOrderById,
     updateOrderStatus,
     createDeliveryQuote,
     respondToDeliveryQuote,
@@ -28,6 +29,7 @@ router.post('/',
     createOrder
 );
 router.get('/', requireAuth, getOrders);
+router.get('/:id', requireAuth, getOrderById);
 router.post('/:id/quote', requireAuth, createDeliveryQuote);
 router.post('/:id/quote/respond', requireAuth, respondToDeliveryQuote);
 router.put('/:id/status', 

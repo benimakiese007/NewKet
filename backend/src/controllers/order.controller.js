@@ -470,6 +470,29 @@ export const getOrders = async (req, res, next) => {
     }
 };
 
+export const getOrderById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const order = await fetchOrderOr404(id, res);
+        if (!order) return; // fetchOrderOr404 a déjà envoyé le 404
+
+        const isVendor = order.vendor_id === req.user?.id;
+        const isAdmin = isAdminActor(req.user);
+        const isCustomer = !isVendor && !isAdmin;
+
+        // Sécurité : l'OTP ne doit jamais être exposé au vendeur
+        const { otp_code, ...orderWithoutOtp } = order;
+
+        return res.status(200).json({
+            ...(isCustomer || isAdmin ? order : orderWithoutOtp),
+            status: mapLegacyOrderStatus(order.status)
+        });
+    } catch (error) {
+        console.error('❌ Erreur getOrderById:', error.message);
+        return next(error);
+    }
+};
+
 export const createDeliveryQuote = async (req, res, next) => {
     try {
         const { id } = req.params;
