@@ -7567,14 +7567,30 @@ window.addEventListener('profileUpdated', () => {
 });
 
 
-function openOrderModal(id) {
-            const order = OrderManager.getOrders().find(o => o.id === id);
+async function openOrderModal(id) {
+            let order = OrderManager.getOrders().find(o => o.id === id);
             if (!order) return;
             currentSelectedOrder = order;
             if (releaseCountdownTimer) {
                 clearInterval(releaseCountdownTimer);
                 releaseCountdownTimer = null;
             }
+
+            try {
+                if (window.ApiClient) {
+                    const fresh = await ApiClient.get(`/orders/${id}`);
+                    if (fresh && fresh.id) {
+                        order = fresh;
+                        currentSelectedOrder = fresh;
+                        // Mettre à jour le cache mémoire
+                        const idx = OrderManager.data?.findIndex?.(o => o.id === id);
+                        if (idx !== undefined && idx !== -1) OrderManager.data[idx] = fresh;
+                    }
+                }
+            } catch (e) {
+                console.warn('[Sync] Impossible de recharger la commande depuis le backend:', e.message);
+            }
+
 
             document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
             document.getElementById('modalOrderDateText').textContent = new Date(order.date).toLocaleDateString('fr-FR', {

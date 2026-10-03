@@ -100,7 +100,7 @@ const ProductManager = {
             return;
         }
         try {
-            const raw = localStorage.getItem('newket_products_cache');
+            const raw = localStorage.getItem('newket_products_cache_v2');
             if (!raw) return;
             const parsed = JSON.parse(raw);
             if (parsed && Array.isArray(parsed) && parsed.length > 0) {
@@ -124,7 +124,7 @@ const ProductManager = {
         // this.products. Only re-read cache here if products are still empty
         // (e.g. first ever visit where initFromCache had no data yet).
         if (this.products.length === 0) {
-            const localCache = localStorage.getItem('newket_products_cache');
+            const localCache = localStorage.getItem('newket_products_cache_v2');
             if (localCache) {
                 try {
                     const parsed = JSON.parse(localCache);
@@ -390,7 +390,7 @@ const ProductManager = {
                 const pinnedForCache = this.products.filter(p => p.pinned);
                 const regularForCache = this.products.filter(p => !p.pinned);
                 const cacheSubset = [...pinnedForCache, ...regularForCache].slice(0, 30);
-                localStorage.setItem('newket_products_cache', JSON.stringify(cacheSubset));
+                localStorage.setItem('newket_products_cache_v2', JSON.stringify(cacheSubset));
             }
 
             // Always dispatch to clear loading state
