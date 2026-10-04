@@ -32,8 +32,8 @@ jobs:
 
       - name: 🍎 Build Xcode (Sans signature)
         run: |
-          # On compile le workspace iOS généré par Capacitor
-          xcodebuild -workspace ios/App/App.xcworkspace \
+          # On compile le projet iOS généré par Capacitor (SPM)
+          xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
