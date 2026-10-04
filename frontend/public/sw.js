@@ -1,4 +1,4 @@
-const BUILD_VERSION = '__NEWKET_BUILD_VERSION__';
+const BUILD_VERSION = 'v20261004';
 const CACHE_NAME = `newket-cache-${BUILD_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',

@@ -158,8 +158,8 @@
                 window.__newketPaymentRedirectTimer = setTimeout(() => {
                     const role = window.AuthManager ? window.AuthManager.role : localStorage.getItem('newketRole');
                     const targetDashboard = (role === 'vendor' || role === 'supplier')
-                        ? '/vendor-dashboard.html'
-                        : '/customer-dashboard.html';
+                        ? '/vendor-dashboard'
+                        : '/customer-dashboard';
                     window.location.href = `${targetDashboard}#purchases?filter=paid`;
                 }, 3000);
             }
