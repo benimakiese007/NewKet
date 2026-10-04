@@ -441,11 +441,15 @@
 
                 // Initial load: Fetch sellers and their stats from the SQL view
                 if (allSellers.length === 0) {
-                    const sellers = await window.SupabaseAdapter.fetchWithFilters('seller_stats', {
-                        limit: 100,
-                        eq: [['status', 'approved']],
+                    let sellers = await window.SupabaseAdapter.fetchWithFilters('seller_stats', {
+                        limit: 200,
                         order: ['sales_count', { ascending: false }]
                     });
+
+                    // Affiche la boutique si le vendeur est approuvé OU s'il a au moins un produit
+                    if (sellers) {
+                        sellers = sellers.filter(s => s.status === 'approved' || s.products_count > 0);
+                    }
 
                     allSellers = sellers || [];
                 }
