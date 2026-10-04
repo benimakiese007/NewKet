@@ -31,13 +31,13 @@ if %errorlevel% neq 0 (
     pause
     exit /b %errorlevel%
 )
+cd ..
 echo.
 
 echo ----------------------------------------------------
-echo  🎉 SUCCÈS ! L'APK EST PRÊT.
+echo  🎉 SUCCÈS ! L'APK EST PRÊTE.
 echo ----------------------------------------------------
-echo Ouverture du dossier contenant l'APK...
-explorer.exe "app\build\outputs\apk\debug"
-cd ..
+echo  📂 Ouverture du dossier...
+explorer.exe "android\app\build\outputs\apk\debug"
 echo.
 pause

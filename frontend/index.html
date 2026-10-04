@@ -162,6 +162,7 @@
         #nk-splash.hiding {
             opacity: 0;
             transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; /* Fix Capacitor Android: don't block touches during fade-out */
         }
         #nk-splash.hiding img {
             animation: nk-logo-out 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -178,14 +179,27 @@
         } else {
             // Sinon, on marque comme vu pour les prochains clics, et on joue l'animation
             sessionStorage.setItem('nk_splash_shown', 'true');
+
+            const removeSplash = () => {
+                const s = document.getElementById('nk-splash');
+                if (!s) return;
+                s.style.pointerEvents = 'none'; // Immediately unblock touches
+                s.classList.add('hiding');
+                setTimeout(() => s.remove(), 500);
+            };
+
             window.addEventListener('load', () => {
-                setTimeout(() => {
-                    const s = document.getElementById('nk-splash');
-                    if (!s) return;
-                    s.classList.add('hiding');
-                    setTimeout(() => s.remove(), 500);
-                }, 1000); // 1 seconde totale (0.5s animation + 0.5s pause) avant de déclencher la disparition
+                setTimeout(removeSplash, 1000);
             });
+
+            // Capacitor Android failsafe: force-remove after 4s no matter what
+            setTimeout(() => {
+                const s = document.getElementById('nk-splash');
+                if (s) {
+                    s.style.pointerEvents = 'none';
+                    s.remove();
+                }
+            }, 4000);
         }
     </script>
     <!-- End Splash Screen -->
