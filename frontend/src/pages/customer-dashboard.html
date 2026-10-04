@@ -2896,11 +2896,9 @@
             }
 
             async function waitForAppReady() {
-                if (window.newketInitialized) return;
                 if (!isCustomerOrdersDataPending()) return;
                 await new Promise((resolve) => {
                     const timer = setTimeout(resolve, 4000);
-                    window.addEventListener('newketInitialized', () => { clearTimeout(timer); resolve(); }, { once: true });
                     window.addEventListener('ordersUpdated', () => { clearTimeout(timer); resolve(); }, { once: true });
                 });
             }
