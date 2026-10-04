@@ -21,7 +21,7 @@ export const createFlexpaiePaymentRequest = async (payload) => {
         console.warn('⚠️ MODE SIMULATION PAIEMENT ACTIVÉ : Aucun vrai prélèvement.');
         // On renvoie directement vers la page de succès de l'application
         const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        const mockSuccessUrl = new URL('/src/pages/payment-success.html', baseUrl);
+        const mockSuccessUrl = new URL('/payment-success', baseUrl);
         mockSuccessUrl.searchParams.set('order_id', payload.order_id || 'mock');
         mockSuccessUrl.searchParams.set('transaction_id', payload.ref);
         mockSuccessUrl.searchParams.set('mock', 'true');

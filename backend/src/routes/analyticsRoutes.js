@@ -191,7 +191,7 @@ function applyBehaviorFilters(query, filters) {
     // Can be overridden with include_admin=1 for debugging.
     if (!filters.includeAdmin) {
         query = query.neq('user_role', 'admin');
-        query = query.not('path', 'ilike', '%/src/pages/admin/%');
+        query = query.not('path', 'ilike', '%/admin/%');
     }
 
     return query;

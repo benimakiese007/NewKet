@@ -172,7 +172,7 @@ function getRedirectUrl(req) {
     if (process.env.FRONTEND_URL) {
         // Supprime le slash final s'il existe
         const baseUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
-        return `${baseUrl}/src/pages/payment-success.html`;
+        return `${baseUrl}/payment-success`;
     }
 
 
@@ -181,13 +181,13 @@ function getRedirectUrl(req) {
     // Environnement local
     if (host.includes('localhost') || host.includes('127.0.0.1')) {
         const frontendHost = host.replace(/:300[0-9]/, ':5173');
-        return `http://${frontendHost}/src/pages/payment-success.html`;
+        return `http://${frontendHost}/payment-success`;
     }
 
     // Fallback en production (utilise HTTPS par défaut et le host de la requête)
     // Note : Il est fortement recommandé de définir FRONTEND_URL ou FLEXPAY_CHECKOUT_SUCCESS_URL
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    return `${protocol}://${host}/src/pages/payment-success.html`;
+    return `${protocol}://${host}/payment-success`;
 }
 
 function getActivePaymentProvider(req) {
@@ -525,7 +525,7 @@ export const initiatePayment = async (req, res, next) => {
                     // L'auto-traitement (mock=true) déclenchera la finalisation de la commande.
                     console.warn('[SIMULATION] Aucun fournisseur de paiement configuré. Mode simulation activé.');
                     const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.headers.host}`;
-                    const mockSuccessUrl = new URL('/src/pages/payment-success.html', baseUrl);
+                    const mockSuccessUrl = new URL('/payment-success', baseUrl);
                     mockSuccessUrl.searchParams.set('order_id', orderId);
                     mockSuccessUrl.searchParams.set('transaction_id', txId);
                     mockSuccessUrl.searchParams.set('mock', 'true');

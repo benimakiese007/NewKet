@@ -78,7 +78,7 @@ function renderDeauthorizePage() {
     <p>
       Si tu testes cette URL depuis un navigateur, tu peux simplement revenir vers
       <a href="https://newket.vercel.app/">l'accueil NewKet</a> ou consulter
-      <a href="https://newket.vercel.app/src/pages/privacy.html">la politique de confidentialité</a>.
+      <a href="https://newket.vercel.app/privacy">la politique de confidentialité</a>.
     </p>
     <div class="meta">
       <span>Endpoint: <code>/api/meta/deauthorize</code></span>

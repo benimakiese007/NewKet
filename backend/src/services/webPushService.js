@@ -24,9 +24,9 @@ function normalizeRole(role) {
 
 function getNotificationUrl(notification = {}) {
     const targetRole = normalizeRole(notification.target_role);
-    if (targetRole === 'suppliers') return '/src/pages/vendor-dashboard.html#notifications';
-    if (targetRole === 'admin') return '/src/pages/admin/notifications-admin.html';
-    return '/src/pages/customer-dashboard.html#notifications';
+    if (targetRole === 'suppliers') return '/vendor-dashboard#notifications';
+    if (targetRole === 'admin') return '/admin/notifications-admin';
+    return '/customer-dashboard#notifications';
 }
 
 function buildPayload(notification = {}) {

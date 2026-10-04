@@ -201,7 +201,7 @@ const EmailService = {
                     </div>
                     <p style="color: #333; font-size: 13px;">Connectez-vous au tableau de bord admin pour examiner le document et valider ou refuser la demande.</p>
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="${process.env.FRONTEND_URL}/src/pages/admin/user.html" style="background-color: #7c3aed; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Gérer les Certifications</a>
+                        <a href="${process.env.FRONTEND_URL}/admin/user" style="background-color: #7c3aed; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Gérer les Certifications</a>
                     </div>
                 </div>
                 <p style="color: #999; font-size: 11px; text-align: center; margin-top: 20px;">© ${new Date().getFullYear()} NewKet EMarket. Tous droits réservés.</p>
@@ -231,7 +231,7 @@ const EmailService = {
                     </div>
                     <p style="color: #333; line-height: 1.6;">Les acheteurs peuvent désormais identifier votre boutique comme une entreprise officielle enregistrée. Cela renforce la confiance et peut augmenter vos ventes !</p>
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="${process.env.FRONTEND_URL}/src/pages/vendor-dashboard.html" style="background-color: #7c3aed; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Voir ma Boutique</a>
+                        <a href="${process.env.FRONTEND_URL}/vendor-dashboard" style="background-color: #7c3aed; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Voir ma Boutique</a>
                     </div>
                 </div>
                 <p style="color: #999; font-size: 11px; text-align: center; margin-top: 20px;">© ${new Date().getFullYear()} NewKet EMarket. Tous droits réservés.</p>
@@ -259,7 +259,7 @@ const EmailService = {
                     </div>
                     <p style="color: #333; font-size: 13px; line-height: 1.6;">Vous pouvez soumettre une nouvelle demande depuis votre tableau de bord en corrigeant le problème mentionné ci-dessus.</p>
                     <div style="text-align: center; margin-top: 30px;">
-                        <a href="${process.env.FRONTEND_URL}/src/pages/vendor-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Soumettre à nouveau</a>
+                        <a href="${process.env.FRONTEND_URL}/vendor-dashboard" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Soumettre à nouveau</a>
                     </div>
                 </div>
                 <p style="color: #999; font-size: 11px; text-align: center; margin-top: 20px;">Pour toute question, contactez le support NewKet.</p>
