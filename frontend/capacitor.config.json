@@ -2,6 +2,9 @@
   "appId": "cd.newket.app",
   "appName": "NewKet",
   "webDir": "dist",
+  "android": {
+    "webContentsDebuggingEnabled": true
+  },
   "plugins": {
     "StatusBar": {
       "backgroundColor": "#1f2937",
