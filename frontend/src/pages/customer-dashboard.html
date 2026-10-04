@@ -1060,6 +1060,10 @@
                         <span>Livraison</span>
                         <strong id="invDelivery"></strong>
                     </div>
+                    <div class="invoice-total-row hidden" id="invPayinRow">
+                        <span>Frais de protection</span>
+                        <strong id="invPayin"></strong>
+                    </div>
                     <div class="invoice-total-row invoice-total-row--grand">
                         <span>Total</span>
                         <strong id="invTotal"></strong>
@@ -4501,53 +4505,90 @@
             }
             if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
 
+            // Use the same exchange rate as the modal to ensure consistent amounts
+            const invRate = parseFloat(o?.items?.[0]?.custom_exchange_rate || 0) || null;
+            const fmt = (v) => CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate);
+
             const invItems = document.getElementById('invItems');
             invItems.innerHTML = o.items.map(item => `
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 10px 0;">${item.name}</td>
                     <td style="padding: 10px 0; text-align: center;">${item.quantity}</td>
-                    <td style="padding: 10px 0; text-align: right;">${CurrencyManager.formatPrice(item.price)}</td>
-                    <td style="padding: 10px 0; text-align: right;">${CurrencyManager.formatPrice(item.price * item.quantity)}</td>
+                    <td style="padding: 10px 0; text-align: right;">${fmt(item.price)}</td>
+                    <td style="padding: 10px 0; text-align: right;">${fmt(item.price * item.quantity)}</td>
                 </tr>
             `).join('');
 
-            document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            document.getElementById('invSubtotal').textContent = fmt(amounts.subtotal);
             if (discountRow && discountValue) {
                 const hasDiscount = discountAmount > 0;
-                discountRow.classList.toggle('hidden', !hasDiscount);
-                discountValue.textContent = hasDiscount ? `- ${CurrencyManager.formatPrice(discountAmount)}` : '';
+                // classList.remove/add (not style.display) so innerHTML captures the correct class state
+                hasDiscount ? discountRow.classList.remove('hidden') : discountRow.classList.add('hidden');
+                discountValue.textContent = hasDiscount ? `- ${fmt(discountAmount)}` : '';
             }
             if (promoCodeRow && promoCodeValue) {
                 const hasPromoCode = Boolean(promoCode);
-                promoCodeRow.classList.toggle('hidden', !hasPromoCode);
+                hasPromoCode ? promoCodeRow.classList.remove('hidden') : promoCodeRow.classList.add('hidden');
                 promoCodeValue.textContent = promoCode;
             }
             document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
-                ? CurrencyManager.formatPrice(amounts.deliveryFee)
+                ? fmt(amounts.deliveryFee)
                 : 'Gratuit';
-            document.getElementById('invTotal').textContent = CurrencyManager.formatPrice(amounts.total);
+
+            // Derive the protection fee from the total when payin_fee_amount is missing in DB
+            // (the fee is still included in client_total_paid / final_total_amount)
+            let payinFee = amounts.payinFee;
+            if (!(payinFee > 0)) {
+                const inferred = amounts.total - amounts.subtotal - amounts.deliveryFee + amounts.discount;
+                if (inferred > 0.01) payinFee = inferred;
+            }
+            const payinRow = document.getElementById('invPayinRow');
+            const payinEl = document.getElementById('invPayin');
+            if (payinRow && payinEl) {
+                const hasPayin = payinFee > 0;
+                hasPayin ? payinRow.classList.remove('hidden') : payinRow.classList.add('hidden');
+                payinEl.textContent = hasPayin ? fmt(payinFee) : '';
+            }
+            document.getElementById('invTotal').textContent = fmt(amounts.total);
 
             // Trigger print dialog so the customer can save the invoice as PDF.
-            const printContent = document.getElementById('invoiceTemplate').innerHTML;
-            const printFrame = document.createElement('iframe');
+            // On mobile (iOS/Android), window.print() inside a hidden iframe is silently ignored.
+            // We detect mobile and open the invoice in a new tab instead, where the user can
+            // use the browser's native share/save-as-PDF flow.
+            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
-            printFrame.style.position = 'fixed';
-            printFrame.style.right = '0';
-            printFrame.style.bottom = '0';
-            printFrame.style.width = '0';
-            printFrame.style.height = '0';
-            printFrame.style.border = '0';
-            document.body.appendChild(printFrame);
-
-            const printDocument = printFrame.contentWindow?.document;
-            if (!printDocument) {
-                printFrame.remove();
-                showInlineMessage('client-modal-feedback', 'Impossible de préparer la facture.', 'error');
-                return;
+            // Embed the logo as base64 so it renders correctly in blob:// URLs and iframes
+            // (relative paths like /LogoOfficiel_PWA_Icone.png are broken outside the main document context).
+            async function fetchLogoAsDataUrl() {
+                try {
+                    const logoUrl = getNewketLogoUrl();
+                    const resp = await fetch(logoUrl);
+                    if (!resp.ok) return null;
+                    const blob = await resp.blob();
+                    return await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = () => resolve(null);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch {
+                    return null;
+                }
             }
 
-            printDocument.open();
-            printDocument.write(`
+            const logoDataUrl = await fetchLogoAsDataUrl();
+
+            // Temporarily patch the logo src in the hidden template so innerHTML captures base64
+            const invLogoEl = document.getElementById('invLogo');
+            const originalLogoSrc = invLogoEl ? invLogoEl.src : null;
+            if (invLogoEl && logoDataUrl) invLogoEl.src = logoDataUrl;
+
+            const printContent = document.getElementById('invoiceTemplate').innerHTML;
+
+            // Restore original src to avoid side-effects
+            if (invLogoEl && originalLogoSrc !== null) invLogoEl.src = originalLogoSrc;
+
+            const invoiceHtml = `
                 <!doctype html>
                 <html>
                     <head>
@@ -4603,16 +4644,54 @@
                     </head>
                     <body>${printContent}</body>
                 </html>
-            `);
-            printDocument.close();
+            `;
 
-            await waitForFrameAssets(printFrame);
+            if (isMobile) {
+                // Mobile : ouvrir dans un nouvel onglet — l'utilisateur peut partager/sauvegarder en PDF nativement
+                try {
+                    const blob = new Blob([invoiceHtml], { type: 'text/html;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const tab = window.open(url, '_blank');
+                    if (!tab) {
+                        // Popup bloqué — fallback : lien de téléchargement
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `facture-newket-${o.id}.html`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                    // Libérer l'URL après un délai pour laisser le tab s'ouvrir
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
+                } catch (err) {
+                    console.error('Erreur ouverture facture mobile:', err);
+                    showInlineMessage('client-modal-feedback', 'Impossible d\'ouvrir la facture.', 'error');
+                }
+            } else {
+                // Desktop : print via iframe caché
+                const printFrame = document.createElement('iframe');
+                printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+                document.body.appendChild(printFrame);
 
-            setTimeout(() => {
-                printFrame.contentWindow.focus();
-                printFrame.contentWindow.print();
-                setTimeout(() => printFrame.remove(), 1000);
-            }, 250);
+                const printDocument = printFrame.contentWindow?.document;
+                if (!printDocument) {
+                    printFrame.remove();
+                    showInlineMessage('client-modal-feedback', 'Impossible de préparer la facture.', 'error');
+                    return;
+                }
+
+                printDocument.open();
+                printDocument.write(invoiceHtml);
+                printDocument.close();
+
+                await waitForFrameAssets(printFrame);
+
+                setTimeout(() => {
+                    printFrame.contentWindow.focus();
+                    printFrame.contentWindow.print();
+                    setTimeout(() => printFrame.remove(), 1000);
+                }, 250);
+            }
         }
 
         function removeFavorite(id) {
