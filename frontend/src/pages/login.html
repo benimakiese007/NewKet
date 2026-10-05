@@ -1682,7 +1682,28 @@
                                 }, 1000);
                             }
                         });
-
+                        
+                    }
+                    
+                    // Fallback Web/WebView (très fiable sur iOS/Android quand on ferme le navigateur système)
+                    const handleVisibility = () => {
+                        if (document.visibilityState === 'visible') {
+                            setTimeout(() => {
+                                // deepLinkFired est géré par Capacitor si disponible
+                                if (spinner && !spinner.classList.contains('hidden')) {
+                                    if (btn) btn.disabled = false;
+                                    if (icon) icon.classList.remove('hidden');
+                                    if (spinner) spinner.classList.add('hidden');
+                                }
+                            }, 1500); // Laisse un peu de temps au deep link de s'exécuter
+                            document.removeEventListener('visibilitychange', handleVisibility);
+                            window.removeEventListener('focus', handleVisibility);
+                        }
+                    };
+                    document.addEventListener('visibilitychange', handleVisibility);
+                    window.addEventListener('focus', handleVisibility);
+                    
+                    if (CapApp) {
                         CapApp.addListener('appUrlOpen', async (event) => {
                             deepLinkFired = true;
                             console.log('[OAuth Diagnostic] Retour dans l\'application détecté !');
