@@ -20,6 +20,13 @@ jobs:
         run: npm install
         working-directory: ./frontend
 
+      - name: 🔑 Création du fichier .env
+        run: |
+          echo "VITE_SUPABASE_URL=https://kuygjocnnlvjtoaquicq.supabase.co" > .env
+          echo "VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY" >> .env
+          echo "VITE_APP_ENV=production" >> .env
+        working-directory: ./frontend
+
       - name: 🛠️ Compilation du site Web (Vite)
         run: npm run build
         working-directory: ./frontend
