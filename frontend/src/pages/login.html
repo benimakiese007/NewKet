@@ -1617,6 +1617,9 @@
         }
 
         // --- 6. Oauth Logic ---
+        // Detect if running inside Capacitor native app (iOS or Android)
+        const isCapacitorNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+
         async function signInWithProvider(provider) {
             const btn = document.getElementById('google-btn');
             const icon = document.getElementById('google-icon');
@@ -1638,20 +1641,53 @@
             try {
                 localStorage.removeItem('newketRole');
                 localStorage.removeItem('newketUserStatus');
-                // Le rôle sera choisi sur la page dédiée après le retour OAuth
-                // Le choix Acheteur/Vendeur du formulaire n'est pas utilisé ici
                 localStorage.setItem('newketPendingRoleChoice', 'true');
             } catch (_) {}
 
             try {
+                // On native iOS/Android, window.location.origin = "capacitor://localhost"
+                // which is rejected by Google. Use a custom deep-link scheme instead.
+                const redirectTo = isCapacitorNative
+                    ? 'newket://auth/callback'
+                    : (window.location.origin + '/');
+
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: provider,
                     options: {
-                        redirectTo: window.location.origin + '/'
+                        redirectTo: redirectTo,
+                        // On native, open in system browser (not WebView) so Google accepts it
+                        skipBrowserRedirect: isCapacitorNative
                     }
                 });
                 if (error) throw error;
-                // Redirect will be handled by browser
+
+                // On native: open the OAuth URL in the system browser via @capacitor/browser
+                if (isCapacitorNative && data?.url) {
+                    const { Browser } = await import('@capacitor/browser');
+                    await Browser.open({
+                        url: data.url,
+                        windowName: '_blank',
+                        presentationStyle: 'popover'
+                    });
+
+                    // Listen for the app to be reopened via deep link
+                    const { App } = await import('@capacitor/app');
+                    const urlOpenHandler = async (event) => {
+                        App.removeAllListeners();
+                        await Browser.close();
+                        // Parse the tokens from the deep link URL
+                        const url = new URL(event.url);
+                        const params = new URLSearchParams(url.hash.replace('#', ''));
+                        const accessToken = params.get('access_token');
+                        const refreshToken = params.get('refresh_token');
+                        if (accessToken) {
+                            await supabaseClient.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+                            window.location.href = window.resolvePath('index');
+                        }
+                    };
+                    App.addListener('appUrlOpen', urlOpenHandler);
+                }
+                // On web: redirect is handled automatically by browser
             } catch (e) {
                 console.error("OAuth Error:", e);
                 try {
@@ -1665,6 +1701,7 @@
                 if (spinner) spinner.classList.add('hidden');
             }
         }
+
 
         function signInWithGoogle() { signInWithProvider('google'); }
         function signInWithFacebook() { signInWithProvider('facebook'); }

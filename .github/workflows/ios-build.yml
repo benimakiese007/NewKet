@@ -36,6 +36,12 @@ jobs:
           npx cap add ios || true
           npx @capacitor/assets generate --ios
           npx cap sync ios
+          # Inject custom URL scheme "newket://" for Google OAuth deep-link redirect
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string newket" ios/App/App/Info.plist 2>/dev/null || true
+          echo "✅ URL scheme 'newket://' ajouté à Info.plist"
         working-directory: ./frontend
 
       - name: 🍎 Build Xcode (Sans signature)
