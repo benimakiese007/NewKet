@@ -15,6 +15,15 @@
         }, { once: true });
     </script>
     <script type="module" src="/src/services/admin-config.js" defer></script><script type="module" src="/src/services/app.js"></script>
+    <script type="module">
+        // Expose the installed Capacitor Browser plugin to this legacy inline script.
+        // The plugin sends `browserFinished` when the OAuth window is dismissed.
+        import { Browser } from '@capacitor/browser';
+        import { App } from '@capacitor/app';
+        window.NewKetCapacitorBrowser = Browser;
+        // App receives the newket:// OAuth callback after iOS/Android reopens NewKet.
+        window.NewKetCapacitorApp = App;
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="/manifest.json">
@@ -1630,15 +1639,22 @@
             const icon = document.getElementById('google-icon');
             const spinner = document.getElementById('google-spinner');
 
+            // One single exit path for OAuth: an aborted native browser must always
+            // put the Google button back into its initial, clickable state.
+            const stopOAuthLoading = (message) => {
+                if (btn) btn.disabled = false;
+                if (icon) icon.classList.remove('hidden');
+                if (spinner) spinner.classList.add('hidden');
+                if (message) showError(message);
+            };
+
             if (btn) btn.disabled = true;
             if (icon) icon.classList.add('hidden');
             if (spinner) spinner.classList.remove('hidden');
 
             if (window.newketConfig?.maintenanceMode === true) {
                 showError("L'accès rapide est désactivé pendant la maintenance. Veuillez utiliser votre email administrateur.");
-                if (btn) btn.disabled = false;
-                if (icon) icon.classList.remove('hidden');
-                if (spinner) spinner.classList.add('hidden');
+                stopOAuthLoading();
                 return;
             }
 
@@ -1663,55 +1679,44 @@
                 if (error) throw error;
 
                 if (isCapacitorNative && data?.url) {
-                    // Open system browser — standard Capacitor approach, no plugin import needed
-                    window.open(data.url, '_system');
+                    // Browser emits `browserFinished` when the user closes Google.
+                    // Unlike window.open('_system'), this is reliable even when the
+                    // app does not emit a focus/visibility event on Android.
+                    const Browser = window.NewKetCapacitorBrowser || window.Capacitor?.Plugins?.Browser;
+                    const CapApp = window.NewKetCapacitorApp || window.Capacitor?.Plugins?.App;
+                    let callbackReceived = false;
+                    let settled = false;
+                    let browserFinishedListener;
+                    let appUrlListener;
 
-                    // Listen for deep link return via window.Capacitor.Plugins.App
-                    const CapApp = window.Capacitor?.Plugins?.App;
-                    if (CapApp) {
-                        let deepLinkFired = false;
-                        
-                        const stateListener = CapApp.addListener('appStateChange', (state) => {
-                            if (state.isActive) {
-                                setTimeout(() => {
-                                    if (!deepLinkFired) {
-                                        if (btn) btn.disabled = false;
-                                        if (icon) icon.classList.remove('hidden');
-                                        if (spinner) spinner.classList.add('hidden');
-                                        showError("Connexion annulée.");
-                                    }
-                                }, 1000);
-                            }
-                        });
-                        
-                    }
-                    
-                    // Fallback Web/WebView (très fiable sur iOS/Android quand on ferme le navigateur système)
-                    const handleVisibility = () => {
-                        if (document.visibilityState === 'visible') {
-                            setTimeout(() => {
-                                // deepLinkFired est géré par Capacitor si disponible
-                                if (spinner && !spinner.classList.contains('hidden')) {
-                                    if (btn) btn.disabled = false;
-                                    if (icon) icon.classList.remove('hidden');
-                                    if (spinner) spinner.classList.add('hidden');
-                                    showError("Connexion annulée.");
-                                }
-                            }, 1500); // Laisse un peu de temps au deep link de s'exécuter
-                            document.removeEventListener('visibilitychange', handleVisibility);
-                            window.removeEventListener('focus', handleVisibility);
-                        }
+                    const removeNativeListeners = async () => {
+                        await browserFinishedListener?.remove?.();
+                        await appUrlListener?.remove?.();
                     };
-                    document.addEventListener('visibilitychange', handleVisibility);
-                    window.addEventListener('focus', handleVisibility);
-                    
-                    if (CapApp) {
-                        CapApp.addListener('appUrlOpen', async (event) => {
-                            deepLinkFired = true;
+                    const cancelOAuth = async () => {
+                        if (settled || callbackReceived) return;
+                        settled = true;
+                        await removeNativeListeners();
+                        stopOAuthLoading("Connexion annulée.");
+                    };
+
+                    // Register listeners before opening Google so a very quick close
+                    // cannot be missed.  Browser is available through the installed
+                    // @capacitor/browser dependency.
+                    if (Browser?.addListener) {
+                        browserFinishedListener = await Browser.addListener('browserFinished', () => {
+                            // Give a custom-scheme callback a moment to reach the app
+                            // before interpreting the browser close as a cancellation.
+                            setTimeout(cancelOAuth, 300);
+                        });
+                    }
+
+                    if (CapApp?.addListener) {
+                        appUrlListener = await CapApp.addListener('appUrlOpen', async (event) => {
+                            callbackReceived = true;
                             console.log('[OAuth Diagnostic] Retour dans l\'application détecté !');
                             console.log('[OAuth Diagnostic] URL reçue :', event.url);
-                            
-                            CapApp.removeAllListeners();
+                            await removeNativeListeners();
                             
                             try {
                                 const callbackUrl = new URL(event.url);
@@ -1769,19 +1774,34 @@
                             // Si on arrive ici, c'est qu'il y a eu une erreur et on n'a pas redirigé.
                             // Il faut absolument arrêter le spinner !
                             console.log('[OAuth Diagnostic] Arrêt du spinner suite à une erreur.');
-                            if (btn) btn.disabled = false;
-                            if (icon) icon.classList.remove('hidden');
-                            if (spinner) spinner.classList.add('hidden');
+                            stopOAuthLoading();
                         });
                     }
+
+                    if (Browser?.open) {
+                        await Browser.open({ url: data.url });
+                    } else {
+                        // Legacy fallback for an old native build. The lifecycle
+                        // fallbacks below still restore the UI when it returns.
+                        window.open(data.url, '_system');
+                    }
+
+                    // Fallback for older builds or devices where Browser's close
+                    // event is unavailable.  Do not remove these until cancellation
+                    // is confirmed, since some Android browsers only emit one of them.
+                    const handleReturn = () => {
+                        if (document.visibilityState === 'visible') {
+                            setTimeout(cancelOAuth, 800);
+                        }
+                    };
+                    document.addEventListener('visibilitychange', handleReturn, { once: true });
+                    window.addEventListener('focus', handleReturn, { once: true });
                 }
             } catch (e) {
                 console.error("OAuth Error:", e);
                 try { localStorage.removeItem('newketPendingRoleChoice'); } catch (_) {}
                 showError(`Erreur lors de la connexion via ${provider}.`);
-                if (btn) btn.disabled = false;
-                if (icon) icon.classList.remove('hidden');
-                if (spinner) spinner.classList.add('hidden');
+                stopOAuthLoading();
             }
         }
 
