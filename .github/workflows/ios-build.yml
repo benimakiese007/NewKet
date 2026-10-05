@@ -27,6 +27,7 @@ jobs:
       - name: 🔄 Synchronisation Capacitor iOS
         run: |
           npx cap add ios || true
+          npx @capacitor/assets generate --ios
           npx cap sync ios
         working-directory: ./frontend
 
