@@ -6,6 +6,9 @@
     "webContentsDebuggingEnabled": true
   },
   "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
     "StatusBar": {
       "backgroundColor": "#1f2937",
       "style": "DARK",
