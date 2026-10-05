@@ -1717,6 +1717,16 @@
                             console.log('[OAuth Diagnostic] Retour dans l\'application détecté !');
                             console.log('[OAuth Diagnostic] URL reçue :', event.url);
                             await removeNativeListeners();
+
+                            // On iOS, SFSafariViewController can remain presented behind
+                            // NewKet after a successful deep-link return. Explicitly close
+                            // it so the next Google attempt starts with a fresh browser
+                            // instead of reopening a blank Safari view.
+                            try {
+                                await Browser?.close?.();
+                            } catch (closeError) {
+                                console.warn('[OAuth Diagnostic] Impossible de fermer le navigateur OAuth :', closeError);
+                            }
                             
                             try {
                                 const callbackUrl = new URL(event.url);
