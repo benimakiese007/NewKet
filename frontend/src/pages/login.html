@@ -1160,6 +1160,11 @@
         }
 
         function showError(msg) {
+            if (msg && typeof msg === 'string') {
+                if (msg.includes("not allowed by the user agent") || msg.includes("denied permission") || msg.toLowerCase().includes("cancelled")) {
+                    msg = "Opération annulée ou permission refusée.";
+                }
+            }
             formError.textContent = msg;
             formError.classList.remove('hidden');
             if (formSuccess) formSuccess.classList.add('hidden');
@@ -1664,7 +1669,22 @@
                     // Listen for deep link return via window.Capacitor.Plugins.App
                     const CapApp = window.Capacitor?.Plugins?.App;
                     if (CapApp) {
+                        let deepLinkFired = false;
+                        
+                        const stateListener = CapApp.addListener('appStateChange', (state) => {
+                            if (state.isActive) {
+                                setTimeout(() => {
+                                    if (!deepLinkFired) {
+                                        if (btn) btn.disabled = false;
+                                        if (icon) icon.classList.remove('hidden');
+                                        if (spinner) spinner.classList.add('hidden');
+                                    }
+                                }, 1000);
+                            }
+                        });
+
                         CapApp.addListener('appUrlOpen', async (event) => {
+                            deepLinkFired = true;
                             console.log('[OAuth Diagnostic] Retour dans l\'application détecté !');
                             console.log('[OAuth Diagnostic] URL reçue :', event.url);
                             
@@ -1770,7 +1790,6 @@
                 }
                 showError(msg);
             } finally {
-                btnText.style.display = 'block';
                 icon.style.display = 'block';
                 spinner.classList.add('hidden');
             }
