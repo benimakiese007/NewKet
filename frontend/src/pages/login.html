@@ -1673,7 +1673,11 @@
                     provider: provider,
                     options: {
                         redirectTo: redirectTo,
-                        skipBrowserRedirect: isCapacitorNative
+                        skipBrowserRedirect: isCapacitorNative,
+                        // A logout must not silently recreate the previous Google
+                        // session on the next tap. Always let the user choose an
+                        // account (or cancel) explicitly.
+                        queryParams: { prompt: 'select_account' }
                     }
                 });
                 if (error) throw error;
@@ -1684,6 +1688,7 @@
                     // app does not emit a focus/visibility event on Android.
                     const Browser = window.NewKetCapacitorBrowser || window.Capacitor?.Plugins?.Browser;
                     const CapApp = window.NewKetCapacitorApp || window.Capacitor?.Plugins?.App;
+                    const oauthState = new URL(data.url).searchParams.get('state');
                     let callbackReceived = false;
                     let settled = false;
                     let browserFinishedListener;
@@ -1713,6 +1718,13 @@
 
                     if (CapApp?.addListener) {
                         appUrlListener = await CapApp.addListener('appUrlOpen', async (event) => {
+                            // Do not accept a delayed callback from a previous login
+                            // attempt: after logout it could recreate the old session.
+                            const callbackState = new URL(event.url).searchParams.get('state');
+                            if (!oauthState || callbackState !== oauthState) {
+                                console.warn('[OAuth Diagnostic] Callback OAuth ignoré : tentative expirée ou différente.');
+                                return;
+                            }
                             callbackReceived = true;
                             console.log('[OAuth Diagnostic] Retour dans l\'application détecté !');
                             console.log('[OAuth Diagnostic] URL reçue :', event.url);
