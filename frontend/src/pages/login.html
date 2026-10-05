@@ -1678,6 +1678,7 @@
                                         if (btn) btn.disabled = false;
                                         if (icon) icon.classList.remove('hidden');
                                         if (spinner) spinner.classList.add('hidden');
+                                        showError("Connexion annulée.");
                                     }
                                 }, 1000);
                             }
@@ -1694,6 +1695,7 @@
                                     if (btn) btn.disabled = false;
                                     if (icon) icon.classList.remove('hidden');
                                     if (spinner) spinner.classList.add('hidden');
+                                    showError("Connexion annulée.");
                                 }
                             }, 1500); // Laisse un peu de temps au deep link de s'exécuter
                             document.removeEventListener('visibilitychange', handleVisibility);
