@@ -39,7 +39,9 @@ export const supabaseClient = hasValidSupabaseConfig
         global: {
             fetch: (...args) => {
                 const [url, options] = args;
-                return fetch(url, { ...options, cache: 'no-store' });
+                // Force explicit use of window.fetch which is patched by CapacitorHttp
+                // Do not use the local `fetch` reference which might bypass the patch.
+                return window.fetch(url, { ...options, cache: 'no-store' });
             }
         }
     })
