@@ -1721,7 +1721,12 @@
                             // Do not accept a delayed callback from a previous login
                             // attempt: after logout it could recreate the old session.
                             const callbackState = new URL(event.url).searchParams.get('state');
-                            if (!oauthState || callbackState !== oauthState) {
+                            // Some Supabase OAuth URLs do not expose `state` on the
+                            // initial authorize URL.  Only reject a callback when both
+                            // values are present and demonstrably belong to different
+                            // login attempts; otherwise the valid callback would leave
+                            // the button loading forever.
+                            if (oauthState && callbackState && callbackState !== oauthState) {
                                 console.warn('[OAuth Diagnostic] Callback OAuth ignoré : tentative expirée ou différente.');
                                 return;
                             }
