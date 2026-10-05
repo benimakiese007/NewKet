@@ -192,4 +192,42 @@
       if (typeof url === 'string') url = resolveUrl(url);
       return originalReplace(url);
   };
+
+  // ── Swipe-Back Gesture ───────────────────────────────────────────────────
+  // iOS/Android WebView does not support the native swipe-back gesture.
+  // Detect a left-edge swipe (starting ≤ 30px from left) and call history.back().
+  (function initSwipeBack() {
+    let startX = null;
+    let startY = null;
+    const EDGE_THRESHOLD = 30;   // px from left edge to trigger zone
+    const MIN_SWIPE_X   = 60;    // minimum horizontal travel to count
+    const MAX_SWIPE_Y   = 80;    // maximum vertical drift allowed (avoids conflict with scroll)
+
+    document.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      if (touch.clientX <= EDGE_THRESHOLD) {
+        startX = touch.clientX;
+        startY = touch.clientY;
+      } else {
+        startX = null;
+        startY = null;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (startX === null) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - startX;
+      const dy = Math.abs(touch.clientY - startY);
+
+      if (dx >= MIN_SWIPE_X && dy <= MAX_SWIPE_Y) {
+        if (window.history.length > 1) {
+          window.history.back();
+        }
+      }
+      startX = null;
+      startY = null;
+    }, { passive: true });
+  })();
+
 })();
