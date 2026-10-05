@@ -1665,19 +1665,70 @@
                     const CapApp = window.Capacitor?.Plugins?.App;
                     if (CapApp) {
                         CapApp.addListener('appUrlOpen', async (event) => {
+                            console.log('[OAuth Diagnostic] Retour dans l\'application détecté !');
+                            console.log('[OAuth Diagnostic] URL reçue :', event.url);
+                            
                             CapApp.removeAllListeners();
+                            
                             try {
                                 const callbackUrl = new URL(event.url);
-                                const params = new URLSearchParams(callbackUrl.hash.replace('#', ''));
-                                const accessToken = params.get('access_token');
-                                const refreshToken = params.get('refresh_token');
+                                
+                                // 1. Vérifier si c'est un callback avec hash (Implicit Grant)
+                                const hashParams = new URLSearchParams(callbackUrl.hash.replace('#', ''));
+                                const accessToken = hashParams.get('access_token');
+                                const refreshToken = hashParams.get('refresh_token');
+                                
+                                // 2. Vérifier si c'est un callback avec query param (PKCE flow)
+                                const queryParams = new URLSearchParams(callbackUrl.search);
+                                const code = queryParams.get('code');
+                                const error = queryParams.get('error');
+                                const errorDescription = queryParams.get('error_description');
+
+                                if (error) {
+                                    console.error('[OAuth Diagnostic] Erreur OAuth retournée :', error, errorDescription);
+                                    throw new Error(errorDescription || error);
+                                }
+
                                 if (accessToken) {
-                                    await supabaseClient.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+                                    console.log('[OAuth Diagnostic] Access token trouvé (Implicit Flow) ! Initialisation session Supabase...');
+                                    const { error: sessionError } = await supabaseClient.auth.setSession({ 
+                                        access_token: accessToken, 
+                                        refresh_token: refreshToken 
+                                    });
+                                    if (sessionError) {
+                                        console.error('[OAuth Diagnostic] Erreur setSession :', sessionError);
+                                        throw sessionError;
+                                    }
+                                    console.log('[OAuth Diagnostic] Session Supabase valide. Redirection...');
                                     window.location.href = window.resolvePath('index');
+                                    return; // Garder le spinner car on redirige
+                                } 
+                                else if (code) {
+                                    console.log('[OAuth Diagnostic] Code d\'autorisation trouvé (PKCE Flow) ! Échange du code...');
+                                    const { error: codeError } = await supabaseClient.auth.exchangeCodeForSession(code);
+                                    if (codeError) {
+                                        console.error('[OAuth Diagnostic] Erreur exchangeCodeForSession :', codeError);
+                                        throw codeError;
+                                    }
+                                    console.log('[OAuth Diagnostic] Échange réussi. Session Supabase valide. Redirection...');
+                                    window.location.href = window.resolvePath('index');
+                                    return; // Garder le spinner car on redirige
+                                } 
+                                else {
+                                    console.error('[OAuth Diagnostic] Aucun token ou code trouvé dans l\'URL de retour.');
+                                    throw new Error("Authentification échouée : informations manquantes");
                                 }
                             } catch (parseErr) {
-                                console.error('Deep link parse error:', parseErr);
+                                console.error('[OAuth Diagnostic] Erreur fatale dans le callback :', parseErr);
+                                showError(parseErr.message || "Erreur de connexion.");
                             }
+                            
+                            // Si on arrive ici, c'est qu'il y a eu une erreur et on n'a pas redirigé.
+                            // Il faut absolument arrêter le spinner !
+                            console.log('[OAuth Diagnostic] Arrêt du spinner suite à une erreur.');
+                            if (btn) btn.disabled = false;
+                            if (icon) icon.classList.remove('hidden');
+                            if (spinner) spinner.classList.add('hidden');
                         });
                     }
                 }
