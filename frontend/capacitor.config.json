@@ -2,6 +2,12 @@
   "appId": "cd.newket.app",
   "appName": "NewKet",
   "webDir": "dist",
+  "server": {
+    "allowNavigation": [
+      "*.supabase.co",
+      "*.supabase.in"
+    ]
+  },
   "android": {
     "webContentsDebuggingEnabled": true
   },
