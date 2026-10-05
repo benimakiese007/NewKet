@@ -457,12 +457,15 @@ const ComponentLoader = {
 
         // Determine current page status
         const currentPath = window.location.pathname;
+        const isRoleChoicePage = currentPath.includes('/choose-role');
         const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
         const isDashboardPage = currentPath.includes('-dashboard');
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
 
-        if (!isAdminPage) {
+        // The role-choice flow is intentionally isolated: while a role is
+        // pending, no navigation must give access to the rest of the app.
+        if (!isAdminPage && !isRoleChoicePage) {
             this.ensurePlaceholder('header-placeholder', 'start');
         }
 
@@ -481,6 +484,8 @@ const ComponentLoader = {
         if (isAdminPage) {
             // Admin pages are handled entirely by admin-layout.js
             // Do not inject consumer header, footer, or mobile nav.
+        } else if (isRoleChoicePage) {
+            // No header or footer on this blocking decision screen.
         } else if (isMinimalPage) {
             componentsToLoad.push(
                 this.loadComponent('header-placeholder', 'components/header-minimal.html', MINIMAL_HEADER_HTML)
@@ -493,7 +498,7 @@ const ComponentLoader = {
             // CategoryNav supprimé — navigation via le menu burger
         } // end else (standard page)
 
-        if (!isMinimalPage && !isAdminPage && !isDashboardPage) {
+        if (!isMinimalPage && !isRoleChoicePage && !isAdminPage && !isDashboardPage) {
             if (isHomePage) {
                 componentsToLoad.push(
                     this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)

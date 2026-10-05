@@ -241,6 +241,11 @@ const AuthManager = {
                 }
 
                 if (!profile && this.shouldRequireRoleSelection(user, profile)) {
+                    // Keep the account state in Supabase even before a role is
+                    // chosen. This prevents a local-storage-only "pending"
+                    // state and makes the same choice screen reappear after a
+                    // logout/login on any device.
+                    profile = await this.createPendingRoleProfile(user);
                     this.markPendingRoleSelection(true);
                     this.role = null;
                     this.status = null;
@@ -604,6 +609,7 @@ const AuthManager = {
             role,
             status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending',
             seller_type: null,
+            role_selection_completed: true,
             terms_accepted_at: user.user_metadata?.terms_accepted_at || null,
             referred_by_code: referralCode || null
         };
@@ -641,6 +647,47 @@ const AuthManager = {
             }).catch((error) => {
                 console.warn('[NewKet Auth] Unable to sync role metadata after profile creation:', error?.message || error);
             });
+        }
+
+        return profile;
+    },
+
+    async createPendingRoleProfile(user) {
+        if (!window.SupabaseAdapter || !user?.id || !user?.email) {
+            throw new Error('[NewKet Auth] Missing data to create pending role profile.');
+        }
+
+        const username = normalizeLoginUsername(
+            user.user_metadata?.username ||
+            user.user_metadata?.name ||
+            user.email.split('@')[0]
+        );
+        const profile = await window.SupabaseAdapter.upsert('users', {
+            id: user.id,
+            email: user.email,
+            username,
+            name: username,
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || '',
+            avatar: localStorage.getItem('newketUserAvatar'),
+            role: null,
+            status: null,
+            seller_type: null,
+            role_selection_completed: false,
+            terms_accepted_at: user.user_metadata?.terms_accepted_at || null
+        });
+
+        if (!profile) {
+            throw new Error('[NewKet Auth] Failed to persist pending role profile.');
+        }
+
+        // Auth metadata is server-side too and lets the role guard work even
+        // if the profile row is inspected before the next database read.
+        const { error } = await window.supabaseClient.auth.updateUser({
+            data: { ...user.user_metadata, role_selected: false }
+        });
+        if (error) {
+            throw new Error(error.message || '[NewKet Auth] Failed to persist pending role metadata.');
         }
 
         return profile;
@@ -1069,7 +1116,8 @@ const AuthManager = {
         const payload = {
             role,
             status,
-            seller_type: null
+            seller_type: null,
+            role_selection_completed: true
         };
         const { data, error } = await window.supabaseClient
             .from('users')

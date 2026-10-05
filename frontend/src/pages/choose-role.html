@@ -24,7 +24,7 @@
     </style>
 </head>
 <body class="bg-[#f8f8f6] text-gray-900 antialiased min-h-screen">
-    <main class="min-h-screen flex items-center justify-center px-4 py-10 pt-24 sm:pt-28 lg:pt-32">
+    <main class="min-h-screen flex items-center justify-center px-4 py-10">
         <section class="w-full max-w-5xl bg-white border border-gray-100 rounded-[2.5rem] shadow-[0_25px_90px_rgba(15,23,42,0.08)] overflow-hidden">
             <div class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr]">
                 <div class="bg-black text-white p-8 md:p-10 flex flex-col justify-between">
@@ -41,7 +41,7 @@
                     <div class="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 px-5 py-4">
                         <p class="text-[11px] uppercase tracking-[0.28em] text-white/45 font-black mb-2">Règle appliquée</p>
                         <p class="text-sm text-white/75 leading-6">
-                            Aucun profil métier n'est créé avant votre choix. Ce choix est obligatoire.
+                            Votre compte est créé, mais aucun profil métier n'est activé avant votre choix.
                         </p>
                     </div>
                 </div>
@@ -87,10 +87,15 @@
                         </button>
                     </div>
 
+                    <button id="logoutFromRoleChoiceBtn" type="button" class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm font-black text-gray-700 transition hover:border-gray-900 hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-100">
+                        <iconify-icon icon="solar:logout-2-linear" width="20"></iconify-icon>
+                        <span>Se déconnecter</span>
+                    </button>
+
                     <div class="mt-8 rounded-[1.75rem] border border-gray-100 bg-gray-50 px-5 py-4">
                         <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400 font-black mb-2">Important</p>
                         <p class="text-sm text-gray-500 leading-6">
-                            Si vous fermez cette page sans choisir, votre session restera bloquée ici jusqu'à ce que vous fassiez un choix.
+                            Vous pouvez vous déconnecter si vous avez changé d'avis. À votre prochaine connexion, ce choix vous sera à nouveau demandé tant qu'aucun rôle n'aura été choisi.
                         </p>
                     </div>
                 </div>
@@ -102,6 +107,7 @@
         (function () {
             const customerBtn = document.getElementById('chooseCustomerBtn');
             const supplierBtn = document.getElementById('chooseSupplierBtn');
+            const logoutBtn = document.getElementById('logoutFromRoleChoiceBtn');
             const errorBox = document.getElementById('roleChoiceError');
             const subtitle = document.getElementById('roleChoiceSubtitle');
 
@@ -184,6 +190,25 @@
 
             customerBtn?.addEventListener('click', () => chooseRole('customer'));
             supplierBtn?.addEventListener('click', () => chooseRole('supplier'));
+            logoutBtn?.addEventListener('click', async () => {
+                if (logoutBtn.disabled) return;
+                logoutBtn.disabled = true;
+                logoutBtn.classList.add('opacity-70', 'pointer-events-none');
+                logoutBtn.innerHTML = `
+                    <span class="inline-block h-5 w-5 rounded-full border-2 border-gray-300 border-t-gray-900 animate-spin"></span>
+                    <span>Déconnexion...</span>
+                `;
+
+                try {
+                    await window.AuthManager.logout(false, 'Choix de rôle annulé');
+                } catch (error) {
+                    errorBox.textContent = error?.message || "Impossible de vous déconnecter pour le moment.";
+                    errorBox.classList.remove('hidden');
+                    logoutBtn.disabled = false;
+                    logoutBtn.classList.remove('opacity-70', 'pointer-events-none');
+                    logoutBtn.innerHTML = '<iconify-icon icon="solar:logout-2-linear" width="20"></iconify-icon><span>Se déconnecter</span>';
+                }
+            });
 
             ensurePendingRoleState().catch((error) => {
                 errorBox.textContent = error?.message || "Impossible d'initialiser cet écran.";
