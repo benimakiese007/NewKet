@@ -597,7 +597,6 @@ const App = {
                 document.body.style.left = '0';
                 document.body.style.right = '0';
                 document.body.style.overflow = 'hidden';
-                document.body.style.touchAction = 'none';
                 document.body.style.overscrollBehavior = 'none';
 
                 // Failsafe: if locked for more than 15 seconds, assume a modal was closed without unlocking
@@ -621,7 +620,6 @@ const App = {
                 document.body.style.left = '';
                 document.body.style.right = '';
                 document.body.style.overflow = '';
-                document.body.style.touchAction = '';
                 document.body.style.overscrollBehavior = '';
                 window.scrollTo({ top: _savedScrollY, left: 0, behavior: 'instant' });
             };
@@ -634,7 +632,6 @@ const App = {
                 document.body.style.left = '';
                 document.body.style.right = '';
                 document.body.style.overflow = '';
-                document.body.style.touchAction = '';
                 document.body.style.overscrollBehavior = '';
                 window.scrollTo({ top: _savedScrollY, left: 0, behavior: 'instant' });
             };
@@ -647,27 +644,6 @@ const App = {
                 unlock: unlockBodyScroll,
                 reset: resetScrollLock
             };
-
-            // Prevent touch scroll chaining: block touchmove on modal backdrop only
-            document.addEventListener('touchmove', (e) => {
-                if (_lockCount <= 0) return;
-                const touch = e.touches[0];
-                if (!touch) return;
-                const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (!el) { e.preventDefault(); return; }
-                // Walk up to find a scrollable container inside the modal
-                let node = el;
-                while (node && node !== document.body && node !== document.documentElement) {
-                    const style = window.getComputedStyle(node);
-                    const overflowY = style.overflowY;
-                    if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
-                        return; // allow scroll inside this scrollable area
-                    }
-                    node = node.parentElement;
-                }
-                // No scrollable ancestor inside modal â€” block to prevent background scroll
-                e.preventDefault();
-            }, { passive: false });
 
             // Helper: check if a node looks like a modal backdrop
             const isModalNode = (node) => {

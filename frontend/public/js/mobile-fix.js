@@ -45,7 +45,6 @@
       bodyEl.style.setProperty('overflow-x', 'hidden', 'important');
       bodyEl.style.setProperty('height', 'auto', 'important');
       bodyEl.style.setProperty('min-height', '100%', 'important');
-      bodyEl.style.setProperty('position', 'static', 'important');
       bodyEl.style.setProperty('touch-action', 'pan-y pinch-zoom', 'important');
       bodyEl.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
     }

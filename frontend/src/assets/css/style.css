@@ -4356,8 +4356,8 @@ body.sidebar-resizing {
   right: 0;
   bottom: 0;
   background: rgba(15, 23, 42, 0.22);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   z-index: 9000;
   opacity: 0;
   pointer-events: none;
@@ -10463,7 +10463,7 @@ html.dark .glass-card:hover {
 
 html.dark .search-overlay {
   background: rgba(2, 6, 23, 0.28) !important;
-  backdrop-filter: blur(5px) saturate(1.02) !important;
+  backdrop-filter: none !important;
 }
 
 /* ---- Search Focus Layering Fix ---- */
@@ -10678,11 +10678,15 @@ html.dark .skeleton::after {
 }
 
 @media (max-width: 639px) {
-  /* Only push up the main content, not the footer */
+  /*
+   * The floating bottom navigation intentionally stays offset from the
+   * device edge. Reserve enough room above it so the last content element
+   * can scroll completely clear of the bar and its raised sell button.
+   */
 
   main, #main-content, .main-content,
   .page-content, #page-content, #app-body {
-    padding-bottom: 80px !important;
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   body.home-page main,

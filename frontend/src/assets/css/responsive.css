@@ -1974,7 +1974,6 @@ html.capacitor-native body {
     touch-action: pan-y pinch-zoom !important;
     height: auto !important;
     min-height: 100% !important;
-    position: static !important;
 }
 
 html.capacitor-native .main-header,
