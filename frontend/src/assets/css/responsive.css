@@ -1754,6 +1754,10 @@ html.dark .glass-panel {
         width: 100% !important;
         pointer-events: auto !important;
     }
+
+    .nk-toast {
+        border-radius: 32px !important;
+    }
 }
 
 /* ==========================================
