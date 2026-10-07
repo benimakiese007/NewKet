@@ -228,11 +228,11 @@
     },
     {
       "source": "/terms",
-      "destination": "/src/pages/terms"
+      "destination": "/src/pages/terms.html"
     },
     {
       "source": "/privacy",
-      "destination": "/src/pages/privacy"
+      "destination": "/src/pages/privacy.html"
     },
     {
       "source": "/mentions-legales",
@@ -302,3 +302,4 @@
     }
   ]
 }
+
