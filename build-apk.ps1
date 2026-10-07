@@ -27,16 +27,15 @@ Write-Host "[2/3] Sync Capacitor Android..." -ForegroundColor Yellow
 npx cap sync android
 Write-Host "      Sync OK !" -ForegroundColor Green
 
-# Etape 3 - Compilation APK Release + Debug
+# Etape 3 - Compilation APK Release
 Write-Host ""
-Write-Host "[3/3] Compilation APK (Release + Debug)..." -ForegroundColor Yellow
+Write-Host "[3/3] Compilation APK Release..." -ForegroundColor Yellow
 Set-Location $AndroidDir
-.\gradlew assemble
+.\gradlew assembleRelease
 Write-Host "      APK compile OK !" -ForegroundColor Green
 
 # Chemins des APK générés
 $ReleaseDir = "$FrontendDir\android\app\build\outputs\apk\release"
-$DebugDir   = "$FrontendDir\android\app\build\outputs\apk\debug"
 
 # Copie l'APK Release sur le Bureau avec horodatage
 $ReleaseApk = Get-ChildItem "$ReleaseDir\*.apk" | Sort-Object LastWriteTime | Select-Object -Last 1
@@ -50,14 +49,6 @@ if ($ReleaseApk) {
     Write-Host "========================================" -ForegroundColor Green
 } else {
     Write-Host "APK Release introuvable dans $ReleaseDir" -ForegroundColor Red
-}
-
-# Le Debug APK est automatiquement mis a jour dans son dossier
-$DebugApk = Get-ChildItem "$DebugDir\*.apk" | Sort-Object LastWriteTime | Select-Object -Last 1
-if ($DebugApk) {
-    Write-Host ""
-    Write-Host "   APK Debug mis a jour :" -ForegroundColor Cyan
-    Write-Host "   $($DebugApk.FullName)" -ForegroundColor White
 }
 
 Write-Host ""
