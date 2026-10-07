@@ -286,7 +286,6 @@ body {
   background-color: var(--bg-light);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
   min-height: 100vh; /* Fix short page background */
 }
 
