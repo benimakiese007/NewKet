@@ -36,16 +36,24 @@ Write-Host "      APK compile OK !" -ForegroundColor Green
 
 # Chemins des APK générés
 $ReleaseDir = "$FrontendDir\android\app\build\outputs\apk\release"
+$DebugDir   = "$FrontendDir\android\app\build\outputs\apk\debug"
 
-# Copie l'APK Release sur le Bureau avec horodatage
+# Copie l'APK Release sur le Bureau avec horodatage + dans le dossier debug
 $ReleaseApk = Get-ChildItem "$ReleaseDir\*.apk" | Sort-Object LastWriteTime | Select-Object -Last 1
 if ($ReleaseApk) {
+    # 1. Copie sur le Bureau
     $Destination = "$DesktopDir\NewKet-$(Get-Date -Format 'yyyy-MM-dd_HH-mm').apk"
     Copy-Item $ReleaseApk.FullName $Destination
+    
+    # 2. Copie dans le dossier debug (pour remplacer l'ancien)
+    if (!(Test-Path $DebugDir)) { New-Item -ItemType Directory -Force -Path $DebugDir | Out-Null }
+    Copy-Item $ReleaseApk.FullName "$DebugDir\app-debug.apk" -Force
+
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Green
     Write-Host "   APK Release pret sur ton Bureau !" -ForegroundColor Green
     Write-Host "   $Destination" -ForegroundColor White
+    Write-Host "   (L'ancien app-debug.apk a aussi ete mis a jour)" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Green
 } else {
     Write-Host "APK Release introuvable dans $ReleaseDir" -ForegroundColor Red
