@@ -541,9 +541,9 @@ class CartManager {
             <div id="cartOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] opacity-0 pointer-events-none transition-opacity duration-300" onclick="window.CartManager._hideSlideOver()"></div>
             
             <!-- Cart Slide-over -->
-            <div id="cartSlideOver" role="dialog" aria-modal="true" aria-label="Panier" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[10001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
+            <div id="cartSlideOver" role="dialog" aria-modal="true" aria-label="Panier" class="fixed top-0 right-0 h-full w-full bg-gray-50 transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain" style="z-index: 1000000; height: 100dvh;">
                 <!-- Header -->
-                <div class="px-6 py-5 flex items-center justify-between shrink-0 bg-newket-header" style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                <div class="px-6 py-5 flex items-center justify-between shrink-0 bg-newket-header" style="border-bottom:1px solid rgba(255,255,255,0.1); padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full text-white flex items-center justify-center" style="background:rgba(255,255,255,0.15);">
                             <iconify-icon icon="solar:cart-large-minimalistic-bold" width="20"></iconify-icon>
@@ -565,7 +565,7 @@ class CartManager {
                 </div>
                 
                 <!-- Footer / Checkout -->
-                <div class="bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] text-center">
+                <div class="bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] text-center" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));">
                     <p class="text-[10px] text-gray-400">
                         <iconify-icon icon="solar:shield-check-bold" width="12" class="inline align-middle"></iconify-icon> 
                         Vos paiements sont sécurisés. Les frais de livraison seront calculés lors du paiement.
