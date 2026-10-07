@@ -34,7 +34,9 @@ jobs:
       - name: 🔄 Synchronisation Capacitor iOS
         run: |
           npx cap add ios || true
-          npx @capacitor/assets generate --ios
+          # The iOS splash assets are curated in ios/App/App/Assets.xcassets.
+          # Do not regenerate them here: Capacitor Assets would replace the
+          # fixed-size launch logo with its generic, small splash composition.
           npx cap sync ios
           # Inject custom URL scheme "newket://" for Google OAuth deep-link redirect
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" ios/App/App/Info.plist 2>/dev/null || true
