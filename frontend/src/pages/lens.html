@@ -150,6 +150,86 @@
         }
         .cta-btn iconify-icon { font-size: 28px; }
 
+        /* ── Detection zone (YOLO dots) ─────────────────────────── */
+        #detection-zone {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 6rem 1.5rem 2rem;
+            gap: 1.5rem;
+        }
+        #detection-zone.active { display: flex; }
+
+        .detection-frame-wrap {
+            position: relative;
+            width: 85vw;
+            max-width: 420px;
+            max-height: 70vh;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .detection-photo {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            filter: brightness(0.75);
+            display: block;
+        }
+        #dots-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .object-dot {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.15);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: all;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, background 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            padding: 0;
+        }
+        .object-dot:hover, .object-dot:active {
+            background: rgba(249, 115, 22, 0.5);
+            border-color: #f97316;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        .dot-inner {
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            animation: dot-pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes dot-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.7); opacity: 0.6; }
+        }
+        .detection-hint {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detection-hint iconify-icon { color: #f97316; }
+
         /* ── Scanner overlay ─────────────────────────────────────── */
         #lens-scanner {
             display: none;
@@ -352,6 +432,22 @@
         </div>
     </div>
 
+    <!-- ── Detection Zone (YOLO — objets détectés) ─────────────────────── -->
+    <div id="detection-zone">
+        <div class="detection-frame-wrap">
+            <img id="detection-photo" class="detection-photo" src="" alt="Détection en cours" />
+            <div id="dots-container"></div>
+        </div>
+        <div class="detection-hint" id="detection-hint" style="display:none">
+            <iconify-icon icon="solar:cursor-bold" width="18"></iconify-icon>
+            Touchez un objet pour le rechercher
+        </div>
+        <div class="scanner-label" id="detection-loading">
+            <iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>
+            Détection des objets...
+        </div>
+    </div>
+
     <!-- ── Scanner (état scan en cours) ─────────────────────────────── -->
     <div id="lens-scanner">
         <div class="scanner-frame-wrap">
@@ -382,15 +478,25 @@
         import { generateEmbedding } from '/src/services/clip-embedder.js';
         import { searchByEmbedding } from '/src/services/lens.js';
 
-        const uploadZone   = document.getElementById('upload-zone');
-        const lensScanner  = document.getElementById('lens-scanner');
-        const resultsSection = document.getElementById('results-section');
-        const scannerPhoto = document.getElementById('scanner-photo');
-        const resultsGrid  = document.getElementById('results-grid');
-        const seeAllLink   = document.getElementById('see-all-link');
+        const uploadZone       = document.getElementById('upload-zone');
+        const detectionZone    = document.getElementById('detection-zone');
+        const detectionPhoto   = document.getElementById('detection-photo');
+        const dotsContainer    = document.getElementById('dots-container');
+        const detectionHint    = document.getElementById('detection-hint');
+        const detectionLoading = document.getElementById('detection-loading');
+        const lensScanner      = document.getElementById('lens-scanner');
+        const resultsSection   = document.getElementById('results-section');
+        const scannerPhoto     = document.getElementById('scanner-photo');
+        const resultsGrid      = document.getElementById('results-grid');
+        const seeAllLink       = document.getElementById('see-all-link');
+
+        // URL de production (Render)
+        const YOLO_URL = 'https://newket.onrender.com/analyze';
 
         document.getElementById('btn-retry').addEventListener('click', () => {
             resultsSection.classList.remove('active');
+            lensScanner.classList.remove('active');
+            detectionZone.classList.remove('active');
             uploadZone.classList.remove('hidden');
         });
 
@@ -410,27 +516,106 @@
                 reader.readAsDataURL(file);
             });
 
-            // 2. Montre le scanner instantanément
-            scannerPhoto.src = dataUrl;
+            // 2. Affiche la zone de détection avec spinner
+            detectionPhoto.src = dataUrl;
+            detectionHint.style.display = 'none';
+            detectionLoading.style.display = 'flex';
+            dotsContainer.innerHTML = '';
             uploadZone.classList.add('hidden');
+            detectionZone.classList.add('active');
+
+            try {
+                // 3. Appel YOLO (timeout 8s)
+                const formData = new FormData();
+                formData.append('file', file);
+                const yoloRes = await fetch(YOLO_URL, {
+                    method: 'POST',
+                    body: formData,
+                    signal: AbortSignal.timeout(8000)
+                });
+                if (!yoloRes.ok) throw new Error(`YOLO HTTP ${yoloRes.status}`);
+                const { objects } = await yoloRes.json();
+                if (!objects || objects.length === 0) throw new Error('Aucun objet détecté');
+
+                // 4. Affiche les points sur l'image
+                detectionLoading.style.display = 'none';
+                renderDots(objects, file, dataUrl);
+
+            } catch (err) {
+                // Fallback : analyse de toute l'image si YOLO indisponible
+                console.warn('[Lens] YOLO indisponible, fallback image entière :', err.message);
+                detectionZone.classList.remove('active');
+                await searchWholeImage(file, dataUrl);
+            }
+        }
+
+        function renderDots(objects, file, dataUrl) {
+            detectionHint.style.display = 'flex';
+            dotsContainer.innerHTML = '';
+
+            const img = detectionPhoto;
+            const placeDots = () => {
+                const naturalW = img.naturalWidth  || 1;
+                const naturalH = img.naturalHeight || 1;
+                const rect     = img.getBoundingClientRect();
+                const scaleX   = rect.width  / naturalW;
+                const scaleY   = rect.height / naturalH;
+
+                objects.forEach(obj => {
+                    const dot = document.createElement('button');
+                    dot.className = 'object-dot';
+                    dot.style.left  = `${obj.center.x * scaleX}px`;
+                    dot.style.top   = `${obj.center.y * scaleY}px`;
+                    dot.title = obj.label;
+                    dot.innerHTML = `<span class="dot-inner"></span>`;
+                    dot.addEventListener('click', () => onDotClick(obj, file, dataUrl));
+                    dotsContainer.appendChild(dot);
+                });
+            };
+
+            if (img.complete && img.naturalWidth > 0) { placeDots(); }
+            else { img.onload = placeDots; }
+        }
+
+        async function onDotClick(obj, file, dataUrl) {
+            detectionZone.classList.remove('active');
+            scannerPhoto.src = dataUrl;
             lensScanner.classList.add('active');
 
             try {
-                // 3. Génère l'embedding (IA locale WebAssembly)
-                const vector = await generateEmbedding(file);
+                const croppedBlob = await cropImage(file, obj.box);
+                const vector      = await generateEmbedding(croppedBlob);
+                const results     = await searchByEmbedding(vector);
 
-                // 4. Recherche dans Supabase
-                const results = await searchByEmbedding(vector);
-
-                // 5. Sauvegarde pour "Voir tout"
                 sessionStorage.setItem('lensResults', JSON.stringify(results));
                 sessionStorage.setItem('lensScanImage', dataUrl);
                 seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
-
-                // 6. Affiche les résultats
                 renderResults(results);
             } catch (err) {
-                console.error('[Lens]', err);
+                console.error('[Lens dot]', err);
+                resultsGrid.innerHTML = `
+                    <div class="no-results" style="grid-column:1/-1">
+                        <iconify-icon icon="solar:sad-circle-linear"></iconify-icon>
+                        Impossible d'analyser cet objet.<br>
+                        <small style="color:rgba(255,255,255,.3)">${err.message}</small>
+                    </div>`;
+                lensScanner.classList.remove('active');
+                resultsSection.classList.add('active');
+            }
+        }
+
+        async function searchWholeImage(file, dataUrl) {
+            scannerPhoto.src = dataUrl;
+            lensScanner.classList.add('active');
+            try {
+                const vector  = await generateEmbedding(file);
+                const results = await searchByEmbedding(vector);
+                sessionStorage.setItem('lensResults', JSON.stringify(results));
+                sessionStorage.setItem('lensScanImage', dataUrl);
+                seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
+                renderResults(results);
+            } catch (err) {
+                console.error('[Lens fallback]', err);
                 resultsGrid.innerHTML = `
                     <div class="no-results" style="grid-column:1/-1">
                         <iconify-icon icon="solar:sad-circle-linear"></iconify-icon>
@@ -442,9 +627,32 @@
             }
         }
 
+        /** Recadre un File sur une bounding box et retourne un Blob JPEG. */
+        function cropImage(file, box) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const x = Math.max(0, box.xmin);
+                        const y = Math.max(0, box.ymin);
+                        const w = Math.min(img.width  - x, box.xmax - box.xmin);
+                        const h = Math.min(img.height - y, box.ymax - box.ymin);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h);
+                        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Crop échoué')), 'image/jpeg', 0.92);
+                    };
+                    img.onerror = reject;
+                    img.src = ev.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
         function renderResults(products) {
             lensScanner.classList.remove('active');
-
             if (!products || products.length === 0) {
                 resultsGrid.innerHTML = `
                     <div class="no-results" style="grid-column:1/-1">
@@ -455,11 +663,10 @@
                 resultsSection.classList.add('active');
                 return;
             }
-
             resultsGrid.innerHTML = products.slice(0, 12).map(p => {
-                const img = (p.image || '').split('||')[0].split(',')[0] || '/Images/placeholder.jpg';
+                const img   = (p.image || '').split('||')[0].split(',')[0] || '/Images/placeholder.jpg';
                 const price = new Intl.NumberFormat('fr-CD').format(p.price || 0);
-                const url = `/product?id=${p.id}`;
+                const url   = `/product?id=${p.id}`;
                 return `
                     <a class="result-card" href="${url}">
                         <img src="${img}" alt="${p.name}" loading="lazy" onerror="this.src='/Images/placeholder.jpg'">
@@ -469,7 +676,6 @@
                         </div>
                     </a>`;
             }).join('');
-
             resultsSection.classList.add('active');
         }
     </script>
