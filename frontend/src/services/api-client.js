@@ -1,3 +1,4 @@
+import CacheManager from '../utils/CacheManager.js';
 import { captureError } from './sentry.js';
 
 // Tracks the last button/submit element clicked by the user.
@@ -188,6 +189,21 @@ export const ApiClient = {
     },
 
     async fetch(endpoint, options = {}) {
+        // --- OFFLINE CACHE INTERCEPTOR ---
+        if (CacheManager && CacheManager.isOffline()) {
+            const isGet = (options.method || 'GET').toUpperCase() === 'GET';
+            if (isGet && options.cacheKey) {
+                const offlineData = await CacheManager.getCache(options.cacheKey);
+                if (offlineData) {
+                    console.log(`[Offline] Servicing from CacheManager: ${options.cacheKey}`);
+                    return offlineData;
+                }
+            } else if (!isGet) {
+                return Promise.reject(new Error("Connexion internet requise pour cette action."));
+            }
+        }
+        // ---------------------------------
+
         const url = `${API_BASE_URL}${endpoint}`;
 
         const baseHeaders = {
