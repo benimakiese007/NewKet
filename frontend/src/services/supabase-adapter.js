@@ -1,3 +1,4 @@
+import CacheManager from '../utils/CacheManager.js';
 /**
  * Supabase Adapter for NewKet — V2 (Optimized for scale)
  * Features: In-memory cache with TTL, automatic retry, pagination,
@@ -36,6 +37,14 @@ window.SupabaseAdapter = {
     _setCache(key, data, table) {
         const ttl = this._cacheTTL[table] || this._defaultTTL;
         this._cache[key] = { data, timestamp: Date.now(), ttl };
+        
+        if (window.CacheManager) {
+            const offlineTables = ['products', 'categories', 'shops', 'orders', 'users', 'profiles', 'favorites', 'notifications'];
+            if (offlineTables.includes(table) || key.includes('cache_')) {
+                window.CacheManager.setCache(key, data);
+            }
+        }
+
     },
 
     _invalidateTable(table) {
@@ -290,6 +299,15 @@ window.SupabaseAdapter = {
      * @returns {Promise<Array|Object|null>}
      */
     async fetchWithFilters(table, options = {}) {
+        if (window.CacheManager && window.CacheManager.isOffline()) {
+            const offlineKey = table + ':' + JSON.stringify(options || {});
+            const offlineData = await window.CacheManager.getCache(offlineKey);
+            if (offlineData) {
+                console.log(`[Offline] Loaded ${table} from IndexedDB`);
+                return offlineData;
+            }
+        }
+
         const cacheKey = this._getCacheKey(table, options);
 
         if (!options.skipCache) {

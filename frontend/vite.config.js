@@ -1,3 +1,4 @@
+import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
@@ -30,6 +31,16 @@ const buildVersion = process.env.VERCEL_DEPLOYMENT_ID
 
 export default defineConfig({
   plugins: [
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 5000000
+      },
+      manifest: false // We already have a manifest.json manually generated
+    }),
+
     {
       name: 'newket-html-inject',
       enforce: 'pre',

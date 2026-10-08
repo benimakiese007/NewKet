@@ -759,3 +759,20 @@ if (document.readyState === 'loading') {
 } else {
     App.init();
 }
+
+// --- OFFLINE/ONLINE LISTENER ---
+window.addEventListener('offline', () => {
+    if (window.UI) {
+        window.UI.showToast("Vous êtes hors ligne. Mode lecture seule activé.", 'warning');
+        document.body.classList.add('is-offline');
+    }
+});
+
+window.addEventListener('online', () => {
+    if (window.UI) {
+        window.UI.showToast("Connexion rétablie ! Les données sont à jour.", 'success');
+        document.body.classList.remove('is-offline');
+        // Refresh cache optionally
+    }
+});
+// -------------------------------
