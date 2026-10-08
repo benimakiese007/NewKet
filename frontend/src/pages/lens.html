@@ -493,6 +493,9 @@
         // URL de production (Render)
         const YOLO_URL = 'https://newket.onrender.com/analyze';
 
+        // Pré-chauffe le serveur dès le chargement (cold start Render ~30s)
+        fetch('https://newket.onrender.com/', { method: 'GET', mode: 'no-cors' }).catch(() => {});
+
         document.getElementById('btn-retry').addEventListener('click', () => {
             resultsSection.classList.remove('active');
             lensScanner.classList.remove('active');
@@ -531,7 +534,7 @@
                 const yoloRes = await fetch(YOLO_URL, {
                     method: 'POST',
                     body: formData,
-                    signal: AbortSignal.timeout(8000)
+                    signal: AbortSignal.timeout(35000)  // 35s pour gérer le cold start Render
                 });
                 if (!yoloRes.ok) throw new Error(`YOLO HTTP ${yoloRes.status}`);
                 const { objects } = await yoloRes.json();
