@@ -873,6 +873,11 @@
                         <p id="otpHint" class="mt-3 text-xs text-purple-800 font-semibold"></p>
                     </div>
 
+                    <!-- Realtime Delivery Live Tracking Map Container -->
+                    <div id="customerDeliveryTrackingSection" class="hidden mt-3">
+                        <div id="customerDeliveryTrackingContainer"></div>
+                    </div>
+
                     <!-- No-Show Warning -->
                     <div id="noShowWarningSection" class="hidden p-4 bg-red-50 rounded-xl border border-red-100 text-center">
                         <div class="text-xs font-bold text-red-600 uppercase mb-2">Attention : Livraison en cours</div>
@@ -3635,6 +3640,12 @@
             const releaseCountdown = document.getElementById('releaseCountdown');
             const releaseDelayHint = document.getElementById('releaseDelayHint');
 
+            const customerTrackingSection = document.getElementById('customerDeliveryTrackingSection');
+            if (customerTrackingSection) customerTrackingSection.classList.add('hidden');
+            if (window.deliveryTrackerInstance) {
+                window.deliveryTrackerInstance.destroy();
+            }
+
             escrowSection.classList.add('hidden');
             otpSection.classList.add('hidden');
             const noShowWarning = document.getElementById('noShowWarningSection');
@@ -3708,12 +3719,25 @@
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
+                if (customerTrackingSection) customerTrackingSection.classList.remove('hidden');
                 const noShowWarning = document.getElementById('noShowWarningSection');
                 if (noShowWarning) noShowWarning.classList.remove('hidden');
                 btnDispute.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
                     otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
+                }
+
+                // Démarrage du tracking en direct côté client
+                if (window.DeliveryTracker) {
+                    const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
+                    window.deliveryTrackerInstance = new window.DeliveryTracker();
+                    window.deliveryTrackerInstance.start({
+                        orderId: order.id,
+                        role: 'customer',
+                        container: '#customerDeliveryTrackingContainer',
+                        initialCustomerCoords: initialCoords
+                    });
                 }
             }
 
@@ -4322,6 +4346,9 @@
         // ========================================================================
 
         function closeOrderModal() {
+            if (window.deliveryTrackerInstance) {
+                window.deliveryTrackerInstance.destroy();
+            }
             if (releaseCountdownTimer) {
                 clearInterval(releaseCountdownTimer);
                 releaseCountdownTimer = null;

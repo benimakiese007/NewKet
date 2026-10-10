@@ -1231,6 +1231,11 @@
                                     </button>
                                 </div>
 
+                                <!-- Realtime Delivery Live Tracking Map Container (Vendor) -->
+                                <div id="vendorDeliveryTrackingSection" class="hidden w-full mb-3">
+                                    <div id="vendorDeliveryTrackingContainer"></div>
+                                </div>
+
                                 <!-- OTP Verification Section -->
                                 <div id="vOtpSection" class="hidden w-full space-y-3 p-5 bg-purple-50 rounded-3xl border border-purple-100">
                                     <div class="text-center space-y-1 mb-2">
@@ -5078,9 +5083,15 @@
                     const actions = document.getElementById('vModalActions');
                     const standardActions = document.getElementById('vStandardActions');
                     const otpSection = document.getElementById('vOtpSection');
+                    const vendorTrackingSection = document.getElementById('vendorDeliveryTrackingSection');
                     const disputedSection = document.getElementById('vDisputedSection');
                     const deliveredSection = document.getElementById('vDeliveredSection');
                     
+                    if (window.deliveryTrackerInstance) {
+                        window.deliveryTrackerInstance.destroy();
+                    }
+                    if (vendorTrackingSection) vendorTrackingSection.classList.add('hidden');
+
                     actions.classList.add('hidden');
                     standardActions.classList.add('hidden');
                     otpSection.classList.add('hidden');
@@ -5111,9 +5122,22 @@
                     } else if (order.status === 'IN_DELIVERY') {
                         actions.classList.remove('hidden');
                         otpSection.classList.remove('hidden');
+                        if (vendorTrackingSection) vendorTrackingSection.classList.remove('hidden');
                         document.getElementById('vOtpInput').value = '';
                         currentOrderIdForOtp = order.id;
                         document.getElementById('btnVerifyVendorOtp').onclick = () => handleVerifyOTP();
+
+                        // Démarrage du tracking en direct côté vendeur
+                        if (window.DeliveryTracker) {
+                            const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
+                            window.deliveryTrackerInstance = new window.DeliveryTracker();
+                            window.deliveryTrackerInstance.start({
+                                orderId: order.id,
+                                role: 'vendor',
+                                container: '#vendorDeliveryTrackingContainer',
+                                initialCustomerCoords: initialCoords
+                            });
+                        }
                     } else if (order.status === 'DELIVERED') {
                         actions.classList.remove('hidden');
                         deliveredSection.classList.remove('hidden');
@@ -5163,6 +5187,9 @@
                 };
 
                 window.closeOrderDetailModal = function() {
+                    if (window.deliveryTrackerInstance) {
+                        window.deliveryTrackerInstance.destroy();
+                    }
                     const modal = document.getElementById('orderDetailModal');
                     if (modal) {
                         modal.classList.add('hidden');
