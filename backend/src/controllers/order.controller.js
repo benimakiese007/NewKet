@@ -480,12 +480,19 @@ export const getOrderById = async (req, res, next) => {
         const isAdmin = isAdminActor(req.user);
         const isCustomer = !isVendor && !isAdmin;
 
-        // Sécurité : l'OTP ne doit jamais être exposé au vendeur
-        const { otp_code, ...orderWithoutOtp } = order;
+        const { data: quotes } = await client
+            .from('delivery_quotes')
+            .select('*')
+            .eq('order_id', id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        const latestQuote = Array.isArray(quotes) && quotes.length > 0 ? quotes[0] : null;
 
         return res.status(200).json({
             ...(isCustomer || isAdmin ? order : orderWithoutOtp),
-            status: mapLegacyOrderStatus(order.status)
+            status: mapLegacyOrderStatus(order.status),
+            latest_delivery_quote: latestQuote
         });
     } catch (error) {
         console.error('❌ Erreur getOrderById:', error.message);

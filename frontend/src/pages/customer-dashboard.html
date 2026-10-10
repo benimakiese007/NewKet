@@ -3664,8 +3664,12 @@
 
             currentSelectedDispute = null;
 
-            if (order.status === 'QUOTE' && order.latest_delivery_quote) {
-                const quote = order.latest_delivery_quote;
+            if (order.status === 'QUOTE') {
+                const quote = order.latest_delivery_quote || {
+                    delivery_fee_amount: order.delivery_fee_amount || 0,
+                    estimated_delay_hours: 24,
+                    note: 'Le vendeur a proposé un devis de livraison.'
+                };
                 escrowSection.classList.remove('hidden');
                 quoteSummarySection.classList.remove('hidden');
                 document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, parseFloat(order?.items?.[0]?.custom_exchange_rate || 0) || null) : quote.delivery_fee_amount;
@@ -3861,23 +3865,27 @@
 
         async function handleAcceptQuote() {
             if (!currentSelectedOrder) return;
+            const orderId = currentSelectedOrder.id;
             try {
                 const btn = document.getElementById('btnAcceptQuote');
                 btn.disabled = true;
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
-                await OrderManager.respondToDeliveryQuote(currentSelectedOrder.id, {
+                await OrderManager.respondToDeliveryQuote(orderId, {
                     action: 'ACCEPT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showInlineMessage('client-modal-feedback', 'Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
                 closeOrderModal();
                 await loadDashboardData();
+                await openOrderModal(orderId);
+                showInlineMessage('client-modal-feedback', 'Devis accepté ! Cliquez sur Passer au paiement.', 'success');
             } catch (error) {
                 showInlineMessage('client-modal-feedback', error.message || "Erreur lors de l'acceptation du devis", 'error');
             } finally {
                 const btn = document.getElementById('btnAcceptQuote');
-                btn.disabled = false;
-                btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Accepter le devis';
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Accepter le devis';
+                }
             }
         }
 
