@@ -62,17 +62,23 @@ function assertOrderMutableOrFail({ order, user, res, actionLabel }) {
     if (order.payment_locked_at) {
         if (isAdminActor(user)) return true;
 
-        // Un verrou fantôme (> 10 minutes) est ignoré : le paiement a probablement échoué
-        // ou le client a fermé la page sans finaliser. On débloque silencieusement.
-        const LOCK_STALE_MS = 10 * 60 * 1000; // 10 minutes
-        const lockedAt = new Date(order.payment_locked_at).getTime();
-        const ageMs = Date.now() - lockedAt;
-        if (ageMs < LOCK_STALE_MS) {
-            res.status(409).json({ error: `Commande verrouillée (paiement en cours): action "${actionLabel}" impossible.` });
-            return false;
+        // Si le paiement est déjà validé (PAID / PAID_HELD / IN_DELIVERY), le verrou de traitement temporaire ne s'applique plus
+        const isPaidOrSettled = order.payment_status === 'PAID'
+            || ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(order.status);
+
+        if (!isPaidOrSettled) {
+            // Un verrou fantôme (> 10 minutes) est ignoré : le paiement a probablement échoué
+            // ou le client a fermé la page sans finaliser. On débloque silencieusement.
+            const LOCK_STALE_MS = 10 * 60 * 1000; // 10 minutes
+            const lockedAt = new Date(order.payment_locked_at).getTime();
+            const ageMs = Date.now() - lockedAt;
+            if (ageMs < LOCK_STALE_MS) {
+                res.status(409).json({ error: `Commande verrouillée (paiement en cours): action "${actionLabel}" impossible.` });
+                return false;
+            }
+            // Verrou fantôme : on laisse l'action continuer
+            console.warn(`[PaymentLock] Verrou fantôme ignoré pour la commande ${order.id} (${Math.round(ageMs / 60000)} min) — action: ${actionLabel}`);
         }
-        // Verrou fantôme : on laisse l'action continuer (le verrou sera nettoyé par initiatePayment au prochain essai)
-        console.warn(`[PaymentLock] Verrou fantôme ignoré pour la commande ${order.id} (${Math.round(ageMs / 60000)} min) — action: ${actionLabel}`);
     }
 
     if (order.status === ORDER_STATUSES.CANCELLED) {

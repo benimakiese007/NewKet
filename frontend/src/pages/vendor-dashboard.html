@@ -5220,9 +5220,10 @@
 
                     try {
                         await OrderManager.startDelivery(orderId);
-                        showInlineMessage('order-modal-feedback', 'Livraison démarrée. Vous pouvez maintenant saisir l\'OTP à la remise.', 'success');
                         closeOrderDetailModal();
-                        renderVendorDashboard();
+                        await renderVendorDashboard();
+                        await openOrderDetailModal(orderId);
+                        showInlineMessage('order-modal-feedback', 'Livraison démarrée ! Suivi GPS et saisie OTP actifs.', 'success');
 
                         if (window.ActivityManager) {
                             logVendorActivity(`Livraison démarrée pour la commande #${orderId.substring(0,6)}`, 'order');
