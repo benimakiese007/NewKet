@@ -13,6 +13,7 @@ import './config-manager.js';
 import './auth.js';
 import './products.js';
 import './orders.js';
+import './delivery-tracking.js';
 import './favorites.js';
 import './currency.js';
 import './managers.js';
