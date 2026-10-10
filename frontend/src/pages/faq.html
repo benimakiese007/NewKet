@@ -204,59 +204,67 @@
     </style>
 </head>
 
-<body style="background:#f7f7f7;">
-    <div style="max-width:800px; margin:0 auto; padding:32px 20px;">
+<body class="bg-gray-50 text-slate-900 min-h-screen flex flex-col">
+    <div id="header-placeholder"></div>
 
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 flex-1 w-full">
         <!-- Retour -->
-        <a href="/" style="display:inline-flex; align-items:center; gap:6px; color:#111827; text-decoration:none; font-weight:500; margin-bottom:24px;">
-            <iconify-icon icon="mdi:arrow-left" width="20"></iconify-icon> Retour à l'accueil
+        <a href="/" class="inline-flex items-center gap-2 text-gray-700 hover:text-black font-medium mb-6 text-sm transition-colors">
+            <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon> Retour à l'accueil
         </a>
 
-        <h1 style="font-size:28px; font-weight:700; color:#111827; margin-bottom:8px;">Questions Fréquentes</h1>
-        <p style="color:#888; font-size:14px; margin-bottom:32px;">Tout ce que vous devez savoir pour profiter pleinement de l'expérience NewKet.</p>
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">Questions Fréquentes</h1>
+            <p class="text-gray-500 text-sm sm:text-base">Tout ce que vous devez savoir pour profiter pleinement de l'expérience NewKet.</p>
+        </div>
 
-        <!-- Q1 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Quels modes de paiement sont acceptés ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Nous acceptons les paiements digitaux sécurisés via notre partenaire FlexPaie.
-                Sont inclus : Mobile Money (Airtel, Vodacom, Orange, Afrimoney) et les paiements par carte bancaire.
-            </p>
-        </section>
+        <div class="space-y-6">
+            <!-- Q1 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Quels modes de paiement sont acceptés ?</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Nous acceptons les paiements digitaux sécurisés via notre partenaire FlexPaie.
+                    Sont inclus : Mobile Money (Airtel, Vodacom M-Pesa, Orange Money, Afrimoney) et les paiements par carte bancaire.
+                </p>
+            </section>
 
-        <!-- Q2 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Mes informations de paiement sont-elles sécurisées ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Absolument. NewKet ne stocke jamais vos données bancaires. Toutes les transactions sont cryptées et traitées par des passerelles de paiement certifiées PCI-DSS.
-            </p>
-        </section>
+            <!-- Q2 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Mes informations de paiement sont-elles sécurisées ?</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Absolument. NewKet ne stocke jamais vos données bancaires. Toutes les transactions sont cryptées et traitées par des passerelles de paiement certifiées PCI-DSS avec séquestre protecteur.
+                </p>
+            </section>
 
-        <!-- Q3 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Combien de temps prend la livraison ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Le délai dépend de la localisation du vendeur et de votre adresse. En général, comptez 24 à 48h pour une livraison locale et 3 à 5 jours pour une livraison nationale.
-            </p>
-        </section>
+            <!-- Q3 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Combien de temps prend la livraison ?</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Le délai dépend de la localisation du vendeur et de votre commune à Kinshasa ou en province. En général, comptez 24 à 48h pour une livraison locale et 3 à 5 jours pour les autres villes de la RDC.
+                </p>
+            </section>
 
-        <!-- Q4 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Comment ouvrir une boutique sur NewKet ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Ouvrir une boutique est simple et rapide. Cliquez sur le bouton "Vendre" en haut de la page, créez votre compte vendeur, et suivez les instructions pour ajouter vos premiers articles.
-            </p>
-        </section>
+            <!-- Q4 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Comment ouvrir une boutique sur NewKet ?</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Ouvrir une boutique est simple et rapide. Cliquez sur le bouton "Vendre" en haut de la page, créez votre compte vendeur, et suivez les instructions pour ajouter vos premiers articles.
+                </p>
+            </section>
 
-        <!-- Q5 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Encore des questions ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Notre équipe est là pour vous accompagner 7j/7. <br><br>
-                <a href="/support" style="display:inline-block; background:#111827; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:600; font-size:14px;">Contactez le Support</a>
-            </p>
-        </section>
+            <!-- Q5 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Encore des questions ?</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base mb-4">
+                    Notre équipe est là pour vous accompagner 7j/7.
+                </p>
+                <a href="/support" class="inline-flex items-center gap-2 bg-black text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-800 transition-colors">
+                    <iconify-icon icon="solar:chat-round-dots-bold" width="18"></iconify-icon> Contactez le Support
+                </a>
+            </section>
+        </div>
+    </main>
 
-    </div>
+    <div id="footer-placeholder"></div>
 </body>
 </html>

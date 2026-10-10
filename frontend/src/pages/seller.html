@@ -28,58 +28,67 @@
     </style>
 </head>
 
-<body style="background:#f7f7f7;">
-    <div style="max-width:800px; margin:0 auto; padding:32px 20px;">
+<body class="bg-gray-50 text-slate-900 min-h-screen flex flex-col">
+    <div id="header-placeholder"></div>
 
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 flex-1 w-full">
         <!-- Retour -->
-        <a href="/" style="display:inline-flex; align-items:center; gap:6px; color:#111827; text-decoration:none; font-weight:500; margin-bottom:24px;">
-            <iconify-icon icon="mdi:arrow-left" width="20"></iconify-icon> Retour à l'accueil
+        <a href="/" class="inline-flex items-center gap-2 text-gray-700 hover:text-black font-medium mb-6 text-sm transition-colors">
+            <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon> Retour à l'accueil
         </a>
 
-        <h1 style="font-size:28px; font-weight:700; color:#111827; margin-bottom:8px;">Devenir Vendeur sur NewKet</h1>
-        <p style="color:#888; font-size:14px; margin-bottom:32px;">Rejoignez l'excellence de la marketplace moderne</p>
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">Devenir Vendeur sur NewKet</h1>
+            <p class="text-gray-500 text-sm sm:text-base">Rejoignez l'excellence de la marketplace moderne en RDC.</p>
+        </div>
 
-        <!-- 1 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Pourquoi vendre sur NewKet ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                NewKet est la plateforme de référence pour les articles de qualité. En rejoignant notre communauté de vendeurs, vous accédez à une clientèle premium, prête à investir dans l'excellence.<br><br>
-                Nous vous offrons une visibilité optimale, des outils de gestion simplifiés et un accompagnement sur mesure pour faire croître votre activité.
-            </p>
-        </section>
+        <div class="space-y-6">
+            <!-- 1 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Pourquoi vendre sur NewKet ?</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    NewKet est la plateforme de référence pour les articles de qualité. En rejoignant notre communauté de vendeurs, vous accédez à une clientèle premium, prête à investir dans l'excellence.<br><br>
+                    Nous vous offrons une visibilité optimale, des outils de gestion simplifiés et un accompagnement sur mesure pour faire croître votre activité.
+                </p>
+            </section>
 
-        <!-- 2 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Comment ça marche ?</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                <strong>1. Inscription :</strong> Créez votre compte vendeur en quelques clics et soumettez votre profil pour validation.<br>
-                <strong>2. Publication :</strong> Ajoutez vos articles avec des photos de haute qualité et des descriptions détaillées.<br>
-                <strong>3. Vente sécurisée :</strong> Recevez des commandes. Notre système de paiement sécurisé garantit vos revenus une fois la livraison confirmée.<br>
-                <strong>4. Paiement :</strong> Vos fonds sont transférés sur votre compte en toute transparence et sécurité.
-            </p>
-        </section>
+            <!-- 2 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Comment ça marche ?</h2>
+                <div class="text-gray-600 leading-relaxed text-sm sm:text-base space-y-2">
+                    <p><strong>1. Inscription :</strong> Créez votre compte vendeur en quelques clics et soumettez votre profil pour validation.</p>
+                    <p><strong>2. Publication :</strong> Ajoutez vos articles avec des photos de haute qualité et des descriptions détaillées.</p>
+                    <p><strong>3. Vente sécurisée :</strong> Recevez des commandes. Notre système de paiement sécurisé garantit vos revenus une fois la livraison confirmée.</p>
+                    <p><strong>4. Paiement :</strong> Vos fonds sont transférés sur votre compte Mobile Money ou bancaire en toute transparence et sécurité.</p>
+                </div>
+            </section>
 
-        <!-- 3 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Les avantages exclusifs</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                • Des frais de commission clairs et compétitifs.<br>
-                • Une protection contre la fraude grâce à notre système d'escrow.<br>
-                • Un tableau de bord analytique pour suivre vos performances.<br>
-                • Un support dédié pour vous accompagner à chaque étape.
-            </p>
-        </section>
+            <!-- 3 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Les avantages exclusifs</h2>
+                <ul class="list-disc pl-5 text-gray-600 leading-relaxed text-sm sm:text-base space-y-1">
+                    <li>Des frais de commission clairs et compétitifs.</li>
+                    <li>Une protection contre la fraude grâce à notre système d'escrow (séquestre).</li>
+                    <li>Un tableau de bord analytique pour suivre vos performances.</li>
+                    <li>Un support dédié pour vous accompagner à chaque étape.</li>
+                </ul>
+            </section>
 
-        <!-- 4 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">Critères d'éligibilité</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Pour garantir l'excellence de notre marketplace, nous demandons à nos vendeurs de proposer des articles authentiques, de haute qualité et en excellent état.<br><br>
-                Chaque profil vendeur est examiné pour s'assurer qu'il correspond aux valeurs de NewKet. Si vous partagez notre exigence de qualité, vous êtes au bon endroit !
-            </p>
-        </section>
+            <!-- 4 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">Critères d'éligibilité</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base mb-6">
+                    Pour garantir l'excellence de notre marketplace, nous demandons à nos vendeurs de proposer des articles authentiques, de haute qualité et en excellent état.<br><br>
+                    Chaque profil vendeur est examiné pour s'assurer qu'il correspond aux standards de NewKet.
+                </p>
+                <a href="/seller-onboarding" class="inline-flex items-center gap-2 bg-black text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-800 transition-colors">
+                    <iconify-icon icon="solar:shop-2-bold" width="18"></iconify-icon> Ouvrir ma boutique vendeur
+                </a>
+            </section>
+        </div>
+    </main>
 
-    </div>
+    <div id="footer-placeholder"></div>
 </body>
 
 </html>

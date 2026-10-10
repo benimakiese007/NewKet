@@ -76,7 +76,7 @@
 </head>
 
 <body class="bg-gray-50 transition-colors duration-200 min-h-screen flex flex-col">
-    <nav class="bg-newket-header dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[9998] transition-all duration-300">
+    <nav class="bg-newket-header dashboard-topbar newket-dashboard-header fixed top-0 w-full z-40 transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto grid grid-cols-3 items-center h-[64px] sm:h-[80px] px-4">
 
             <!-- Col gauche : Hamburger -->
@@ -109,11 +109,11 @@
     </nav>
 
     <!-- Overlay pour Mobile -->
-    <div id="vendorSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/30 z-[9998] hidden transition-all duration-300"></div>
+    <div id="vendorSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/30 z-40 hidden transition-all duration-300"></div>
 
     <!-- Sidebar moved back to main to act as a flex sibling, removing relative from main to preserve stacking context -->
     <main class="dashboard-main-offset vendor-dashboard-main w-full max-w-none pb-12 lg:pb-16 flex flex-col lg:flex-row lg:gap-8 relative">
-        <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 lg:relative transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto modal-scroll border-0 lg:border-r border-gray-100 flex-shrink-0">
+        <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-50 transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 lg:relative transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto modal-scroll border-0 lg:border-r border-gray-100 flex-shrink-0">
 
 
             <!-- Desktop/Tablet Collapse Toggle -->
@@ -1145,7 +1145,7 @@
 
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
-                class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/60 p-4">
+                class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/60 p-4">
                 <div class="solid-modal-content bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
@@ -5541,7 +5541,7 @@
                         if (!blocker) {
                             blocker = document.createElement('div');
                             blocker.id = 'kycInlineUploadModal';
-                            blocker.className = 'fixed inset-0 z-[10000] hidden flex items-center justify-center p-4';
+                            blocker.className = 'fixed inset-0 z-[60] hidden flex items-center justify-center p-4';
                             blocker.innerHTML = `
                                 <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="kycCloseModal()"></div>
                                 <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md pointer-events-auto z-10 relative overflow-hidden max-h-[90vh] flex flex-col">
@@ -5776,7 +5776,7 @@
                     if (!modal) {
                         modal = document.createElement('div');
                         modal.id = 'payoutAddModal';
-                        modal.className = 'fixed inset-0 z-[10000] hidden';
+                        modal.className = 'fixed inset-0 z-[60] hidden';
                         modal.innerHTML = `
                             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeAddPayoutModal()"></div>
                             <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -6233,7 +6233,7 @@
                     if (!modal) {
                         modal = document.createElement('div');
                         modal.id = 'payoutDeleteModal';
-                        modal.className = 'fixed inset-0 z-[10000] hidden';
+                        modal.className = 'fixed inset-0 z-[60] hidden';
                         modal.innerHTML = `
                             <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeDeletePayoutModal()"></div>
                             <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
@@ -6409,7 +6409,7 @@
                         const presetNote = currentQuote?.note ?? '';
 
                         const container = document.createElement('div');
-                        container.className = 'fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
+                        container.className = 'fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
                         container.innerHTML = `
                             <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 max-h-[90vh] flex flex-col">
                                 <div class="p-5 sm:p-6 border-b border-gray-100 bg-gray-50 flex items-start justify-between gap-3 shrink-0 rounded-t-2xl">
@@ -9240,17 +9240,19 @@ async function openOrderModal(id) {
                         <div class="invoice-party-detail">S&eacute;questre NewKet jusqu&apos;&agrave; confirmation</div>
                     </div>
                 </div>
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th class="text-center">Qt&eacute;</th>
-                            <th class="text-right">Prix unitaire</th>
-                            <th class="text-right">Montant</th>
-                        </tr>
-                    </thead>
-                    <tbody id="invItems"></tbody>
-                </table>
+                <div class="overflow-x-auto w-full">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-center">Qt&eacute;</th>
+                                <th class="text-right">Prix unitaire</th>
+                                <th class="text-right">Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invItems"></tbody>
+                    </table>
+                </div>
                 <div class="invoice-totals">
                     <div class="invoice-total-row">
                         <span>Sous-total</span>

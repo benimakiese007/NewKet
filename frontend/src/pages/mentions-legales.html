@@ -28,93 +28,100 @@
     </style>
 </head>
 
-<body style="background:#f7f7f7;">
-    <div style="max-width:800px; margin:0 auto; padding:32px 20px;">
+<body class="bg-gray-50 text-slate-900 min-h-screen flex flex-col">
+    <div id="header-placeholder"></div>
 
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 flex-1 w-full">
         <!-- Retour -->
-        <a href="/" style="display:inline-flex; align-items:center; gap:6px; color:#111827; text-decoration:none; font-weight:500; margin-bottom:24px;">
-            <iconify-icon icon="mdi:arrow-left" width="20"></iconify-icon> Retour à l'accueil
+        <a href="/" class="inline-flex items-center gap-2 text-gray-700 hover:text-black font-medium mb-6 text-sm transition-colors">
+            <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon> Retour à l'accueil
         </a>
 
-        <h1 style="font-size:28px; font-weight:700; color:#111827; margin-bottom:8px;">Mentions Légales</h1>
-        <p style="color:#888; font-size:14px; margin-bottom:32px;">Dernière mise à jour : Juin 2026</p>
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">Mentions Légales</h1>
+            <p class="text-gray-500 text-sm sm:text-base">Dernière mise à jour : Juin 2026</p>
+        </div>
 
-        <!-- 1 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">1. Éditeur du site</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Le site <strong>NewKet</strong> (accessible à l'adresse <strong>newket.market</strong>) est édité par :<br><br>
-                <strong>Nom de l'entreprise :</strong> NewKet S.A.S.<br>
-                <strong>Forme juridique :</strong> Société par Actions Simplifiée<br>
-                <strong>Siège social :</strong> Kinshasa, République Démocratique du Congo<br>
-                <strong>RCCM / NIF :</strong> En cours d'immatriculation<br>
-                <strong>Email de contact :</strong> contact@newket.com<br>
-                <strong>Directeur de la publication :</strong> L'équipe de Direction NewKet
-            </p>
-        </section>
+        <div class="space-y-6">
+            <!-- 1 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">1. Éditeur du site</h2>
+                <div class="text-gray-600 leading-relaxed text-sm sm:text-base space-y-2">
+                    <p>Le site <strong>NewKet</strong> (accessible à l'adresse <strong>newket.market</strong>) est édité par :</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Nom de l'entreprise :</strong> NewKet S.A.S.</li>
+                        <li><strong>Forme juridique :</strong> Société par Actions Simplifiée</li>
+                        <li><strong>Siège social :</strong> Kinshasa, République Démocratique du Congo</li>
+                        <li><strong>RCCM / NIF :</strong> En cours d'immatriculation</li>
+                        <li><strong>Email de contact :</strong> contact@newket.com</li>
+                        <li><strong>Directeur de la publication :</strong> L'équipe de Direction NewKet</li>
+                    </ul>
+                </div>
+            </section>
 
-        <!-- 2 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">2. Hébergement</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Le site est hébergé par :<br><br>
-                <strong>Frontend :</strong> Vercel Inc. – 340 S Lemon Ave #4133, Walnut, CA 91789, USA<br>
-                <strong>Backend / Base de données :</strong> Supabase Inc. – 970 Toa Payoh North, Singapour<br>
-                <strong>Paiement :</strong> FlexPaie (agrégateur de paiements) – Kinshasa, RDC
-            </p>
-        </section>
+            <!-- 2 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">2. Hébergement</h2>
+                <div class="text-gray-600 leading-relaxed text-sm sm:text-base space-y-2">
+                    <p>Le site est hébergé par :</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Frontend :</strong> Vercel Inc. – 340 S Lemon Ave #4133, Walnut, CA 91789, USA</li>
+                        <li><strong>Backend / Base de données :</strong> Supabase Inc. – 970 Toa Payoh North, Singapour</li>
+                        <li><strong>Paiement :</strong> FlexPaie (agrégateur de paiements) – Kinshasa, RDC</li>
+                    </ul>
+                </div>
+            </section>
 
-        <!-- 3 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">3. Propriété intellectuelle</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                L'ensemble du contenu du site NewKet (textes, images, logos, design, code source) est protégé par le droit d'auteur et les lois sur la propriété intellectuelle applicables en République Démocratique du Congo et à l'international.<br><br>
-                Toute reproduction, représentation, modification ou exploitation non autorisée de tout ou partie du site est interdite et constitue une contrefaçon.
-            </p>
-        </section>
+            <!-- 3 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">3. Propriété intellectuelle</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    L'ensemble du contenu du site NewKet (textes, images, logos, design, code source) est protégé par le droit d'auteur et les lois sur la propriété intellectuelle applicables en République Démocratique du Congo et à l'international.<br><br>
+                    Toute reproduction, représentation, modification ou exploitation non autorisée de tout ou partie du site est interdite et constitue une contrefaçon.
+                </p>
+            </section>
 
-        <!-- 4 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">4. Responsabilité</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                NewKet agit en tant qu'intermédiaire entre vendeurs et acheteurs. La plateforme ne saurait être tenue responsable :<br><br>
-                • De la qualité, conformité ou légalité des produits mis en vente par les vendeurs.<br>
-                • Des retards ou problèmes de livraison causés par des prestataires tiers.<br>
-                • Des interruptions temporaires du service liées à la maintenance ou à des événements de force majeure.<br><br>
-                NewKet s'engage cependant à mettre en œuvre tous les moyens raisonnables pour assurer la sécurité des transactions via son système d'escrow (séquestre) et son processus de résolution de litiges.
-            </p>
-        </section>
+            <!-- 4 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">4. Responsabilité</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    NewKet agit en tant qu'intermédiaire entre vendeurs et acheteurs. La plateforme ne saurait être tenue responsable :<br><br>
+                    • De la qualité, conformité ou légalité des produits mis en vente par les vendeurs.<br>
+                    • Des retards ou problèmes de livraison causés par des prestataires tiers.<br>
+                    • Des interruptions temporaires du service liées à la maintenance ou à des événements de force majeure.<br><br>
+                    NewKet s'engage cependant à mettre en œuvre tous les moyens raisonnables pour assurer la sécurité des transactions via son système d'escrow (séquestre) et son processus de résolution de litiges.
+                </p>
+            </section>
 
-        <!-- 5 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">5. Données personnelles</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Pour connaître nos pratiques en matière de collecte et de traitement de vos données personnelles, veuillez consulter notre
-                <a href="/privacy" style="color:#111827; font-weight:600;">Politique de Confidentialité</a>.
-            </p>
-        </section>
+            <!-- 5 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">5. Données personnelles</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Pour connaître nos pratiques en matière de collecte et de traitement de vos données personnelles, veuillez consulter notre
+                    <a href="/privacy" class="text-gray-900 font-bold hover:underline">Politique de Confidentialité</a>.
+                </p>
+            </section>
 
-        <!-- 6 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">6. Conditions de vente</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Les conditions régissant l'utilisation de la plateforme, les achats, les retours et les litiges sont détaillées dans nos
-                <a href="/terms" style="color:#111827; font-weight:600;">Conditions Générales de Vente</a>.
-            </p>
-        </section>
+            <!-- 6 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">6. Conditions de vente</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Les conditions régissant l'utilisation de la plateforme, les achats, les retours et les litiges sont détaillées dans nos
+                    <a href="/terms" class="text-gray-900 font-bold hover:underline">Conditions Générales de Vente</a>.
+                </p>
+            </section>
 
-        <!-- 7 -->
-        <section style="background:#fff; border-radius:16px; padding:24px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-            <h2 style="font-size:18px; font-weight:600; color:#111827; margin-bottom:12px;">7. Droit applicable</h2>
-            <p style="color:#444; line-height:1.7; font-size:15px;">
-                Les présentes mentions légales sont régies par le droit de la République Démocratique du Congo. Tout litige relatif à l'utilisation du site sera soumis à la compétence des juridictions congolaises compétentes.
-            </p>
-        </section>
+            <!-- 7 -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">7. Droit applicable</h2>
+                <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    Les présentes mentions légales sont régies par le droit de la République Démocratique du Congo. Tout litige relatif à l'utilisation du site sera soumis à la compétence des juridictions congolaises compétentes.
+                </p>
+            </section>
+        </div>
+    </main>
 
-        <p style="text-align:center; color:#aaa; font-size:13px; margin-top:32px;">
-            © 2026 NewKet — Tous droits réservés.
-        </p>
-    </div>
+    <div id="footer-placeholder"></div>
 </body>
 
 </html>
