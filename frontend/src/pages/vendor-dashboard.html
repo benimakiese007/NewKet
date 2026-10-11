@@ -5132,8 +5132,8 @@
                             const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
                             const peerName = order.customer_name || order.customer?.name || 'Client';
                             const peerAvatar = order.customer_avatar || order.customer?.avatar || '';
-                            const vendorProfile = window.ProfileManager ? window.ProfileManager.getProfile() : null;
-                            const myName = vendorProfile?.company_name || vendorProfile?.username || 'Vendeur';
+                            const vendorProfile = (window.ProfileManager && typeof window.ProfileManager.getProfile === 'function') ? window.ProfileManager.getProfile() : null;
+                            const myName = vendorProfile?.company_name || vendorProfile?.username || vendorProfile?.name || 'Vendeur';
                             const myAvatar = vendorProfile?.avatar || '';
 
                             window.deliveryTrackerInstance = new window.DeliveryTracker();
