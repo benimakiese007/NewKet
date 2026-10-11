@@ -498,6 +498,9 @@
             this.callState = 'calling';
             this._showCallOverlay('Appel en cours...', `Connexion audio avec le ${this.role === 'vendor' ? 'client' : 'vendeur'}...`, false);
 
+            // Signal de sonnerie immédiat (< 50ms) avant même l'initialisation du micro
+            this._sendCallSignal({ type: 'ring' });
+
             try {
                 this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 this._createPeerConnection();
@@ -598,11 +601,19 @@
         _handleCallSignal(data) {
             if (!data || data.role === this.role) return;
 
-            if (data.type === 'offer') {
+            if (data.type === 'ring') {
+                if (this.callState === 'idle') {
+                    this.callState = 'incoming';
+                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true);
+                    this._playRingtone();
+                }
+            } else if (data.type === 'offer') {
                 this.pendingOffer = data.offer;
-                this.callState = 'incoming';
-                this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true);
-                this._playRingtone();
+                if (this.callState === 'idle') {
+                    this.callState = 'incoming';
+                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true);
+                    this._playRingtone();
+                }
             } else if (data.type === 'answer' && this.peerConnection) {
                 this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                 this.callState = 'connected';
