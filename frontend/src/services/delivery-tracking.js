@@ -740,6 +740,24 @@
                 const km = (meters / 1000).toFixed(1);
                 this.dom.distanceEl.textContent = `${targetLabel} est à ~${km} km`;
             }
+
+            // Trace ou met à jour la ligne directe pointillée entre les 2 positions
+            if (this.map && window.L) {
+                const points = [
+                    [this.myLocation.lat, this.myLocation.lng],
+                    [this.peerLocation.lat, this.peerLocation.lng]
+                ];
+                if (!this.trackingPolyline) {
+                    this.trackingPolyline = window.L.polyline(points, {
+                        color: '#10b981',
+                        weight: 3,
+                        dashArray: '6, 8',
+                        opacity: 0.85
+                    }).addTo(this.map);
+                } else {
+                    this.trackingPolyline.setLatLngs(points);
+                }
+            }
         }
 
         /**
@@ -900,6 +918,13 @@
                     this.wakeLock.release();
                 } catch (e) {}
                 this.wakeLock = null;
+            }
+
+            if (this.trackingPolyline) {
+                try {
+                    this.trackingPolyline.remove();
+                } catch (e) {}
+                this.trackingPolyline = null;
             }
 
             if (this.map) {
