@@ -3737,12 +3737,22 @@
                 // Démarrage du tracking en direct côté client
                 if (window.DeliveryTracker) {
                     const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
+                    const peerName = order.vendor?.company_name || order.vendor?.name || 'Vendeur';
+                    const peerAvatar = order.vendor?.avatar || order.vendor?.logo || '';
+                    const currentUser = window.AuthManager ? window.AuthManager.getUser() : null;
+                    const myName = currentUser?.name || currentUser?.company_name || 'Client';
+                    const myAvatar = currentUser?.avatar || '';
+
                     window.deliveryTrackerInstance = new window.DeliveryTracker();
                     window.deliveryTrackerInstance.start({
                         orderId: order.id,
                         role: 'customer',
                         container: '#customerDeliveryTrackingContainer',
-                        initialCustomerCoords: initialCoords
+                        initialCustomerCoords: initialCoords,
+                        peerName,
+                        peerAvatar,
+                        myName,
+                        myAvatar
                     });
                 }
             }

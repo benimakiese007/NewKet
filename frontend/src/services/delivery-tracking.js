@@ -68,9 +68,13 @@
          * @param {Object} [options.initialCustomerCoords] - Optional fallback { lat, lng }
          * @param {Function} [options.onStatusChange]
          */
-        async start({ orderId, role, container, initialCustomerCoords = null, onStatusChange = null }) {
+        async start({ orderId, role, container, peerName = null, peerAvatar = null, myName = null, myAvatar = null, initialCustomerCoords = null, onStatusChange = null }) {
             this.orderId = orderId;
             this.role = role;
+            this.peerName = peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
+            this.peerAvatar = peerAvatar || '';
+            this.myName = myName || (this.role === 'vendor' ? 'Vendeur' : 'Client');
+            this.myAvatar = myAvatar || '';
             this.onStatusChange = onStatusChange;
 
             const root = typeof container === 'string' ? document.querySelector(container) : container;
@@ -103,7 +107,7 @@
          */
         _buildUI() {
             const isVendor = this.role === 'vendor';
-            const peerLabel = isVendor ? 'Client' : 'Vendeur';
+            const peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
 
             this.dom.container.innerHTML = `
                 <div class="delivery-tracker-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
@@ -144,7 +148,7 @@
                                 </div>
                                 <div class="truncate">
                                     <p class="text-[10px] uppercase font-bold text-gray-400 leading-tight">
-                                        Position du ${peerLabel.toLowerCase()}
+                                        Position : ${this._escapeHtml(peerLabel)}
                                     </p>
                                     <p id="dt-distance-text" class="text-xs font-extrabold text-gray-900 truncate">
                                         Calcul de la distance...
@@ -200,11 +204,19 @@
 
                     <!-- In-App WebRTC Voice Call Overlay / Modal -->
                     <div id="dt-call-overlay" class="hidden absolute inset-0 bg-gray-900/95 backdrop-blur-md z-[500] flex flex-col items-center justify-center p-6 text-white text-center">
-                        <div class="w-16 h-16 rounded-full bg-emerald-600/30 border-2 border-emerald-400 flex items-center justify-center mb-4 animate-pulse">
-                            <iconify-icon icon="solar:phone-calling-bold" width="32" class="text-emerald-400"></iconify-icon>
+                        <!-- Profile Avatar Image & Glow Ring -->
+                        <div class="relative mb-3">
+                            <div id="dt-call-avatar-wrap" class="w-20 h-20 rounded-full border-4 border-emerald-400 shadow-2xl overflow-hidden bg-gray-800 flex items-center justify-center text-xl font-bold text-emerald-400 animate-pulse">
+                                <img id="dt-call-avatar-img" src="" class="hidden w-full h-full object-cover" alt="Avatar" />
+                                <span id="dt-call-avatar-initials">NK</span>
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-gray-900 shadow">
+                                <iconify-icon icon="solar:phone-bold" width="14"></iconify-icon>
+                            </div>
                         </div>
-                        <h4 id="dt-call-title" class="text-base font-extrabold uppercase tracking-wider mb-1">Appel en cours...</h4>
-                        <p id="dt-call-subtitle" class="text-xs text-gray-300 mb-6">Connexion audio sécurisée avec le ${peerLabel.toLowerCase()}</p>
+                        <h3 id="dt-call-peer-name" class="text-base font-black tracking-wide text-white mb-0.5">${this._escapeHtml(peerLabel)}</h3>
+                        <h4 id="dt-call-title" class="text-xs font-extrabold uppercase tracking-wider text-emerald-400 mb-1">APPEL EN COURS...</h4>
+                        <p id="dt-call-subtitle" class="text-xs text-gray-300 mb-6">Connexion audio sécurisée</p>
                         
                         <!-- Call Action Buttons -->
                         <div class="flex items-center gap-4">
@@ -594,30 +606,38 @@
             this.channel.send({
                 type: 'broadcast',
                 event: 'call-signal',
-                payload: { role: this.role, ...payload }
+                payload: {
+                    role: this.role,
+                    callerName: this.myName,
+                    callerAvatar: this.myAvatar,
+                    ...payload
+                }
             }).catch(err => console.warn('[DeliveryTracker] Call signal send error:', err));
         }
 
         _handleCallSignal(data) {
             if (!data || data.role === this.role) return;
 
+            const callerName = data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client');
+            const callerAvatar = data.callerAvatar || '';
+
             if (data.type === 'ring') {
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
-                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true);
+                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar);
                     this._playRingtone();
                 }
             } else if (data.type === 'offer') {
                 this.pendingOffer = data.offer;
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
-                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true);
+                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar);
                     this._playRingtone();
                 }
             } else if (data.type === 'answer' && this.peerConnection) {
                 this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                 this.callState = 'connected';
-                this._showCallOverlay('En communication', 'Appel vocal actif', true);
+                this._showCallOverlay('En communication', 'Appel vocal actif', true, false, callerName, callerAvatar);
             } else if (data.type === 'candidate' && this.peerConnection) {
                 this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
             } else if (data.type === 'hangup') {
@@ -625,12 +645,36 @@
             }
         }
 
-        _showCallOverlay(title, subtitle, isConnected = false, isIncoming = false) {
+        _showCallOverlay(title, subtitle, isConnected = false, isIncoming = false, customPeerName = null, customPeerAvatar = null) {
             if (!this.dom.callOverlay) return;
             this.dom.callOverlay.classList.remove('hidden');
 
-            this.dom.container.querySelector('#dt-call-title').textContent = title;
-            this.dom.container.querySelector('#dt-call-subtitle').textContent = subtitle;
+            const name = customPeerName || this.peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
+            const avatarUrl = customPeerAvatar || this.peerAvatar || '';
+
+            const peerNameEl = this.dom.container.querySelector('#dt-call-peer-name');
+            const titleEl = this.dom.container.querySelector('#dt-call-title');
+            const subtitleEl = this.dom.container.querySelector('#dt-call-subtitle');
+            const avatarImg = this.dom.container.querySelector('#dt-call-avatar-img');
+            const avatarInitials = this.dom.container.querySelector('#dt-call-avatar-initials');
+
+            if (peerNameEl) peerNameEl.textContent = name;
+            if (titleEl) titleEl.textContent = title;
+            if (subtitleEl) subtitleEl.textContent = subtitle;
+
+            // Display Avatar Image or Initials
+            if (avatarImg && avatarInitials) {
+                if (avatarUrl) {
+                    avatarImg.src = avatarUrl;
+                    avatarImg.classList.remove('hidden');
+                    avatarInitials.classList.add('hidden');
+                } else {
+                    avatarImg.classList.add('hidden');
+                    avatarInitials.classList.remove('hidden');
+                    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'NK';
+                    avatarInitials.textContent = initials;
+                }
+            }
 
             const btnAnswer = this.dom.container.querySelector('#dt-btn-answer');
             const btnMute = this.dom.container.querySelector('#dt-btn-mute');
