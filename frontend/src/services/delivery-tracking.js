@@ -162,13 +162,13 @@
                         <!-- Quick Message Chips -->
                         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
                             <button type="button" class="dt-chip-btn shrink-0 px-2.5 py-1 bg-white border border-gray-200 rounded-full font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                                👋 Je suis là !
+                                Je suis là !
                             </button>
                             <button type="button" class="dt-chip-btn shrink-0 px-2.5 py-1 bg-white border border-gray-200 rounded-full font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                                🏠 Je t'attends au portail
+                                Je t'attends au portail
                             </button>
                             <button type="button" class="dt-chip-btn shrink-0 px-2.5 py-1 bg-white border border-gray-200 rounded-full font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                                🛵 J'arrive dans 2 min
+                                J'arrive dans 2 min
                             </button>
                         </div>
 
