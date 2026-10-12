@@ -77,12 +77,19 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
-          # Verify Widget Extension was compiled
+          # Verify and guarantee Widget Extension is embedded inside App.app/PlugIns/
+          mkdir -p build_ios/Release-iphoneos/App.app/PlugIns
+          if [ -d "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" ]; then
+            echo "📦 Copie de NewKetWidgetExtension.appex dans App.app/PlugIns/..."
+            cp -r "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" "build_ios/Release-iphoneos/App.app/PlugIns/"
+          fi
+
           if [ -d "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex" ]; then
-            echo "✅ Widget Extension compilé et intégré dans App.app/PlugIns/"
+            echo "✅ Widget Extension validé dans App.app/PlugIns/NewKetWidgetExtension.appex"
+            ls -la "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex"
           else
-            echo "⚠️ Widget Extension introuvable dans PlugIns/ — Live Activities non disponibles"
-            ls -la build_ios/Release-iphoneos/App.app/PlugIns/ 2>/dev/null || echo "Dossier PlugIns absent"
+            echo "⚠️ Widget Extension toujours introuvable. Contenu de build_ios/Release-iphoneos/ :"
+            ls -la build_ios/Release-iphoneos/
           fi
         working-directory: ./frontend
 

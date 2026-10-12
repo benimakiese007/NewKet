@@ -25,8 +25,21 @@
 		WDGT000000001BUNDLE /* NewKetWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */; };
 		WDGT000000002WIDGET /* NewKetOrderLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */; };
 		WDGT000000003ATTRS /* OrderAttributes.swift in Sources (Widget) */ = {isa = PBXBuildFile; fileRef = NK001F0000003ATTRS /* OrderAttributes.swift */; };
+		WDGT00000000EAPPEX /* NewKetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WDGT000F00005PRODUCT /* NewKetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		/* Info.plist NOT added to Resources — handled automatically via INFOPLIST_FILE build setting */
-/* End PBXBuildFile section */
+/* Begin PBXCopyFilesBuildPhase section */
+		WDGT00000000FCOPYF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				WDGT00000000EAPPEX /* NewKetWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXContainerItemProxy section */
 		WDGT000000005PROXY /* PBXContainerItemProxy */ = {
@@ -139,6 +152,7 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				WDGT00000000FCOPYF /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
