@@ -98,17 +98,35 @@ public class LiveActivityPlugin: CAPPlugin {
             let activity: Activity<OrderTrackingAttributes>
             if #available(iOS 16.2, *) {
                 let content = ActivityContent(state: contentState, staleDate: nil)
-                activity = try Activity.request(
-                    attributes: attributes,
-                    content: content,
-                    pushType: .token
-                )
+                // First try with pushType: nil for robust local delivery (free developer / sideload accounts)
+                // If remote push updates are supported, request will succeed
+                do {
+                    activity = try Activity.request(
+                        attributes: attributes,
+                        content: content,
+                        pushType: nil
+                    )
+                } catch {
+                    activity = try Activity.request(
+                        attributes: attributes,
+                        content: content,
+                        pushType: .token
+                    )
+                }
             } else {
-                activity = try Activity.request(
-                    attributes: attributes,
-                    contentState: contentState,
-                    pushType: .token
-                )
+                do {
+                    activity = try Activity.request(
+                        attributes: attributes,
+                        contentState: contentState,
+                        pushType: nil
+                    )
+                } catch {
+                    activity = try Activity.request(
+                        attributes: attributes,
+                        contentState: contentState,
+                        pushType: .token
+                    )
+                }
             }
 
             Self.activeActivities[orderId] = activity
