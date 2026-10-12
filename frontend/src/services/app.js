@@ -62,6 +62,7 @@ const deferredImports = [
     { load: () => import('./behavior-tracking.js') },
     { load: () => import('./csv-export.js') },
     { load: () => import('./realtime-notifications.js') },
+    { load: () => import('./live-tracking.js') },
     { load: () => import('./presence-manager.js') }
 ];
 

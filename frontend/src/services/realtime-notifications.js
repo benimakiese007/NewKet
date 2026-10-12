@@ -100,6 +100,13 @@ const AppNotifications = {
                                     'info',
                                     'solar:box-minimalistic-bold'
                                 );
+
+                                // Synchronisation avec les Live Activities natives (iOS & Android)
+                                if (window.LiveOrderTracker) {
+                                    window.LiveOrderTracker.trackOrder(payload.new).catch(e => {
+                                        console.warn('[NewKet] LiveOrderTracker non bloquant :', e?.message);
+                                    });
+                                }
                             }
                         })
                         .subscribe();
