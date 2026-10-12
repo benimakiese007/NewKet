@@ -221,7 +221,8 @@ const WebPushService = {
                     type: 'call-ring',
                     order_id: orderId,
                     caller_name: callerName || 'NewKet',
-                    caller_avatar: callerAvatar || ''
+                    caller_avatar: callerAvatar || '',
+                    url: `/customer-dashboard#purchases?order_id=${encodeURIComponent(orderId)}&auto_answer=1`
                 }
             };
 
