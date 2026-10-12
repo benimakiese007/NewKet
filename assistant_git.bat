@@ -1286,10 +1286,12 @@ goto GITHUB_ACTIONS
 :ACTION_LIST_RUNS
 cls
 echo ==================================================
-echo           HISTORIQUE DES EXECUTIONS RECENTES
+echo      HISTORIQUE DES EXECUTIONS RECENTES
 echo ==================================================
 echo.
-gh run list --limit 15
+echo   Build #     Statut       Resultat     Duree    Date
+echo   ----------------------------------------------------------
+gh run list --workflow=ios-build.yml --limit 15 --json number,status,conclusion,createdAt,updatedAt --jq ".[] | \"  Build #\" + (.number | tostring) + \"   \" + (if .status == \"completed\" then \"Termine  \" else \"En cours \" end) + \"   \" + (if .conclusion == \"success\" then \"Succes   \" elif .conclusion == \"failure\" then \"Echec    \" elif .conclusion == null then \"...      \" else .conclusion end) + \"        \" + .createdAt[:10]"
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir...
