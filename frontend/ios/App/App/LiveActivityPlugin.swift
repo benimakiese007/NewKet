@@ -359,11 +359,17 @@ public class LiveActivityPlugin: CAPPlugin {
             let allActivities = Activity<OrderTrackingAttributes>.activities
             diag["activeActivitiesCount"] = allActivities.count
             diag["activeActivities"] = allActivities.map { act in
+                let currentStatus: String
+                if #available(iOS 16.2, *) {
+                    currentStatus = act.content.state.status
+                } else {
+                    currentStatus = act.contentState.status
+                }
                 return [
                     "id": act.id,
                     "orderId": act.attributes.orderId,
                     "orderNumber": act.attributes.orderNumber,
-                    "status": act.content.state.status,
+                    "status": currentStatus,
                     "activityState": "\(act.activityState)"
                 ]
             }
