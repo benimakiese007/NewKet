@@ -431,11 +431,7 @@ const getBottomNavHTML = (role) => {
 
     if (useLiquidGlass) {
         return `<!-- Liquid Glass Bottom Navbar (iOS Capacitor Only) -->
-<nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-2 sm:hidden rounded-[36px] w-[calc(100%-36px)] left-[18px] h-[66px]" style="bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) - 10px));">
-    <!-- Liquid Glass Specular Highlight Layer -->
-    <div class="glass-specular-highlight absolute inset-x-3 top-0 h-[1.5px] pointer-events-none rounded-t-[36px]"></div>
-    <!-- Active sliding glass indicator bubble -->
-    <div class="nav-indicator absolute pointer-events-none transition-all duration-300 ease-out" style="opacity: 0;"></div>
+<nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-3 sm:hidden rounded-[32px] w-[calc(100%-32px)] left-[16px] h-[62px]" style="bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 4px));">
     <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>
