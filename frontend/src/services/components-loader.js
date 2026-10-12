@@ -412,11 +412,25 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
     </div>
 </nav>`;
 
+const isIOSCapacitor = () => {
+    try {
+        return !!(window.Capacitor && (
+            typeof window.Capacitor.isNativePlatform === 'function'
+                ? window.Capacitor.isNativePlatform()
+                : window.Capacitor.isNative
+        ) && window.Capacitor.getPlatform?.() === 'ios');
+    } catch (e) {
+        return false;
+    }
+};
+
 const getBottomNavHTML = (role) => {
     const isSeller = role === 'seller' || role === 'supplier';
     const isAdmin = role === 'admin';
-    
-    return `<!-- Liquid Glass Bottom Navbar -->
+    const useLiquidGlass = isIOSCapacitor();
+
+    if (useLiquidGlass) {
+        return `<!-- Liquid Glass Bottom Navbar (iOS Capacitor Only) -->
 <nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-2 sm:hidden rounded-[36px] w-[calc(100%-36px)] left-[18px] h-[66px]" style="bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) - 10px));">
     <!-- Liquid Glass Specular Highlight Layer -->
     <div class="glass-specular-highlight absolute inset-x-3 top-0 h-[1.5px] pointer-events-none rounded-t-[36px]"></div>
@@ -451,6 +465,46 @@ const getBottomNavHTML = (role) => {
         <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Profil</span>
     </a>
+</nav>`;
+    }
+
+    // Classic / Standard Bottom Nav Bar (Web, PWA, Android)
+    return `<!-- Standard Mobile Bottom Navbar (Web / PWA / Android) -->
+<nav id="mobileBottomNav" class="standard-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200/60 dark:border-gray-700/60 sm:hidden transition-transform duration-300" style="padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);">
+    <div class="relative flex items-stretch justify-around h-[62px] overflow-hidden">
+        <div class="nav-indicator absolute left-0 top-[6px] bottom-[6px] width-0 rounded-full bg-gradient-to-b from-white/95 to-gray-100/90 dark:from-gray-700/95 dark:to-gray-800/90 shadow-md opacity-0 pointer-events-none transition-all duration-300"></div>
+        <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Accueil">
+            <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
+            <span>Accueil</span>
+        </a>
+        <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Recherche">
+            <iconify-icon icon="solar:magnifer-linear" width="22"></iconify-icon>
+            <span>Recherche</span>
+        </a>
+        ${isSeller ? `
+        <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item-sell relative z-10 flex flex-col items-center justify-center -mt-4 publish-btn px-2" aria-label="Vendre" data-track-action="navigation:publish_click">
+            <span class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0A4A2E] text-white shadow-lg border-2 border-white dark:border-gray-800 transition-transform active:scale-95">
+                <iconify-icon icon="solar:add-circle-bold" width="26"></iconify-icon>
+            </span>
+            <span class="text-[9px] font-bold text-gray-700 dark:text-gray-300 mt-0.5">Vendre</span>
+        </a>` : `
+        <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Boutiques">
+            <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
+            <span>Boutique</span>
+        </a>`}
+        ${!isAdmin ? `
+        <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Panier">
+            <div class="relative flex items-center justify-center">
+                <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
+                <span class="cart-badge absolute -top-1 -right-2 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
+            </div>
+            <span>Panier</span>
+        </a>` : ''}
+        <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Profil">
+            <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
+            <span>Profil</span>
+        </a>
+    </div>
 </nav>`;
 };
 
