@@ -10564,21 +10564,23 @@ html.dark .liquid-glass-nav {
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
 
-/* Nav item typography and icon styling - iOS Human Interface Guidelines */
+/* Nav item typography and icon styling */
 .liquid-glass-nav .nav-item {
   position: relative;
   z-index: 2;
   color: #64748B !important;
   text-shadow: none !important;
-  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: color 0.2s ease !important;
   padding: 6px 12px !important;
-  border-radius: 20px !important;
+  border-radius: 0 !important;
 }
 
 .liquid-glass-nav .nav-item iconify-icon {
   filter: none !important;
   color: #64748B !important;
-  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease !important;
+  transition: color 0.2s ease !important;
 }
 
 .liquid-glass-nav .nav-item span {
@@ -10588,16 +10590,16 @@ html.dark .liquid-glass-nav {
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
-/* Active Tab Indicator: Subtle iOS Liquid Pill Background + Crisp Emerald Color */
+/* Active Tab: Pure color accent, NO indicator pill / capsule background */
 .liquid-glass-nav .nav-item.active {
   color: #0A4A2E !important;
-  background: rgba(255, 255, 255, 0.65) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 0.5px 1px rgba(255, 255, 255, 0.9) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .liquid-glass-nav .nav-item.active iconify-icon {
   color: #0A4A2E !important;
-  transform: scale(1.15) !important;
+  transform: none !important;
 }
 
 .liquid-glass-nav .nav-item.active span {
@@ -10608,6 +10610,8 @@ html.dark .liquid-glass-nav {
 /* Dark mode */
 html.dark .liquid-glass-nav .nav-item {
   color: #94A3B8 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 html.dark .liquid-glass-nav .nav-item iconify-icon {
   color: #94A3B8 !important;
@@ -10617,21 +10621,25 @@ html.dark .liquid-glass-nav .nav-item span {
 }
 html.dark .liquid-glass-nav .nav-item.active {
   color: #34D399 !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 0.5px 1px rgba(255, 255, 255, 0.2) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 html.dark .liquid-glass-nav .nav-item.active iconify-icon {
   color: #34D399 !important;
+  transform: none !important;
 }
 html.dark .liquid-glass-nav .nav-item.active span {
   color: #34D399 !important;
 }
 
-/* Completely remove any rogue indicator bubble */
-.liquid-glass-nav .nav-indicator {
+/* Active Tab Indicator / Selection Indicator completely disabled everywhere */
+.liquid-glass-nav .nav-indicator,
+.standard-bottom-nav .nav-indicator,
+.nav-indicator {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 @media (max-width: 639px) {

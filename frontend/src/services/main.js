@@ -1,7 +1,6 @@
 /* NewKet EMarket - Main Orchestrator */
 import { initSentry, setSentryUser } from './sentry.js';
 import { initCapacitorPlugins } from './capacitor-plugins.js';
-import { initNativeTabBar } from './native-tab-bar.js';
 
 
 window.newketConfig = {
@@ -318,7 +317,6 @@ const App = {
         let bottomNavObserver = null;
         const syncMobileBottomNav = () => {
             const nav = document.getElementById('mobileBottomNav');
-            const indicator = nav?.querySelector('.nav-indicator');
             const items = nav ? Array.from(nav.querySelectorAll('[data-bottom-nav-item]')) : [];
 
             if (!nav || items.length === 0) return;
@@ -340,16 +338,6 @@ const App = {
                     item.removeAttribute('aria-current');
                 }
             });
-
-            if (!activeItem) return;
-
-            const navRect = nav.getBoundingClientRect();
-            const itemRect = activeItem.getBoundingClientRect();
-            const left = Math.max(0, itemRect.left - navRect.left);
-
-            indicator.style.width = `${Math.max(0, itemRect.width)}px`;
-            indicator.style.transform = `translate3d(${left}px, 0, 0)`;
-            indicator.style.opacity = '1';
         };
 
         const scheduleMobileBottomNavSync = () => {
@@ -456,13 +444,6 @@ const App = {
         window.addEventListener('load', scheduleMobileBottomNavSync, { once: true });
         scheduleMobileBottomNavSync();
         watchForMobileBottomNav();
-
-        // ── Native iOS Liquid Glass Tab Bar (iOS 26+) ────────────────────────
-        // On iOS 26+ Capacitor, replace the HTML tab bar with a fully native
-        // UITabBar (Liquid Glass capsule, spring physics, authentic Apple look).
-        initNativeTabBar().catch(e =>
-            console.warn('[NewKet] Native tab bar init non-bloquant:', e?.message)
-        );
 
 
         // Scroll Direction Detection for Category Nav
