@@ -25,7 +25,7 @@
 		WDGT000000001BUNDLE /* NewKetWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */; };
 		WDGT000000002WIDGET /* NewKetOrderLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */; };
 		WDGT000000003ATTRS /* OrderAttributes.swift in Sources (Widget) */ = {isa = PBXBuildFile; fileRef = NK001F0000003ATTRS /* OrderAttributes.swift */; };
-		WDGT000000004PLIST /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = WDGT000F00004PLIST /* Info.plist */; };
+		/* Info.plist NOT added to Resources — handled automatically via INFOPLIST_FILE build setting */
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -230,7 +230,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				WDGT000000004PLIST /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
