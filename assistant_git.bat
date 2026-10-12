@@ -100,13 +100,15 @@ echo   24. [RETOUR BRANCHE]  Revenir a la branche precedente  (git checkout -)
 echo.
 echo   25. [PULL REQUESTS]   Voir les PR (ouvertes, merger)   (gh pr list)
 echo.
+echo   26. [ACTIONS]         GitHub Actions (Build iOS, etc.) (gh workflow)
+echo.
 echo   --------------------------------------------------
 echo.
-echo   26. [AIDE]            Comprendre chaque option
+echo   27. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-26) : "
+set /p choix="   Choix (0-27) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -133,7 +135,8 @@ if "%choix%"=="22" goto EQUIPE
 if "%choix%"=="23" goto MES_BRANCHES
 if "%choix%"=="24" goto RETOUR_BRANCHE
 if "%choix%"=="25" goto PULL_REQUESTS
-if "%choix%"=="26" goto HELP
+if "%choix%"=="26" goto GITHUB_ACTIONS
+if "%choix%"=="27" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -805,6 +808,8 @@ echo   22  - EQUIPE        : Voir les contributions de chaque membre.
 echo   23  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
 echo   24  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
 echo   25  - PULL REQUESTS : Consulter les PR ouvertes, merger ou historiques.
+echo   26  - ACTIONS       : Lancer et suivre les workflows (Build iOS, etc.).
+echo   27  - AIDE          : Comprendre chaque option.
 echo.
 echo ==================================================
 echo.
@@ -1146,6 +1151,154 @@ echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir...
 pause >nul
 goto PULL_REQUESTS
+
+REM ============================================================
+REM  OPTION 26 - GITHUB ACTIONS : Lancer et suivre les workflows
+REM ============================================================
+:GITHUB_ACTIONS
+cls
+echo ==================================================
+echo         GITHUB ACTIONS - WORKFLOWS NEWKET
+echo ==================================================
+echo.
+echo   1. Lancer le build iOS (Build iOS App - Unsigned)
+echo   2. Voir la liste des workflows disponibles
+echo   3. Voir l'historique des executions (statuts et resultats)
+echo   4. Suivre le dernier build en direct
+echo   5. Ouvrir GitHub Actions dans le navigateur
+echo.
+echo   0. Retour au menu principal
+echo.
+echo --------------------------------------------------
+set "choix_act="
+set /p choix_act="   Choix (0-5) : "
+
+if "%choix_act%"=="1" goto ACTION_BUILD_IOS
+if "%choix_act%"=="2" goto ACTION_LIST_WORKFLOWS
+if "%choix_act%"=="3" goto ACTION_LIST_RUNS
+if "%choix_act%"=="4" goto ACTION_WATCH
+if "%choix_act%"=="5" goto ACTION_BROWSER
+if "%choix_act%"=="0" goto MENU
+goto GITHUB_ACTIONS
+
+:ACTION_BUILD_IOS
+cls
+echo ==================================================
+echo        LANCEMENT DU BUILD IOS (GitHub Actions)
+echo ==================================================
+echo.
+echo   Choix de la version de Xcode pour la compilation :
+echo.
+echo   1. Xcode 26.0 (Recommande - iOS 26 SDK, Liquid Glass)
+echo   2. Xcode 16.2
+echo   3. Xcode 16.1
+echo   4. Xcode 16.0
+echo   5. Version stable la plus recente (latest-stable)
+echo   6. Saisie manuelle d'une autre version
+echo.
+echo   0. Annuler
+echo.
+echo --------------------------------------------------
+set "choix_xc="
+set /p choix_xc="   Choix de la version (1-6, Entree = 1) : "
+
+if "%choix_xc%"=="0" goto GITHUB_ACTIONS
+
+set "version_xc=26.0"
+if "%choix_xc%"=="2" set "version_xc=16.2"
+if "%choix_xc%"=="3" set "version_xc=16.1"
+if "%choix_xc%"=="4" set "version_xc=16.0"
+if "%choix_xc%"=="5" set "version_xc=latest-stable"
+if "%choix_xc%"=="6" (
+    echo.
+    set /p version_xc="   Entrez le numero exact de la version Xcode (ex: 26.0) : "
+)
+
+echo.
+for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set branche_act=%%a
+echo   Branche cible pour le build : %branche_act%
+echo   Version de Xcode choisie    : %version_xc%
+echo.
+set /p confirm_run="   Confirmer le lancement du build sur GitHub ? (O/N) : "
+if /i not "%confirm_run%"=="O" (
+    echo.
+    echo   Lancement annule.
+    timeout /t 2 >nul
+    goto GITHUB_ACTIONS
+)
+
+echo.
+echo   Envoi de l'ordre d'execution a GitHub...
+gh workflow run ios-build.yml --ref "%branche_act%" -f xcode_version="%version_xc%"
+if errorlevel 1 (
+    echo.
+    echo   [!] Erreur lors du lancement. Verifie que gh est connecte : gh auth login
+) else (
+    echo.
+    echo ==================================================
+    echo   Build iOS lance avec succes avec Xcode %version_xc% !
+    echo ==================================================
+    echo.
+    set /p watch_now="   Souhaitez-vous suivre l'execution en direct maintenant ? (O/N) : "
+    if /i "%watch_now%"=="O" (
+        timeout /t 3 >nul
+        gh run watch
+    )
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto GITHUB_ACTIONS
+
+:ACTION_LIST_WORKFLOWS
+cls
+echo ==================================================
+echo             WORKFLOWS DISPONIBLES
+echo ==================================================
+echo.
+gh workflow list
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto GITHUB_ACTIONS
+
+:ACTION_LIST_RUNS
+cls
+echo ==================================================
+echo           HISTORIQUE DES EXECUTIONS RECENTES
+echo ==================================================
+echo.
+gh run list --limit 15
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto GITHUB_ACTIONS
+
+:ACTION_WATCH
+cls
+echo ==================================================
+echo            SUIVI DE L'EXECUTION EN DIRECT
+echo ==================================================
+echo.
+echo   Recherche du dernier workflow en cours d'execution...
+gh run watch
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto GITHUB_ACTIONS
+
+:ACTION_BROWSER
+cls
+echo.
+echo   Ouverture de GitHub Actions dans le navigateur...
+start https://github.com/benimakiese007/NewKet/actions
+timeout /t 2 >nul
+goto GITHUB_ACTIONS
+
 
 
 REM ============================================================

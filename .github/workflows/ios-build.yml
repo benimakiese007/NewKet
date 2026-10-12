@@ -1,7 +1,19 @@
 name: Build iOS App (Unsigned)
 
 on:
-  workflow_dispatch: # Permet de lancer le build manuellement depuis GitHub
+  workflow_dispatch: # Permet de lancer le build manuellement depuis GitHub ou GitHub CLI
+    inputs:
+      xcode_version:
+        description: 'Version de Xcode (ex: 26.0, 16.2, 16.1, 16.0)'
+        required: true
+        default: '26.0'
+        type: choice
+        options:
+          - '26.0'
+          - '16.2'
+          - '16.1'
+          - '16.0'
+          - 'latest-stable'
 
 jobs:
   build-ios:
@@ -13,10 +25,10 @@ jobs:
       - name: 📥 Checkout du code
         uses: actions/checkout@v7
 
-      - name: 🍎 Setup Xcode 26 (iOS 26 SDK — requis pour Liquid Glass)
+      - name: 🍎 Setup Xcode (${{ inputs.xcode_version || '26.0' }})
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '26.0'
+          xcode-version: ${{ inputs.xcode_version || '26.0' }}
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v7
