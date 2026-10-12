@@ -4,7 +4,15 @@ import Capacitor
 // MARK: - Plugin Declaration
 
 @objc(AdminNavbarPlugin)
-public class AdminNavbarPlugin: CAPPlugin {
+public class AdminNavbarPlugin: CAPPlugin, CAPBridgedPlugin {
+
+    public let identifier = "AdminNavbarPlugin"
+    public let jsName = "AdminNavbar"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "isNativeAvailable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "show", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "hide", returnType: CAPPluginReturnPromise)
+    ]
 
     private var navbarView: UIView?
 

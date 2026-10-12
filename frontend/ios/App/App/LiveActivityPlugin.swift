@@ -6,7 +6,17 @@ import ActivityKit
 // MARK: - LiveActivityPlugin (Capacitor iOS Plugin)
 
 @objc(LiveActivityPlugin)
-public class LiveActivityPlugin: CAPPlugin {
+public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
+
+    public let identifier = "LiveActivityPlugin"
+    public let jsName = "LiveActivityPlugin"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "isAvailable", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startActivity", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "updateActivity", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "endActivity", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getDiagnostics", returnType: CAPPluginReturnPromise)
+    ]
 
     // Store active activities mapped by orderId
     @available(iOS 16.1, *)
