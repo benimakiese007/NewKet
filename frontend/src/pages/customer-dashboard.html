@@ -514,32 +514,123 @@
                     </div>
                     <p id="push-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
 
-                    <!-- Test Live Activity / Suivi en direct pour iPhone & Android -->
-                    <div class="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-3">
-                        <div class="flex items-center justify-between">
+                    <!-- Diagnostic natif iOS & Live Activities -->
+                    <div class="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div>
                                 <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                    <iconify-icon icon="solar:scooter-bold" class="text-emerald-600" width="18"></iconify-icon>
-                                    Test Live Activity (Dynamic Island & Lock Screen)
+                                    <iconify-icon icon="solar:shield-check-bold" class="text-emerald-600" width="18"></iconify-icon>
+                                    Diagnostic natif iOS
                                 </h3>
-                                <p class="text-xs text-gray-500 mt-0.5">Simulez le suivi d'une commande en direct sur iOS / Android</p>
+                                <p class="text-xs text-gray-500 mt-0.5">Télémétrie en direct d'ActivityKit, WidgetKit et Capacitor sur cet iPhone</p>
+                            </div>
+                            <button type="button" id="customerDiagRefreshBtn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                                <iconify-icon icon="solar:restart-bold" width="13"></iconify-icon>
+                                Actualiser
+                            </button>
+                        </div>
+
+                        <!-- Grille de Statuts / Badges Système -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
+                                <span class="text-gray-400 font-medium text-[10px] uppercase">ActivityKit</span>
+                                <span id="diagBadgeActivityKit" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Vérification...
+                                </span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
+                                <span class="text-gray-400 font-medium text-[10px] uppercase">Autorisation iOS</span>
+                                <span id="diagBadgeAuth" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Inconnu
+                                </span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
+                                <span class="text-gray-400 font-medium text-[10px] uppercase">Extension .appex</span>
+                                <span id="diagBadgeExtension" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Inconnu
+                                </span>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
+                                <span class="text-gray-400 font-medium text-[10px] uppercase">Activités en cours</span>
+                                <span id="diagBadgeCount" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
+                                    0 active(s)
+                                </span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 mt-2">
-                            <button type="button" id="customerTestLiveActivityStartBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                                <iconify-icon icon="solar:play-circle-bold" width="16"></iconify-icon>
-                                En livraison 🛵
-                            </button>
-                            <button type="button" id="customerTestLiveActivityDeliveredBtn" class="bg-gray-900 hover:bg-black text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                                <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
-                                Livré 🎉
-                            </button>
+
+                        <!-- Détails système & ID -->
+                        <div class="bg-gray-900 text-gray-200 rounded-xl p-3 text-[11px] font-mono space-y-1">
+                            <div class="flex justify-between items-center text-gray-400 pb-1 border-b border-gray-800 text-[10px]">
+                                <span>Plateforme / Version</span>
+                                <span id="diagSysInfo" class="text-gray-300">Détection...</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-0.5">
+                                <span class="text-gray-400">Dernier ID Activité :</span>
+                                <span id="diagLastActivityId" class="text-emerald-400 truncate max-w-[200px]">Aucun</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Dernière Opération :</span>
+                                <span id="diagLastOp" class="text-gray-300">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Widgets Écran d'accueil :</span>
+                                <span class="text-emerald-400 text-[10px]">Configuré (Boutiques, Notifs, Favoris, Panier)</span>
+                            </div>
                         </div>
-                        <button type="button" id="customerTestLiveActivityStopBtn" class="border border-gray-200 hover:bg-gray-100 text-gray-600 font-semibold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1">
-                            <iconify-icon icon="solar:stop-circle-linear" width="15"></iconify-icon>
-                            Arrêter le suivi
-                        </button>
-                        <p id="customerLiveActivityFeedback" class="text-xs font-semibold text-center hidden py-1 rounded-lg"></p>
+
+                        <!-- Boutons d'Action de Test -->
+                        <div class="space-y-2">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="customerTestLiveActivityStartBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                    <iconify-icon icon="solar:play-circle-bold" width="16"></iconify-icon>
+                                    En livraison 🛵
+                                </button>
+                                <button type="button" id="customerTestLiveActivityDeliveredBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                    <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
+                                    Livré 🎉
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="customerTestLiveActivityStopBtn" class="border border-gray-200 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1 active:scale-95">
+                                    <iconify-icon icon="solar:stop-circle-linear" width="15"></iconify-icon>
+                                    Arrêter le suivi
+                                </button>
+                                <button type="button" id="customerTestLiveActivityRunAllBtn" class="bg-gray-900 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
+                                    <iconify-icon icon="solar:test-tube-bold" width="15"></iconify-icon>
+                                    Lancer tous les tests 🧪
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Feedback message -->
+                        <p id="customerLiveActivityFeedback" class="text-xs font-semibold text-center hidden py-2 px-3 rounded-xl"></p>
+
+                        <!-- Console d'Événements & Logs -->
+                        <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                            <div class="bg-gray-50 px-3 py-2 border-b border-gray-200 flex items-center justify-between">
+                                <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                                    <iconify-icon icon="solar:notes-bold" class="text-gray-500" width="14"></iconify-icon>
+                                    Journal des Événements & Erreurs
+                                </span>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" id="customerDiagCopyBtn" class="text-[11px] bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
+                                        <iconify-icon icon="solar:copy-bold" width="12"></iconify-icon>
+                                        Copier
+                                    </button>
+                                    <button type="button" id="customerDiagExportBtn" class="text-[11px] bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
+                                        <iconify-icon icon="solar:download-bold" width="12"></iconify-icon>
+                                        Exporter
+                                    </button>
+                                    <button type="button" id="customerDiagClearBtn" class="text-[11px] bg-white border border-gray-200 hover:bg-red-50 text-red-600 px-2 py-1 rounded-md font-medium flex items-center gap-1">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="12"></iconify-icon>
+                                        Vider
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="customerDiagLogsContainer" class="p-2.5 max-h-48 overflow-y-auto space-y-1.5 text-[11px] font-mono bg-gray-50/50">
+                                <p class="text-gray-400 text-center py-3 italic">Aucun événement enregistré. Appuyez sur un bouton de test.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -5016,75 +5107,356 @@
             window.location.reload();
         };
 
-        // === Live Activity Customer Dashboard Test Controls ===
+        // === Live Activity & Diagnostic natif iOS Controller ===
         document.addEventListener('DOMContentLoaded', () => {
             const startBtn = document.getElementById('customerTestLiveActivityStartBtn');
             const deliveredBtn = document.getElementById('customerTestLiveActivityDeliveredBtn');
             const stopBtn = document.getElementById('customerTestLiveActivityStopBtn');
+            const runAllBtn = document.getElementById('customerTestLiveActivityRunAllBtn');
+            const refreshBtn = document.getElementById('customerDiagRefreshBtn');
+            const copyBtn = document.getElementById('customerDiagCopyBtn');
+            const exportBtn = document.getElementById('customerDiagExportBtn');
+            const clearBtn = document.getElementById('customerDiagClearBtn');
             const feedback = document.getElementById('customerLiveActivityFeedback');
+            const logsContainer = document.getElementById('customerDiagLogsContainer');
+
+            let lastDiagData = null;
 
             function showFeedback(msg, isError = false) {
                 if (!feedback) return;
                 feedback.textContent = msg;
-                feedback.className = `text-xs font-semibold text-center py-1.5 px-3 rounded-lg transition-all ${isError ? 'text-red-600 bg-red-50' : 'text-emerald-700 bg-emerald-50'}`;
+                feedback.className = `text-xs font-semibold text-center py-2 px-3 rounded-xl transition-all ${isError ? 'text-red-700 bg-red-50 border border-red-200' : 'text-emerald-800 bg-emerald-50 border border-emerald-200'}`;
                 feedback.classList.remove('hidden');
-                setTimeout(() => feedback.classList.add('hidden'), 5000);
+                setTimeout(() => feedback.classList.add('hidden'), 7000);
             }
 
+            function renderLogs(logs = []) {
+                if (!logsContainer) return;
+                if (!logs || logs.length === 0) {
+                    logsContainer.innerHTML = '<p class="text-gray-400 text-center py-3 italic">Aucun événement enregistré. Appuyez sur un bouton de test.</p>';
+                    return;
+                }
+
+                logsContainer.innerHTML = logs.map(item => {
+                    const isErr = item.status === 'ERROR' || item.tag === 'ERROR' || Boolean(item.error);
+                    const isSucc = item.status === 'SUCCESS';
+                    const badgeColor = isErr ? 'bg-red-100 text-red-700 border-red-200' : (isSucc ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-gray-100 text-gray-700 border-gray-200');
+                    const detailsStr = item.details ? `<div class="text-[10px] text-gray-500 mt-0.5 break-all font-mono">${JSON.stringify(item.details)}</div>` : '';
+                    const errorStr = item.error ? `<div class="text-[10px] text-red-600 mt-0.5 font-bold break-all">${item.error}</div>` : '';
+
+                    return `
+                        <div class="p-1.5 rounded-lg border bg-white shadow-xs">
+                            <div class="flex items-center justify-between text-[10px]">
+                                <span class="font-bold px-1.5 py-0.5 rounded border ${badgeColor}">[${item.tag || 'LOG'}]</span>
+                                <span class="text-gray-400">${item.time || ''}</span>
+                            </div>
+                            <div class="text-gray-800 text-[11px] mt-1 break-words">${item.message || ''}</div>
+                            ${errorStr}
+                            ${detailsStr}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            async function updateDiagnostics() {
+                try {
+                    if (!window.LiveOrderTracker) {
+                        return;
+                    }
+
+                    const diag = await window.LiveOrderTracker.getDiagnostics();
+                    lastDiagData = diag;
+
+                    // Badges
+                    const akBadge = document.getElementById('diagBadgeActivityKit');
+                    const authBadge = document.getElementById('diagBadgeAuth');
+                    const extBadge = document.getElementById('diagBadgeExtension');
+                    const countBadge = document.getElementById('diagBadgeCount');
+                    const sysInfo = document.getElementById('diagSysInfo');
+                    const lastActId = document.getElementById('diagLastActivityId');
+                    const lastOp = document.getElementById('diagLastOp');
+
+                    if (sysInfo) {
+                        sysInfo.textContent = `${diag.platform.toUpperCase()} · iOS ${diag.native?.iosVersion || 'N/A'}`;
+                    }
+
+                    if (lastOp) {
+                        lastOp.textContent = diag.lastOperation || 'Aucune';
+                    }
+
+                    if (akBadge) {
+                        if (diag.native?.activityKitSupported) {
+                            akBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Supporté';
+                            akBadge.className = 'font-bold text-emerald-700 mt-1 flex items-center gap-1';
+                        } else if (!diag.isNative) {
+                            akBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Web (Simulé)';
+                            akBadge.className = 'font-bold text-amber-700 mt-1 flex items-center gap-1';
+                        } else {
+                            akBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Non supporté';
+                            akBadge.className = 'font-bold text-red-700 mt-1 flex items-center gap-1';
+                        }
+                    }
+
+                    if (authBadge) {
+                        if (diag.native?.areActivitiesEnabled === true) {
+                            authBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Activé';
+                            authBadge.className = 'font-bold text-emerald-700 mt-1 flex items-center gap-1';
+                        } else if (diag.native?.areActivitiesEnabled === false) {
+                            authBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Désactivé (Réglages)';
+                            authBadge.className = 'font-bold text-red-700 mt-1 flex items-center gap-1';
+                        } else {
+                            authBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> N/A';
+                            authBadge.className = 'font-bold text-gray-500 mt-1 flex items-center gap-1';
+                        }
+                    }
+
+                    if (extBadge) {
+                        if (diag.native?.hasWidgetExtension === true) {
+                            extBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Détectée (.appex)';
+                            extBadge.className = 'font-bold text-emerald-700 mt-1 flex items-center gap-1';
+                        } else if (diag.isNative) {
+                            extBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Absente';
+                            extBadge.className = 'font-bold text-red-700 mt-1 flex items-center gap-1';
+                        } else {
+                            extBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> N/A (Web)';
+                            extBadge.className = 'font-bold text-gray-500 mt-1 flex items-center gap-1';
+                        }
+                    }
+
+                    const activeCount = diag.native?.activeActivitiesCount ?? diag.activeOrdersInJS?.length ?? 0;
+                    if (countBadge) {
+                        countBadge.textContent = `${activeCount} active(s)`;
+                        countBadge.className = activeCount > 0 ? 'font-bold text-emerald-700 mt-1' : 'font-bold text-gray-700 mt-1';
+                    }
+
+                    if (lastActId) {
+                        const acts = diag.native?.activeActivities || [];
+                        if (acts.length > 0) {
+                            lastActId.textContent = acts[0].id || acts[0].orderId;
+                        } else if (diag.lastError) {
+                            lastActId.textContent = 'Erreur : ' + diag.lastError.slice(0, 30);
+                            lastActId.className = 'text-red-400 truncate max-w-[200px]';
+                        } else {
+                            lastActId.textContent = 'Aucune';
+                            lastActId.className = 'text-gray-400 truncate max-w-[200px]';
+                        }
+                    }
+
+                    // Fusionner logs JS et logs natifs
+                    const localLogs = window.LiveOrderTracker.getLocalLogs() || [];
+                    const nativeLogs = (diag.native?.nativeLogs || []).map(nl => ({
+                        id: 'nat-' + nl.time,
+                        time: nl.time ? nl.time.split('T')[1]?.slice(0, 8) : '',
+                        tag: 'NATIVE:' + (nl.tag || 'INFO'),
+                        message: nl.message || '',
+                        error: nl.error || null,
+                        status: nl.error ? 'ERROR' : 'SUCCESS',
+                        details: nl.details || null
+                    }));
+
+                    const allLogs = [...localLogs, ...nativeLogs].sort((a, b) => (b.time || '').localeCompare(a.time || ''));
+                    renderLogs(allLogs.slice(0, 30));
+                } catch (e) {
+                    console.error('[Diagnostic UI] Erreur rendu diagnostic :', e);
+                }
+            }
+
+            // Bouton "En livraison 🛵"
             if (startBtn) {
                 startBtn.addEventListener('click', async () => {
+                    startBtn.disabled = true;
                     try {
-                        if (window.LiveOrderTracker) {
-                            await window.LiveOrderTracker.trackOrder({
-                                id: 'test-dash-001',
-                                order_number: 'CMD-TEST',
-                                status: 'IN_DELIVERY',
-                                shop_name: 'NewKet Kinshasa',
-                                item_count: 2,
-                                eta_text: '~15 min'
-                            });
-                            showFeedback('✅ Live Activity démarrée (En cours de livraison)');
-                        } else {
-                            showFeedback('❌ LiveOrderTracker non initialisé', true);
-                        }
+                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non initialisé');
+                        const res = await window.LiveOrderTracker.trackOrder({
+                            id: 'cmd-test-101',
+                            order_number: 'CMD-TEST-101',
+                            status: 'IN_DELIVERY',
+                            shop_name: 'NewKet Kinshasa',
+                            item_count: 2,
+                            eta_text: '~15 min'
+                        });
+                        showFeedback(`✅ Succès natif : Live Activity démarrée${res?.activityId ? ' (ID: ' + res.activityId.slice(0, 8) + '...)' : ''}`);
                     } catch (err) {
-                        showFeedback('❌ Erreur: ' + (err.message || err), true);
+                        showFeedback('❌ Échec natif : ' + (err.message || err), true);
+                    } finally {
+                        startBtn.disabled = false;
+                        await updateDiagnostics();
                     }
                 });
             }
 
+            // Bouton "Livré 🎉"
             if (deliveredBtn) {
                 deliveredBtn.addEventListener('click', async () => {
+                    deliveredBtn.disabled = true;
                     try {
-                        if (window.LiveOrderTracker) {
-                            await window.LiveOrderTracker.trackOrder({
-                                id: 'test-dash-001',
-                                order_number: 'CMD-TEST',
-                                status: 'DELIVERED',
-                                shop_name: 'NewKet Kinshasa',
-                                item_count: 2,
-                                eta_text: 'Livré 🎉'
-                            });
-                            showFeedback('✅ Live Activity mise à jour (Livré)');
-                        }
+                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non initialisé');
+                        const res = await window.LiveOrderTracker.trackOrder({
+                            id: 'cmd-test-101',
+                            order_number: 'CMD-TEST-101',
+                            status: 'DELIVERED',
+                            shop_name: 'NewKet Kinshasa',
+                            item_count: 2,
+                            eta_text: 'Livré 🎉'
+                        });
+                        showFeedback(`✅ Succès natif : Live Activity mise à jour vers Livré`);
                     } catch (err) {
-                        showFeedback('❌ Erreur: ' + (err.message || err), true);
+                        showFeedback('❌ Échec natif : ' + (err.message || err), true);
+                    } finally {
+                        deliveredBtn.disabled = false;
+                        await updateDiagnostics();
                     }
                 });
             }
 
+            // Bouton "Arrêter le suivi"
             if (stopBtn) {
                 stopBtn.addEventListener('click', async () => {
+                    stopBtn.disabled = true;
                     try {
-                        if (window.LiveOrderTracker) {
-                            await window.LiveOrderTracker.stopTracking('test-dash-001');
-                            showFeedback('⏹ Live Activity arrêtée');
-                        }
+                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non initialisé');
+                        await window.LiveOrderTracker.stopTracking('cmd-test-101');
+                        showFeedback('⏹ Live Activity arrêtée');
                     } catch (err) {
-                        showFeedback('❌ Erreur: ' + (err.message || err), true);
+                        showFeedback('❌ Échec arrêt : ' + (err.message || err), true);
+                    } finally {
+                        stopBtn.disabled = false;
+                        await updateDiagnostics();
                     }
                 });
             }
+
+            // Bouton "Lancer tous les tests 🧪"
+            if (runAllBtn) {
+                runAllBtn.addEventListener('click', async () => {
+                    runAllBtn.disabled = true;
+                    runAllBtn.innerHTML = '<iconify-icon icon="solar:restart-bold" class="animate-spin" width="15"></iconify-icon> Test en cours...';
+
+                    const report = [];
+                    try {
+                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non accessible');
+
+                        // 1. Init check
+                        report.push('1. Initialisation : OK');
+                        await window.LiveOrderTracker.init();
+
+                        // 2. Diag check
+                        const d = await window.LiveOrderTracker.getDiagnostics();
+                        report.push(`2. Plateforme : ${d.platform} (Natif: ${d.isNative})`);
+                        report.push(`3. ActivityKit supporté : ${d.native?.activityKitSupported ? 'OUI' : 'NON'}`);
+                        report.push(`4. Autorisation iOS : ${d.native?.areActivitiesEnabled ? 'AUTORISÉ' : 'DÉSACTIVÉ'}`);
+                        report.push(`5. Extension .appex : ${d.native?.hasWidgetExtension ? 'DÉTECTÉE' : 'ABSENTE'}`);
+
+                        // 3. Test cycle
+                        report.push('6. Tentative de création activité de test...');
+                        const startRes = await window.LiveOrderTracker.trackOrder({
+                            id: 'cmd-autotest-999',
+                            order_number: 'AUTOTEST-999',
+                            status: 'IN_DELIVERY',
+                            shop_name: 'NewKet Diagnostic',
+                            item_count: 1,
+                            eta_text: 'Test ~10m'
+                        });
+                        report.push(`   -> Création réussie ! ID: ${startRes?.activityId || 'N/A'}`);
+
+                        report.push('7. Tentative de mise à jour...');
+                        await window.LiveOrderTracker.trackOrder({
+                            id: 'cmd-autotest-999',
+                            order_number: 'AUTOTEST-999',
+                            status: 'DELIVERED',
+                            shop_name: 'NewKet Diagnostic',
+                            item_count: 1,
+                            eta_text: 'Livré 🎉'
+                        });
+                        report.push('   -> Mise à jour réussie !');
+
+                        report.push('8. Arrêt de l\'activité...');
+                        await window.LiveOrderTracker.stopTracking('cmd-autotest-999');
+                        report.push('   -> Arrêt réussi !');
+
+                        showFeedback('✅ Tous les tests ont été exécutés avec succès !');
+                    } catch (err) {
+                        report.push(`❌ ERREUR À L'ÉTAPE : ${err.message || err}`);
+                        showFeedback('❌ Échec d\'un ou plusieurs tests : ' + (err.message || err), true);
+                    } finally {
+                        window.LiveOrderTracker.logEvent('SUITE_TEST', report.join(' | '), report.some(r => r.startsWith('❌')) ? 'ERROR' : 'SUCCESS');
+                        runAllBtn.disabled = false;
+                        runAllBtn.innerHTML = '<iconify-icon icon="solar:test-tube-bold" width="15"></iconify-icon> Lancer tous les tests 🧪';
+                        await updateDiagnostics();
+                    }
+                });
+            }
+
+            // Actualiser
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', updateDiagnostics);
+            }
+
+            // Copier les diagnostics
+            if (copyBtn) {
+                copyBtn.addEventListener('click', async () => {
+                    if (!lastDiagData) await updateDiagnostics();
+                    const exportText = JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        diagnostics: lastDiagData,
+                        localLogs: window.LiveOrderTracker?.getLocalLogs?.() || []
+                    }, null, 2);
+
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(exportText);
+                            showFeedback('📋 Diagnostics copiés dans le presse-papier !');
+                        } else {
+                            // Fallback textarea
+                            const ta = document.createElement('textarea');
+                            ta.value = exportText;
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(ta);
+                            showFeedback('📋 Diagnostics copiés !');
+                        }
+                    } catch (err) {
+                        showFeedback('❌ Impossible de copier automatiquement : ' + err.message, true);
+                    }
+                });
+            }
+
+            // Exporter les diagnostics
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    const exportObj = {
+                        app: 'NewKet',
+                        date: new Date().toISOString(),
+                        diagnostics: lastDiagData,
+                        localLogs: window.LiveOrderTracker?.getLocalLogs?.() || []
+                    };
+                    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `newket-liveactivity-diag-${Date.now()}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showFeedback('📥 Fichier diagnostic téléchargé');
+                });
+            }
+
+            // Vider les logs
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    if (window.LiveOrderTracker) {
+                        window.LiveOrderTracker.clearLogs();
+                        renderLogs([]);
+                        showFeedback('🗑 Journal des logs vidé');
+                    }
+                });
+            }
+
+            // Initial render
+            setTimeout(updateDiagnostics, 1200);
         });
     </script>
 </body>

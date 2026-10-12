@@ -24,6 +24,7 @@
 		/* Widget Extension build files */
 		WDGT000000001BUNDLE /* NewKetWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */; };
 		WDGT000000002WIDGET /* NewKetOrderLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */; };
+		WDGT000000004QCKACT /* NewKetQuickActionsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00007QCKACT /* NewKetQuickActionsWidget.swift */; };
 		WDGT000000003ATTRS /* OrderAttributes.swift in Sources (Widget) */ = {isa = PBXBuildFile; fileRef = NK001F0000003ATTRS /* OrderAttributes.swift */; };
 		WDGT00000000EAPPEX /* NewKetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WDGT000F00005PRODUCT /* NewKetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		/* Info.plist NOT added to Resources — handled automatically via INFOPLIST_FILE build setting */
@@ -70,6 +71,7 @@
 		/* Widget Extension file references */
 		WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKetWidgetBundle.swift; sourceTree = "<group>"; };
 		WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKetOrderLiveActivity.swift; sourceTree = "<group>"; };
+		WDGT000F00007QCKACT /* NewKetQuickActionsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKetQuickActionsWidget.swift; sourceTree = "<group>"; };
 		WDGT000F00004PLIST /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		WDGT000F00005PRODUCT /* NewKetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NewKetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -137,6 +139,7 @@
 			children = (
 				WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */,
 				WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */,
+				WDGT000F00007QCKACT /* NewKetQuickActionsWidget.swift */,
 				WDGT000F00004PLIST /* Info.plist */,
 			);
 			path = NewKetWidgetExtension;
@@ -269,6 +272,7 @@
 			files = (
 				WDGT000000001BUNDLE /* NewKetWidgetBundle.swift in Sources */,
 				WDGT000000002WIDGET /* NewKetOrderLiveActivity.swift in Sources */,
+				WDGT000000004QCKACT /* NewKetQuickActionsWidget.swift in Sources */,
 				WDGT000000003ATTRS /* OrderAttributes.swift in Sources (Widget) */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

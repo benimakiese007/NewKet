@@ -133,3 +133,30 @@ window.addEventListener('error', function(e) {
     }
 }, true); // Use capture phase to catch the error event
 import './lens.js';
+
+// Global Deep Link Handler for iOS / Android Widgets & Shortcuts (newket://)
+const setupDeepLinkRouter = async () => {
+    try {
+        const CapApp = window.Capacitor?.Plugins?.App;
+        if (!CapApp) return;
+
+        CapApp.addListener('appUrlOpen', (data) => {
+            const rawUrl = data?.url || '';
+            console.info('[NewKet] Deep link reçu :', rawUrl);
+            if (!rawUrl.startsWith('newket://')) return;
+
+            const route = rawUrl.replace('newket://', '').toLowerCase().split('?')[0].split('#')[0].replace(/^\/+/, '');
+            if (route === 'shops' || route === 'shop' || route === 'boutique' || route === 'boutiques') {
+                window.location.href = '/src/pages/shops.html';
+            } else if (route === 'notifications' || route === 'notif' || route === 'notifs') {
+                window.location.href = '/src/pages/notifications.html';
+            } else if (route === 'favorites' || route === 'fav' || route === 'favoris') {
+                window.location.href = '/src/pages/favorites.html';
+            } else if (route === 'achat' || route === 'cart' || route === 'panier') {
+                window.location.href = '/src/pages/achat.html';
+            }
+        });
+    } catch (_) {}
+};
+setupDeepLinkRouter();
+

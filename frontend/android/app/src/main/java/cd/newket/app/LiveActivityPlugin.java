@@ -178,6 +178,21 @@ public class LiveActivityPlugin extends Plugin {
         call.resolve(ret);
     }
 
+    // MARK: - getDiagnostics
+    @PluginMethod
+    public void getDiagnostics(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("platform", "android");
+        ret.put("osVersion", android.os.Build.VERSION.RELEASE);
+        ret.put("sdkInt", android.os.Build.VERSION.SDK_INT);
+        ret.put("deviceModel", android.os.Build.MODEL);
+        ret.put("activityKitSupported", false);
+        ret.put("notificationsSupported", true);
+        ret.put("areActivitiesEnabled", androidx.core.app.NotificationManagerCompat.from(getContext()).areNotificationsEnabled());
+        ret.put("activeActivitiesCount", activeOrders.size());
+        call.resolve(ret);
+    }
+
     private int getNotificationId(String orderId) {
         return Math.abs(orderId.hashCode() % 100000) + 1000;
     }

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import Capacitor
 import ActivityKit
 
@@ -11,18 +12,60 @@ public class LiveActivityPlugin: CAPPlugin {
     @available(iOS 16.1, *)
     private static var activeActivities: [String: Activity<OrderTrackingAttributes>] = [:]
 
+    // In-memory diagnostic ring buffer (last 50 events)
+    private static var diagnosticLogs: [[String: Any]] = []
+    private static let logLock = NSLock()
+
+    private static func logEvent(tag: String, message: String, error: String? = nil, details: [String: Any]? = nil) {
+        logLock.lock()
+        defer { logLock.unlock() }
+        let formatter = ISO8601DateFormatter()
+        var entry: [String: Any] = [
+            "time": formatter.string(from: Date()),
+            "tag": tag,
+            "message": message
+        ]
+        if let err = error {
+            entry["error"] = err
+        }
+        if let det = details {
+            entry["details"] = det
+        }
+        diagnosticLogs.append(entry)
+        if diagnosticLogs.count > 50 {
+            diagnosticLogs.removeFirst()
+        }
+        #if DEBUG
+        print("[NewKet-LiveActivity][\(tag)] \(message)\(error != nil ? " | Error: " + error! : "")")
+        #endif
+    }
+
     // MARK: - isAvailable
     @objc func isAvailable(_ call: CAPPluginCall) {
         if #available(iOS 16.1, *) {
             let enabled = ActivityAuthorizationInfo().areActivitiesEnabled
+            var frequentPushes = false
+            if #available(iOS 16.2, *) {
+                frequentPushes = ActivityAuthorizationInfo().frequentPushesEnabled
+            }
+            Self.logEvent(tag: "CHECK", message: "isAvailable queried", details: [
+                "available": true,
+                "enabled": enabled,
+                "frequentPushes": frequentPushes
+            ])
             call.resolve([
                 "available": true,
-                "enabled": enabled
+                "enabled": enabled,
+                "frequentPushesEnabled": frequentPushes,
+                "iosVersion": UIDevice.current.systemVersion
             ])
         } else {
+            Self.logEvent(tag: "CHECK", message: "ActivityKit not supported on iOS < 16.1", error: "OS_UNSUPPORTED")
             call.resolve([
                 "available": false,
-                "enabled": false
+                "enabled": false,
+                "frequentPushesEnabled": false,
+                "iosVersion": UIDevice.current.systemVersion
             ])
         }
     }
@@ -30,12 +73,16 @@ public class LiveActivityPlugin: CAPPlugin {
     // MARK: - startActivity
     @objc func startActivity(_ call: CAPPluginCall) {
         guard #available(iOS 16.1, *) else {
-            call.reject("Live Activities require iOS 16.1 or newer.")
+            let err = "Live Activities require iOS 16.1 or newer. Current: \(UIDevice.current.systemVersion)"
+            Self.logEvent(tag: "START", message: "Failed - OS too old", error: err)
+            call.reject(err)
             return
         }
 
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            call.reject("Live Activities are disabled by the user in Settings.")
+            let err = "Live Activities are disabled in iOS Settings for NewKet."
+            Self.logEvent(tag: "START", message: "Failed - Disabled in iOS Settings", error: err)
+            call.reject(err)
             return
         }
 
@@ -52,6 +99,8 @@ public class LiveActivityPlugin: CAPPlugin {
         let totalSteps        = call.getInt("totalSteps") ?? 4
         let etaText           = call.getString("etaText")
         let isCancelled       = call.getBool("isCancelled") ?? false
+
+        Self.logEvent(tag: "START", message: "Requesting Live Activity for \(orderNumber) (\(status))")
 
         // Idempotency: if an activity for this orderId already exists, update it instead of creating duplicate
         if let existing = Self.activeActivities[orderId] {
@@ -72,7 +121,16 @@ public class LiveActivityPlugin: CAPPlugin {
                     await existing.update(using: contentState)
                 }
             }
-            call.resolve(["success": true, "orderId": orderId, "updated": true])
+            Self.logEvent(tag: "START", message: "Activity already existed -> updated", details: [
+                "orderId": orderId,
+                "activityId": existing.id
+            ])
+            call.resolve([
+                "success": true,
+                "orderId": orderId,
+                "activityId": existing.id,
+                "updated": true
+            ])
             return
         }
 
@@ -99,7 +157,6 @@ public class LiveActivityPlugin: CAPPlugin {
             if #available(iOS 16.2, *) {
                 let content = ActivityContent(state: contentState, staleDate: nil)
                 // First try with pushType: nil for robust local delivery (free developer / sideload accounts)
-                // If remote push updates are supported, request will succeed
                 do {
                     activity = try Activity.request(
                         attributes: attributes,
@@ -107,6 +164,7 @@ public class LiveActivityPlugin: CAPPlugin {
                         pushType: nil
                     )
                 } catch {
+                    Self.logEvent(tag: "START", message: "pushType nil failed, trying token", error: error.localizedDescription)
                     activity = try Activity.request(
                         attributes: attributes,
                         content: content,
@@ -121,6 +179,7 @@ public class LiveActivityPlugin: CAPPlugin {
                         pushType: nil
                     )
                 } catch {
+                    Self.logEvent(tag: "START", message: "pushType nil failed (iOS 16.1), trying token", error: error.localizedDescription)
                     activity = try Activity.request(
                         attributes: attributes,
                         contentState: contentState,
@@ -131,10 +190,17 @@ public class LiveActivityPlugin: CAPPlugin {
 
             Self.activeActivities[orderId] = activity
 
-            // Listen for push token updates so backend can update remotely via APNs
+            Self.logEvent(tag: "START", message: "Activity successfully created", details: [
+                "orderId": orderId,
+                "activityId": activity.id,
+                "status": status
+            ])
+
+            // Listen for push token updates so backend can update remotely via APNs (if available)
             Task {
                 for await pushToken in activity.pushTokenUpdates {
                     let tokenString = pushToken.map { String(format: "%02x", $0) }.joined()
+                    Self.logEvent(tag: "PUSH_TOKEN", message: "Token received for \(orderId)")
                     self.notifyListeners("activityPushToken", data: [
                         "orderId": orderId,
                         "token": tokenString
@@ -142,32 +208,44 @@ public class LiveActivityPlugin: CAPPlugin {
                 }
             }
 
-            call.resolve(["success": true, "orderId": orderId])
+            call.resolve([
+                "success": true,
+                "orderId": orderId,
+                "activityId": activity.id
+            ])
         } catch {
-            call.reject("Failed to request Live Activity: \(error.localizedDescription)")
+            let errorMsg = "Failed to request Live Activity: \(error.localizedDescription)"
+            Self.logEvent(tag: "START", message: "Exception during Activity.request", error: errorMsg)
+            call.reject(errorMsg)
         }
     }
 
     // MARK: - updateActivity
     @objc func updateActivity(_ call: CAPPluginCall) {
         guard #available(iOS 16.1, *) else {
-            call.reject("Not supported on this iOS version.")
+            let err = "Not supported on this iOS version."
+            Self.logEvent(tag: "UPDATE", message: "Failed - OS too old", error: err)
+            call.reject(err)
             return
         }
 
         guard let orderId = call.getString("orderId") else {
-            call.reject("Missing 'orderId' parameter.")
+            let err = "Missing 'orderId' parameter."
+            Self.logEvent(tag: "UPDATE", message: "Validation error", error: err)
+            call.reject(err)
             return
         }
 
-        guard let activity = Self.activeActivities[orderId] else {
-            // If not found in memory, try searching all active activities
-            if let matched = Activity<OrderTrackingAttributes>.activities.first(where: { $0.attributes.orderId == orderId }) {
-                Self.activeActivities[orderId] = matched
-            } else {
-                call.reject("No active Live Activity found for order \(orderId)")
-                return
-            }
+        let targetActivity: Activity<OrderTrackingAttributes>
+        if let existing = Self.activeActivities[orderId] {
+            targetActivity = existing
+        } else if let matched = Activity<OrderTrackingAttributes>.activities.first(where: { $0.attributes.orderId == orderId }) {
+            Self.activeActivities[orderId] = matched
+            targetActivity = matched
+        } else {
+            let err = "No active Live Activity found for order \(orderId). Active count: \(Activity<OrderTrackingAttributes>.activities.count)"
+            Self.logEvent(tag: "UPDATE", message: "Activity not found", error: err)
+            call.reject(err)
             return
         }
 
@@ -193,11 +271,21 @@ public class LiveActivityPlugin: CAPPlugin {
 
         Task {
             if #available(iOS 16.2, *) {
-                await activity.update(ActivityContent(state: contentState, staleDate: nil))
+                await targetActivity.update(ActivityContent(state: contentState, staleDate: nil))
             } else {
-                await activity.update(using: contentState)
+                await targetActivity.update(using: contentState)
             }
-            call.resolve(["success": true, "orderId": orderId])
+            Self.logEvent(tag: "UPDATE", message: "Activity updated for \(orderId)", details: [
+                "orderId": orderId,
+                "activityId": targetActivity.id,
+                "status": status,
+                "progress": progress
+            ])
+            call.resolve([
+                "success": true,
+                "orderId": orderId,
+                "activityId": targetActivity.id
+            ])
         }
     }
 
@@ -218,18 +306,80 @@ public class LiveActivityPlugin: CAPPlugin {
                     await activity.end(using: nil, dismissalPolicy: .immediate)
                 }
                 Self.activeActivities.removeValue(forKey: orderId)
+                Self.logEvent(tag: "END", message: "Ended activity for \(orderId)", details: ["activityId": activity.id])
             } else {
                 // End all if orderId omitted
-                for (_, activity) in Self.activeActivities {
+                for (oid, activity) in Self.activeActivities {
                     if #available(iOS 16.2, *) {
                         await activity.end(nil, dismissalPolicy: .immediate)
                     } else {
                         await activity.end(using: nil, dismissalPolicy: .immediate)
                     }
+                    Self.logEvent(tag: "END", message: "Ended activity for \(oid)", details: ["activityId": activity.id])
                 }
                 Self.activeActivities.removeAll()
             }
             call.resolve(["success": true])
         }
+    }
+
+    // MARK: - getDiagnostics
+    @objc func getDiagnostics(_ call: CAPPluginCall) {
+        var diag: [String: Any] = [:]
+        diag["iosVersion"] = UIDevice.current.systemVersion
+        diag["deviceModel"] = UIDevice.current.model
+        diag["bundleId"] = Bundle.main.bundleIdentifier ?? "unknown"
+
+        // Extension check in App.app/PlugIns/
+        if let pluginsURL = Bundle.main.builtInPlugInsURL {
+            do {
+                let items = try FileManager.default.contentsOfDirectory(atPath: pluginsURL.path)
+                diag["plugInsFound"] = items
+                diag["hasWidgetExtension"] = items.contains(where: { $0.contains("NewKetWidgetExtension") })
+            } catch {
+                diag["plugInsFound"] = []
+                diag["plugInsError"] = error.localizedDescription
+                diag["hasWidgetExtension"] = false
+            }
+        } else {
+            diag["plugInsFound"] = []
+            diag["hasWidgetExtension"] = false
+        }
+
+        if #available(iOS 16.1, *) {
+            let authInfo = ActivityAuthorizationInfo()
+            diag["activityKitSupported"] = true
+            diag["areActivitiesEnabled"] = authInfo.areActivitiesEnabled
+            if #available(iOS 16.2, *) {
+                diag["frequentPushesEnabled"] = authInfo.frequentPushesEnabled
+            } else {
+                diag["frequentPushesEnabled"] = false
+            }
+
+            let allActivities = Activity<OrderTrackingAttributes>.activities
+            diag["activeActivitiesCount"] = allActivities.count
+            diag["activeActivities"] = allActivities.map { act in
+                return [
+                    "id": act.id,
+                    "orderId": act.attributes.orderId,
+                    "orderNumber": act.attributes.orderNumber,
+                    "status": act.content.state.status,
+                    "activityState": "\(act.activityState)"
+                ]
+            }
+        } else {
+            diag["activityKitSupported"] = false
+            diag["areActivitiesEnabled"] = false
+            diag["frequentPushesEnabled"] = false
+            diag["activeActivitiesCount"] = 0
+            diag["activeActivities"] = []
+        }
+
+        Self.logLock.lock()
+        diag["nativeLogs"] = Self.diagnosticLogs
+        Self.logLock.unlock()
+
+        Self.logEvent(tag: "DIAG", message: "Diagnostics exported to JS")
+        call.resolve(diag)
     }
 }
