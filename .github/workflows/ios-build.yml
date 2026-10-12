@@ -67,7 +67,7 @@ jobs:
 
       - name: 🍎 Build Xcode (Sans signature)
         run: |
-          # On compile le projet iOS généré par Capacitor (SPM)
+          # Compile App + NewKetWidgetExtension (via PBXTargetDependency)
           xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
@@ -77,15 +77,24 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
+          # Verify Widget Extension was compiled
+          if [ -d "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex" ]; then
+            echo "✅ Widget Extension compilé et intégré dans App.app/PlugIns/"
+          else
+            echo "⚠️ Widget Extension introuvable dans PlugIns/ — Live Activities non disponibles"
+            ls -la build_ios/Release-iphoneos/App.app/PlugIns/ 2>/dev/null || echo "Dossier PlugIns absent"
+          fi
         working-directory: ./frontend
 
       - name: 📦 Création du fichier .ipa
         run: |
           mkdir -p Payload
           # Copier l'application compilée dans le dossier Payload
+          # App.app/PlugIns/NewKetWidgetExtension.appex est inclus automatiquement
           cp -r build_ios/Release-iphoneos/App.app Payload/
           # Ziper le tout au format IPA
           zip -r NewKet-iOS.ipa Payload
+          echo "📦 Taille IPA: $(du -sh NewKet-iOS.ipa | cut -f1)"
         working-directory: ./frontend
 
       - name: 📤 Mise à disposition de l'IPA

@@ -17,7 +17,26 @@
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		A1B2C3D4E5F60000ADNAVBAR /* AdminNavbarPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001ADNAVBAR /* AdminNavbarPlugin.swift */; };
+		/* LiveActivityPlugin files in App target */
+		NK001A0000001LAPLUG /* LiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = NK001F0000001LAPLUG /* LiveActivityPlugin.swift */; };
+		NK001A0000002LAPLUG /* LiveActivityPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = NK001F0000002LAPLUG /* LiveActivityPlugin.m */; };
+		NK001A0000003ATTRS /* OrderAttributes.swift in Sources (App) */ = {isa = PBXBuildFile; fileRef = NK001F0000003ATTRS /* OrderAttributes.swift */; };
+		/* Widget Extension build files */
+		WDGT000000001BUNDLE /* NewKetWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */; };
+		WDGT000000002WIDGET /* NewKetOrderLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */; };
+		WDGT000000003ATTRS /* OrderAttributes.swift in Sources (Widget) */ = {isa = PBXBuildFile; fileRef = NK001F0000003ATTRS /* OrderAttributes.swift */; };
+		WDGT000000004PLIST /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = WDGT000F00004PLIST /* Info.plist */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		WDGT000000005PROXY /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WDGT000000006TARGET /* NewKetWidgetExtension */;
+			remoteInfo = NewKetWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -32,6 +51,14 @@
 		9582B6822FE993A50072D4E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60001ADNAVBAR /* AdminNavbarPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminNavbarPlugin.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		NK001F0000001LAPLUG /* LiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPlugin.swift; sourceTree = "<group>"; };
+		NK001F0000002LAPLUG /* LiveActivityPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LiveActivityPlugin.m; sourceTree = "<group>"; };
+		NK001F0000003ATTRS /* OrderAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderAttributes.swift; sourceTree = "<group>"; };
+		/* Widget Extension file references */
+		WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKetWidgetBundle.swift; sourceTree = "<group>"; };
+		WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewKetOrderLiveActivity.swift; sourceTree = "<group>"; };
+		WDGT000F00004PLIST /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		WDGT000F00005PRODUCT /* NewKetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NewKetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +70,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		WDGT000000007FWKS /* Frameworks (Widget) */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -51,6 +85,7 @@
 			children = (
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
+				WDGT000F00006GROUP /* NewKetWidgetExtension */,
 				504EC3051FED79650016851F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -59,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				WDGT000F00005PRODUCT /* NewKetWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +106,9 @@
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				A1B2C3D4E5F60001ADNAVBAR /* AdminNavbarPlugin.swift */,
+				NK001F0000001LAPLUG /* LiveActivityPlugin.swift */,
+				NK001F0000002LAPLUG /* LiveActivityPlugin.m */,
+				NK001F0000003ATTRS /* OrderAttributes.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
 				504EC30E1FED79650016851F /* Assets.xcassets */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
@@ -78,6 +117,16 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		WDGT000F00006GROUP /* NewKetWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				WDGT000F00001BUNDLE /* NewKetWidgetBundle.swift */,
+				WDGT000F00002WIDGET /* NewKetOrderLiveActivity.swift */,
+				WDGT000F00004PLIST /* Info.plist */,
+			);
+			path = NewKetWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -94,6 +143,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				WDGT000000008DEP /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -102,6 +152,23 @@
 			productName = App;
 			productReference = 504EC3041FED79650016851F /* App.app */;
 			productType = "com.apple.product-type.application";
+		};
+		WDGT000000006TARGET /* NewKetWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = WDGT000000009CFGLIST /* Build configuration list for PBXNativeTarget "NewKetWidgetExtension" */;
+			buildPhases = (
+				WDGT00000000ASRCS /* Sources */,
+				WDGT000000007FWKS /* Frameworks */,
+				WDGT00000000BRSRC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NewKetWidgetExtension;
+			productName = NewKetWidgetExtension;
+			productReference = WDGT000F00005PRODUCT /* NewKetWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -115,6 +182,10 @@
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1100;
+						ProvisioningStyle = Automatic;
+					};
+					WDGT000000006TARGET = {
+						CreatedOnToolsVersion = 15.0;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -136,6 +207,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				WDGT000000006TARGET /* NewKetWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -154,6 +226,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		WDGT00000000BRSRC /* Resources (Widget) */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				WDGT000000004PLIST /* Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -164,10 +244,31 @@
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				A1B2C3D4E5F60000ADNAVBAR /* AdminNavbarPlugin.swift in Sources */,
+				NK001A0000001LAPLUG /* LiveActivityPlugin.swift in Sources */,
+				NK001A0000002LAPLUG /* LiveActivityPlugin.m in Sources */,
+				NK001A0000003ATTRS /* OrderAttributes.swift in Sources (App) */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		WDGT00000000ASRCS /* Sources (Widget) */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				WDGT000000001BUNDLE /* NewKetWidgetBundle.swift in Sources */,
+				WDGT000000002WIDGET /* NewKetOrderLiveActivity.swift in Sources */,
+				WDGT000000003ATTRS /* OrderAttributes.swift in Sources (Widget) */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		WDGT000000008DEP /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = WDGT000000006TARGET /* NewKetWidgetExtension */;
+			targetProxy = WDGT000000005PROXY /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
@@ -342,6 +443,51 @@
 			};
 			name = Release;
 		};
+		/* Widget Extension build configurations */
+		WDGT00000000CCFGD /* Debug (Widget) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				INFOPLIST_FILE = NewKetWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = cd.newket.app.NewKetWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		WDGT00000000DCFGR /* Release (Widget) */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				INFOPLIST_FILE = NewKetWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = cd.newket.app.NewKetWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -359,6 +505,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		WDGT000000009CFGLIST /* Build configuration list for PBXNativeTarget "NewKetWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				WDGT00000000CCFGD /* Debug */,
+				WDGT00000000DCFGR /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
