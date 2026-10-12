@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head><script type="module" src="/src/services/app.js"></script>
@@ -286,6 +286,32 @@
                                 </label>
                             </div>
                             <p id="notif-feedback" class="hidden"></p>
+
+                            <!-- Test Live Activity / Suivi en direct -->
+                            <div class="pt-6 border-t border-gray-100 flex flex-col gap-3">
+                                <div>
+                                    <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                        <iconify-icon icon="solar:scooter-bold" class="text-emerald-600"></iconify-icon>
+                                        Test Suivi en direct (Live Activity)
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-1">Simuler une commande pour tester la Dynamic Island et l'écran verrouillé.</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <button type="button" id="testLiveActivityStartBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                        <iconify-icon icon="solar:play-circle-bold"></iconify-icon>
+                                        En livraison 🛵
+                                    </button>
+                                    <button type="button" id="testLiveActivityDeliveredBtn" class="bg-gray-900 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                        <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+                                        Livré 🎉
+                                    </button>
+                                </div>
+                                <button type="button" id="testLiveActivityStopBtn" class="border border-gray-200 hover:bg-gray-100 text-gray-600 font-semibold py-1.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1">
+                                    <iconify-icon icon="solar:stop-circle-linear"></iconify-icon>
+                                    Arrêter le test
+                                </button>
+                                <p id="liveActivityTestFeedback" class="text-xs text-emerald-600 font-medium hidden text-center"></p>
+                            </div>
                         </div>
                     </div>
 
@@ -847,6 +873,43 @@
             };
 
             SettingsPage.init();
+
+            // === Live Activity Test Buttons ===
+            (function() {
+                function showTestFeedback(msg, type) {
+                    var el = document.getElementById('live-activity-test-feedback');
+                    if (!el) return;
+                    el.textContent = msg;
+                    el.style.display = 'block';
+                    el.style.color = (type === 'error') ? '#ef4444' : '#10b981';
+                    setTimeout(function(){ el.style.display = 'none'; }, 5000);
+                }
+                document.getElementById('testLiveActivityStartBtn') && document.getElementById('testLiveActivityStartBtn').addEventListener('click', async function() {
+                    try {
+                        if (window.LiveOrderTracker) {
+                            await window.LiveOrderTracker.trackOrder({ id: 'test-001', order_number: 'TEST-001', status: 'IN_DELIVERY', shop_name: 'NewKet Test', item_count: 2, eta_text: '~15 min' });
+                            showTestFeedback('Live Activity demarree (EN LIVRAISON)', 'success');
+                        } else { showTestFeedback('LiveOrderTracker non disponible', 'error'); }
+                    } catch(e) { showTestFeedback('Erreur: ' + e.message, 'error'); }
+                });
+                document.getElementById('testLiveActivityDeliveredBtn') && document.getElementById('testLiveActivityDeliveredBtn').addEventListener('click', async function() {
+                    try {
+                        if (window.LiveOrderTracker) {
+                            await window.LiveOrderTracker.trackOrder({ id: 'test-001', order_number: 'TEST-001', status: 'DELIVERED', shop_name: 'NewKet Test', item_count: 2, eta_text: 'Livree' });
+                            showTestFeedback('Live Activity: LIVREE', 'success');
+                        }
+                    } catch(e) { showTestFeedback('Erreur: ' + e.message, 'error'); }
+                });
+                document.getElementById('testLiveActivityStopBtn') && document.getElementById('testLiveActivityStopBtn').addEventListener('click', async function() {
+                    try {
+                        if (window.LiveOrderTracker) {
+                            await window.LiveOrderTracker.stopTracking('test-001');
+                            showTestFeedback('Live Activity arretee', 'success');
+                        }
+                    } catch(e) { showTestFeedback('Erreur: ' + e.message, 'error'); }
+                });
+            })();
+            // === End Live Activity Test Buttons ===
         });
     </script>
   <div id="footer-placeholder"></div>
