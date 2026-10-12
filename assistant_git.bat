@@ -1165,19 +1165,21 @@ echo   1. Lancer le build iOS (Build iOS App - Unsigned)
 echo   2. Voir la liste des workflows disponibles
 echo   3. Voir l'historique des executions (statuts et resultats)
 echo   4. Suivre le dernier build en direct
-echo   5. Ouvrir GitHub Actions dans le navigateur
+echo   5. Telecharger le dernier IPA sur le Bureau
+echo   6. Ouvrir GitHub Actions dans le navigateur
 echo.
 echo   0. Retour au menu principal
 echo.
 echo --------------------------------------------------
 set "choix_act="
-set /p choix_act="   Choix (0-5) : "
+set /p choix_act="   Choix (0-6) : "
 
 if "%choix_act%"=="1" goto ACTION_BUILD_IOS
 if "%choix_act%"=="2" goto ACTION_LIST_WORKFLOWS
 if "%choix_act%"=="3" goto ACTION_LIST_RUNS
 if "%choix_act%"=="4" goto ACTION_WATCH
-if "%choix_act%"=="5" goto ACTION_BROWSER
+if "%choix_act%"=="5" goto ACTION_DOWNLOAD_IPA
+if "%choix_act%"=="6" goto ACTION_BROWSER
 if "%choix_act%"=="0" goto MENU
 goto GITHUB_ACTIONS
 
@@ -1239,10 +1241,19 @@ if errorlevel 1 (
     echo   Build iOS lance avec succes avec Xcode %version_xc% !
     echo ==================================================
     echo.
-    set /p watch_now="   Souhaitez-vous suivre l'execution en direct maintenant ? (O/N) : "
+    set /p watch_now="   Souhaitez-vous attendre la fin et telecharger l'IPA sur le Bureau ? (O/N) : "
     if /i "%watch_now%"=="O" (
         timeout /t 3 >nul
         gh run watch
+        echo.
+        echo   Telechargement automatique de l'IPA sur votre Bureau...
+        gh run download -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds"
+        echo.
+        echo ==================================================
+        echo   Fichier .ipa telecharge avec succes !
+        echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds
+        echo ==================================================
+        explorer "%USERPROFILE%\Desktop\NewKet-Builds"
     )
 )
 echo.
@@ -1285,6 +1296,33 @@ echo ==================================================
 echo.
 echo   Recherche du dernier workflow en cours d'execution...
 gh run watch
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto GITHUB_ACTIONS
+
+:ACTION_DOWNLOAD_IPA
+cls
+echo ==================================================
+echo      TELECHARGEMENT DU DERNIER BUILD IOS (.IPA)
+echo ==================================================
+echo.
+echo   Telechargement du dernier .ipa vers votre Bureau...
+echo.
+gh run download -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds"
+if errorlevel 1 (
+    echo.
+    echo   [!] Erreur lors du telechargement ou le build est encore en cours.
+    echo   Verifiez le statut avec l'option 3 (Historique des executions).
+) else (
+    echo.
+    echo ==================================================
+    echo   Fichier .ipa telecharge sur votre Bureau avec succes !
+    echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds
+    echo ==================================================
+    explorer "%USERPROFILE%\Desktop\NewKet-Builds"
+)
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir...
