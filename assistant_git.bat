@@ -771,45 +771,103 @@ goto MENU
 :HELP
 cls
 echo ==================================================
-echo              GUIDE D'UTILISATION
+echo              GUIDE D'UTILISATION COMPLET
 echo ==================================================
 echo.
 echo   --- TRAVAIL QUOTIDIEN ---
 echo    1  - VOIR          : Consulter les fichiers modifies.
-echo    2  - DEPART        : Creer une branche pour commencer.
-echo    3  - MAJ           : Recuperer le code de l'equipe.
-echo    4  - FIN           : Sauvegarder et envoyer (add+commit+push).
+echo    2  - DEPART        : Creer une branche pour commencer une tache.
+echo    3  - MAJ           : Recuperer le code le plus recent de l'equipe.
+echo    4  - FIN           : Sauvegarder ET envoyer (add + commit + push).
 echo    5  - PARTIEL       : Choisir fichier(s) par numero a commiter.
-echo    6  - PUSH          : Envoyer vos commits locaux vers le serveur.
-echo    7  - PAUSE         : Mettre son travail de cote.
+echo    6  - PUSH          : Envoyer vos commits locaux vers GitHub.
+echo    7  - PAUSE         : Mettre son travail de cote (git stash).
 echo    8  - REPRISE       : Restaurer le travail mis en attente.
 echo    9  - URGENCE       : Tout annuler et revenir a la version propre.
 echo.
 echo   --- ERREURS ET CORRECTIONS ---
-echo   10  - MODIFIER MSG  : Corriger une faute dans le nom du commit.
-echo   11  - ANNULER COMMIT: Annuler la sauvegarde (mais garder le code).
+echo   10  - MODIFIER MSG  : Corriger une faute dans le dernier commit.
+echo   11  - ANNULER COMMIT: Annuler la sauvegarde (code intact).
 echo.
 echo   --- EXPLORATION ---
 echo   12  - HISTORIQUE    : Voir les 20 derniers commits de l'equipe.
 echo   13  - BRANCHES      : Lister et changer de branche.
 echo   14  - DIFFERENCES   : Voir les modifications ligne par ligne.
 echo   15  - QUI A MODIFIE : Trouver l'auteur de chaque ligne d'un fichier.
-echo   16  - RECHERCHER    : Retrouver un ancien commit contenant un mot-cle.
+echo   16  - RECHERCHER    : Retrouver un commit par mot-cle.
 echo   17  - MON PROFIL    : Verifier/Modifier son identifiant Git.
 echo.
 echo   --- GESTION AVANCEE ---
-echo   18  - SUPPR. BRANCHE: Supprimer localement ET sur GitHub.
-echo   19  - RETOUR RAPIDE : Annuler les modifications d'un fichier.
-echo   20  - VERSION       : Marquer une version stable (v1.0).
-echo   21  - CONFLITS      : Ouvrir l'editeur pour resoudre un conflit.
+echo   18  - SUPPR. BRANCHE: Supprimer une branche localement ET sur GitHub.
+echo   19  - RETOUR RAPIDE : Annuler les modifications non sauvegardees d'un fichier.
+echo   20  - VERSION       : Marquer une version stable (ex: v1.0).
+echo   21  - CONFLITS      : Identifier et resoudre les conflits de fusion.
 echo.
 echo   --- EQUIPE NEWKET ---
 echo   22  - EQUIPE        : Voir les contributions de chaque membre.
 echo   23  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
 echo   24  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
-echo   25  - PULL REQUESTS : Consulter les PR ouvertes, merger ou historiques.
-echo   26  - ACTIONS       : Lancer et suivre les workflows (Build iOS, etc.).
-echo   27  - AIDE          : Comprendre chaque option.
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour la suite (PULL REQUESTS + ACTIONS)...
+pause >nul
+cls
+echo ==================================================
+echo       SOUS-MENU 25 : PULL REQUESTS
+echo ==================================================
+echo.
+echo   25  - PULL REQUESTS : Gerer les PR ouvertes sur GitHub.
+echo.
+echo         Sous-options disponibles :
+echo          1. Voir les PR ouvertes (en attente de merge)
+echo          2. Voir toutes les PR (historique complet / mergees)
+echo          3. Voir les details d'une PR specifique
+echo             -^> Saisir le numero de la PR a inspecter
+echo          4. Ouvrir les PR dans le navigateur GitHub
+echo          5. Fusionner (Merger) une PR dans main
+echo             -^> PROTECTION : saisie du mot de passe requise (3 essais)
+echo             -^> Choix du type : Standard (merge) ou Squash
+echo             -^> Confirmation de securite avant fusion
+echo             -^> Proposition de git pull apres le merge
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour la suite (ACTIONS GitHub)...
+pause >nul
+cls
+echo ==================================================
+echo       SOUS-MENU 26 : GITHUB ACTIONS
+echo ==================================================
+echo.
+echo   26  - ACTIONS : Lancer et surveiller les workflows GitHub.
+echo.
+echo         Sous-options disponibles :
+echo          1. Lancer le build iOS (Build iOS App - Unsigned)
+echo             -^> Choisir la version de Xcode :
+echo                 1. Xcode 26.0  (Recommande - iOS 26, Liquid Glass)
+echo                 2. Xcode 16.2
+echo                 3. Xcode 16.1
+echo                 4. Xcode 16.0
+echo                 5. Version stable la plus recente
+echo                 6. Saisie manuelle d'une version specifique
+echo             -^> Confirmation avant envoi sur GitHub
+echo             -^> Option : attendre la fin et telecharger l'IPA
+echo               automatiquement sur le Bureau dans :
+echo               Desktop\NewKet-Builds\Build-#XX\NewKet-iOS.ipa
+echo.
+echo          2. Voir les workflows configures sur le depot
+echo             -^> Nom, statut (Actif/Desactive) et dernier build
+echo.
+echo          3. Historique des executions recentes (Build #, Statut, Date)
+echo.
+echo          4. Suivre le dernier build en direct (en temps reel)
+echo.
+echo          5. Telecharger un IPA sur le Bureau
+echo             -^> Liste des 10 derniers builds avec leur numero
+echo             -^> Saisir le numero (#35) ou Entree = le plus recent
+echo             -^> Telecharge dans Desktop\NewKet-Builds\Build-#XX
+echo             -^> Ouvre automatiquement le dossier apres telechargement
+echo.
+echo          6. Ouvrir GitHub Actions dans le navigateur
 echo.
 echo ==================================================
 echo.
