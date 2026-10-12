@@ -28,13 +28,12 @@ private func tabsForRole(_ roleString: String) -> [TabItem] {
     let isAdmin  = role == .admin
 
     if isAdmin {
-        // Admin: no cart, no shopping tabs — management tools only
+        // Admin browsing public store: same as customer, but without the cart (admin does not purchase)
         return [
-            TabItem(id: "home",      title: "Accueil",    sfSymbol: "house",              sfSymbolFill: "house.fill",              url: "/"),
-            TabItem(id: "analytics", title: "Stats",      sfSymbol: "chart.bar",          sfSymbolFill: "chart.bar.fill",          url: "/src/pages/admin/index.html"),
-            TabItem(id: "orders",    title: "Commandes",  sfSymbol: "list.bullet.clipboard", sfSymbolFill: "list.bullet.clipboard.fill", url: "/src/pages/admin/orders.html"),
-            TabItem(id: "users",     title: "Utilisateurs", sfSymbol: "person.2",         sfSymbolFill: "person.2.fill",           url: "/src/pages/admin/user.html"),
-            TabItem(id: "account",   title: "Profil",     sfSymbol: "person.circle",      sfSymbolFill: "person.circle.fill",      url: "/src/pages/settings.html"),
+            TabItem(id: "home",    title: "Accueil",   sfSymbol: "house",              sfSymbolFill: "house.fill",              url: "/"),
+            TabItem(id: "search",  title: "Recherche", sfSymbol: "magnifyingglass",    sfSymbolFill: "magnifyingglass",          url: "#search"),
+            TabItem(id: "shops",   title: "Boutique",  sfSymbol: "storefront",         sfSymbolFill: "storefront.fill",         url: "/src/pages/shops.html"),
+            TabItem(id: "account", title: "Profil",    sfSymbol: "person.circle",      sfSymbolFill: "person.circle.fill",      url: "/src/pages/settings.html"),
         ]
     }
 

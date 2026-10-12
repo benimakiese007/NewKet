@@ -88,8 +88,20 @@ async function initNativeTabBar() {
             return;
         }
 
+        // Ne pas afficher la barre d'onglets basse sur l'admin, le login ou le choix de rôle
+        // (l'admin a sa propre navbar haute native Liquid Glass + sidebar).
+        const currentPath = window.location.pathname;
+        const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
+        const isExcludedPage = isAdminPage || currentPath.includes('/login') || currentPath.includes('/choose-role') || currentPath.includes('/publish');
+
+        if (isExcludedPage) {
+            console.log('[NativeTabBar] Page exclue (admin/auth/publish) — pas de tab bar basse.');
+            await NativeTabBar.hide();
+            return;
+        }
+
         // Déterminer l'onglet actif et le rôle au chargement
-        const activeTab = getTabIdFromPath(window.location.pathname);
+        const activeTab = getTabIdFromPath(currentPath);
         const role      = getCurrentRole();
 
         // Cacher la tab bar HTML (elle sera remplacée par la native)
@@ -182,10 +194,22 @@ function navigateToTab(url) {
  * Appelé après chaque navigation (popstate, hashchange, etc.).
  */
 function syncNativeTabBarWithCurrentPage() {
-    if (!nativeTabBarActive || !window.NativeTabBar) return;
+    if (!window.NativeTabBar) return;
 
-    const tabId = getTabIdFromPath(window.location.pathname);
-    window.NativeTabBar.setActiveTab(tabId).catch(() => {});
+    const currentPath = window.location.pathname;
+    const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
+    const isExcluded = isAdminPage || currentPath.includes('/login') || currentPath.includes('/choose-role') || currentPath.includes('/publish');
+
+    if (isExcluded) {
+        window.NativeTabBar.hide().catch(() => {});
+    } else {
+        const tabId = getTabIdFromPath(currentPath);
+        if (nativeTabBarActive) {
+            window.NativeTabBar.setActiveTab(tabId).catch(() => {});
+        } else {
+            window.NativeTabBar.show(tabId).catch(() => {});
+        }
+    }
 }
 
 // ─── Écouter les navigations futures ──────────────────────────────────────────
