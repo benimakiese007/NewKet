@@ -417,7 +417,11 @@ const getBottomNavHTML = (role) => {
     const isAdmin = role === 'admin';
     
     return `<!-- Liquid Glass Bottom Navbar -->
-<nav class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-4 sm:hidden shadow-[0_10px_40px_rgba(0,0,0,0.2)] rounded-[32px] w-[calc(100%-44px)] left-[22px] h-[64px]" style="bottom: max(8px, calc(env(safe-area-inset-bottom, 0px) - 16px));">
+<nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-2 sm:hidden rounded-[36px] w-[calc(100%-36px)] left-[18px] h-[66px]" style="bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) - 10px));">
+    <!-- Liquid Glass Specular Highlight Layer -->
+    <div class="glass-specular-highlight absolute inset-x-3 top-0 h-[1.5px] pointer-events-none rounded-t-[36px]"></div>
+    <!-- Active sliding glass indicator bubble -->
+    <div class="nav-indicator absolute pointer-events-none transition-all duration-300 ease-out" style="opacity: 0;"></div>
     <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>
