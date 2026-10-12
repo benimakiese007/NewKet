@@ -1293,35 +1293,46 @@ gh workflow run ios-build.yml --ref "%branche_act%" -f xcode_version="%version_x
 if errorlevel 1 (
     echo.
     echo   [!] Erreur lors du lancement. Verifie que gh est connecte : gh auth login
-) else (
     echo.
-    echo ==================================================
-    echo   Build iOS lance avec succes avec Xcode %version_xc% !
-    echo ==================================================
-    echo.
-    REM Recuperation du numero de build (#35, #36...) et de l'ID du run
-    timeout /t 5 >nul
-    for /f "tokens=7" %%R in ('gh run list --workflow=ios-build.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "run_id_build=%%R"
-    for /f "delims=" %%R in ('gh run list --workflow=ios-build.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "run_id_build=%%R"
-    for /f "delims=" %%N in ('gh run list --workflow=ios-build.yml --limit 1 --json number --jq ".[0].number"') do set "run_num_build=%%N"
-    echo.
-    echo   Numero de build : #%run_num_build%  (ID: %run_id_build%)
-    echo.
-    set /p watch_now="   Souhaitez-vous attendre la fin et telecharger l'IPA sur le Bureau ? (O/N) : "
-    if /i "%watch_now%"=="O" (
-        timeout /t 3 >nul
-        gh run watch %run_id_build%
-        echo.
-        echo   Telechargement de l'IPA du Build #%run_num_build% sur votre Bureau...
-        gh run download %run_id_build% -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds\Build-#%run_num_build%"
-        echo.
-        echo ==================================================
-        echo   Build #%run_num_build% telecharge avec succes sur votre Bureau !
-        echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds\Build-#%run_num_build%
-        echo ==================================================
-        explorer "%USERPROFILE%\Desktop\NewKet-Builds\Build-#%run_num_build%"
-    )
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir...
+    pause >nul
+    goto GITHUB_ACTIONS
 )
+
+echo.
+echo ==================================================
+echo   Build iOS lance avec succes avec Xcode %version_xc% !
+echo ==================================================
+echo.
+
+REM Recuperation du numero de build (#36, #37...) et de l'ID
+REM On utilise setlocal enabledelayedexpansion pour lire les variables
+REM definies dans les boucles FOR et les afficher correctement
+timeout /t 5 >nul
+
+setlocal enabledelayedexpansion
+for /f "delims=" %%R in ('gh run list --workflow=ios-build.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "run_id_build=%%R"
+for /f "delims=" %%N in ('gh run list --workflow=ios-build.yml --limit 1 --json number --jq ".[0].number"') do set "run_num_build=%%N"
+
+echo   Numero de build : #!run_num_build!  (ID: !run_id_build!)
+echo.
+set /p watch_now="   Souhaitez-vous attendre la fin et telecharger l'IPA sur le Bureau ? (O/N) : "
+if /i "!watch_now!"=="O" (
+    timeout /t 3 >nul
+    gh run watch !run_id_build!
+    echo.
+    echo   Telechargement de l'IPA du Build #!run_num_build! sur votre Bureau...
+    gh run download !run_id_build! -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds\Build-#!run_num_build!"
+    echo.
+    echo ==================================================
+    echo   Build #!run_num_build! telecharge avec succes sur votre Bureau !
+    echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds\Build-#!run_num_build!
+    echo ==================================================
+    explorer "%USERPROFILE%\Desktop\NewKet-Builds\Build-#!run_num_build!"
+)
+endlocal
+
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir...
