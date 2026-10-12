@@ -98,13 +98,15 @@ echo   23. [MES BRANCHES]    Branches locales et sur GitHub   (git branch -vv)
 echo.
 echo   24. [RETOUR BRANCHE]  Revenir a la branche precedente  (git checkout -)
 echo.
+echo   25. [PULL REQUESTS]   Voir les PR (ouvertes, merger)   (gh pr list)
+echo.
 echo   --------------------------------------------------
 echo.
-echo   25. [AIDE]            Comprendre chaque option
+echo   26. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-25) : "
+set /p choix="   Choix (0-26) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -130,7 +132,8 @@ if "%choix%"=="21" goto CONFLITS
 if "%choix%"=="22" goto EQUIPE
 if "%choix%"=="23" goto MES_BRANCHES
 if "%choix%"=="24" goto RETOUR_BRANCHE
-if "%choix%"=="25" goto HELP
+if "%choix%"=="25" goto PULL_REQUESTS
+if "%choix%"=="26" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -801,6 +804,7 @@ echo   --- EQUIPE NEWKET ---
 echo   22  - EQUIPE        : Voir les contributions de chaque membre.
 echo   23  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
 echo   24  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
+echo   25  - PULL REQUESTS : Consulter les PR ouvertes, merger ou historiques.
 echo.
 echo ==================================================
 echo.
@@ -929,6 +933,220 @@ echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
 pause >nul
 goto MENU
+
+REM ============================================================
+REM  OPTION 25 - PULL REQUESTS : Consulter et gerer les PR
+REM ============================================================
+:PULL_REQUESTS
+cls
+echo ==================================================
+echo         PULL REQUESTS - EQUIPE NEWKET
+echo ==================================================
+echo.
+echo   1. Voir les PR ouvertes (en attente de merge)
+echo   2. Voir toutes les PR (historique complet / mergees)
+echo   3. Voir les details d'une PR specifique
+echo   4. Ouvrir les Pull Requests dans le navigateur
+echo   5. Fusionner (Merger) une Pull Request dans main
+echo.
+echo   0. Retour au menu principal
+echo.
+echo --------------------------------------------------
+set /p choix_pr="   Choix (0-5) : "
+
+if "%choix_pr%"=="1" goto PR_OUVERTES
+if "%choix_pr%"=="2" goto PR_TOUTES
+if "%choix_pr%"=="3" goto PR_DETAIL
+if "%choix_pr%"=="4" goto PR_WEB
+if "%choix_pr%"=="5" goto PR_MERGE_AUTH
+if "%choix_pr%"=="0" goto MENU
+goto PULL_REQUESTS
+
+:PR_OUVERTES
+cls
+echo ==================================================
+echo       PR OUVERTES EN ATTENTE DE MERGE
+echo ==================================================
+echo.
+gh pr list
+if errorlevel 1 (
+    echo.
+    echo   Impossible de recuperer les PR.
+    echo   Verifie que GitHub CLI est connecte : gh auth login
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto PULL_REQUESTS
+
+:PR_TOUTES
+cls
+echo ==================================================
+echo       TOUTES LES PULL REQUESTS (HISTORIQUE)
+echo ==================================================
+echo.
+gh pr list --state all --limit 20
+if errorlevel 1 (
+    echo.
+    echo   Impossible de recuperer les PR.
+    echo   Verifie que GitHub CLI est connecte : gh auth login
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto PULL_REQUESTS
+
+:PR_DETAIL
+cls
+echo ==================================================
+echo           DETAILS D'UNE PULL REQUEST
+echo ==================================================
+echo.
+set /p pr_num="   Numero de la PR a inspecter : "
+if "%pr_num%"=="" goto PULL_REQUESTS
+echo.
+gh pr view %pr_num%
+if errorlevel 1 (
+    echo.
+    echo   PR introuvable ou erreur de recuperation.
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto PULL_REQUESTS
+
+:PR_WEB
+cls
+echo.
+echo   Ouverture de GitHub dans le navigateur...
+start https://github.com/benimakiese007/NewKet/pulls
+timeout /t 2 >nul
+goto PULL_REQUESTS
+
+REM ============================================================
+REM  SOUS-ROUTINE : Authentification avant Merge (3 essais)
+REM ============================================================
+:PR_MERGE_AUTH
+cls
+echo ==================================================
+echo       FUSION DE PR  -  VERIFICATION DU MOT DE PASSE
+echo ==================================================
+echo.
+echo   Action critique : fusionner du code dans 'main'.
+echo   Veuillez saisir le mot de passe pour autoriser le merge.
+echo.
+
+set "tentative=1"
+
+:BOUCLE_MDP_MERGE
+echo   Tentative %tentative% sur 3 :
+for /f "usebackq delims=" %%P in (`powershell -Command "$p = Read-Host -AsSecureString 'Mot de passe'; [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($p))"`) do set "mdp_merge=%%P"
+
+if "%mdp_merge%"=="PHOENIX" goto PR_MERGE
+
+echo.
+echo   [!] Mot de passe incorrect.
+echo.
+if "%tentative%"=="1" (
+    set "tentative=2"
+    goto BOUCLE_MDP_MERGE
+)
+if "%tentative%"=="2" (
+    set "tentative=3"
+    goto BOUCLE_MDP_MERGE
+)
+
+cls
+echo ==================================================
+echo              ACCES REFUSE
+echo ==================================================
+echo.
+echo   3 tentatives incorrectes. Action annulee.
+echo   Retour au menu des Pull Requests...
+echo.
+timeout /t 3 /nobreak >nul
+goto PULL_REQUESTS
+
+REM ============================================================
+REM  SOUS-ROUTINE : Fusion (Merge) d'une PR sur GitHub
+REM ============================================================
+:PR_MERGE
+cls
+echo ==================================================
+echo         FUSIONNER (MERGER) UNE PULL REQUEST
+echo ==================================================
+echo.
+echo   --- PR ouvertes actuellement en attente ---
+echo.
+gh pr list
+echo.
+echo --------------------------------------------------
+set "pr_to_merge="
+set /p pr_to_merge="   Numero de la PR a fusionner (Entree pour annuler) : "
+if "%pr_to_merge%"=="" goto PULL_REQUESTS
+
+echo.
+echo   Verification de la PR #%pr_to_merge%...
+gh pr view %pr_to_merge%
+if errorlevel 1 (
+    echo.
+    echo   [!] Impossible de trouver cette Pull Request.
+    echo.
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir...
+    pause >nul
+    goto PULL_REQUESTS
+)
+
+echo.
+echo --------------------------------------------------
+echo   Type de fusion souhaitee :
+echo   1. Fusion standard (Merge commit - conserve tous les commits)
+echo   2. Squash (Reunit tous les commits en 1 seul commit propre)
+echo.
+set /p type_merge="   Choix (1 ou 2, Entree = 1) : "
+set "flag_merge=--merge"
+if "%type_merge%"=="2" set "flag_merge=--squash"
+
+echo.
+set /p confirm_merge="   Etes-vous certain de vouloir fusionner la PR #%pr_to_merge% ? (O/N) : "
+if /i not "%confirm_merge%"=="O" (
+    echo.
+    echo   Operation annulee. Aucun merge effectue.
+    timeout /t 2 >nul
+    goto PULL_REQUESTS
+)
+
+echo.
+echo   Fusion en cours sur GitHub (gh pr merge %pr_to_merge% %flag_merge%)...
+gh pr merge %pr_to_merge% %flag_merge%
+if errorlevel 1 (
+    echo.
+    echo   [!] La fusion a echoue sur GitHub.
+    echo   Causes possibles : conflits non resolus, tests CI en echec, ou permissions.
+) else (
+    echo.
+    echo ==================================================
+    echo   Pull Request #%pr_to_merge% fusionnee avec succes sur main !
+    echo ==================================================
+    echo.
+    set /p pull_now="   Voulez-vous mettre a jour votre 'main' local maintenant ? (O/N) : "
+    if /i "%pull_now%"=="O" (
+        echo.
+        echo   Recuperation de la derniere version propre de main...
+        git checkout main
+        git pull origin main
+    )
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto PULL_REQUESTS
+
 
 REM ============================================================
 REM  SOUS-ROUTINE : Proposition de Pull Request apres un push
