@@ -5135,6 +5135,7 @@
                             const vendorProfile = (window.ProfileManager && typeof window.ProfileManager.getProfile === 'function') ? window.ProfileManager.getProfile() : null;
                             const myName = vendorProfile?.company_name || vendorProfile?.username || vendorProfile?.name || 'Vendeur';
                             const myAvatar = vendorProfile?.avatar || '';
+                            const peerUserId = order.customer_id || order.user_id || order.customer?.id || null;
 
                             window.deliveryTrackerInstance = new window.DeliveryTracker();
                             window.deliveryTrackerInstance.start({
@@ -5145,7 +5146,8 @@
                                 peerName,
                                 peerAvatar,
                                 myName,
-                                myAvatar
+                                myAvatar,
+                                peerUserId
                             });
                         }
                     } else if (order.status === 'DELIVERED') {

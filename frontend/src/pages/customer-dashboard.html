@@ -3744,6 +3744,7 @@
                         : (window.AuthManager && typeof window.AuthManager.getCurrentUser === 'function' ? window.AuthManager.getCurrentUser() : null);
                     const myName = currentUser?.name || currentUser?.company_name || currentUser?.username || 'Client';
                     const myAvatar = currentUser?.avatar || '';
+                    const peerUserId = order.supplier_id || order.vendor_id || order.vendor?.id || null;
 
                     window.deliveryTrackerInstance = new window.DeliveryTracker();
                     window.deliveryTrackerInstance.start({
@@ -3754,7 +3755,8 @@
                         peerName,
                         peerAvatar,
                         myName,
-                        myAvatar
+                        myAvatar,
+                        peerUserId
                     });
                 }
             }

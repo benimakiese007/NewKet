@@ -35,6 +35,11 @@
             this.heartbeatInterval = null;
             this.lastBroadcastLocation = null;
 
+            // Session unique & Peer identification
+            this.peerUserId = null;
+            this.sessionToken = null;
+            this.peerSessionToken = null;
+
             // WebRTC Call state
             this.peerConnection = null;
             this.localStream = null;
@@ -68,13 +73,15 @@
          * @param {Object} [options.initialCustomerCoords] - Optional fallback { lat, lng }
          * @param {Function} [options.onStatusChange]
          */
-        async start({ orderId, role, container, peerName = null, peerAvatar = null, myName = null, myAvatar = null, initialCustomerCoords = null, onStatusChange = null }) {
+        async start({ orderId, role, container, peerName = null, peerAvatar = null, myName = null, myAvatar = null, peerUserId = null, initialCustomerCoords = null, onStatusChange = null }) {
             this.orderId = orderId;
             this.role = role;
             this.peerName = peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
             this.peerAvatar = peerAvatar || '';
             this.myName = myName || (this.role === 'vendor' ? 'Vendeur' : 'Client');
             this.myAvatar = myAvatar || '';
+            this.peerUserId = peerUserId || null;
+            this.sessionToken = sessionStorage.getItem('newket_session_token') || null;
             this.onStatusChange = onStatusChange;
 
             const root = typeof container === 'string' ? document.querySelector(container) : container;
@@ -439,6 +446,7 @@
                     lat: coords.lat,
                     lng: coords.lng,
                     accuracy: coords.accuracy,
+                    session_token: this.sessionToken,
                     timestamp: Date.now()
                 }
             }).catch(err => console.warn('[DeliveryTracker] Broadcast send error:', err));
@@ -512,6 +520,31 @@
 
             // Signal de sonnerie immédiat (< 50ms) avant même l'initialisation du micro
             this._sendCallSignal({ type: 'ring' });
+
+            // Push notification de secours (si le destinataire est hors de l'application / écran verrouillé)
+            if (this.peerUserId) {
+                (async () => {
+                    try {
+                        const sessionData = await window.supabaseClient?.auth?.getSession();
+                        const token = sessionData?.data?.session?.access_token;
+                        if (token) {
+                            fetch('/api/push/call-ring', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    target_user_id: this.peerUserId,
+                                    caller_name: this.myName,
+                                    caller_avatar: this.myAvatar,
+                                    order_id: this.orderId
+                                })
+                            }).catch(() => {});
+                        }
+                    } catch (_) {}
+                })();
+            }
 
             try {
                 this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -610,6 +643,7 @@
                     role: this.role,
                     callerName: this.myName,
                     callerAvatar: this.myAvatar,
+                    session_token: this.sessionToken,
                     ...payload
                 }
             }).catch(err => console.warn('[DeliveryTracker] Call signal send error:', err));
@@ -736,6 +770,16 @@
          */
         _handlePeerUpdate(data) {
             if (!data || data.role === this.role) return;
+
+            // Filtrage session unique (ignorer un ancien appareil si un token plus récent est connu)
+            if (data.session_token) {
+                if (this.peerSessionToken && this.peerSessionToken !== data.session_token) {
+                    // Nouveau device_id / session_token du pair : mettre à jour
+                    this.peerSessionToken = data.session_token;
+                } else if (!this.peerSessionToken) {
+                    this.peerSessionToken = data.session_token;
+                }
+            }
 
             this.peerLocation = { lat: data.lat, lng: data.lng };
             this.lastPeerUpdate = Date.now();

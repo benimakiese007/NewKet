@@ -1,4 +1,5 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
+import { randomUUID } from 'crypto';
 import { getReferralSummaryForUser } from './referral.controller.js';
 
 export const getPublicUserStats = async (req, res, next) => {
@@ -214,3 +215,35 @@ export const deleteUser = async (req, res, next) => {
         return next(err);
     }
 };
+
+/**
+ * Enregistre une session unique pour l'utilisateur connecté.
+ * Génère un nouveau session_token (UUID v4) et l'écrit dans users.session_token.
+ * L'ancien token est écrasé → l'appareil précédent est automatiquement invalidé.
+ */
+export const registerSession = async (req, res, next) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Non autorisé.' });
+
+        const sessionToken = randomUUID();
+
+        const client = supabaseAdmin || supabase;
+        const { error } = await client
+            .from('users')
+            .update({ session_token: sessionToken })
+            .eq('id', userId);
+
+        if (error) {
+            console.error('[registerSession] DB update failed:', error.message);
+            return res.status(500).json({ error: 'Impossible d\'enregistrer la session.' });
+        }
+
+        console.log(`[registerSession] New session registered for user ${userId}`);
+        return res.status(200).json({ session_token: sessionToken });
+    } catch (err) {
+        console.error('Error registerSession:', err.message);
+        return next(err);
+    }
+};
+

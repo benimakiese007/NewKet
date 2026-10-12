@@ -302,6 +302,31 @@ const AuthManager = {
 
                 if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
                 if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
+
+                // --- ENREGISTREMENT SESSION UNIQUE (1 user = 1 appareil) ---
+                try {
+                    const sessionData = await window.supabaseClient?.auth?.getSession();
+                    const token = sessionData?.data?.session?.access_token;
+                    if (token) {
+                        const sessionRes = await fetch('/api/users/session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`
+                            }
+                        });
+                        if (sessionRes.ok) {
+                            const resJson = await sessionRes.json();
+                            if (resJson?.session_token) {
+                                sessionStorage.setItem('newket_session_token', resJson.session_token);
+                                console.log('[NewKet Auth] Session unique enregistrée.');
+                            }
+                        }
+                    }
+                } catch (sessionErr) {
+                    console.warn('[NewKet Auth] registerSession failed (non-blocking):', sessionErr.message);
+                }
+                // --- FIN ENREGISTREMENT SESSION ---
             } catch (err) {
                 console.error('[NewKet Auth] handleSessionUpdate error:', err);
             } finally {
@@ -776,6 +801,7 @@ const AuthManager = {
         
         // Clear specific non-prefixed session keys
         sessionStorage.removeItem('adminAuth');
+        sessionStorage.removeItem('newket_session_token');
         if (this._logoutInProgress) {
             localStorage.removeItem('supabase.auth.token'); // Fallback for old tokens if any
             localStorage.removeItem('supabase.auth.refreshToken'); // Extra fallback (older builds)

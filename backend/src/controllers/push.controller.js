@@ -66,3 +66,25 @@ export const unsubscribeFromPush = async (req, res, next) => {
         next(error);
     }
 };
+
+export const sendCallRing = async (req, res, next) => {
+    try {
+        const { target_user_id, caller_name, caller_avatar, order_id } = req.body || {};
+        if (!target_user_id || !order_id) {
+            return res.status(400).json({ error: 'Champs requis manquants (target_user_id, order_id).' });
+        }
+
+        const result = await WebPushService.sendCallRingNotification({
+            targetUserId: target_user_id,
+            callerName: caller_name,
+            callerAvatar: caller_avatar,
+            orderId: order_id
+        });
+
+        res.json({ success: true, sent: result.sent });
+    } catch (error) {
+        console.error('[PushController] sendCallRing error:', error);
+        next(error);
+    }
+};
+

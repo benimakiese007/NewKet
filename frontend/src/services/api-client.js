@@ -243,6 +243,10 @@ export const ApiClient = {
                     } catch {
                     }
 
+                    // Inclure le session_token (1 appareil à la fois)
+                    const sessionToken = sessionStorage.getItem('newket_session_token');
+                    if (sessionToken) authHeaders['x-session-token'] = sessionToken;
+
                     try {
                         response = await fetch(url, { ...config, headers: { ...baseHeaders, ...authHeaders } });
                     } catch (error) {
@@ -255,12 +259,39 @@ export const ApiClient = {
                         throw error;
                     }
 
-                    // If the API says the token is invalid/expired, clear cache and retry once.
-                    if (!didAuthRetry && response && response.status === 401) {
-                        didAuthRetry = true;
-                        this._invalidateAuthCache();
-                        continue;
+                    // SESSION_KICKED : l'user s'est connecté sur un autre appareil → déconnexion forcée
+                    if (response && response.status === 401) {
+                        try {
+                            const body = await response.clone().json();
+                            if (body?.error === 'SESSION_KICKED') {
+                                sessionStorage.removeItem('newket_session_token');
+                                this._invalidateAuthCache();
+                                // Message discret non-bloquant
+                                if (!window._sessionKickedShown) {
+                                    window._sessionKickedShown = true;
+                                    setTimeout(() => {
+                                        window._sessionKickedShown = false;
+                                        const msg = body.message || 'Votre compte a été ouvert sur un autre appareil. Vous avez été déconnecté.';
+                                        if (window.UIManager?.showToast) {
+                                            window.UIManager.showToast(msg, 'warning');
+                                        } else {
+                                            alert(msg);
+                                        }
+                                        window.AuthManager?.logout?.();
+                                    }, 100);
+                                }
+                                return null;
+                            }
+                        } catch { /* ignore JSON parse error */ }
+
+                        // 401 classique : token expiré → retry avec token frais
+                        if (!didAuthRetry) {
+                            didAuthRetry = true;
+                            this._invalidateAuthCache();
+                            continue;
+                        }
                     }
+
 
                     // In local dev, Vite may come up before the backend. Wait for /api/health
                     // before retrying transient gateway responses during startup.

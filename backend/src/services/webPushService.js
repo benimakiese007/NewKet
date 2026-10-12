@@ -196,6 +196,41 @@ const WebPushService = {
 
     sendForNotification(notification) {
         return sendNotificationNow(notification);
+    },
+
+    async sendCallRingNotification({ targetUserId, callerName, callerAvatar, orderId }) {
+        if (!isConfigured || !targetUserId) return { sent: 0 };
+
+        try {
+            const { data: subs, error } = await supabaseAdmin
+                .from('push_subscriptions')
+                .select('endpoint, subscription')
+                .eq('user_id', targetUserId)
+                .is('revoked_at', null);
+
+            if (error || !subs || subs.length === 0) return { sent: 0 };
+
+            const payload = {
+                title: `Appel vocal — ${callerName || 'NewKet'}`,
+                body: 'Appel en direct en cours. Appuyez pour répondre.',
+                icon: callerAvatar || '/Images/Logo NewKet PNG-192.png',
+                badge: '/favicon-32x32.png',
+                tag: `call-ring-${orderId}`,
+                requireInteraction: true,
+                data: {
+                    type: 'call-ring',
+                    order_id: orderId,
+                    caller_name: callerName || 'NewKet',
+                    caller_avatar: callerAvatar || ''
+                }
+            };
+
+            const results = await Promise.all(subs.map(row => sendRow(row, payload)));
+            return { sent: results.filter(Boolean).length };
+        } catch (err) {
+            console.error('[WebPush] sendCallRingNotification error:', err);
+            return { sent: 0 };
+        }
     }
 };
 

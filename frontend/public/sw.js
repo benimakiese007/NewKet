@@ -80,13 +80,45 @@ self.addEventListener('push', (event) => {
     }
 
     const { title, ...options } = payload;
+
+    // Prise en charge dédiée pour les appels vocaux entrants (Call Ring)
+    if (options.data?.type === 'call-ring') {
+        const orderId = options.data.order_id;
+        const callOptions = {
+            ...options,
+            tag: `call-ring-${orderId}`,
+            requireInteraction: true,
+            vibrate: [500, 250, 500, 250, 500, 250, 500],
+            actions: [
+                { action: 'answer', title: '📞 Répondre' },
+                { action: 'decline', title: '✕ Ignorer' }
+            ]
+        };
+        event.waitUntil(self.registration.showNotification(title, callOptions));
+        return;
+    }
+
     event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
-    const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+    const notifData = event.notification.data || {};
+    const action = event.action;
+
+    // Si l'utilisateur clique sur "Ignorer" d'un appel entrant
+    if (action === 'decline') {
+        return;
+    }
+
+    let targetUrl;
+    if (notifData.type === 'call-ring' && notifData.order_id) {
+        // Rediriger directement avec auto_answer=1 vers le dashboard approprié
+        targetUrl = new URL(`/customer-dashboard#purchases?order_id=${encodeURIComponent(notifData.order_id)}&auto_answer=1`, self.location.origin).href;
+    } else {
+        targetUrl = new URL(notifData.url || '/', self.location.origin).href;
+    }
 
     event.waitUntil((async () => {
         const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });

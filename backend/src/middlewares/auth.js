@@ -66,7 +66,34 @@ export const requireAuth = async (req, res, next) => {
         // lors des prochaines requêtes au sein de l'API.
         req.token = token;
 
+        // --- VÉRIFICATION SESSION UNIQUE (1 user = 1 appareil) ---
+        // Si le frontend envoie un x-session-token, on vérifie qu'il correspond bien à la session active en BDD.
+        // Si ce n'est pas le cas, l'utilisateur a ouvert une session sur un autre appareil → on kick l'ancien.
+        const clientSessionToken = req.headers['x-session-token'] || null;
+        if (clientSessionToken) {
+            try {
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('session_token')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                // Si un token est enregistré en base et qu'il diffère du token client → kick
+                if (profile?.session_token && profile.session_token !== clientSessionToken) {
+                    return res.status(401).json({
+                        error: 'SESSION_KICKED',
+                        message: 'Votre compte a été ouvert sur un autre appareil. Vous avez été déconnecté.'
+                    });
+                }
+            } catch (sessionErr) {
+                // Ne pas bloquer si la vérification DB échoue (dégradé gracieusement)
+                console.warn('[Auth] Session token check failed (non-blocking):', sessionErr.message);
+            }
+        }
+        // --- FIN VÉRIFICATION SESSION ---
+
         next();
+
     } catch (err) {
         console.error('❌ Erreur middleware auth:', err);
         res.status(500).json({ error: 'Erreur interne lors de la vérification de l\'authentification' });
