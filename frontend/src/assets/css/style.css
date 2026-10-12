@@ -26155,3 +26155,15 @@ video {
   }
 }
 
+
+/* Standard bottom nav (Web / PWA / Android) active item styling - simple color accent, no bubble */
+.standard-bottom-nav .nav-item.active {
+  color: #0A4A2E !important;
+  font-weight: 600;
+}
+html.dark .standard-bottom-nav .nav-item.active {
+  color: #34D399 !important;
+}
+.standard-bottom-nav .nav-indicator {
+  display: none !important;
+}

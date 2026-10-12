@@ -472,7 +472,7 @@ const getBottomNavHTML = (role) => {
     return `<!-- Standard Mobile Bottom Navbar (Web / PWA / Android) -->
 <nav id="mobileBottomNav" class="standard-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200/60 dark:border-gray-700/60 sm:hidden transition-transform duration-300" style="padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);">
     <div class="relative flex items-stretch justify-around h-[62px] overflow-hidden">
-        <div class="nav-indicator absolute left-0 top-[6px] bottom-[6px] width-0 rounded-full bg-gradient-to-b from-white/95 to-gray-100/90 dark:from-gray-700/95 dark:to-gray-800/90 shadow-md opacity-0 pointer-events-none transition-all duration-300"></div>
+        
         <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Accueil">
             <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
             <span>Accueil</span>
