@@ -432,30 +432,30 @@ const getBottomNavHTML = (role) => {
     if (useLiquidGlass) {
         return `<!-- Liquid Glass Bottom Navbar (iOS Capacitor Only) -->
 <nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-3 sm:hidden rounded-[32px] w-[calc(100%-32px)] left-[16px] h-[62px]" style="bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 4px));">
-    <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Accueil">
+    <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>
     </a>
-    <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Recherche">
+    <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Recherche">
         <iconify-icon icon="solar:magnifer-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Recherche</span>
     </a>
     ${isSeller ? `
-    <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Publier" data-track-action="navigation:publish_click">
+    <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Publier" data-track-action="navigation:publish_click">
         <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Publier</span>
     </a>` : `
-    <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Boutiques">
+    <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
         <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Boutique</span>
     </a>`}
     ${!isAdmin ? `
-    <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Panier">
+    <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
         <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
         <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
         <span class="text-[9px] font-medium tracking-wide">Panier</span>
     </a>` : ''}
-    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Profil">
+    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Profil">
         <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Profil</span>
     </a>

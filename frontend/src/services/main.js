@@ -320,7 +320,7 @@ const App = {
             const indicator = nav?.querySelector('.nav-indicator');
             const items = nav ? Array.from(nav.querySelectorAll('[data-bottom-nav-item]')) : [];
 
-            if (!nav || !indicator || items.length === 0) return;
+            if (!nav || items.length === 0) return;
 
             const currentPath = normalizeBottomNavPath(window.location.href);
             const activeItem = items.find((item) => {

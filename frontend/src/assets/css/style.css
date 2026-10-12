@@ -10568,31 +10568,36 @@ html.dark .liquid-glass-nav {
 .liquid-glass-nav .nav-item {
   position: relative;
   z-index: 2;
-  color: #4B5563 !important;
+  color: #64748B !important;
   text-shadow: none !important;
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease !important;
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
 }
 
 .liquid-glass-nav .nav-item iconify-icon {
   filter: none !important;
-  color: #4B5563 !important;
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease !important;
+  color: #64748B !important;
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease !important;
 }
 
 .liquid-glass-nav .nav-item span {
   font-weight: 500 !important;
   letter-spacing: 0.01em !important;
-  color: #4B5563 !important;
+  color: #64748B !important;
+  transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
-/* Active Tab: Apple Emerald / Dark contrast, NO clumsy bubble */
+/* Active Tab Indicator: Subtle iOS Liquid Pill Background + Crisp Emerald Color */
 .liquid-glass-nav .nav-item.active {
   color: #0A4A2E !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 0.5px 1px rgba(255, 255, 255, 0.9) !important;
 }
 
 .liquid-glass-nav .nav-item.active iconify-icon {
   color: #0A4A2E !important;
-  transform: scale(1.1) !important;
+  transform: scale(1.15) !important;
 }
 
 .liquid-glass-nav .nav-item.active span {
@@ -10600,18 +10605,24 @@ html.dark .liquid-glass-nav {
   font-weight: 700 !important;
 }
 
-/* Dark mode active item */
+/* Dark mode */
 html.dark .liquid-glass-nav .nav-item {
-  color: #9CA3AF !important;
+  color: #94A3B8 !important;
 }
 html.dark .liquid-glass-nav .nav-item iconify-icon {
-  color: #9CA3AF !important;
+  color: #94A3B8 !important;
 }
 html.dark .liquid-glass-nav .nav-item span {
-  color: #9CA3AF !important;
+  color: #94A3B8 !important;
 }
-html.dark .liquid-glass-nav .nav-item.active,
-html.dark .liquid-glass-nav .nav-item.active iconify-icon,
+html.dark .liquid-glass-nav .nav-item.active {
+  color: #34D399 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 0.5px 1px rgba(255, 255, 255, 0.2) !important;
+}
+html.dark .liquid-glass-nav .nav-item.active iconify-icon {
+  color: #34D399 !important;
+}
 html.dark .liquid-glass-nav .nav-item.active span {
   color: #34D399 !important;
 }
