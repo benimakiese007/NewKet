@@ -158,6 +158,75 @@ const AdminLayout = {
         return file || 'index';
     },
 
+    // ─── Native Liquid Glass Navbar Bridge (iOS 26+) ──────────────────────────
+    //
+    // On iOS 26+ Capacitor builds the AdminNavbarPlugin injects a native UIView
+    // with UIGlassEffect above the WebView.  On iOS < 26 and all other platforms
+    // the existing HTML navbar is rendered as normal.
+    //
+    _nativeNavbarActive: false,
+
+    _isCapacitorNative() {
+        return !!(window.Capacitor && (
+            typeof window.Capacitor.isNativePlatform === 'function'
+                ? window.Capacitor.isNativePlatform()
+                : window.Capacitor.isNative
+        ) && window.Capacitor.getPlatform?.() === 'ios');
+    },
+
+    async _tryNativeLiquidGlass() {
+        if (!this._isCapacitorNative()) return false;
+
+        try {
+            const plugin = window.Capacitor?.Plugins?.AdminNavbar;
+            if (!plugin) return false;
+
+            const { available } = await plugin.isNativeAvailable();
+            if (!available) return false;
+
+            const { shown } = await plugin.show();
+            if (!shown) return false;
+
+            this._nativeNavbarActive = true;
+
+            // Wire native button events → existing JS handlers
+            await plugin.addListener('menuTap', () => {
+                window.SidebarManager?.toggle?.() || window.SidebarManager?.open?.();
+            });
+
+            await plugin.addListener('shopTap', () => {
+                window.location.href = '/';
+            });
+
+            await plugin.addListener('logoutTap', () => {
+                // Delegate to the same logout handler used by the HTML navbar
+                window.AuthManager?.handleLogoutClick?.(null);
+            });
+
+            // Hide the HTML placeholder so there is no gap at the top
+            const placeholder = document.getElementById('adminNavbarPlaceholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+                placeholder.dataset.nativeReplaced = 'true';
+            }
+
+            // Cleanup when leaving the admin page so the native navbar disappears
+            window.addEventListener('pagehide', () => {
+                try { plugin.hide(); } catch (_) {}
+            }, { once: true });
+            window.addEventListener('beforeunload', () => {
+                try { plugin.hide(); } catch (_) {}
+            }, { once: true });
+
+            console.info('[NewKet] AdminNavbar: Native Liquid Glass active (iOS 26+)');
+            return true;
+        } catch (err) {
+            console.warn('[NewKet] AdminNavbar: Native Liquid Glass unavailable, falling back to HTML.', err);
+            return false;
+        }
+    },
+    // ─────────────────────────────────────────────────────────────────────────
+
     async init() {
 
         // 1. Security Check (Strict Admin only for admin/ folder)
@@ -170,8 +239,13 @@ const AdminLayout = {
         // Avoid visual jump: keep admin shell hidden until auth + SidebarManager settle.
         this.setLayoutLoading(true);
 
+        // 3. Attempt native Liquid Glass navbar (iOS 26+).
+        //    If successful, the HTML navbar is skipped entirely.
+        //    Otherwise renderNavbar() runs as usual.
+        const nativeNavbarShown = await this._tryNativeLiquidGlass();
+
         // 3. Inject Layout Components
-        this.renderNavbar();
+        if (!nativeNavbarShown) this.renderNavbar();
         this.renderSidebar();
 
         // 3.5 Initialize Sidebar State
