@@ -383,6 +383,20 @@ const NotificationManager = {
                 badge.style.display = 'none';
             }
         });
+    },
+    toggleUI() {
+        if (window.DrawersManager) {
+            window.DrawersManager.toggleNotifications();
+        } else {
+            window.location.href = '/notifications';
+        }
+    },
+    openUI() {
+        if (window.DrawersManager) {
+            window.DrawersManager.openNotifications();
+        } else {
+            window.location.href = '/notifications';
+        }
     }
 };
 

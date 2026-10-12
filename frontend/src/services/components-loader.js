@@ -138,23 +138,23 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Notifications -->
-                <a href="{{ROOT}}notifications"
+                <button onclick="event.preventDefault(); window.NotificationManager?.toggleUI ? window.NotificationManager.toggleUI() : window.DrawersManager?.toggleNotifications()"
                     class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
                     <span
                         class="notification-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
-                </a>
+                </button>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}favorites" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                <button onclick="event.preventDefault(); window.FavoritesManager?.toggleUI ? window.FavoritesManager.toggleUI() : window.DrawersManager?.toggleFavorites()" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
                     <span
                         class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:18px; height:18px;">0</span>
-                </a>
+                </button>
 
                 <!-- Cart -->
                 <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
@@ -244,11 +244,11 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span>Vendre</span>
                 </a>
-                <a href="{{ROOT}}favorites" class="mobile-menu-shortcut-card admin-hidden">
+                <a href="{{ROOT}}favorites" onclick="if (!window.location.pathname.includes('/favorites')) { event.preventDefault(); window.SidebarManager?.close?.(); window.DrawersManager?.openFavorites(); }" class="mobile-menu-shortcut-card admin-hidden">
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
                 </a>
-                <a href="{{ROOT}}notifications" class="mobile-menu-shortcut-card non-seller-ui-element">
+                <a href="{{ROOT}}notifications" onclick="if (!window.location.pathname.includes('/notifications')) { event.preventDefault(); window.SidebarManager?.close?.(); window.DrawersManager?.openNotifications(); }" class="mobile-menu-shortcut-card non-seller-ui-element">
                     <iconify-icon icon="solar:bell-linear" width="20"></iconify-icon>
                     <span>Notifications</span>
                     <span class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden absolute top-2 right-2">0</span>
@@ -629,6 +629,13 @@ const ComponentLoader = {
             const script = document.createElement('script');
             script.src = this.getAdjustedPath('/js/cart.js');
             document.head.appendChild(script);
+        }
+
+        // Load drawers manager globally (Favorites & Notifications slide-overs)
+        if (!window.DrawersManager) {
+            const dScript = document.createElement('script');
+            dScript.src = this.getAdjustedPath('/js/drawers.js');
+            document.head.appendChild(dScript);
         }
 
         // Load Cookie Consent globally

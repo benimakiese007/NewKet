@@ -212,7 +212,22 @@ const FavoritesManager = {
                 }
             }
         });
-    }
+    },
+    toggleUI() {
+        if (window.DrawersManager) {
+            window.DrawersManager.toggleFavorites();
+        } else {
+            window.location.href = '/favorites';
+        }
+    },
+
+    openUI() {
+        if (window.DrawersManager) {
+            window.DrawersManager.openFavorites();
+        } else {
+            window.location.href = '/favorites';
+        }
+    },
 };
 
 window.FavoritesManager = FavoritesManager;
