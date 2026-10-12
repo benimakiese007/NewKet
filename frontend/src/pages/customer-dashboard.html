@@ -513,6 +513,34 @@
                         </label>
                     </div>
                     <p id="push-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
+
+                    <!-- Test Live Activity / Suivi en direct pour iPhone & Android -->
+                    <div class="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                    <iconify-icon icon="solar:scooter-bold" class="text-emerald-600" width="18"></iconify-icon>
+                                    Test Live Activity (Dynamic Island & Lock Screen)
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Simulez le suivi d'une commande en direct sur iOS / Android</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button type="button" id="customerTestLiveActivityStartBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                <iconify-icon icon="solar:play-circle-bold" width="16"></iconify-icon>
+                                En livraison 🛵
+                            </button>
+                            <button type="button" id="customerTestLiveActivityDeliveredBtn" class="bg-gray-900 hover:bg-black text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
+                                <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
+                                Livré 🎉
+                            </button>
+                        </div>
+                        <button type="button" id="customerTestLiveActivityStopBtn" class="border border-gray-200 hover:bg-gray-100 text-gray-600 font-semibold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1">
+                            <iconify-icon icon="solar:stop-circle-linear" width="15"></iconify-icon>
+                            Arrêter le suivi
+                        </button>
+                        <p id="customerLiveActivityFeedback" class="text-xs font-semibold text-center hidden py-1 rounded-lg"></p>
+                    </div>
                 </div>
 
                 <div class="customer-settings-grid grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
@@ -4987,6 +5015,77 @@
         window.NewKetPageRefresh = async () => {
             window.location.reload();
         };
+
+        // === Live Activity Customer Dashboard Test Controls ===
+        document.addEventListener('DOMContentLoaded', () => {
+            const startBtn = document.getElementById('customerTestLiveActivityStartBtn');
+            const deliveredBtn = document.getElementById('customerTestLiveActivityDeliveredBtn');
+            const stopBtn = document.getElementById('customerTestLiveActivityStopBtn');
+            const feedback = document.getElementById('customerLiveActivityFeedback');
+
+            function showFeedback(msg, isError = false) {
+                if (!feedback) return;
+                feedback.textContent = msg;
+                feedback.className = `text-xs font-semibold text-center py-1.5 px-3 rounded-lg transition-all ${isError ? 'text-red-600 bg-red-50' : 'text-emerald-700 bg-emerald-50'}`;
+                feedback.classList.remove('hidden');
+                setTimeout(() => feedback.classList.add('hidden'), 5000);
+            }
+
+            if (startBtn) {
+                startBtn.addEventListener('click', async () => {
+                    try {
+                        if (window.LiveOrderTracker) {
+                            await window.LiveOrderTracker.trackOrder({
+                                id: 'test-dash-001',
+                                order_number: 'CMD-TEST',
+                                status: 'IN_DELIVERY',
+                                shop_name: 'NewKet Kinshasa',
+                                item_count: 2,
+                                eta_text: '~15 min'
+                            });
+                            showFeedback('✅ Live Activity démarrée (En cours de livraison)');
+                        } else {
+                            showFeedback('❌ LiveOrderTracker non initialisé', true);
+                        }
+                    } catch (err) {
+                        showFeedback('❌ Erreur: ' + (err.message || err), true);
+                    }
+                });
+            }
+
+            if (deliveredBtn) {
+                deliveredBtn.addEventListener('click', async () => {
+                    try {
+                        if (window.LiveOrderTracker) {
+                            await window.LiveOrderTracker.trackOrder({
+                                id: 'test-dash-001',
+                                order_number: 'CMD-TEST',
+                                status: 'DELIVERED',
+                                shop_name: 'NewKet Kinshasa',
+                                item_count: 2,
+                                eta_text: 'Livré 🎉'
+                            });
+                            showFeedback('✅ Live Activity mise à jour (Livré)');
+                        }
+                    } catch (err) {
+                        showFeedback('❌ Erreur: ' + (err.message || err), true);
+                    }
+                });
+            }
+
+            if (stopBtn) {
+                stopBtn.addEventListener('click', async () => {
+                    try {
+                        if (window.LiveOrderTracker) {
+                            await window.LiveOrderTracker.stopTracking('test-dash-001');
+                            showFeedback('⏹ Live Activity arrêtée');
+                        }
+                    } catch (err) {
+                        showFeedback('❌ Erreur: ' + (err.message || err), true);
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
