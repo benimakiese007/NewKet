@@ -1241,19 +1241,27 @@ if errorlevel 1 (
     echo   Build iOS lance avec succes avec Xcode %version_xc% !
     echo ==================================================
     echo.
+    REM Recuperation du numero de build (#35, #36...) et de l'ID du run
+    timeout /t 5 >nul
+    for /f "tokens=7" %%R in ('gh run list --workflow=ios-build.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "run_id_build=%%R"
+    for /f "delims=" %%R in ('gh run list --workflow=ios-build.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "run_id_build=%%R"
+    for /f "delims=" %%N in ('gh run list --workflow=ios-build.yml --limit 1 --json number --jq ".[0].number"') do set "run_num_build=%%N"
+    echo.
+    echo   Numero de build : #%run_num_build%  (ID: %run_id_build%)
+    echo.
     set /p watch_now="   Souhaitez-vous attendre la fin et telecharger l'IPA sur le Bureau ? (O/N) : "
     if /i "%watch_now%"=="O" (
         timeout /t 3 >nul
-        gh run watch
+        gh run watch %run_id_build%
         echo.
-        echo   Telechargement automatique de l'IPA sur votre Bureau...
-        gh run download -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds"
+        echo   Telechargement de l'IPA du Build #%run_num_build% sur votre Bureau...
+        gh run download %run_id_build% -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds\Build-#%run_num_build%"
         echo.
         echo ==================================================
-        echo   Fichier .ipa telecharge avec succes !
-        echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds
+        echo   Build #%run_num_build% telecharge avec succes sur votre Bureau !
+        echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds\Build-#%run_num_build%
         echo ==================================================
-        explorer "%USERPROFILE%\Desktop\NewKet-Builds"
+        explorer "%USERPROFILE%\Desktop\NewKet-Builds\Build-#%run_num_build%"
     )
 )
 echo.
@@ -1305,23 +1313,40 @@ goto GITHUB_ACTIONS
 :ACTION_DOWNLOAD_IPA
 cls
 echo ==================================================
-echo      TELECHARGEMENT DU DERNIER BUILD IOS (.IPA)
+echo      TELECHARGEMENT D'UN BUILD IOS (.IPA)
 echo ==================================================
 echo.
-echo   Telechargement du dernier .ipa vers votre Bureau...
+echo   Builds disponibles (les 10 derniers) :
 echo.
-gh run download -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds"
+gh run list --workflow=ios-build.yml --limit 10 --json number,status,conclusion,createdAt --jq ".[] | \"  Build #\" + (.number | tostring) + \"  |  \" + .status + \"  |  \" + (.conclusion // \"en cours\") + \"  |  \" + .createdAt"
+echo.
+echo --------------------------------------------------
+set "dl_num="
+set /p dl_num="   Numero du build a telecharger (ex: 35) ou Entree pour le dernier : "
+echo.
+
+REM Si vide, prendre le dernier
+if "%dl_num%"=="" (
+    for /f "delims=" %%R in ('gh run list --workflow=ios-build.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "dl_run_id=%%R"
+    for /f "delims=" %%N in ('gh run list --workflow=ios-build.yml --limit 1 --json number --jq ".[0].number"') do set "dl_num=%%N"
+) else (
+    for /f "delims=" %%R in ('gh run list --workflow=ios-build.yml --json number,databaseId --jq ".[] | select(.number == %dl_num%) | .databaseId"') do set "dl_run_id=%%R"
+)
+
+echo   Telechargement du Build #%dl_num% (ID: %dl_run_id%)...
+echo.
+gh run download %dl_run_id% -n "NewKet-iOS-App" --dir "%USERPROFILE%\Desktop\NewKet-Builds\Build-#%dl_num%"
 if errorlevel 1 (
     echo.
-    echo   [!] Erreur lors du telechargement ou le build est encore en cours.
-    echo   Verifiez le statut avec l'option 3 (Historique des executions).
+    echo   [!] Erreur : le build est peut-etre encore en cours ou introuvable.
+    echo   Verifiez avec l'option 3 (Historique des executions).
 ) else (
     echo.
     echo ==================================================
-    echo   Fichier .ipa telecharge sur votre Bureau avec succes !
-    echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds
+    echo   Build #%dl_num% telecharge avec succes sur votre Bureau !
+    echo   Emplacement : %USERPROFILE%\Desktop\NewKet-Builds\Build-#%dl_num%
     echo ==================================================
-    explorer "%USERPROFILE%\Desktop\NewKet-Builds"
+    explorer "%USERPROFILE%\Desktop\NewKet-Builds\Build-#%dl_num%"
 )
 echo.
 echo --------------------------------------------------
