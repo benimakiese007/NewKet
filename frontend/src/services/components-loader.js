@@ -445,11 +445,9 @@ const getBottomNavHTML = (role) => {
         <span class="text-[9px] font-medium tracking-wide">Recherche</span>
     </a>
     ${isSeller ? `
-    <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
-        <span class="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#0A4A2E] to-[#1a7a4e] shadow-[0_4px_20px_rgba(10,74,46,0.5)] border-[3px] border-white/20 transition-transform active:scale-90">
-            <iconify-icon icon="solar:add-circle-bold" width="28" class="text-white"></iconify-icon>
-        </span>
-        <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
+    <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Publier" data-track-action="navigation:publish_click">
+        <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Publier</span>
     </a>` : `
     <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 text-white transition-all active:scale-95" aria-label="Boutiques">
         <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
@@ -482,11 +480,9 @@ const getBottomNavHTML = (role) => {
             <span>Recherche</span>
         </a>
         ${isSeller ? `
-        <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item-sell relative z-10 flex flex-col items-center justify-center -mt-4 publish-btn px-2" aria-label="Vendre" data-track-action="navigation:publish_click">
-            <span class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0A4A2E] text-white shadow-lg border-2 border-white dark:border-gray-800 transition-transform active:scale-95">
-                <iconify-icon icon="solar:add-circle-bold" width="26"></iconify-icon>
-            </span>
-            <span class="text-[9px] font-bold text-gray-700 dark:text-gray-300 mt-0.5">Vendre</span>
+        <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Publier" data-track-action="navigation:publish_click">
+            <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
+            <span>Publier</span>
         </a>` : `
         <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Boutiques">
             <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
