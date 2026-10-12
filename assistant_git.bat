@@ -1273,10 +1273,31 @@ goto GITHUB_ACTIONS
 :ACTION_LIST_WORKFLOWS
 cls
 echo ==================================================
-echo             WORKFLOWS DISPONIBLES
+echo        WORKFLOWS GITHUB ACTIONS - NEWKET
 echo ==================================================
 echo.
-gh workflow list
+echo   Workflows configures sur ce depot :
+echo   ----------------------------------------------------------
+
+REM Affichage formate avec nom, etat et ID
+for /f "delims=" %%W in ('gh workflow list --json name,state,id --jq ".[] | .name + \"|\" + .state + \"|\" + (.id | tostring)"') do (
+    for /f "tokens=1,2,3 delims=|" %%A in ("%%W") do (
+        echo.
+        echo   Nom     : %%A
+        if "%%B"=="active" (
+            echo   Statut  : Actif
+        ) else (
+            echo   Statut  : Desactive
+        )
+        echo   ID      : %%C
+    )
+)
+
+echo.
+echo   ----------------------------------------------------------
+echo   Dernier build execute :
+echo.
+gh run list --workflow=ios-build.yml --limit 1 --json number,status,conclusion,createdAt --jq ".[] | \"  Build #\" + (.number | tostring) + \"  -  \" + (if .conclusion == \"success\" then \"Succes\" elif .conclusion == \"failure\" then \"Echec\" else \"En cours\" end) + \"  -  \" + .createdAt[:10]"
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir...
