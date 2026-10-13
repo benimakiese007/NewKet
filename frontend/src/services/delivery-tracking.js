@@ -495,6 +495,7 @@
         async startCall() {
             if (this.callState !== 'idle') return;
             this.callState = 'calling';
+            this._broadcastCallState('calling');
             this._showCallOverlay('Appel en cours...', `Connexion audio avec le ${this.role === 'vendor' ? 'client' : 'vendeur'}...`, false, false, this.peerName, this.peerAvatar);
 
             // Signal de sonnerie immédiat (< 50ms) avant même l'initialisation du micro
@@ -547,6 +548,7 @@
         async acceptCall() {
             if (this.callState !== 'incoming') return;
             this.callState = 'connected';
+            this._broadcastCallState('connected');
             this._startCallTimer();
             this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
 
@@ -704,6 +706,7 @@
             if (data.type === 'ring') {
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
+                    this._broadcastCallState('incoming');
                     this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar || this.peerAvatar);
                     this._playRingtone();
                 }
@@ -711,6 +714,7 @@
                 this.pendingOffer = data.offer;
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
+                    this._broadcastCallState('incoming');
                     this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar || this.peerAvatar);
                     this._playRingtone();
                 }
@@ -719,6 +723,7 @@
                 this.callState = 'connected';
                 if (callerAvatar) this.peerAvatar = callerAvatar;
                 if (callerName) this.peerName = callerName;
+                this._broadcastCallState('connected');
                 this._startCallTimer();
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
             } else if (data.type === 'candidate' && this.peerConnection) {
@@ -1050,6 +1055,7 @@
             this.callViewMode = 'fullscreen';
             this.isMuted = false;
             this._stopCallTimer();
+            this._broadcastCallState('idle');
 
             const fullEl = document.getElementById('dt-call-fullscreen');
             const pipEl = document.getElementById('dt-call-pip');
@@ -1067,6 +1073,43 @@
 
             const audioEl = document.getElementById('dt-remote-audio');
             if (audioEl) audioEl.remove();
+        }
+
+        /**
+         * Diffuse l'état de l'appel à toutes les pages via BroadcastChannel + sessionStorage.
+         * Les autres pages utilisent cette info pour afficher la pilule "Appel en cours →".
+         * @param {string} state - 'idle' | 'calling' | 'incoming' | 'connected'
+         */
+        _broadcastCallState(state) {
+            try {
+                const key = 'newket_active_call';
+                if (state === 'idle') {
+                    sessionStorage.removeItem(key);
+                } else {
+                    // Déterminer l'URL de retour selon le rôle
+                    const dashPath = this.role === 'vendor'
+                        ? '/src/pages/vendor-dashboard.html'
+                        : '/src/pages/customer-dashboard.html';
+                    const payload = {
+                        state,
+                        orderId: this.orderId,
+                        peerName: this.peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur'),
+                        peerAvatar: this.peerAvatar || '',
+                        role: this.role,
+                        dashboardUrl: dashPath
+                    };
+                    sessionStorage.setItem(key, JSON.stringify(payload));
+                }
+
+                // BroadcastChannel pour notifier les onglets/pages déjà ouverts
+                if (typeof BroadcastChannel !== 'undefined') {
+                    try {
+                        const bc = new BroadcastChannel('newket-call-state');
+                        bc.postMessage({ state, orderId: this.orderId, peerName: this.peerName, peerAvatar: this.peerAvatar, role: this.role });
+                        bc.close();
+                    } catch (_) {}
+                }
+            } catch (_) {}
         }
 
         _playNotificationBeep() {

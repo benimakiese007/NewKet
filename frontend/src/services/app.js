@@ -160,3 +160,110 @@ const setupDeepLinkRouter = async () => {
 };
 setupDeepLinkRouter();
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Pilule flottante "Appel en cours" sur toutes les pages
+// Quand un appel WebRTC est actif sur le dashboard, une pilule s'affiche
+// partout pour que l'utilisateur puisse y retourner facilement.
+// ─────────────────────────────────────────────────────────────────────────────
+(function initCallBanner() {
+    const STORAGE_KEY = 'newket_active_call';
+    const BANNER_ID   = 'nk-global-call-pill';
+    const DASH_PAGES  = [
+        '/src/pages/customer-dashboard.html',
+        '/src/pages/vendor-dashboard.html'
+    ];
+
+    // Ne pas afficher la pilule sur les dashboards (ils ont leur propre UI d'appel)
+    const currentPath = window.location.pathname;
+    const isOnDashboard = DASH_PAGES.some(p => currentPath.endsWith(p.split('/').pop()));
+    if (isOnDashboard) return;
+
+    function _renderPill(data) {
+        let pill = document.getElementById(BANNER_ID);
+        if (data.state === 'idle' || !data.state) {
+            if (pill) pill.remove();
+            return;
+        }
+        if (!pill) {
+            pill = document.createElement('div');
+            pill.id = BANNER_ID;
+            pill.style.cssText = [
+                'position:fixed', 'bottom:80px', 'left:50%', 'transform:translateX(-50%)',
+                'z-index:99999', 'display:flex', 'align-items:center', 'gap:10px',
+                'padding:10px 18px', 'border-radius:999px',
+                'background:linear-gradient(135deg,#111827 0%,#1f2937 100%)',
+                'border:1px solid rgba(52,211,153,0.35)', 'box-shadow:0 8px 30px rgba(0,0,0,0.45)',
+                'cursor:pointer', 'user-select:none',
+                'animation:nk-pill-in 0.28s cubic-bezier(0.34,1.56,0.64,1) both'
+            ].join(';');
+
+            // Injecter l'animation si elle n'existe pas
+            if (!document.getElementById('nk-pill-style')) {
+                const s = document.createElement('style');
+                s.id = 'nk-pill-style';
+                s.textContent = `
+                    @keyframes nk-pill-in {
+                        from { opacity:0; transform:translateX(-50%) translateY(16px) scale(0.9); }
+                        to   { opacity:1; transform:translateX(-50%) translateY(0)   scale(1); }
+                    }
+                    #${BANNER_ID}:active { transform:translateX(-50%) scale(0.97); }
+                `;
+                document.head.appendChild(s);
+            }
+            document.body.appendChild(pill);
+        }
+
+        const peerName  = data.peerName || (data.role === 'vendor' ? 'Client' : 'Vendeur');
+        const avatarUrl = data.peerAvatar || '';
+        const dashUrl   = data.dashboardUrl || (data.role === 'vendor' ? '/src/pages/vendor-dashboard.html' : '/src/pages/customer-dashboard.html');
+        const stateLabel = data.state === 'connected' ? '📞 En communication' :
+                           data.state === 'incoming'  ? '📲 Appel entrant'     :
+                                                         '📞 Appel en cours';
+
+        const avatarHtml = avatarUrl
+            ? `<img src="${avatarUrl}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(52,211,153,0.6);flex-shrink:0;">`
+            : `<div style="width:28px;height:28px;border-radius:50%;background:#374151;border:2px solid rgba(52,211,153,0.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#6ee7b7;">${(peerName[0]||'?').toUpperCase()}</div>`;
+
+        pill.innerHTML = `
+            ${avatarHtml}
+            <div style="display:flex;flex-direction:column;min-width:0;">
+                <span style="font-size:11px;font-weight:700;color:#6ee7b7;letter-spacing:0.05em;white-space:nowrap;">${stateLabel}</span>
+                <span style="font-size:12px;font-weight:600;color:#f9fafb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">${peerName}</span>
+            </div>
+            <div style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;flex-shrink:0;animation:nk-pulse 1.4s ease-in-out infinite;"></div>
+        `;
+
+        // Ajouter le style de pulsation si manquant
+        if (!document.querySelector('#nk-pill-style')?.textContent?.includes('nk-pulse')) {
+            const existStyle = document.getElementById('nk-pill-style');
+            if (existStyle) existStyle.textContent += `@keyframes nk-pulse{0%,100%{opacity:1}50%{opacity:0.4}}`;
+        }
+
+        pill.onclick = () => { window.location.href = dashUrl; };
+    }
+
+    // Lire l'état initial depuis sessionStorage (cas navigation entre pages)
+    try {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            // Afficher la pilule une fois le DOM prêt
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => _renderPill(data));
+            } else {
+                _renderPill(data);
+            }
+        }
+    } catch (_) {}
+
+    // Écouter les mises à jour en temps réel depuis l'onglet du dashboard
+    if (typeof BroadcastChannel !== 'undefined') {
+        try {
+            const bc = new BroadcastChannel('newket-call-state');
+            bc.onmessage = (evt) => {
+                const d = evt.data || {};
+                _renderPill(d);
+            };
+        } catch (_) {}
+    }
+})();

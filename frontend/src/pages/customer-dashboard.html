@@ -5025,6 +5025,23 @@
             window.location.reload();
         };
 
+        // Guard : prévenir la navigation si un appel WebRTC est en cours
+        window.addEventListener('beforeunload', (e) => {
+            const tracker = window.deliveryTrackerInstance;
+            if (tracker && tracker.callState && tracker.callState !== 'idle') {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Nettoyer le sessionStorage de l'état d'appel si on quitte la page (appel terminé ou navigué)
+        window.addEventListener('pagehide', () => {
+            const tracker = window.deliveryTrackerInstance;
+            // Si l'appel est terminé (idle), on nettoie
+            if (!tracker || tracker.callState === 'idle') {
+                try { sessionStorage.removeItem('newket_active_call'); } catch (_) {}
+            }
+        });
     </script>
 </body>
 
