@@ -20,5 +20,12 @@ const storage = new CloudinaryStorage({
   },
 });
 
-// Création et exportation du middleware
+// Création et exportation des middlewares
 export const uploadMiddleware = multer({ storage: storage });
+
+export const uploadAudioMiddleware = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo max
+});
+
+export { cloudinary };

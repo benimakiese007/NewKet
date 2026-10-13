@@ -117,6 +117,21 @@ export const uploadRateLimit = rateLimit({
     },
 });
 
+/**
+ * Rate limit pour l'envoi de notes vocales (chat de livraison).
+ * Permet un échange fluide pendant le suivi en direct.
+ * Règle : 60 audios / 15 minutes par IP
+ */
+export const chatAudioRateLimit = rateLimit({
+    ...commonOptions,
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    message: {
+        success: false,
+        error: 'Trop de notes vocales envoyées. Veuillez patienter quelques instants.'
+    },
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PAIEMENTS
 // ─────────────────────────────────────────────────────────────────────────────

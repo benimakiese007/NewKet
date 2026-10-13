@@ -16,6 +16,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+import { cloudinary } from '../middlewares/upload.middleware.js';
+
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -110,5 +112,43 @@ export const handleChat = async (req, res, next) => {
 
     } catch (err) {
         next(err);
+    }
+};
+
+/**
+ * POST /api/chat/upload-audio
+ * Upload d'une note vocale vers Cloudinary (dossier newket_audio_messages).
+ * Prend le buffer du fichier audio fourni par uploadAudioMiddleware.
+ * Renvoie l'URL sécurisée HTTPS de l'audio.
+ */
+export const uploadChatAudio = async (req, res, next) => {
+    try {
+        if (!req.file || !req.file.buffer) {
+            return res.status(400).json({ error: 'Fichier audio manquant.' });
+        }
+
+        const uploadResult = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                {
+                    resource_type: 'video', // Audio stocké sous type video chez Cloudinary
+                    folder: 'newket_audio_messages',
+                    public_id: `voice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+                },
+                (error, result) => {
+                    if (error) return reject(error);
+                    resolve(result);
+                }
+            );
+            stream.end(req.file.buffer);
+        });
+
+        return res.json({
+            success: true,
+            audioUrl: uploadResult.secure_url,
+            duration: uploadResult.duration ? Math.round(uploadResult.duration) : null
+        });
+    } catch (err) {
+        console.error('[Chat] Erreur upload audio Cloudinary:', err);
+        return res.status(500).json({ error: "Échec de l'upload de la note vocale." });
     }
 };

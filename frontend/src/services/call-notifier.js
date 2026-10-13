@@ -184,13 +184,6 @@
         const callerAvatar = data.callerAvatar || '';
         const orderId = data.orderId || '';
 
-        const targetDashboard = data.role === 'vendor'
-            ? '/src/pages/customer-dashboard.html'
-            : '/src/pages/vendor-dashboard.html';
-        const targetUrl = orderId
-            ? `${targetDashboard}?order=${encodeURIComponent(orderId)}`
-            : targetDashboard;
-
         const subtitleText = `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`;
         const initials = callerName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'NK';
 
@@ -302,10 +295,10 @@
             }
         });
 
-        // Actions Décrocher
+        // Actions Décrocher — on reste sur la page courante, delivery-tracking.js gère WebRTC nativement
         const onAnswer = () => {
             _dismissCallUI();
-            window.location.href = targetUrl;
+            // Pas de redirection : l'appel est géré par delivery-tracking.js sur le dashboard
         };
 
         // Actions Refuser

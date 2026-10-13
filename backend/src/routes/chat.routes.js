@@ -1,6 +1,7 @@
 import express from 'express';
-import { handleChat } from '../controllers/chat.controller.js';
-import { chatRateLimit } from '../middlewares/rate-limits.js';
+import { handleChat, uploadChatAudio } from '../controllers/chat.controller.js';
+import { chatRateLimit, chatAudioRateLimit } from '../middlewares/rate-limits.js';
+import { uploadAudioMiddleware } from '../middlewares/upload.middleware.js';
 
 const router = express.Router();
 
@@ -12,5 +13,12 @@ const router = express.Router();
  * Rate limit : 20 requêtes / 15 minutes par IP (défini dans rate-limits.js)
  */
 router.post('/', chatRateLimit, handleChat);
+
+/**
+ * POST /api/chat/upload-audio
+ * Upload d'une note vocale vers Cloudinary pour le chat en direct (livraison).
+ * Rate limit : 60 audios / 15 minutes par IP
+ */
+router.post('/upload-audio', chatAudioRateLimit, uploadAudioMiddleware.single('audio'), uploadChatAudio);
 
 export default router;

@@ -65,6 +65,17 @@
                 customer: null
             };
 
+            // Voice Note recording & playback state (max 30s)
+            this.mediaRecorder = null;
+            this.recordedAudioChunks = [];
+            this.recordingStartTime = null;
+            this.recordingTimerInterval = null;
+            this.recordingStream = null;
+            this.isRecordingVoice = false;
+            this.currentPlayingAudio = null;
+            this.currentPlayingBtn = null;
+            this.renderedMessageKeys = new Set();
+
             this.dom = {
                 container: null,
                 mapEl: null,
@@ -74,6 +85,12 @@
                 callBtn: null,
                 chatInput: null,
                 chatList: null,
+                micBtn: null,
+                voiceRecordingBar: null,
+                voiceUploadingBar: null,
+                voiceTimer: null,
+                voiceCancelBtn: null,
+                voiceSendBtn: null,
                 callModal: null
             };
         }
@@ -116,6 +133,7 @@
             }
 
             this._buildUI();
+            this._loadChatHistory();
             this._initMap(initialCustomerCoords);
             if (!this.channel) {
                 this._initRealtime();
@@ -202,18 +220,49 @@
                         <!-- Chat Messages Container -->
                         <div id="dt-chat-messages" class="max-h-[110px] overflow-y-auto space-y-1.5 pr-1 text-xs">
                             <div class="text-[11px] text-gray-400 italic text-center py-1">
-                                Chat de livraison sécurisé. Écrivez un message rapide...
+                                Chat de livraison sécurisé. Écrivez un message ou note vocale...
                             </div>
                         </div>
 
-                        <!-- Chat Input Form -->
-                        <form id="dt-chat-form" class="flex items-center gap-2 pt-1">
-                            <input id="dt-chat-input" type="text" placeholder="Message rapide..." 
-                                class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-black transition-colors" maxlength="150" />
-                            <button type="submit" class="px-3 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center">
-                                <iconify-icon icon="solar:plain-bold" width="14"></iconify-icon>
-                            </button>
-                        </form>
+                        <!-- Chat Input Form & Voice Bar -->
+                        <div class="relative pt-1">
+                            <form id="dt-chat-form" class="flex items-center gap-1.5">
+                                <input id="dt-chat-input" type="text" placeholder="Message rapide..." 
+                                    class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-black transition-colors" maxlength="150" />
+                                
+                                <button id="dt-mic-btn" type="button" class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-emerald-600 text-gray-700 flex items-center justify-center transition-colors shrink-0" title="Note vocale (max 30s)">
+                                    <iconify-icon icon="solar:microphone-3-bold" width="16"></iconify-icon>
+                                </button>
+
+                                <button type="submit" class="px-3 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center shrink-0">
+                                    <iconify-icon icon="solar:plain-bold" width="14"></iconify-icon>
+                                </button>
+                            </form>
+
+                            <!-- Voice Recording Bar (hidden by default) -->
+                            <div id="dt-voice-recording-bar" class="hidden absolute inset-0 bg-white border border-emerald-400 rounded-xl px-3 py-1.5 flex items-center justify-between shadow-sm z-10">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+                                    <span id="dt-voice-timer" class="text-xs font-mono font-bold text-gray-800">0:00 / 0:30</span>
+                                    <span class="text-[10px] text-gray-400 hidden sm:inline">Vocal...</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button id="dt-voice-cancel-btn" type="button" class="p-1.5 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors" title="Annuler">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="16"></iconify-icon>
+                                    </button>
+                                    <button id="dt-voice-send-btn" type="button" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1 transition-colors" title="Envoyer">
+                                        <iconify-icon icon="solar:plain-bold" width="12"></iconify-icon>
+                                        <span>Envoyer</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Voice Uploading Bar (hidden by default) -->
+                            <div id="dt-voice-uploading-bar" class="hidden absolute inset-0 bg-white/95 border border-gray-200 rounded-xl px-3 py-1.5 flex items-center justify-center gap-2 text-xs font-medium text-gray-600 z-10">
+                                <iconify-icon icon="solar:refresh-circle-bold" class="animate-spin text-emerald-600" width="16"></iconify-icon>
+                                <span>Envoi du vocal en cours...</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Privacy Notice -->
@@ -236,11 +285,28 @@
             this.dom.callBtn = this.dom.container.querySelector('#dt-call-btn');
             this.dom.chatInput = this.dom.container.querySelector('#dt-chat-input');
             this.dom.chatList = this.dom.container.querySelector('#dt-chat-messages');
+            this.dom.micBtn = this.dom.container.querySelector('#dt-mic-btn');
+            this.dom.voiceRecordingBar = this.dom.container.querySelector('#dt-voice-recording-bar');
+            this.dom.voiceUploadingBar = this.dom.container.querySelector('#dt-voice-uploading-bar');
+            this.dom.voiceTimer = this.dom.container.querySelector('#dt-voice-timer');
+            this.dom.voiceCancelBtn = this.dom.container.querySelector('#dt-voice-cancel-btn');
+            this.dom.voiceSendBtn = this.dom.container.querySelector('#dt-voice-send-btn');
 
             // Event Listeners
             this.dom.pauseBtn.addEventListener('click', () => this.togglePause());
             this.dom.callBtn.addEventListener('click', () => this.startCall());
             this.dom.container.querySelector('#dt-recenter-btn').addEventListener('click', () => this.recenter());
+
+            // Voice Recording buttons
+            if (this.dom.micBtn) {
+                this.dom.micBtn.addEventListener('click', () => this._startVoiceRecording());
+            }
+            if (this.dom.voiceCancelBtn) {
+                this.dom.voiceCancelBtn.addEventListener('click', () => this._cancelVoiceRecording());
+            }
+            if (this.dom.voiceSendBtn) {
+                this.dom.voiceSendBtn.addEventListener('click', () => this._stopAndSendVoiceRecording());
+            }
 
             // Chat Form submit
             const chatForm = this.dom.container.querySelector('#dt-chat-form');
@@ -432,26 +498,86 @@
         }
 
         /**
+         * Load persistent chat history from Supabase database for this order.
+         */
+        async _loadChatHistory() {
+            const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+            if (!client || !this.orderId) return;
+
+            try {
+                const { data, error } = await client
+                    .from('delivery_chat_messages')
+                    .select('*')
+                    .eq('order_id', this.orderId)
+                    .order('created_at', { ascending: true });
+
+                if (error) {
+                    console.warn('[DeliveryTracker] Could not load chat history:', error.message);
+                    return;
+                }
+
+                if (Array.isArray(data) && data.length > 0) {
+                    const placeholder = this.dom.chatList?.querySelector('.italic');
+                    if (placeholder) placeholder.remove();
+
+                    data.forEach(msg => {
+                        const isMe = msg.sender_role === this.role;
+                        const msgData = {
+                            id: msg.id,
+                            role: msg.sender_role,
+                            type: msg.message_type,
+                            text: msg.text,
+                            audioUrl: msg.audio_url,
+                            duration: msg.duration,
+                            timestamp: new Date(msg.created_at).getTime()
+                        };
+                        this._renderChatBubble(msgData, isMe);
+                    });
+                }
+            } catch (err) {
+                console.warn('[DeliveryTracker] Chat history load error:', err);
+            }
+        }
+
+        /**
          * Send a text message in the in-app delivery mini-chat.
          */
         _sendChatMessage(text) {
             const message = String(text || '').trim();
-            if (!message || !this.channel) return;
+            if (!message) return;
 
             const msgData = {
                 role: this.role,
+                type: 'text',
                 text: message,
                 timestamp: Date.now()
             };
 
-            this.channel.send({
-                type: 'broadcast',
-                event: 'chat-message',
-                payload: msgData
-            }).then(() => {
-                this._renderChatBubble(msgData, true);
-                if (this.dom.chatInput) this.dom.chatInput.value = '';
-            }).catch(err => console.warn('[DeliveryTracker] Chat send error:', err));
+            // 1. Rendu immédiat local
+            this._renderChatBubble(msgData, true);
+            if (this.dom.chatInput) this.dom.chatInput.value = '';
+
+            // 2. Diffusion en direct Supabase Realtime
+            if (this.channel) {
+                this.channel.send({
+                    type: 'broadcast',
+                    event: 'chat-message',
+                    payload: msgData
+                }).catch(err => console.warn('[DeliveryTracker] Chat send error:', err));
+            }
+
+            // 3. Persistance en BDD (historique sauvegardé)
+            const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+            if (client && this.orderId) {
+                client.from('delivery_chat_messages').insert({
+                    order_id: this.orderId,
+                    sender_role: this.role,
+                    message_type: 'text',
+                    text: message
+                }).then(({ error }) => {
+                    if (error) console.warn('[DeliveryTracker] Chat message DB save error:', error.message);
+                }).catch(() => {});
+            }
         }
 
         /**
@@ -466,16 +592,263 @@
         }
 
         /**
+         * Start audio voice recording (max 30 seconds).
+         */
+        async _startVoiceRecording() {
+            if (this.isRecordingVoice) return;
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Votre navigateur ne supporte pas l'enregistrement audio.");
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                this.recordingStream = stream;
+
+                // Support multiple audio formats across browsers (Chrome, Safari iOS, etc.)
+                let mimeType = 'audio/webm;codecs=opus';
+                if (!window.MediaRecorder || !MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' :
+                               (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' :
+                               (MediaRecorder.isTypeSupported('audio/aac') ? 'audio/aac' : ''));
+                }
+
+                this.mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+                this.recordedAudioChunks = [];
+
+                this.mediaRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) {
+                        this.recordedAudioChunks.push(e.data);
+                    }
+                };
+
+                this.isRecordingVoice = true;
+                this.recordingStartTime = Date.now();
+
+                // Show recording bar
+                if (this.dom.voiceRecordingBar) {
+                    this.dom.voiceRecordingBar.classList.remove('hidden');
+                }
+                if (this.dom.voiceTimer) {
+                    this.dom.voiceTimer.textContent = '0:00 / 0:30';
+                }
+
+                // Strict 30s auto-stop countdown
+                const MAX_SECONDS = 30;
+                this.recordingTimerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.recordingStartTime) / 1000);
+                    const formatted = `0:${elapsed < 10 ? '0' : ''}${elapsed} / 0:30`;
+
+                    if (this.dom.voiceTimer) {
+                        this.dom.voiceTimer.textContent = formatted;
+                    }
+
+                    if (elapsed >= MAX_SECONDS) {
+                        // Max 30 seconds reached: auto-send!
+                        this._stopAndSendVoiceRecording();
+                    }
+                }, 500);
+
+                this.mediaRecorder.start(250);
+            } catch (err) {
+                console.warn('[DeliveryTracker] Microphone access error:', err);
+                alert("Impossible d'accéder au microphone. Veuillez autoriser l'accès.");
+                this._cleanupVoiceRecording();
+            }
+        }
+
+        /**
+         * Clean up microphone tracks and timer state.
+         */
+        _cleanupVoiceRecording() {
+            this.isRecordingVoice = false;
+            if (this.recordingTimerInterval) {
+                clearInterval(this.recordingTimerInterval);
+                this.recordingTimerInterval = null;
+            }
+            if (this.recordingStream) {
+                try {
+                    this.recordingStream.getTracks().forEach(t => t.stop());
+                } catch (e) {}
+                this.recordingStream = null;
+            }
+            if (this.dom.voiceRecordingBar) {
+                this.dom.voiceRecordingBar.classList.add('hidden');
+            }
+            if (this.dom.voiceUploadingBar) {
+                this.dom.voiceUploadingBar.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Cancel voice note recording.
+         */
+        _cancelVoiceRecording() {
+            if (!this.isRecordingVoice) return;
+            if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                try {
+                    this.mediaRecorder.stop();
+                } catch (e) {}
+            }
+            this.recordedAudioChunks = [];
+            this._cleanupVoiceRecording();
+        }
+
+        /**
+         * Stop recording, upload audio blob to Cloudinary via backend, and broadcast.
+         */
+        async _stopAndSendVoiceRecording() {
+            if (!this.isRecordingVoice || !this.mediaRecorder) return;
+
+            const durationSec = Math.max(1, Math.min(30, Math.floor((Date.now() - (this.recordingStartTime || Date.now())) / 1000)));
+            this.isRecordingVoice = false;
+
+            if (this.recordingTimerInterval) {
+                clearInterval(this.recordingTimerInterval);
+                this.recordingTimerInterval = null;
+            }
+
+            // Show uploading indicator
+            if (this.dom.voiceRecordingBar) {
+                this.dom.voiceRecordingBar.classList.add('hidden');
+            }
+            if (this.dom.voiceUploadingBar) {
+                this.dom.voiceUploadingBar.classList.remove('hidden');
+            }
+
+            await new Promise((resolve) => {
+                if (this.mediaRecorder.state === 'inactive') return resolve();
+                this.mediaRecorder.onstop = resolve;
+                try {
+                    this.mediaRecorder.stop();
+                } catch (e) {
+                    resolve();
+                }
+            });
+
+            if (this.recordingStream) {
+                try {
+                    this.recordingStream.getTracks().forEach(t => t.stop());
+                } catch (e) {}
+                this.recordingStream = null;
+            }
+
+            if (!this.recordedAudioChunks || this.recordedAudioChunks.length === 0) {
+                this._cleanupVoiceRecording();
+                return;
+            }
+
+            const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
+            const audioBlob = new Blob(this.recordedAudioChunks, { type: mimeType });
+            this.recordedAudioChunks = [];
+
+            try {
+                const formData = new FormData();
+                const isMpeg = mimeType.includes('mp4') || mimeType.includes('aac');
+                const ext = isMpeg ? 'm4a' : 'webm';
+                formData.append('audio', audioBlob, `voice_${Date.now()}.${ext}`);
+
+                const response = await fetch('/api/chat/upload-audio', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Upload failed (${response.status})`);
+                }
+
+                const result = await response.json();
+                if (!result.audioUrl) {
+                    throw new Error('No audio URL returned');
+                }
+
+                // Send realtime broadcast message
+                const msgData = {
+                    role: this.role,
+                    type: 'audio',
+                    audioUrl: result.audioUrl,
+                    duration: result.duration || durationSec,
+                    timestamp: Date.now()
+                };
+
+                // 1. Rendu immédiat local
+                this._renderChatBubble(msgData, true);
+
+                // 2. Diffusion en direct Supabase Realtime
+                if (this.channel) {
+                    this.channel.send({
+                        type: 'broadcast',
+                        event: 'chat-message',
+                        payload: msgData
+                    }).catch(err => console.warn('[DeliveryTracker] Voice message broadcast error:', err));
+                }
+
+                // 3. Persistance en BDD (historique sauvegardé)
+                const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+                if (client && this.orderId) {
+                    client.from('delivery_chat_messages').insert({
+                        order_id: this.orderId,
+                        sender_role: this.role,
+                        message_type: 'audio',
+                        audio_url: result.audioUrl,
+                        duration: result.duration || durationSec
+                    }).then(({ error }) => {
+                        if (error) console.warn('[DeliveryTracker] Voice note DB save error:', error.message);
+                    }).catch(() => {});
+                }
+            } catch (err) {
+                console.error('[DeliveryTracker] Failed to upload/send voice note:', err);
+                alert("Impossible d'envoyer la note vocale. Veuillez réessayer.");
+            } finally {
+                this._cleanupVoiceRecording();
+            }
+        }
+
+        /**
          * Render chat bubble inside the mini-chat container.
          */
         _renderChatBubble(data, isMe) {
             if (!this.dom.chatList) return;
 
+            // Déduplication (évite d'afficher en double un message chargé depuis l'historique et reçu en broadcast)
+            const msgKey = data.id || `${data.role}_${data.type || 'text'}_${data.text || data.audioUrl}_${Math.floor((data.timestamp || 0) / 1000)}`;
+            if (this.renderedMessageKeys && this.renderedMessageKeys.has(msgKey)) return;
+            if (this.renderedMessageKeys) this.renderedMessageKeys.add(msgKey);
+
             const timeStr = new Date(data.timestamp || Date.now()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            let bubbleBodyHtml = '';
+            const isAudio = data && data.type === 'audio' && Boolean(data.audioUrl);
+
+            if (isAudio) {
+                const totalSec = Math.min(30, Math.max(1, parseInt(data.duration, 10) || 0));
+                const totalFormatted = `0:${totalSec < 10 ? '0' : ''}${totalSec}`;
+                bubbleBodyHtml = `
+                    <div class="flex items-center gap-2 py-0.5 px-0.5 min-w-[170px] sm:min-w-[200px]" data-audio-player>
+                        <button type="button" class="dt-play-voice-btn w-7 h-7 rounded-full ${isMe ? 'bg-white text-black hover:bg-gray-200' : 'bg-emerald-600 text-white hover:bg-emerald-700'} flex items-center justify-center shrink-0 shadow-sm transition-transform active:scale-95" data-audio-url="${this._escapeHtml(data.audioUrl)}" title="Écouter la note vocale">
+                            <iconify-icon icon="solar:play-bold" width="14"></iconify-icon>
+                        </button>
+                        <div class="flex-1 flex flex-col justify-center gap-1 min-w-0">
+                            <div class="w-full ${isMe ? 'bg-white/20' : 'bg-gray-200'} rounded-full h-1.5 overflow-hidden">
+                                <div class="dt-voice-progress-bar ${isMe ? 'bg-emerald-400' : 'bg-emerald-600'} h-full w-0 transition-all duration-100"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] ${isMe ? 'text-gray-300' : 'text-gray-500'} font-mono leading-none">
+                                <span class="dt-voice-time-text">0:00</span>
+                                <span>${totalFormatted}</span>
+                            </div>
+                        </div>
+                        <iconify-icon icon="solar:microphone-3-bold" class="${isMe ? 'text-white/60' : 'text-gray-400'} shrink-0" width="14"></iconify-icon>
+                    </div>
+                `;
+            } else {
+                bubbleBodyHtml = `<p class="font-medium break-words">${this._escapeHtml(data?.text || '')}</p>`;
+            }
+
             const bubbleHtml = `
                 <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                     <div class="px-3 py-1.5 rounded-2xl text-xs max-w-[85%] ${isMe ? 'bg-black text-white rounded-br-none' : 'bg-white border border-gray-200 text-gray-900 rounded-bl-none shadow-sm'}">
-                        <p class="font-medium break-words">${this._escapeHtml(data.text)}</p>
+                        ${bubbleBodyHtml}
                     </div>
                     <span class="text-[9px] text-gray-400 mt-0.5 px-1">${timeStr}</span>
                 </div>
@@ -486,7 +859,82 @@
             if (placeholder) placeholder.remove();
 
             this.dom.chatList.insertAdjacentHTML('beforeend', bubbleHtml);
+            const addedElement = this.dom.chatList.lastElementChild;
+            
+            // If it's an audio note, bind player controls
+            if (isAudio && addedElement) {
+                this._bindAudioPlayer(addedElement, data.audioUrl, data.duration);
+            }
+
             this.dom.chatList.scrollTop = this.dom.chatList.scrollHeight;
+        }
+
+        /**
+         * Bind playback logic to a voice note bubble.
+         */
+        _bindAudioPlayer(container, audioUrl, initialDuration) {
+            const playBtn = container.querySelector('.dt-play-voice-btn');
+            const progressBar = container.querySelector('.dt-voice-progress-bar');
+            const timeText = container.querySelector('.dt-voice-time-text');
+            if (!playBtn || !audioUrl) return;
+
+            let audio = null;
+
+            playBtn.addEventListener('click', () => {
+                // If another audio was playing, pause and reset it
+                if (this.currentPlayingAudio && this.currentPlayingAudio !== audio) {
+                    try {
+                        this.currentPlayingAudio.pause();
+                        this.currentPlayingAudio.currentTime = 0;
+                    } catch (e) {}
+                    if (this.currentPlayingBtn) {
+                        this.currentPlayingBtn.innerHTML = '<iconify-icon icon="solar:play-bold" width="14"></iconify-icon>';
+                    }
+                }
+
+                if (!audio) {
+                    audio = new Audio(audioUrl);
+
+                    audio.addEventListener('timeupdate', () => {
+                        if (audio.duration && audio.duration > 0) {
+                            const pct = Math.min(100, (audio.currentTime / audio.duration) * 100);
+                            if (progressBar) progressBar.style.width = `${pct}%`;
+                            const curSec = Math.floor(audio.currentTime);
+                            if (timeText) timeText.textContent = `0:${curSec < 10 ? '0' : ''}${curSec}`;
+                        }
+                    });
+
+                    audio.addEventListener('ended', () => {
+                        playBtn.innerHTML = '<iconify-icon icon="solar:play-bold" width="14"></iconify-icon>';
+                        if (progressBar) progressBar.style.width = '0%';
+                        if (timeText) timeText.textContent = '0:00';
+                        this.currentPlayingAudio = null;
+                        this.currentPlayingBtn = null;
+                    });
+
+                    audio.addEventListener('pause', () => {
+                        playBtn.innerHTML = '<iconify-icon icon="solar:play-bold" width="14"></iconify-icon>';
+                        if (this.currentPlayingAudio === audio) {
+                            this.currentPlayingAudio = null;
+                            this.currentPlayingBtn = null;
+                        }
+                    });
+
+                    audio.addEventListener('play', () => {
+                        playBtn.innerHTML = '<iconify-icon icon="solar:pause-bold" width="14"></iconify-icon>';
+                        this.currentPlayingAudio = audio;
+                        this.currentPlayingBtn = playBtn;
+                    });
+                }
+
+                if (audio.paused) {
+                    audio.play().catch(err => {
+                        console.warn('[DeliveryTracker] Audio playback error:', err);
+                    });
+                } else {
+                    audio.pause();
+                }
+            });
         }
 
         /**
@@ -1459,6 +1907,16 @@
             } else {
                 // L'appel est en cours : basculer automatiquement en mode Pilule PiP pour que l'utilisateur continue sa conversation !
                 this._setCallViewMode('pip');
+            }
+
+            // Nettoyer l'enregistrement vocal et audio en cours
+            this._cancelVoiceRecording();
+            if (this.currentPlayingAudio) {
+                try {
+                    this.currentPlayingAudio.pause();
+                } catch (e) {}
+                this.currentPlayingAudio = null;
+                this.currentPlayingBtn = null;
             }
 
             if (this.watchId && 'geolocation' in navigator) {
