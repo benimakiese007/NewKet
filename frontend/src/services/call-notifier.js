@@ -295,10 +295,24 @@
             }
         });
 
-        // Actions Décrocher — on reste sur la page courante, delivery-tracking.js gère WebRTC nativement
+        // Destination : si l'appelant est 'vendor', je suis le client → customer-dashboard, et inversement
+        const targetDashboard = data.role === 'vendor'
+            ? '/customer-dashboard'
+            : '/vendor-dashboard';
+        const targetUrl = orderId
+            ? `${targetDashboard}?order=${encodeURIComponent(orderId)}`
+            : targetDashboard;
+
+        // Actions Décrocher
+        // call-notifier ne tourne JAMAIS sur le dashboard (guard ligne 12)
+        // → tout utilisateur qui décroche ici EST hors-dashboard → rediriger vers son dashboard pour WebRTC
         const onAnswer = () => {
+            // 1. Afficher un toast de feedback immédiat
+            _showAnswerToast();
+            // 2. Fermer l'overlay
             _dismissCallUI();
-            // Pas de redirection : l'appel est géré par delivery-tracking.js sur le dashboard
+            // 3. Rediriger vers le dashboard après 600ms (le toast reste visible)
+            setTimeout(() => { window.location.href = targetUrl; }, 600);
         };
 
         // Actions Refuser
@@ -327,6 +341,50 @@
         const root = document.getElementById('newket-global-call-ui-root');
         if (root) root.remove();
         _stopRingTone();
+    }
+
+    function _showAnswerToast() {
+        const existing = document.getElementById('nk-answer-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'nk-answer-toast';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            background: #10b981;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: system-ui, sans-serif;
+            box-shadow: 0 8px 32px rgba(16,185,129,0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            animation: nkToastIn 0.25s ease;
+        `;
+        toast.innerHTML = `
+            <span style="font-size:20px">📞</span>
+            <span>Appel décroché · Connexion en cours...</span>
+        `;
+
+        // Inject animation keyframe once
+        if (!document.getElementById('nk-toast-style')) {
+            const style = document.createElement('style');
+            style.id = 'nk-toast-style';
+            style.textContent = `@keyframes nkToastIn { from { opacity:0; transform:translateX(-50%) translateY(16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }`;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(toast);
+        // Le toast disparaît après 2.5s (la redirection a lieu à 600ms)
+        setTimeout(() => toast.remove(), 2500);
     }
 
     // ── Connexion temps réel Supabase ────────────────────────────────────────
