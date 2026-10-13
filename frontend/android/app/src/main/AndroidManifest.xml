@@ -41,6 +41,20 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- NewKet Home Screen Widget (Accès Rapide) -->
+        <receiver
+            android:name=".NewKetWidgetProvider"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/newket_widget_info" />
+        </receiver>
+
     </application>
 
     <!-- Permissions -->
@@ -48,6 +62,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Android 13+ Notification Permission for Live Tracking -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- Feature requirements -->
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 </manifest>

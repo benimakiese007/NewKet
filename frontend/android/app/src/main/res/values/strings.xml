@@ -4,4 +4,5 @@
     <string name="title_activity_main">NewKet</string>
     <string name="package_name">cd.newket.app</string>
     <string name="custom_url_scheme">cd.newket.app</string>
+    <string name="widget_description">Accès rapide aux boutiques, notifications, favoris et panier NewKet.</string>
 </resources>

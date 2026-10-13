@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_emerald">#0A4A2E</color>
+    <color name="brand_emerald_dark">#06331F</color>
+    <color name="brand_emerald_light">#156B44</color>
+    <color name="widget_card_bg">#0A4A2E</color>
+    <color name="widget_btn_bg">#1A5C3E</color>
+    <color name="widget_text_primary">#FFFFFF</color>
+    <color name="widget_text_secondary">#D1E7DD</color>
+</resources>

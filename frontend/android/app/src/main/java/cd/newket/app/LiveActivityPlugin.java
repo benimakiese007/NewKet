@@ -12,14 +12,24 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.getcapacitor.JSObject;
+import android.Manifest;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-@CapacitorPlugin(name = "LiveActivityPlugin")
+@CapacitorPlugin(
+    name = "LiveActivityPlugin",
+    permissions = {
+        @Permission(
+            alias = "notifications",
+            strings = { Manifest.permission.POST_NOTIFICATIONS }
+        )
+    }
+)
 public class LiveActivityPlugin extends Plugin {
 
     public static final String CHANNEL_ID = "newket_order_tracking";
