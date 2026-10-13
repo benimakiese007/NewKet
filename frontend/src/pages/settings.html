@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head><script type="module" src="/src/services/app.js"></script>
@@ -621,14 +621,18 @@
                     try {
                         const status = await AppNotifications.getDeviceNotificationStatus();
                         deviceToggle.checked = status === 'enabled';
-                        deviceToggle.disabled = status === 'unsupported' || status === 'denied';
+                        deviceToggle.disabled = status === 'unsupported' || status === 'ios-browser';
 
-                        statusText.textContent = AppNotifications.getDeviceNotificationGuidance
-                            ? AppNotifications.getDeviceNotificationGuidance(status)
-                            : 'PWA installee recommandee. Navigateur normal: support variable.';
+                        if (typeof AppNotifications.getDeviceNotificationHTML === 'function') {
+                            statusText.innerHTML = AppNotifications.getDeviceNotificationHTML(status);
+                        } else {
+                            statusText.textContent = AppNotifications.getDeviceNotificationGuidance
+                                ? AppNotifications.getDeviceNotificationGuidance(status)
+                                : 'Alertes appareil en temps réel.';
+                        }
                     } catch {
                         deviceToggle.checked = false;
-                        statusText.textContent = 'Etat impossible a verifier.';
+                        statusText.textContent = 'État impossible à vérifier.';
                     }
                 },
 
@@ -638,7 +642,7 @@
                     if (!window.AppNotifications || !deviceToggle) return;
 
                     deviceToggle.disabled = true;
-                    if (statusText) statusText.textContent = enable ? 'Activation...' : 'Desactivation...';
+                    if (statusText) statusText.textContent = enable ? 'Activation...' : 'Désactivation...';
 
                     try {
                         const ok = enable
@@ -649,7 +653,10 @@
                     } catch (error) {
                         console.error('Device notification toggle error:', error);
                         deviceToggle.checked = !enable;
-                        showInlineMessage('notif-feedback', "Impossible de modifier les notifications appareil.", 'error');
+                        const msg = typeof AppNotifications.getDeviceNotificationErrorMessage === 'function'
+                            ? AppNotifications.getDeviceNotificationErrorMessage(error)
+                            : (error?.message || "Impossible de modifier les notifications appareil.");
+                        showInlineMessage('notif-feedback', msg, 'error');
                     } finally {
                         deviceToggle.disabled = false;
                         await this.refreshDeviceNotificationStatus();

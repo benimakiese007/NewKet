@@ -27,6 +27,10 @@ const isNative = () =>
  */
 async function initPushNotifications() {
     if (!isNative()) return;
+    if (localStorage.getItem('newket_native_push_disabled') === 'true') {
+        console.log('[NewKet Push] Notifications désactivées par l\'utilisateur dans les réglages.');
+        return;
+    }
 
     try {
         const { PushNotifications } = await import('@capacitor/push-notifications');

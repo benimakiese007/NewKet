@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -1612,26 +1612,18 @@
                 // Only truly disable for unsupported browsers or ios-browser
                 toggle.disabled = state === 'unsupported' || state === 'ios-browser';
 
-                if (state === 'denied') {
-                    status.innerHTML = 'ðŸ”• Notifications bloquÃ©es dans votre navigateur. '
-                        + '<a href="https://support.google.com/chrome/answer/3220216" target="_blank" rel="noopener" '
-                        + 'class="underline text-blue-600 font-semibold">Comment les rÃ©activer â†’</a>';
-                } else if (state === 'ios-browser') {
-                    status.innerHTML = '<div class="mt-2 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs text-gray-700">'
-                        + '<p class="font-bold mb-1">Pour activer les notifications sur iPhone :</p>'
-                        + '<ol class="list-decimal list-inside space-y-1">'
-                        + '<li>Touchez l\'icÃ´ne Partager <iconify-icon icon="solar:export-outline" class="inline align-middle"></iconify-icon> en bas</li>'
-                        + '<li>Choisissez <strong>"Sur l\'Ã©cran d\'accueil"</strong></li>'
-                        + '<li>Ouvrez l\'application installÃ©e pour vous abonner</li>'
-                        + '</ol></div>';
+                if (typeof AppNotifications.getDeviceNotificationHTML === 'function') {
+                    status.innerHTML = AppNotifications.getDeviceNotificationHTML(state);
+                } else if (state === 'denied') {
+                    status.innerHTML = '🔔 Notifications bloquées. Veuillez les autoriser dans les paramètres.';
                 } else {
                     status.textContent = AppNotifications.getDeviceNotificationGuidance
                         ? AppNotifications.getDeviceNotificationGuidance(state)
-                        : 'PWA installÃ©e recommandÃ©e. Navigateur normal: support variable.';
+                        : 'Alertes appareil en temps réel.';
                 }
             } catch (error) {
                 toggle.checked = false;
-                status.textContent = 'Ã‰tat impossible Ã  vÃ©rifier.';
+                status.textContent = 'État impossible à vérifier.';
             }
         }
 
@@ -1641,7 +1633,7 @@
             if (!toggle || !window.AppNotifications) return;
 
             toggle.disabled = true;
-            if (status) status.textContent = enable ? 'Activation...' : 'Desactivation...';
+            if (status) status.textContent = enable ? 'Activation...' : 'Désactivation...';
 
             try {
                 // Clear any previous error messages
@@ -1658,10 +1650,9 @@
             } catch (error) {
                 console.error('Customer device push toggle error:', error);
                 toggle.checked = !enable;
-                const isDenied = error?.message?.includes('denied') || error?.message?.includes('permission');
-                const msg = isDenied
-                    ? 'Notifications bloquÃ©es par votre navigateur. Autorisez-les dans les paramÃ¨tres de votre navigateur.'
-                    : "Impossible de modifier les notifications. VÃ©rifiez votre connexion et rÃ©essayez.";
+                const msg = typeof AppNotifications.getDeviceNotificationErrorMessage === 'function'
+                    ? AppNotifications.getDeviceNotificationErrorMessage(error)
+                    : (error?.message || "Impossible de modifier les notifications. Vérifiez votre connexion et réessayez.");
                 showInlineMessage('push-feedback', msg, 'warning');
             } finally {
                 toggle.disabled = false;

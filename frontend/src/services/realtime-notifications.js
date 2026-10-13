@@ -413,30 +413,177 @@ const AppNotifications = {
         return this.pushPublicKey;
     },
 
-    isDevicePushSupported() {
-        return Boolean('Notification' in window && 'PushManager' in window && 'serviceWorker' in navigator);
+    _isNative() {
+        return Boolean(
+            window.Capacitor && (
+                (typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ||
+                window.Capacitor.isNative ||
+                window.Capacitor.getPlatform?.() === 'android' ||
+                window.Capacitor.getPlatform?.() === 'ios'
+            )
+        );
     },
 
-    getDeviceNotificationGuidance(status = 'default') {
+    _getPlatform() {
+        if (this._isNative()) {
+            const capPlatform = window.Capacitor?.getPlatform?.();
+            if (capPlatform === 'android') return 'android-app';
+            if (capPlatform === 'ios') return 'ios-app';
+            return 'mobile-app';
+        }
         const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent || '')
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         const isStandalone = window.matchMedia?.('(display-mode: standalone)')?.matches
             || window.navigator.standalone === true;
 
-        if (status === 'enabled') return 'Actives sur cet appareil.';
-        if (status === 'denied') return 'Bloquees dans les reglages du navigateur ou du systeme.';
-        if (status === 'unsupported') {
-            return isIos && !isStandalone
-                ? "Sur iPhone, installez NewKet sur l'ecran d'accueil puis ouvrez l'app installee."
-                : 'Navigateur non supporte. Utilisez la PWA installee ou Chrome/Edge/Samsung Internet.';
+        if (isIos) {
+            return isStandalone ? 'ios-pwa' : 'ios-browser';
+        }
+        if (isStandalone) {
+            return 'pwa';
+        }
+        return 'web-browser';
+    },
+
+    async _getCapacitorPushPlugin() {
+        if (window.Capacitor?.Plugins?.PushNotifications) {
+            return window.Capacitor.Plugins.PushNotifications;
+        }
+        try {
+            const mod = await import('@capacitor/push-notifications');
+            return mod.PushNotifications || window.Capacitor?.Plugins?.PushNotifications || null;
+        } catch {
+            return window.Capacitor?.Plugins?.PushNotifications || null;
+        }
+    },
+
+    isDevicePushSupported() {
+        if (this._isNative()) {
+            return true;
+        }
+        return Boolean('Notification' in window && 'PushManager' in window && 'serviceWorker' in navigator);
+    },
+
+    getDeviceNotificationGuidance(status = 'default') {
+        const platform = this._getPlatform();
+
+        if (status === 'enabled') {
+            switch (platform) {
+                case 'android-app':
+                    return 'Actives sur votre application Android (alertes et commandes en direct).';
+                case 'ios-app':
+                    return 'Actives sur votre iPhone (alertes et commandes en direct).';
+                case 'mobile-app':
+                    return 'Actives sur votre application mobile.';
+                case 'ios-pwa':
+                    return 'Actives sur votre iPhone (PWA installée).';
+                case 'pwa':
+                    return 'Actives sur cette application installée.';
+                default:
+                    return 'Actives sur ce navigateur (alertes reçues même en arrière-plan).';
+            }
         }
 
-        return isIos && !isStandalone
-            ? "Installez NewKet en PWA pour une reception fiable sur iPhone."
-            : 'PWA installee recommandee. Navigateur normal: support variable; navigateur integre: generalement non.';
+        if (status === 'denied') {
+            switch (platform) {
+                case 'android-app':
+                    return 'Notifications désactivées dans les paramètres Android. Ouvrez Paramètres > Applications > NewKet > Notifications.';
+                case 'ios-app':
+                    return 'Notifications désactivées sur votre iPhone. Ouvrez Réglages > NewKet > Notifications pour les activer.';
+                case 'mobile-app':
+                    return 'Notifications désactivées dans les réglages système de votre téléphone.';
+                case 'ios-pwa':
+                    return 'Notifications bloquées. Allez dans Réglages > Notifications > NewKet sur votre iPhone.';
+                default:
+                    return 'Notifications bloquées par votre navigateur. Autorisez-les via l\'icône de cadenas ou paramètres de l\'adresse web.';
+            }
+        }
+
+        if (status === 'ios-browser') {
+            return 'Sur iPhone, installez d\'abord NewKet sur l\'écran d\'accueil via Safari (Partager > Sur l\'écran d\'accueil).';
+        }
+
+        if (status === 'unsupported') {
+            return 'Ce navigateur ou environnement ne supporte pas les notifications système.';
+        }
+
+        // status === 'default'
+        switch (platform) {
+            case 'android-app':
+                return 'Recevez les alertes de commandes et d\'offres directement sur votre téléphone Android.';
+            case 'ios-app':
+                return 'Recevez les alertes de commandes et devis directement sur votre iPhone.';
+            case 'mobile-app':
+                return 'Activez pour recevoir les alertes sur votre téléphone.';
+            case 'ios-pwa':
+                return 'Activez pour recevoir les alertes sur l\'écran verrouillé de votre iPhone.';
+            case 'pwa':
+                return 'Activez pour recevoir les alertes instantanées sur cet appareil.';
+            default:
+                return 'Recevez les alertes de commandes, devis et messages en temps réel sur cet appareil.';
+        }
+    },
+
+    getDeviceNotificationHTML(status = 'default') {
+        const platform = this._getPlatform();
+
+        if (status === 'enabled') {
+            let label = this.getDeviceNotificationGuidance('enabled');
+            return `<span class="inline-flex items-center gap-1.5 text-emerald-600 font-semibold text-xs"><iconify-icon icon="solar:check-circle-bold" class="text-sm"></iconify-icon> ${label}</span>`;
+        }
+
+        if (status === 'denied') {
+            switch (platform) {
+                case 'android-app':
+                    return '<span class="inline-flex items-center gap-1.5 text-amber-700 font-medium text-xs"><iconify-icon icon="solar:danger-triangle-bold" class="text-amber-500 text-sm"></iconify-icon> Bloquées sur votre téléphone. Ouvrez <strong>Paramètres &gt; Applications &gt; NewKet &gt; Notifications</strong>.</span>';
+                case 'ios-app':
+                    return '<span class="inline-flex items-center gap-1.5 text-amber-700 font-medium text-xs"><iconify-icon icon="solar:danger-triangle-bold" class="text-amber-500 text-sm"></iconify-icon> Bloquées sur votre iPhone. Ouvrez <strong>Réglages &gt; NewKet &gt; Notifications</strong> pour autoriser.</span>';
+                case 'ios-pwa':
+                    return '<span class="inline-flex items-center gap-1.5 text-amber-700 font-medium text-xs"><iconify-icon icon="solar:danger-triangle-bold" class="text-amber-500 text-sm"></iconify-icon> Bloquées dans Réglages &gt; Notifications &gt; NewKet sur votre iPhone.</span>';
+                default:
+                    return '<span>🔔 Notifications bloquées par votre navigateur. <a href="https://support.google.com/chrome/answer/3220216" target="_blank" rel="noopener" class="underline text-blue-600 font-semibold hover:text-blue-800">Comment les réactiver →</a></span>';
+            }
+        }
+
+        if (status === 'ios-browser') {
+            return `<div class="mt-2 p-3 bg-amber-50/90 border border-amber-200/70 rounded-xl text-xs text-amber-900">
+                <p class="font-bold mb-1 flex items-center gap-1.5"><iconify-icon icon="solar:info-circle-bold" class="text-amber-600 text-sm"></iconify-icon> Pour activer les notifications sur iPhone (Safari) :</p>
+                <ol class="list-decimal list-inside space-y-1 text-amber-800">
+                    <li>Touchez l'icône Partager <iconify-icon icon="solar:export-outline" class="inline align-middle"></iconify-icon> en bas de Safari</li>
+                    <li>Choisissez <strong>"Sur l'écran d'accueil"</strong></li>
+                    <li>Ouvrez l'application installée pour autoriser les alertes</li>
+                </ol>
+            </div>`;
+        }
+
+        if (status === 'unsupported') {
+            return '<span class="text-xs text-gray-500">Navigateur ou environnement non supporté. Utilisez l\'application mobile ou Chrome/Safari.</span>';
+        }
+
+        return `<span class="text-xs text-gray-500">${this.getDeviceNotificationGuidance('default')}</span>`;
+    },
+
+    getDeviceNotificationErrorMessage(error) {
+        const platform = this._getPlatform();
+        const isDenied = error?.message?.includes('denied') || error?.message?.includes('refusée') || error?.message?.includes('permission');
+
+        if (this._isNative()) {
+            if (isDenied) {
+                return platform === 'ios-app'
+                    ? 'Notifications désactivées. Allez dans Réglages > NewKet > Notifications pour les autoriser.'
+                    : 'Notifications désactivées. Allez dans Paramètres Android > Applications > NewKet > Notifications pour les autoriser.';
+            }
+            return error?.message || 'Impossible d\'activer les notifications sur l\'application.';
+        }
+
+        if (isDenied) {
+            return 'Notifications bloquées par votre navigateur. Autorisez-les dans les paramètres de votre navigateur.';
+        }
+        return 'Impossible de modifier les notifications. Vérifiez votre connexion et réessayez.';
     },
 
     async syncDevicePushSubscription() {
+        if (this._isNative()) return false;
         if (!this.isDevicePushSupported() || Notification.permission !== 'granted') return false;
         if (!window.ApiClient) return false;
 
@@ -462,6 +609,30 @@ const AppNotifications = {
     },
 
     async enableDeviceNotifications() {
+        if (this._isNative()) {
+            const PushNotifications = await this._getCapacitorPushPlugin();
+            if (!PushNotifications) {
+                throw new Error('Plugin mobile indisponible sur cet appareil.');
+            }
+
+            let perm = await PushNotifications.checkPermissions();
+            if (perm.receive === 'prompt') {
+                perm = await PushNotifications.requestPermissions();
+            }
+
+            if (perm.receive !== 'granted') {
+                throw new Error('Permission refusée par le système');
+            }
+
+            localStorage.removeItem('newket_native_push_disabled');
+            try {
+                await PushNotifications.register();
+            } catch (regErr) {
+                console.warn('[NewKet] Push registration warning:', regErr?.message || regErr);
+            }
+            return true;
+        }
+
         if (!this.isDevicePushSupported()) {
             throw new Error('Navigateur non supporte');
         }
@@ -481,6 +652,11 @@ const AppNotifications = {
     },
 
     async disableDeviceNotifications() {
+        if (this._isNative()) {
+            localStorage.setItem('newket_native_push_disabled', 'true');
+            return true;
+        }
+
         if (!this.isDevicePushSupported() || !window.ApiClient) return false;
 
         const registration = await this._getServiceWorkerRegistration();
@@ -495,13 +671,26 @@ const AppNotifications = {
     },
 
     async getDeviceNotificationStatus() {
-        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent || '')
-            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        const isStandalone = window.matchMedia?.('(display-mode: standalone)')?.matches
-            || window.navigator.standalone === true;
+        const platform = this._getPlatform();
 
-        // iPhone/iPad in browser (not installed as PWA) — needs install first
-        if (isIos && !isStandalone) return 'ios-browser';
+        if (this._isNative()) {
+            const PushNotifications = await this._getCapacitorPushPlugin();
+            if (!PushNotifications) return 'unsupported';
+            try {
+                const perm = await PushNotifications.checkPermissions();
+                if (perm.receive === 'granted') {
+                    const isLocallyDisabled = localStorage.getItem('newket_native_push_disabled') === 'true';
+                    return isLocallyDisabled ? 'default' : 'enabled';
+                }
+                if (perm.receive === 'denied') return 'denied';
+                return 'default';
+            } catch (err) {
+                console.warn('[NewKet] Native checkPermissions error:', err);
+                return 'default';
+            }
+        }
+
+        if (platform === 'ios-browser') return 'ios-browser';
 
         if (!this.isDevicePushSupported()) return 'unsupported';
         if (Notification.permission === 'denied') return 'denied';
