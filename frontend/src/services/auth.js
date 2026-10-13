@@ -106,6 +106,12 @@ const AuthManager = {
                             const user = session.user;
                             this.user = user;
                             
+                            // Si c'est une NOUVELLE connexion explicite (SIGNED_IN), on force la création
+                            // d'une nouvelle session unique sur ce nouvel appareil.
+                            if (event === 'SIGNED_IN') {
+                                sessionStorage.removeItem('newket_session_token');
+                            }
+                            
                             // ⚠️ CRITICAL FIRE-AND-FORGET ⚠️
                             // Do not use 'await' or make this callback async. 
                             // Supabase internal auth lock will deadlock if you await DB queries here!
