@@ -215,13 +215,10 @@ private struct OrderStepperView: View {
                 }
 
                 if index < 3 {
-                    GeometryReader { geo in
-                        Rectangle()
-                            .fill(stepNumber < currentStep ? NewKetTheme.accentMint : NewKetTheme.trackGray)
-                            .frame(height: 3)
-                            .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                    }
-                    .frame(height: 26)
+                    Rectangle()
+                        .fill(stepNumber < currentStep ? NewKetTheme.accentMint : NewKetTheme.trackGray)
+                        .frame(height: 3)
+                        .frame(maxWidth: .infinity)
                 }
             }
         }

@@ -281,13 +281,14 @@ private struct SmallActionTile: View {
 
 // MARK: - Widget Background ViewModifier
 private extension View {
+    @ViewBuilder
     func widgetBackground() -> some View {
         if #available(iOS 17.0, *) {
-            return self.containerBackground(for: .widget) {
+            self.containerBackground(for: .widget) {
                 NewKetTheme.cardDark
             }
         } else {
-            return self.background(NewKetTheme.cardDark)
+            self.background(NewKetTheme.cardDark)
         }
     }
 }
