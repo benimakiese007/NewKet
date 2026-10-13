@@ -161,32 +161,118 @@ const setupDeepLinkRouter = async () => {
 setupDeepLinkRouter();
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pilule flottante "Appel en cours" sur toutes les pages
-// Quand un appel WebRTC est actif sur le dashboard, une pilule s'affiche
-// partout pour que l'utilisateur puisse y retourner facilement.
+// Système de notification d'appel entrant global (toutes les pages)
 // ─────────────────────────────────────────────────────────────────────────────
-(function initCallBanner() {
-    const STORAGE_KEY = 'newket_active_call';
-    const BANNER_ID   = 'nk-global-call-pill';
-    const DASH_PAGES  = [
-        '/src/pages/customer-dashboard.html',
-        '/src/pages/vendor-dashboard.html'
-    ];
-
-    // Ne pas afficher la pilule sur les dashboards (ils ont leur propre UI d'appel)
+(function initGlobalCallNotifier() {
+    const TOAST_ID   = 'nk-incoming-call-toast';
+    const PILL_ID    = 'nk-global-call-pill';
+    const DASH_PAGES = ['customer-dashboard.html', 'vendor-dashboard.html'];
     const currentPath = window.location.pathname;
-    const isOnDashboard = DASH_PAGES.some(p => currentPath.endsWith(p.split('/').pop()));
-    if (isOnDashboard) return;
+    const isOnDashboard = DASH_PAGES.some(p => currentPath.endsWith(p));
 
+    // ── Styles communs ────────────────────────────────────────────────────────
+    function _injectStyles() {
+        if (document.getElementById('nk-call-notif-style')) return;
+        const s = document.createElement('style');
+        s.id = 'nk-call-notif-style';
+        s.textContent = `
+            @keyframes nk-slide-up   { from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
+            @keyframes nk-pulse-dot  { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)} }
+            @keyframes nk-ring-shake { 0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)} }
+        `;
+        document.head.appendChild(s);
+    }
+
+    // ── Toast appel entrant ───────────────────────────────────────────────────
+    function _showIncomingCallToast(data) {
+        // Ne pas dupliquer
+        if (document.getElementById(TOAST_ID)) return;
+        _injectStyles();
+
+        const callerName   = data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client');
+        const callerAvatar = data.callerAvatar || '';
+        const orderId      = data.orderId || '';
+        // L'appelé navigue vers SON propre dashboard (opposé du rôle de l'appelant)
+        const myDash = data.role === 'vendor'
+            ? '/src/pages/customer-dashboard.html'
+            : '/src/pages/vendor-dashboard.html';
+        const dashUrl = orderId ? `${myDash}?order=${orderId}` : myDash;
+
+        const avatarHtml = callerAvatar
+            ? `<img src="${callerAvatar}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2.5px solid #34d399;flex-shrink:0;">`
+            : `<div style="width:48px;height:48px;border-radius:50%;background:#1f2937;border:2.5px solid #34d399;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:800;color:#6ee7b7;">${(callerName[0]||'?').toUpperCase()}</div>`;
+
+        const toast = document.createElement('div');
+        toast.id = TOAST_ID;
+        toast.style.cssText = [
+            'position:fixed', 'bottom:90px', 'left:50%', 'transform:translateX(-50%)',
+            'z-index:999999', 'width:min(340px,90vw)',
+            'background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)',
+            'border:1px solid rgba(52,211,153,0.4)', 'border-radius:20px',
+            'box-shadow:0 16px 48px rgba(0,0,0,0.6)',
+            'padding:16px', 'display:flex', 'flex-direction:column', 'gap:14px',
+            'animation:nk-slide-up .3s cubic-bezier(0.34,1.56,0.64,1) both'
+        ].join(';');
+
+        toast.innerHTML = `
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="position:relative;flex-shrink:0;">
+                    ${avatarHtml}
+                    <div style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;border-radius:50%;background:#22c55e;border:2px solid #0f172a;animation:nk-pulse-dot 1s ease infinite;"></div>
+                </div>
+                <div style="min-width:0;flex:1;">
+                    <p style="font-size:11px;font-weight:700;color:#6ee7b7;letter-spacing:.06em;text-transform:uppercase;margin:0 0 2px;">📲 Appel entrant</p>
+                    <p style="font-size:15px;font-weight:800;color:#f8fafc;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${callerName}</p>
+                    <p style="font-size:11px;color:#94a3b8;margin:2px 0 0;">Appel vocal chiffré In-App</p>
+                </div>
+                <div style="font-size:22px;animation:nk-ring-shake .5s ease infinite;">📞</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button id="nk-call-decline" style="flex:1;padding:11px 0;border-radius:12px;background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.02em;">
+                    ✕ Refuser
+                </button>
+                <button id="nk-call-accept" style="flex:2;padding:11px 0;border-radius:12px;background:#16a34a;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.02em;">
+                    📞 Décrocher
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Auto-dismiss après 30 secondes si pas de réponse
+        const autoTimer = setTimeout(() => _dismissToast(), 30000);
+
+        toast.querySelector('#nk-call-accept').addEventListener('click', () => {
+            clearTimeout(autoTimer);
+            _dismissToast();
+            window.location.href = dashUrl;
+        });
+        toast.querySelector('#nk-call-decline').addEventListener('click', () => {
+            clearTimeout(autoTimer);
+            _dismissToast();
+        });
+
+        // Sonnerie via Web Audio API
+        _playRingTone();
+    }
+
+    function _dismissToast() {
+        const t = document.getElementById(TOAST_ID);
+        if (t) t.remove();
+        _stopRingTone();
+    }
+
+    // ── Pilule "appel en cours" (navigation depuis dashboard) ─────────────────
     function _renderPill(data) {
-        let pill = document.getElementById(BANNER_ID);
-        if (data.state === 'idle' || !data.state) {
+        let pill = document.getElementById(PILL_ID);
+        if (!data || data.state === 'idle' || !data.state) {
             if (pill) pill.remove();
             return;
         }
+        _injectStyles();
         if (!pill) {
             pill = document.createElement('div');
-            pill.id = BANNER_ID;
+            pill.id = PILL_ID;
             pill.style.cssText = [
                 'position:fixed', 'bottom:80px', 'left:50%', 'transform:translateX(-50%)',
                 'z-index:99999', 'display:flex', 'align-items:center', 'gap:10px',
@@ -194,76 +280,108 @@ setupDeepLinkRouter();
                 'background:linear-gradient(135deg,#111827 0%,#1f2937 100%)',
                 'border:1px solid rgba(52,211,153,0.35)', 'box-shadow:0 8px 30px rgba(0,0,0,0.45)',
                 'cursor:pointer', 'user-select:none',
-                'animation:nk-pill-in 0.28s cubic-bezier(0.34,1.56,0.64,1) both'
+                'animation:nk-slide-up .28s cubic-bezier(0.34,1.56,0.64,1) both'
             ].join(';');
-
-            // Injecter l'animation si elle n'existe pas
-            if (!document.getElementById('nk-pill-style')) {
-                const s = document.createElement('style');
-                s.id = 'nk-pill-style';
-                s.textContent = `
-                    @keyframes nk-pill-in {
-                        from { opacity:0; transform:translateX(-50%) translateY(16px) scale(0.9); }
-                        to   { opacity:1; transform:translateX(-50%) translateY(0)   scale(1); }
-                    }
-                    #${BANNER_ID}:active { transform:translateX(-50%) scale(0.97); }
-                `;
-                document.head.appendChild(s);
-            }
             document.body.appendChild(pill);
         }
-
         const peerName  = data.peerName || (data.role === 'vendor' ? 'Client' : 'Vendeur');
         const avatarUrl = data.peerAvatar || '';
         const dashUrl   = data.dashboardUrl || (data.role === 'vendor' ? '/src/pages/vendor-dashboard.html' : '/src/pages/customer-dashboard.html');
-        const stateLabel = data.state === 'connected' ? '📞 En communication' :
-                           data.state === 'incoming'  ? '📲 Appel entrant'     :
-                                                         '📞 Appel en cours';
-
+        const label = data.state === 'connected' ? '📞 En communication' : '📞 Appel en cours';
         const avatarHtml = avatarUrl
-            ? `<img src="${avatarUrl}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(52,211,153,0.6);flex-shrink:0;">`
-            : `<div style="width:28px;height:28px;border-radius:50%;background:#374151;border:2px solid rgba(52,211,153,0.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#6ee7b7;">${(peerName[0]||'?').toUpperCase()}</div>`;
-
-        pill.innerHTML = `
-            ${avatarHtml}
-            <div style="display:flex;flex-direction:column;min-width:0;">
-                <span style="font-size:11px;font-weight:700;color:#6ee7b7;letter-spacing:0.05em;white-space:nowrap;">${stateLabel}</span>
-                <span style="font-size:12px;font-weight:600;color:#f9fafb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">${peerName}</span>
-            </div>
-            <div style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;flex-shrink:0;animation:nk-pulse 1.4s ease-in-out infinite;"></div>
-        `;
-
-        // Ajouter le style de pulsation si manquant
-        if (!document.querySelector('#nk-pill-style')?.textContent?.includes('nk-pulse')) {
-            const existStyle = document.getElementById('nk-pill-style');
-            if (existStyle) existStyle.textContent += `@keyframes nk-pulse{0%,100%{opacity:1}50%{opacity:0.4}}`;
-        }
-
+            ? `<img src="${avatarUrl}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid #34d399;flex-shrink:0;">`
+            : `<div style="width:26px;height:26px;border-radius:50%;background:#374151;border:2px solid #34d399;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:#6ee7b7;">${(peerName[0]||'?').toUpperCase()}</div>`;
+        pill.innerHTML = `${avatarHtml}<div style="display:flex;flex-direction:column;"><span style="font-size:10px;font-weight:700;color:#6ee7b7;">${label}</span><span style="font-size:12px;font-weight:600;color:#f9fafb;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${peerName}</span></div><div style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;flex-shrink:0;animation:nk-pulse-dot 1.4s ease infinite;"></div>`;
         pill.onclick = () => { window.location.href = dashUrl; };
     }
 
-    // Lire l'état initial depuis sessionStorage (cas navigation entre pages)
-    try {
-        const saved = sessionStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const data = JSON.parse(saved);
-            // Afficher la pilule une fois le DOM prêt
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => _renderPill(data));
-            } else {
-                _renderPill(data);
+    // ── Sonnerie ──────────────────────────────────────────────────────────────
+    let _ringCtx = null;
+    let _ringInterval = null;
+    function _playRingTone() {
+        try {
+            _ringCtx = new (window.AudioContext || window.webkitAudioContext)();
+            function _beep() {
+                if (!_ringCtx) return;
+                const osc = _ringCtx.createOscillator();
+                const gain = _ringCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.15, _ringCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, _ringCtx.currentTime + 0.4);
+                osc.connect(gain); gain.connect(_ringCtx.destination);
+                osc.start(); osc.stop(_ringCtx.currentTime + 0.4);
+            }
+            _beep();
+            _ringInterval = setInterval(_beep, 1200);
+        } catch (_) {}
+    }
+    function _stopRingTone() {
+        if (_ringInterval) { clearInterval(_ringInterval); _ringInterval = null; }
+        if (_ringCtx) { try { _ringCtx.close(); } catch (_) {} _ringCtx = null; }
+    }
+
+    // ── Init : abonnement Supabase user-ring + BroadcastChannel ──────────────
+    async function _init() {
+        // ① Pilule depuis sessionStorage (navigation depuis le dashboard)
+        if (!isOnDashboard) {
+            try {
+                const saved = sessionStorage.getItem('newket_active_call');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', () => _renderPill(data));
+                    } else {
+                        _renderPill(data);
+                    }
+                }
+            } catch (_) {}
+
+            // BroadcastChannel : pilule mise à jour depuis l'onglet dashboard
+            if (typeof BroadcastChannel !== 'undefined') {
+                try {
+                    const bc = new BroadcastChannel('newket-call-state');
+                    bc.onmessage = (evt) => _renderPill(evt.data || {});
+                } catch (_) {}
             }
         }
-    } catch (_) {}
 
-    // Écouter les mises à jour en temps réel depuis l'onglet du dashboard
-    if (typeof BroadcastChannel !== 'undefined') {
-        try {
-            const bc = new BroadcastChannel('newket-call-state');
-            bc.onmessage = (evt) => {
-                const d = evt.data || {};
-                _renderPill(d);
+        // ② Canal Supabase user-ring : appel entrant quelle que soit la page
+        // Attendre que supabaseClient soit disponible + session active
+        const waitForSupabase = () => new Promise((resolve) => {
+            const check = () => {
+                const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+                if (client) return resolve(client);
+                setTimeout(check, 300);
             };
+            check();
+        });
+
+        try {
+            const client = await waitForSupabase();
+            const sessionData = await client.auth.getSession();
+            const userId = sessionData?.data?.session?.user?.id;
+            if (!userId) return;
+
+            const channelName = `user-ring:${userId}`;
+            const ch = client.channel(channelName);
+            ch.on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
+                // Ne pas afficher le toast si on est déjà sur le dashboard (il gère lui-même)
+                if (isOnDashboard) return;
+                _showIncomingCallToast(payload || {});
+            }).subscribe();
+
+            // Nettoyer à la fermeture de la page
+            window.addEventListener('pagehide', () => {
+                try { client.removeChannel(ch); } catch (_) {}
+            });
         } catch (_) {}
+    }
+
+    // Lancer après le chargement pour ne pas bloquer le rendu
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', _init);
+    } else {
+        _init();
     }
 })();

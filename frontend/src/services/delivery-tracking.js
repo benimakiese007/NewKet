@@ -501,6 +501,11 @@
             // Signal de sonnerie immédiat (< 50ms) avant même l'initialisation du micro
             this._sendCallSignal({ type: 'ring' });
 
+            // Canal user-specific : notifie l'appelé même s'il n'est pas sur son dashboard
+            if (this.peerUserId) {
+                this._sendUserRingSignal(this.peerUserId);
+            }
+
             // Push notification de secours (si le destinataire est hors de l'application / écran verrouillé)
             if (this.peerUserId) {
                 (async () => {
@@ -689,6 +694,48 @@
                 }
             }).catch(err => console.warn('[DeliveryTracker] Call signal send error:', err));
         }
+
+        /**
+         * Envoie un signal "ring" sur le canal user-specific de l'appelé.
+         * Permet à l'appelé de recevoir le toast d'appel entrant sur n'importe quelle page,
+         * même s'il n'est pas sur son dashboard (et donc pas abonné au canal order).
+         * @param {string} targetUserId - UUID de l'utilisateur à notifier
+         */
+        _sendUserRingSignal(targetUserId) {
+            try {
+                const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+                if (!client || !targetUserId) return;
+
+                const channelName = `user-ring:${targetUserId}`;
+                const ch = client.channel(channelName);
+
+                ch.subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        ch.send({
+                            type: 'broadcast',
+                            event: 'incoming-call',
+                            payload: {
+                                callerName: this.myName,
+                                callerAvatar: this.myAvatar,
+                                orderId: this.orderId,
+                                role: this.role // rôle de l'appelant
+                            }
+                        }).finally(() => {
+                            // Fermer le canal immédiatement, c'est juste un signal one-shot
+                            try { client.removeChannel(ch); } catch (_) {}
+                        });
+                    }
+                });
+
+                // Timeout de sécurité : nettoyer si l'abonnement prend trop longtemps
+                setTimeout(() => {
+                    try { client.removeChannel(ch); } catch (_) {}
+                }, 5000);
+            } catch (err) {
+                console.warn('[DeliveryTracker] _sendUserRingSignal error:', err);
+            }
+        }
+
 
         _handleCallSignal(data) {
             if (!data || data.role === this.role) return;
