@@ -414,7 +414,7 @@ export const getOrders = async (req, res, next) => {
         if (vendorIds.length > 0) {
             const { data: vendors, error: vendorsError } = await client
                 .from('users')
-                .select('id, name, username, company_name, email')
+                .select('id, name, username, company_name, email, avatar')
                 .in('id', vendorIds);
 
             if (vendorsError) {
@@ -486,6 +486,30 @@ export const getOrderById = async (req, res, next) => {
         const isAdmin = isAdminActor(req.user);
         const isCustomer = !isVendor && !isAdmin;
 
+        // Sécurité : masquer l'OTP pour le vendeur
+        const { otp_code, ...orderWithoutOtp } = order;
+
+        let vendor = null;
+        if (order.vendor_id) {
+            const { data: vData } = await client
+                .from('users')
+                .select('id, name, username, company_name, email, avatar')
+                .eq('id', order.vendor_id)
+                .maybeSingle();
+            vendor = vData || null;
+        }
+
+        let customer = null;
+        const customerUserId = order.customer_id || order.user_id;
+        if (customerUserId) {
+            const { data: cData } = await client
+                .from('users')
+                .select('id, name, email, avatar')
+                .eq('id', customerUserId)
+                .maybeSingle();
+            customer = cData || null;
+        }
+
         const { data: quotes } = await client
             .from('delivery_quotes')
             .select('*')
@@ -497,6 +521,8 @@ export const getOrderById = async (req, res, next) => {
 
         return res.status(200).json({
             ...(isCustomer || isAdmin ? order : orderWithoutOtp),
+            vendor,
+            customer,
             status: mapLegacyOrderStatus(order.status),
             latest_delivery_quote: latestQuote
         });

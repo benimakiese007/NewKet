@@ -3698,8 +3698,8 @@
                 // Démarrage du tracking en direct côté client
                 if (window.DeliveryTracker) {
                     const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
-                    const peerName = order.vendor?.company_name || order.vendor?.name || 'Vendeur';
-                    const peerAvatar = order.vendor?.avatar || order.vendor?.logo || '';
+                    const peerName = order.vendor?.company_name || order.vendor?.name || order.vendor_company_name || order.vendor_name || 'Vendeur';
+                    let peerAvatar = order.vendor?.avatar || order.vendor_avatar || order.vendor?.logo || '';
                     const currentUser = (window.ProfileManager && typeof window.ProfileManager.getProfile === 'function')
                         ? window.ProfileManager.getProfile()
                         : (window.AuthManager && typeof window.AuthManager.getCurrentUser === 'function' ? window.AuthManager.getCurrentUser() : null);
@@ -3730,6 +3730,30 @@
                             myAvatar,
                             peerUserId
                         });
+                    }
+
+                    if (!peerAvatar && peerUserId && window.supabaseClient) {
+                        window.supabaseClient.from('users').select('avatar, company_name, name').eq('id', peerUserId).maybeSingle().then(({ data }) => {
+                            if (data?.avatar) {
+                                if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === order.id) {
+                                    window.deliveryTrackerInstance.peerAvatar = data.avatar;
+                                    const fullAvatarImg = document.getElementById('dt-call-avatar-img');
+                                    const fullAvatarInitials = document.getElementById('dt-call-avatar-initials');
+                                    if (fullAvatarImg && fullAvatarInitials) {
+                                        fullAvatarImg.src = data.avatar;
+                                        fullAvatarImg.classList.remove('hidden');
+                                        fullAvatarInitials.classList.add('hidden');
+                                    }
+                                    const pipAvatarImg = document.getElementById('dt-pip-avatar-img');
+                                    const pipAvatarInitials = document.getElementById('dt-pip-avatar-initials');
+                                    if (pipAvatarImg && pipAvatarInitials) {
+                                        pipAvatarImg.src = data.avatar;
+                                        pipAvatarImg.classList.remove('hidden');
+                                        pipAvatarInitials.classList.add('hidden');
+                                    }
+                                }
+                            }
+                        }).catch(() => {});
                     }
                 }
             }

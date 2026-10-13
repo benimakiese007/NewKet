@@ -188,6 +188,8 @@ const OrderManager = {
             vendor_username: (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.username || '',
             vendor_company_name: (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.company_name || '',
             vendor_email: order.vendor_email || (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.email || '',
+            vendor_avatar: (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.avatar || order.vendor_avatar || (Array.isArray(order.vendor) ? order.vendor[0] : order.vendor)?.logo || '',
+            customer_avatar: (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.avatar || order.customer_avatar || '',
             phone_number: order.phone_number || order.customer_phone || order.vendor_phone || (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.store_phone || '',
             customer_phone: order.customer_phone || order.phone_number || (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.store_phone || '',
             customer_city: order.customer_city || '',

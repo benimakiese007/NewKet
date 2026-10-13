@@ -495,7 +495,7 @@
         async startCall() {
             if (this.callState !== 'idle') return;
             this.callState = 'calling';
-            this._showCallOverlay('Appel en cours...', `Connexion audio avec le ${this.role === 'vendor' ? 'client' : 'vendeur'}...`, false);
+            this._showCallOverlay('Appel en cours...', `Connexion audio avec le ${this.role === 'vendor' ? 'client' : 'vendeur'}...`, false, false, this.peerName, this.peerAvatar);
 
             // Signal de sonnerie immédiat (< 50ms) avant même l'initialisation du micro
             this._sendCallSignal({ type: 'ring' });
@@ -548,7 +548,7 @@
             if (this.callState !== 'incoming') return;
             this.callState = 'connected';
             this._startCallTimer();
-            this._showCallOverlay('En communication', 'Appel vocal actif', true);
+            this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
 
             try {
                 this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -694,24 +694,33 @@
             const callerName = data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client');
             const callerAvatar = data.callerAvatar || '';
 
+            if (callerAvatar && !this.peerAvatar) {
+                this.peerAvatar = callerAvatar;
+            }
+            if (callerName && (!this.peerName || this.peerName === 'Client' || this.peerName === 'Vendeur')) {
+                this.peerName = callerName;
+            }
+
             if (data.type === 'ring') {
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
-                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar);
+                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar || this.peerAvatar);
                     this._playRingtone();
                 }
             } else if (data.type === 'offer') {
                 this.pendingOffer = data.offer;
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
-                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar);
+                    this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar || this.peerAvatar);
                     this._playRingtone();
                 }
             } else if (data.type === 'answer' && this.peerConnection) {
                 this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                 this.callState = 'connected';
+                if (callerAvatar) this.peerAvatar = callerAvatar;
+                if (callerName) this.peerName = callerName;
                 this._startCallTimer();
-                this._showCallOverlay('En communication', 'Appel vocal actif', true, false, callerName, callerAvatar);
+                this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
             } else if (data.type === 'candidate' && this.peerConnection) {
                 this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
             } else if (data.type === 'hangup') {
