@@ -347,33 +347,53 @@ setupDeepLinkRouter();
         }
 
         // ② Canal Supabase user-ring : appel entrant quelle que soit la page
-        // Attendre que supabaseClient soit disponible + session active
+        // Utilise onAuthStateChange pour être sûr d'avoir la session même si la page vient de charger
         const waitForSupabase = () => new Promise((resolve) => {
             const check = () => {
                 const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
                 if (client) return resolve(client);
-                setTimeout(check, 300);
+                setTimeout(check, 200);
             };
             check();
         });
 
         try {
             const client = await waitForSupabase();
-            const sessionData = await client.auth.getSession();
-            const userId = sessionData?.data?.session?.user?.id;
-            if (!userId) return;
+            let _ringChannel = null;
 
-            const channelName = `user-ring:${userId}`;
-            const ch = client.channel(channelName);
-            ch.on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
-                // Ne pas afficher le toast si on est déjà sur le dashboard (il gère lui-même)
-                if (isOnDashboard) return;
-                _showIncomingCallToast(payload || {});
-            }).subscribe();
+            function _subscribeUserRing(userId) {
+                if (!userId || _ringChannel) return; // déjà abonné
+                const channelName = `user-ring:${userId}`;
+                _ringChannel = client.channel(channelName);
+                _ringChannel.on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
+                    if (isOnDashboard) return;
+                    _showIncomingCallToast(payload || {});
+                }).subscribe((status) => {
+                    console.log('[NewKet] user-ring subscription:', status, channelName);
+                });
 
-            // Nettoyer à la fermeture de la page
-            window.addEventListener('pagehide', () => {
-                try { client.removeChannel(ch); } catch (_) {}
+                window.addEventListener('pagehide', () => {
+                    try { client.removeChannel(_ringChannel); } catch (_) {}
+                });
+            }
+
+            // Essai immédiat via getSession (si la session est déjà disponible)
+            try {
+                const sessionData = await client.auth.getSession();
+                const userId = sessionData?.data?.session?.user?.id;
+                if (userId) {
+                    _subscribeUserRing(userId);
+                    return; // déjà ok, pas besoin de onAuthStateChange
+                }
+            } catch (_) {}
+
+            // Fallback : attendre onAuthStateChange (session pas encore restaurée)
+            const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
+                const userId = session?.user?.id;
+                if (userId && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
+                    _subscribeUserRing(userId);
+                    subscription.unsubscribe(); // une fois abonné, plus besoin d'écouter
+                }
             });
         } catch (_) {}
     }
