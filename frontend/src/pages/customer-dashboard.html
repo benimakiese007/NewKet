@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Mon Espace Client | NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -159,7 +159,7 @@
         html.dark .status-standard { background: #1e293b; color: #94a3b8; }
         html.dark .status-premium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 
-        /* ---- Bouton clignotant "À vous de jouer" ---- */
+        /* ---- Bouton clignotant "Ã€ vous de jouer" ---- */
         @keyframes nk-blink-green {
             0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
             50% { opacity: 0.85; box-shadow: 0 0 0 7px rgba(22, 163, 74, 0); }
@@ -206,7 +206,7 @@
                 </button>
             </div>
 
-            <!-- Col centre : Logo parfaitement centré -->
+            <!-- Col centre : Logo parfaitement centrÃ© -->
             <div class="flex items-center justify-center">
                 <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
                     <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-8 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
@@ -237,7 +237,7 @@
 
 
             <!-- Desktop/Tablet Collapse Toggle -->
-            <button type="button" class="sidebar-toggle-btn hidden lg:flex rounded-xl" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close>
+            <button type="button" class="sidebar-toggle-btn hidden lg:flex rounded-xl" data-toggle-sidebar="customer" aria-label="RÃ©duire le menu" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
@@ -285,7 +285,7 @@
                     </a>
                     <a href="#settings" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                        <span>Paramètres</span>
+                        <span>ParamÃ¨tres</span>
                     </a>
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
@@ -334,7 +334,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xl font-bold">Mes Achats</h2>
                         <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dÃ©pensÃ©</p>
                             <p class="font-black text-gray-900" id="customerPurchasesTotal">0 FC</p>
                         </div>
                     </div>
@@ -345,11 +345,11 @@
                         </button>
                         <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="paid">
                             <iconify-icon icon="solar:wallet-bold" width="14" class="mr-1"></iconify-icon>
-                            Payé
+                            PayÃ©
                         </button>
                         <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="completed">
                             <iconify-icon icon="solar:check-circle-bold" width="14" class="mr-1"></iconify-icon>
-                            Terminé
+                            TerminÃ©
                         </button>
                         <button type="button" class="purchases-filter-btn bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-red-100" data-filter="disputed">
                             <iconify-icon icon="solar:danger-triangle-bold" width="14" class="mr-1"></iconify-icon>
@@ -384,7 +384,7 @@
                 <div class="dashboard-page-header dashboard-page-header--stacked">
                     <div class="dashboard-page-header__content">
                         <h1 class="dashboard-page-title">Bonjour, <span id="customerDashboardName">Client</span></h1>
-                        <p class="dashboard-page-subtitle">Voici un aperçu de votre activité aujourd'hui.</p>
+                        <p class="dashboard-page-subtitle">Voici un aperÃ§u de votre activitÃ© aujourd'hui.</p>
                     </div>
                 </div>
 
@@ -429,7 +429,7 @@
                         <div class="flex items-center justify-between mb-6 gap-4">
                             <div class="min-w-0">
                                 <h2 class="text-lg font-bold truncate">Commandes en cours</h2>
-                                <p class="text-sm text-gray-500 mt-1">Suivez l'état et passez à l'étape suivante.</p>
+                                <p class="text-sm text-gray-500 mt-1">Suivez l'Ã©tat et passez Ã  l'Ã©tape suivante.</p>
                             </div>
                             <button type="button"
                                 class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
@@ -456,7 +456,7 @@
                 <!-- Recent Activity Feed -->
                 <div class="bg-white rounded-3xl border border-gray-100 p-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-lg font-bold">Activités Récentes</h2>
+                        <h2 class="text-lg font-bold">ActivitÃ©s RÃ©centes</h2>
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="customer-activity-feed" class="space-y-4">
@@ -503,7 +503,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <h2 class="text-sm font-black uppercase tracking-widest text-gray-900">Notifications appareil</h2>
-                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">PWA installée recommandée pour recevoir les alertes hors app.</p>
+                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">PWA installÃ©e recommandÃ©e pour recevoir les alertes hors app.</p>
                                 </div>
                             </div>
                         </div>
@@ -512,139 +512,6 @@
                             <div class="w-12 h-7 bg-gray-200 rounded-full peer peer-checked:bg-black peer-focus:outline-none after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                         </label>
                     </div>
-                    <p id="push-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
-
-                    <!-- Diagnostic natif iOS & Live Activities -->
-                    <div class="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-4">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div>
-                                <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                    <iconify-icon icon="solar:shield-check-bold" class="text-emerald-600" width="18"></iconify-icon>
-                                    Diagnostic natif iOS
-                                </h3>
-                                <p class="text-xs text-gray-500 mt-0.5">Télémétrie en direct d'ActivityKit, WidgetKit et Capacitor sur cet iPhone</p>
-                            </div>
-                            <button type="button" id="customerDiagRefreshBtn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                                <iconify-icon icon="solar:restart-bold" width="13"></iconify-icon>
-                                Actualiser
-                            </button>
-                        </div>
-
-                        <!-- Grille de Statuts / Badges Système -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
-                                <span class="text-gray-400 font-medium text-[10px] uppercase">ActivityKit</span>
-                                <span id="diagBadgeActivityKit" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Vérification...
-                                </span>
-                            </div>
-                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
-                                <span class="text-gray-400 font-medium text-[10px] uppercase">Autorisation iOS</span>
-                                <span id="diagBadgeAuth" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Inconnu
-                                </span>
-                            </div>
-                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
-                                <span class="text-gray-400 font-medium text-[10px] uppercase">Extension .appex</span>
-                                <span id="diagBadgeExtension" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> Inconnu
-                                </span>
-                            </div>
-                            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 flex flex-col justify-between">
-                                <span class="text-gray-400 font-medium text-[10px] uppercase">Activités en cours</span>
-                                <span id="diagBadgeCount" class="font-bold text-gray-700 mt-1 flex items-center gap-1">
-                                    0 active(s)
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Détails système & ID -->
-                        <div class="bg-gray-900 text-gray-200 rounded-xl p-3 text-[11px] font-mono space-y-1">
-                            <div class="flex justify-between items-center text-gray-400 pb-1 border-b border-gray-800 text-[10px]">
-                                <span>Plateforme / Version</span>
-                                <span id="diagSysInfo" class="text-gray-300">Détection...</span>
-                            </div>
-                            <div class="flex justify-between items-center pt-0.5">
-                                <span class="text-gray-400">Dernier ID Activité :</span>
-                                <span id="diagLastActivityId" class="text-emerald-400 truncate max-w-[200px]">Aucun</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Dernière Opération :</span>
-                                <span id="diagLastOp" class="text-gray-300">-</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Widgets Écran d'accueil :</span>
-                                <span class="text-emerald-400 text-[10px]">Configuré (Boutiques, Notifs, Favoris, Panier)</span>
-                            </div>
-                        </div>
-
-                        <!-- Note explicative pour iPhone 12 -->
-                        <div class="bg-emerald-50/70 border border-emerald-200/70 rounded-xl p-2.5 text-xs text-emerald-950 flex items-start gap-2">
-                            <iconify-icon icon="solar:info-circle-bold" class="text-emerald-600 flex-shrink-0 mt-0.5" width="16"></iconify-icon>
-                            <div class="space-y-0.5 text-[11px] leading-relaxed">
-                                <p class="font-bold text-emerald-900">📱 Comment observer l'activité en direct sur iPhone 12 :</p>
-                                <p class="text-emerald-800">
-                                    Sur iPhone 12 (sans Dynamic Island), l'activité s'affiche sur <strong>l'écran de verrouillage</strong> ou dans le <strong>Centre de notifications</strong> (glisser du haut vers le bas). Elle ne s'affiche pas à l'intérieur de l'application.
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Boutons d'Action de Test -->
-                        <div class="space-y-2">
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" id="customerTestLiveActivityStartBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                                    <iconify-icon icon="solar:play-circle-bold" width="16"></iconify-icon>
-                                    En livraison 🛵
-                                </button>
-                                <button type="button" id="customerTestLiveActivityDeliveredBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95">
-                                    <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
-                                    Livré 🎉
-                                </button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" id="customerTestLiveActivityStopBtn" class="border border-gray-200 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1 active:scale-95">
-                                    <iconify-icon icon="solar:stop-circle-linear" width="15"></iconify-icon>
-                                    Arrêter le suivi
-                                </button>
-                                <button type="button" id="customerTestLiveActivityRunAllBtn" class="bg-gray-900 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95">
-                                    <iconify-icon icon="solar:test-tube-bold" width="15"></iconify-icon>
-                                    Lancer tous les tests 🧪
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Feedback message -->
-                        <p id="customerLiveActivityFeedback" class="text-xs font-semibold text-center hidden py-2 px-3 rounded-xl"></p>
-
-                        <!-- Console d'Événements & Logs -->
-                        <div class="border border-gray-200 rounded-xl overflow-hidden bg-white">
-                            <div class="bg-gray-50 px-3 py-2 border-b border-gray-200 flex items-center justify-between">
-                                <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
-                                    <iconify-icon icon="solar:notes-bold" class="text-gray-500" width="14"></iconify-icon>
-                                    Journal des Événements & Erreurs
-                                </span>
-                                <div class="flex items-center gap-1">
-                                    <button type="button" id="customerDiagCopyBtn" class="text-[11px] bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
-                                        <iconify-icon icon="solar:copy-bold" width="12"></iconify-icon>
-                                        Copier
-                                    </button>
-                                    <button type="button" id="customerDiagExportBtn" class="text-[11px] bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded-md font-medium flex items-center gap-1">
-                                        <iconify-icon icon="solar:download-bold" width="12"></iconify-icon>
-                                        Exporter
-                                    </button>
-                                    <button type="button" id="customerDiagClearBtn" class="text-[11px] bg-white border border-gray-200 hover:bg-red-50 text-red-600 px-2 py-1 rounded-md font-medium flex items-center gap-1">
-                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="12"></iconify-icon>
-                                        Vider
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="customerDiagLogsContainer" class="p-2.5 max-h-48 overflow-y-auto space-y-1.5 text-[11px] font-mono bg-gray-50/50">
-                                <p class="text-gray-400 text-center py-3 italic">Aucun événement enregistré. Appuyez sur un bouton de test.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="customer-settings-grid grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
                     <!-- Profile Info -->
                     <div class="glass-panel p-8 w-full">
@@ -666,7 +533,7 @@
                             </div>
                             <p id="avatar-feedback" class="text-sm font-medium hidden transition-opacity"></p>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">PrÃ©nom</label>
                                 <input type="text" id="profFirstName"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors" autocomplete="given-name">
                             </div>
@@ -690,7 +557,7 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">TÃ©lÃ©phone</label>
                                 <input type="tel" id="profPhone"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             </div>
@@ -717,24 +584,24 @@
                                     <input type="password" id="currentPassword" placeholder="********" autocomplete="current-password"
                                         class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                                     <div class="mt-2 text-right">
-                                        <button type="button" id="customerForgotPasswordBtn" class="text-xs text-gray-500 hover:text-black underline underline-offset-2 transition-colors cursor-pointer bg-transparent border-none p-0">Mot de passe oublié ?</button>
+                                        <button type="button" id="customerForgotPasswordBtn" class="text-xs text-gray-500 hover:text-black underline underline-offset-2 transition-colors cursor-pointer bg-transparent border-none p-0">Mot de passe oubliÃ© ?</button>
                                     </div>
                                     <p id="forgot-password-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
                                 </div>
                                 <p id="passwordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
-                                    <input type="password" id="newPassword" placeholder="Minimum 8 caractères" autocomplete="new-password"
+                                    <input type="password" id="newPassword" placeholder="Minimum 8 caractÃ¨res" autocomplete="new-password"
                                         class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
-                                    <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe" autocomplete="new-password"
+                                    <input type="password" id="confirmPassword" placeholder="RÃ©pÃ©ter le mot de passe" autocomplete="new-password"
                                         class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                                 </div>
                                 <button type="submit"
                                     class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">
-                                    Mettre à jour
+                                    Mettre Ã  jour
                                 </button>
                                 <p id="password-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                             </form>
@@ -742,8 +609,8 @@
 
                         <!-- Passkeys -->
                         <div class="glass-panel p-8 w-full">
-                            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Clé d'accès (Passkey)</h2>
-                            <p class="text-sm text-gray-500 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
+                            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">ClÃ© d'accÃ¨s (Passkey)</h2>
+                            <p class="text-sm text-gray-500 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clÃ© de sÃ©curitÃ©.</p>
                             
                             <div id="customerPasskeysList" class="space-y-3 mb-6 hidden">
                                 <!-- Passkeys will be injected here -->
@@ -751,7 +618,7 @@
 
                             <button id="registerPasskeyBtnCust" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
-                                Créer une clé d'accès
+                                CrÃ©er une clÃ© d'accÃ¨s
                             </button>
                             <p id="passkey-feedback" class="text-sm font-medium hidden transition-opacity mt-3"></p>
                         </div>
@@ -760,23 +627,23 @@
 
                 <!-- Residence Section -->
                 <div class="glass-panel p-8 w-full">
-                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">Résidence de livraison</h2>
-                    <p class="text-sm text-gray-500 mb-6">Enregistrez la localisation de votre maison une fois. Les prochaines commandes partiront de cette résidence par défaut.</p>
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">RÃ©sidence de livraison</h2>
+                    <p class="text-sm text-gray-500 mb-6">Enregistrez la localisation de votre maison une fois. Les prochaines commandes partiront de cette rÃ©sidence par dÃ©faut.</p>
                     <div class="space-y-5" id="residenceSection">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville de résidence</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville de rÃ©sidence</label>
                                 <input type="text" id="residenceCity" placeholder="Ex: Kinshasa"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             </div>
-                            <div id="customerResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">Résidence active</div>
+                            <div id="customerResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">RÃ©sidence active</div>
                         </div>
                         <div class="rounded-[1.25rem] border border-gray-100 overflow-hidden bg-gray-50">
                             <div id="customerResidenceMap" class="w-full h-64"></div>
                         </div>
                         <div id="customerResidenceStatus" class="text-xs text-gray-600 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center gap-2">
                             <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
-                            <span>Chargez votre résidence puis sauvegardez-la pour le checkout.</span>
+                            <span>Chargez votre rÃ©sidence puis sauvegardez-la pour le checkout.</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <button type="button" id="residenceLocateBtn"
@@ -787,7 +654,7 @@
                             <button type="button" id="saveResidenceBtn"
                                 class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:diskette-bold" width="18"></iconify-icon>
-                                Sauvegarder ma résidence
+                                Sauvegarder ma rÃ©sidence
                             </button>
                         </div>
                     </div>
@@ -810,7 +677,7 @@
                         </div>
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
                             <iconify-icon icon="solar:wallet-money-bold" width="14"></iconify-icon>
-                            Valeur cumulée: <span id="referralNkTokenUsdBadge">0,00$</span>
+                            Valeur cumulÃ©e: <span id="referralNkTokenUsdBadge">0,00$</span>
                         </div>
                     </div>
 
@@ -849,14 +716,14 @@
                                 <div id="referralPendingCount" class="text-2xl font-black text-gray-900">0</div>
                             </div>
                             <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
-                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Confirmés</div>
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">ConfirmÃ©s</div>
                                 <div id="referralQualifiedCount" class="text-2xl font-black text-gray-900">0</div>
                             </div>
                         </div>
 
                         <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-4 space-y-4">
                             <div>
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Tu as reçu un code ?</label>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Tu as reÃ§u un code ?</label>
                                 <div class="flex flex-col sm:flex-row gap-3">
                                     <input id="referralClaimCode" type="text" placeholder="Ex: NEWKET-ABC123"
                                         class="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none text-sm text-gray-900 uppercase">
@@ -867,7 +734,7 @@
                                 </div>
                                 <p id="referral-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                             </div>
-                            <p id="referralHint" class="text-xs text-gray-500">Si tu arrives avec un lien de parrainage, le code est enregistré automatiquement. Tu peux aussi le coller ici plus tard.</p>
+                            <p id="referralHint" class="text-xs text-gray-500">Si tu arrives avec un lien de parrainage, le code est enregistrÃ© automatiquement. Tu peux aussi le coller ici plus tard.</p>
                         </div>
                         <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4 space-y-4">
                             <div class="flex items-center justify-between gap-3">
@@ -885,13 +752,13 @@
                         <div class="rounded-2xl bg-white border border-gray-100 p-4 space-y-4">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
-                                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Historique des récompenses</div>
-                                    <div class="text-sm text-gray-500">Les NKToken gagnés après les premières commandes conclues.</div>
+                                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Historique des rÃ©compenses</div>
+                                    <div class="text-sm text-gray-500">Les NKToken gagnÃ©s aprÃ¨s les premiÃ¨res commandes conclues.</div>
                                 </div>
                                 <div id="referralRewardHistoryCount" class="px-3 py-1 rounded-full bg-black text-white text-[10px] font-black uppercase tracking-widest">0</div>
                             </div>
                             <div id="referralRewardHistory" class="space-y-3">
-                                <div class="text-sm text-gray-400">Aucune récompense pour le moment.</div>
+                                <div class="text-sm text-gray-400">Aucune rÃ©compense pour le moment.</div>
                             </div>
                         </div>
                     </div>
@@ -906,7 +773,7 @@
             class="bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll overflow-x-hidden animate-in fade-in zoom-in duration-300">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                 <div>
-                    <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
+                    <h2 class="text-xl font-bold" id="modalOrderIdText">DÃ©tails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
                 <button type="button" data-action="close-order-modal"
@@ -950,7 +817,7 @@
                         <img id="modalInvoiceLogo" src="/LogoOfficiel_PWA_Icone.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
                         <div class="min-w-0">
                             <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
-                            <div class="font-black text-gray-900">Aperçu compact</div>
+                            <div class="font-black text-gray-900">AperÃ§u compact</div>
                         </div>
                     </div>
                     <div class="flex justify-between text-sm">
@@ -966,7 +833,7 @@
                         <span id="modalOrderPayin" class="font-medium text-gray-900"></span>
                     </div>
                     <div id="modalOrderDiscountRow" class="flex justify-between text-sm hidden">
-                        <span class="text-emerald-600 font-bold">Réduction promo</span>
+                        <span class="text-emerald-600 font-bold">RÃ©duction promo</span>
                         <span id="modalOrderDiscount" class="font-bold text-emerald-600"></span>
                     </div>
                     <div id="modalOrderPromoCodeRow" class="flex justify-between text-sm hidden">
@@ -989,7 +856,7 @@
                                 <span id="quoteAmount" class="font-black">-</span>
                             </div>
                             <div class="flex items-center justify-between gap-3">
-                                <span>Délai estimé</span>
+                                <span>DÃ©lai estimÃ©</span>
                                 <span id="quoteDelay" class="font-bold">-</span>
                             </div>
                             <p id="quoteNote" class="text-xs text-amber-700 mt-2"></p>
@@ -1011,12 +878,12 @@
                     <!-- No-Show Warning -->
                     <div id="noShowWarningSection" class="hidden p-4 bg-red-50 rounded-xl border border-red-100 text-center">
                         <div class="text-xs font-bold text-red-600 uppercase mb-2">Attention : Livraison en cours</div>
-                        <p class="text-sm text-red-800 font-semibold">Le vendeur vous attend. S'il n'y a pas de validation dans les 48h, la commande sera annulée et une pénalité vous sera prélevée.</p>
+                        <p class="text-sm text-red-800 font-semibold">Le vendeur vous attend. S'il n'y a pas de validation dans les 48h, la commande sera annulÃ©e et une pÃ©nalitÃ© vous sera prÃ©levÃ©e.</p>
                     </div>
 
                     <!-- Release Delay -->
                     <div id="releaseDelaySection" class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
-                        <div class="text-xs font-bold text-emerald-700 uppercase mb-2">Libération des fonds</div>
+                        <div class="text-xs font-bold text-emerald-700 uppercase mb-2">LibÃ©ration des fonds</div>
                         <div id="releaseCountdown" class="text-2xl font-black tracking-tight text-emerald-900">-</div>
                         <p id="releaseDelayHint" class="mt-2 text-xs text-emerald-800 font-semibold"></p>
                     </div>
@@ -1041,12 +908,12 @@
                         <button id="btnValidateDelivery" type="button"
                             class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
-                            Libérer les fonds
+                            LibÃ©rer les fonds
                         </button>
                         <button id="btnOpenDispute" type="button"
                             class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon>
-                            Signaler un problème
+                            Signaler un problÃ¨me
                         </button>
                     </div>
                     <p id="client-modal-feedback" class="text-sm font-medium hidden transition-opacity mt-2 text-center"></p>
@@ -1094,10 +961,10 @@
                             <span class="text-xs font-black text-blue-800 uppercase tracking-widest">Retour Produit</span>
                             <iconify-icon icon="solar:box-minimalistic-bold" class="text-blue-500" width="16"></iconify-icon>
                         </div>
-                        <p class="text-[10px] text-red-600 font-bold mb-1">⚠️ Ne remettez le produit QUE si le vendeur vous donne le code OTP simultanément.</p>
-                        <p class="text-[10px] text-blue-700 mb-2">Une fois le produit remis, saisissez le code OTP ci-dessous pour déclencher votre remboursement.</p>
+                        <p class="text-[10px] text-red-600 font-bold mb-1">âš ï¸ Ne remettez le produit QUE si le vendeur vous donne le code OTP simultanÃ©ment.</p>
+                        <p class="text-[10px] text-blue-700 mb-2">Une fois le produit remis, saisissez le code OTP ci-dessous pour dÃ©clencher votre remboursement.</p>
                         <div id="returnCountdown" class="text-[10px] text-orange-600 font-bold mb-3 text-center hidden">
-                            ⏱ Temps restant : <span id="returnCountdownValue">--:--:--</span>
+                            â± Temps restant : <span id="returnCountdownValue">--:--:--</span>
                         </div>
                         <div class="flex gap-2">
                             <input type="text" id="returnOtpInput" maxlength="6" placeholder="Code OTP (6 chiffres)" class="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm font-bold text-center tracking-widest outline-none focus:border-blue-500">
@@ -1186,7 +1053,7 @@
                         <strong id="invSubtotal"></strong>
                     </div>
                     <div class="invoice-total-row invoice-total-row--discount hidden" id="invDiscountRow">
-                        <span>Réduction code promo</span>
+                        <span>RÃ©duction code promo</span>
                         <strong id="invDiscount"></strong>
                     </div>
                     <div class="invoice-total-row hidden" id="invPromoCodeRow">
@@ -1213,7 +1080,7 @@
                             <div class="invoice-party-label">QR unique</div>
                             <div id="invQrCode" class="invoice-qr-code"></div>
                             <div class="invoice-party-detail">Scannez ce code pour ouvrir la page de v&eacute;rification de cette commande.</div>
-                            <a id="invQrLink" class="invoice-party-detail" href="#" target="_blank" rel="noreferrer noopener">Ouvrir la vérification</a>
+                            <a id="invQrLink" class="invoice-party-detail" href="#" target="_blank" rel="noreferrer noopener">Ouvrir la vÃ©rification</a>
                         </div>
                     </div>
                 </div>
@@ -1356,7 +1223,7 @@
             };
             document.getElementById('btnSendDisputeMessage')?.addEventListener('click', () => {
                 if (typeof window.sendDisputeMessage === 'function') return window.sendDisputeMessage();
-                showClientDisputeFallback('Messagerie indisponible. Veuillez réessayer dans un instant.', 'error');
+                showClientDisputeFallback('Messagerie indisponible. Veuillez rÃ©essayer dans un instant.', 'error');
                 setTimeout(() => window.location.reload(), 2500);
             });
             document.querySelector('[data-action="buyer-accept-dispute-offer"]')?.addEventListener('click', () => {
@@ -1408,14 +1275,14 @@
             }
 
             customerAvatarUploadInFlight = true;
-            if (window.LoaderManager) LoaderManager.show('Mise à jour de la photo...');
+            if (window.LoaderManager) LoaderManager.show('Mise Ã  jour de la photo...');
 
             try {
                 const client = window.SupabaseAdapter?.getClient?.();
                 if (!client) throw new Error('Client Supabase indisponible');
 
                 const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
-                if (!user?.id) throw new Error('Utilisateur non authentifié');
+                if (!user?.id) throw new Error('Utilisateur non authentifiÃ©');
 
                 const ext = (file.name?.split('.')?.pop() || 'jpg').toLowerCase();
                 const safeExt = ['png', 'jpg', 'jpeg', 'webp'].includes(ext) ? ext : 'jpg';
@@ -1434,7 +1301,7 @@
 
                 const currentName = currentProfile.username || currentProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
                 renderCustomerProfileAvatarPreview(currentName, publicUrl);
-                showInlineMessage('avatar-feedback', 'Photo de profil mise à jour.', 'success');
+                showInlineMessage('avatar-feedback', 'Photo de profil mise Ã  jour.', 'success');
             } catch (error) {
                 console.error('[Customer Avatar] Upload error:', error);
                 const uploadError = window.SupabaseAdapter?.getLastUploadError?.() || error;
@@ -1663,7 +1530,7 @@
                 mapEl.dataset.leafletReady = 'true';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 18,
-                    attribution: '© OpenStreetMap'
+                    attribution: 'Â© OpenStreetMap'
                 }).addTo(customerResidenceMap);
 
                 customerResidenceMarker = L.marker(defaultCenter, { draggable: true }).addTo(customerResidenceMap);
@@ -1746,25 +1613,25 @@
                 toggle.disabled = state === 'unsupported' || state === 'ios-browser';
 
                 if (state === 'denied') {
-                    status.innerHTML = '🔕 Notifications bloquées dans votre navigateur. '
+                    status.innerHTML = 'ðŸ”• Notifications bloquÃ©es dans votre navigateur. '
                         + '<a href="https://support.google.com/chrome/answer/3220216" target="_blank" rel="noopener" '
-                        + 'class="underline text-blue-600 font-semibold">Comment les réactiver →</a>';
+                        + 'class="underline text-blue-600 font-semibold">Comment les rÃ©activer â†’</a>';
                 } else if (state === 'ios-browser') {
                     status.innerHTML = '<div class="mt-2 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs text-gray-700">'
                         + '<p class="font-bold mb-1">Pour activer les notifications sur iPhone :</p>'
                         + '<ol class="list-decimal list-inside space-y-1">'
-                        + '<li>Touchez l\'icône Partager <iconify-icon icon="solar:export-outline" class="inline align-middle"></iconify-icon> en bas</li>'
-                        + '<li>Choisissez <strong>"Sur l\'écran d\'accueil"</strong></li>'
-                        + '<li>Ouvrez l\'application installée pour vous abonner</li>'
+                        + '<li>Touchez l\'icÃ´ne Partager <iconify-icon icon="solar:export-outline" class="inline align-middle"></iconify-icon> en bas</li>'
+                        + '<li>Choisissez <strong>"Sur l\'Ã©cran d\'accueil"</strong></li>'
+                        + '<li>Ouvrez l\'application installÃ©e pour vous abonner</li>'
                         + '</ol></div>';
                 } else {
                     status.textContent = AppNotifications.getDeviceNotificationGuidance
                         ? AppNotifications.getDeviceNotificationGuidance(state)
-                        : 'PWA installée recommandée. Navigateur normal: support variable.';
+                        : 'PWA installÃ©e recommandÃ©e. Navigateur normal: support variable.';
                 }
             } catch (error) {
                 toggle.checked = false;
-                status.textContent = 'État impossible à vérifier.';
+                status.textContent = 'Ã‰tat impossible Ã  vÃ©rifier.';
             }
         }
 
@@ -1793,8 +1660,8 @@
                 toggle.checked = !enable;
                 const isDenied = error?.message?.includes('denied') || error?.message?.includes('permission');
                 const msg = isDenied
-                    ? 'Notifications bloquées par votre navigateur. Autorisez-les dans les paramètres de votre navigateur.'
-                    : "Impossible de modifier les notifications. Vérifiez votre connexion et réessayez.";
+                    ? 'Notifications bloquÃ©es par votre navigateur. Autorisez-les dans les paramÃ¨tres de votre navigateur.'
+                    : "Impossible de modifier les notifications. VÃ©rifiez votre connexion et rÃ©essayez.";
                 showInlineMessage('push-feedback', msg, 'warning');
             } finally {
                 toggle.disabled = false;
@@ -1994,7 +1861,7 @@
             const lastName = document.getElementById('profLastName').value.trim();
             const username = document.getElementById('profUsername').value.trim().toLowerCase().replace(/\s+/g, '');
             if (!username || username.length < 8 || !/^[a-z0-9_-]+$/.test(username) || !/[a-z]/.test(username)) {
-                showInlineMessage('profile-feedback', 'Le nom d\'utilisateur doit contenir au moins 8 caractères, en minuscules, avec au moins une lettre.', 'error');
+                showInlineMessage('profile-feedback', 'Le nom d\'utilisateur doit contenir au moins 8 caractÃ¨res, en minuscules, avec au moins une lettre.', 'error');
                 return;
             }
             const profile = {
@@ -2019,16 +1886,16 @@
                 const dashboardNameEl = document.getElementById('customerDashboardName');
                 if (dashboardNameEl) dashboardNameEl.textContent = savedDisplayName;
                 renderAvatar(saved.username || saved.name || username, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
-                showInlineMessage('profile-feedback', 'Profil mis à jour avec succès !', 'success');
+                showInlineMessage('profile-feedback', 'Profil mis Ã  jour avec succÃ¨s !', 'success');
             } catch (err) {
                 console.error('[Customer Profile] Update error:', err);
                 const message = String(err?.message || '').toLowerCase();
                 if (message.includes('14 jours') || message.includes('14 day')) {
                     showInlineMessage('profile-feedback', "Vous ne pouvez modifier votre nom d'utilisateur qu'une fois tous les 14 jours.", 'error');
-                } else if (message.includes('deja pris') || message.includes('déjà pris') || message.includes('already taken')) {
-                    showInlineMessage('profile-feedback', "Ce nom d'utilisateur est déjà pris ou encore réservé.", 'error');
+                } else if (message.includes('deja pris') || message.includes('dÃ©jÃ  pris') || message.includes('already taken')) {
+                    showInlineMessage('profile-feedback', "Ce nom d'utilisateur est dÃ©jÃ  pris ou encore rÃ©servÃ©.", 'error');
                 } else {
-                    showInlineMessage('profile-feedback', 'Erreur lors de la mise à jour du profil.', 'error');
+                    showInlineMessage('profile-feedback', 'Erreur lors de la mise Ã  jour du profil.', 'error');
                 }
             }
         });
@@ -2052,17 +1919,17 @@
             }
         }
 
-        // Password Form — indicateur de règles en temps réel
+        // Password Form â€” indicateur de rÃ¨gles en temps rÃ©el
         (function initPasswordStrengthIndicator() {
             const newPwdInput = document.getElementById('newPassword');
             if (!newPwdInput) return;
 
             const rules = [
-                { id: 'rule-len',    label: '8 caractères minimum',             test: v => v.length >= 8 },
+                { id: 'rule-len',    label: '8 caractÃ¨res minimum',             test: v => v.length >= 8 },
                 { id: 'rule-lower',  label: 'Une minuscule',                     test: v => /[a-z]/.test(v) },
                 { id: 'rule-upper',  label: 'Une majuscule',                     test: v => /[A-Z]/.test(v) },
                 { id: 'rule-digit',  label: 'Un chiffre',                        test: v => /[0-9]/.test(v) },
-                { id: 'rule-special',label: 'Un caractère spécial (!, @, #…)',   test: v => /[^A-Za-z0-9]/.test(v) },
+                { id: 'rule-special',label: 'Un caractÃ¨re spÃ©cial (!, @, #â€¦)',   test: v => /[^A-Za-z0-9]/.test(v) },
             ];
 
             const indicator = document.createElement('div');
@@ -2101,22 +1968,22 @@
 
             if (requiresCurrentPassword && !currentPass) { showInlineMessage('password-feedback', 'Veuillez saisir votre mot de passe actuel.', 'error'); return; }
 
-            // Valider toutes les règles en une seule passe
+            // Valider toutes les rÃ¨gles en une seule passe
             const failedRules = [];
             if (!np)                        failedRules.push('Mot de passe vide');
-            if (np.length < 8)              failedRules.push('8 caractères minimum requis');
+            if (np.length < 8)              failedRules.push('8 caractÃ¨res minimum requis');
             if (!/[a-z]/.test(np))          failedRules.push('Minuscule requise');
             if (!/[A-Z]/.test(np))          failedRules.push('Majuscule requise');
             if (!/[0-9]/.test(np))          failedRules.push('Chiffre requis');
-            if (!/[^A-Za-z0-9]/.test(np))   failedRules.push('Caractère spécial requis');
+            if (!/[^A-Za-z0-9]/.test(np))   failedRules.push('CaractÃ¨re spÃ©cial requis');
 
             if (failedRules.length > 0) {
                 document.getElementById('newPassword')?.focus();
                 document.getElementById('pw-strength-indicator')?.classList.remove('hidden');
-                showInlineMessage('password-feedback', 'Votre mot de passe ne respecte pas toutes les règles de sécurité.', 'error');
+                showInlineMessage('password-feedback', 'Votre mot de passe ne respecte pas toutes les rÃ¨gles de sÃ©curitÃ©.', 'error');
                 return;
             }
-            if (currentPass && np === currentPass) { showInlineMessage('password-feedback', 'Le nouveau mot de passe doit être différent de l\'actuel.', 'error'); return; }
+            if (currentPass && np === currentPass) { showInlineMessage('password-feedback', 'Le nouveau mot de passe doit Ãªtre diffÃ©rent de l\'actuel.', 'error'); return; }
             if (np !== cp) { showInlineMessage('password-feedback', 'Les mots de passe ne correspondent pas.', 'error'); return; }
 
             try {
@@ -2130,14 +1997,14 @@
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
                 document.getElementById('pw-strength-indicator')?.classList.add('hidden');
-                showInlineMessage('password-feedback', 'Mot de passe mis à jour avec succès !', 'success');
+                showInlineMessage('password-feedback', 'Mot de passe mis Ã  jour avec succÃ¨s !', 'success');
             } catch (err) {
                 console.error('Erreur password:', err);
-                showInlineMessage('password-feedback', 'Erreur lors de la mise à jour : ' + err.message, 'error');
+                showInlineMessage('password-feedback', 'Erreur lors de la mise Ã  jour : ' + err.message, 'error');
             }
         });
 
-        // ─── Mot de passe oublié — Customer ─────────────────────────────
+        // â”€â”€â”€ Mot de passe oubliÃ© â€” Customer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const customerForgotPasswordBtn = document.getElementById('customerForgotPasswordBtn');
         if (customerForgotPasswordBtn) {
             customerForgotPasswordBtn.addEventListener('click', async () => {
@@ -2145,12 +2012,12 @@
                     customerForgotPasswordBtn.disabled = true;
                     customerForgotPasswordBtn.textContent = 'Envoi en cours...';
 
-                    // Récupérer l'email de l'utilisateur connecté
+                    // RÃ©cupÃ©rer l'email de l'utilisateur connectÃ©
                     const { data: sessionData } = await window.supabaseClient.auth.getSession();
                     const email = sessionData?.session?.user?.email;
 
                     if (!email) {
-                        showInlineMessage('forgot-password-feedback', 'Session expirée. Redirection vers la connexion…', 'warning');
+                        showInlineMessage('forgot-password-feedback', 'Session expirÃ©e. Redirection vers la connexionâ€¦', 'warning');
                         setTimeout(() => {
                             window.location.href = (window.resolvePath?.('pages/login') || '/login') + '?redirect=dashboard';
                         }, 2000);
@@ -2163,15 +2030,15 @@
                     if (error) throw error;
 
                     showInlineMessage('forgot-password-feedback',
-                        `Un lien de réinitialisation a été envoyé à ${email}. Vérifiez votre boîte mail.`,
+                        `Un lien de rÃ©initialisation a Ã©tÃ© envoyÃ© Ã  ${email}. VÃ©rifiez votre boÃ®te mail.`,
                         'success'
                     );
                 } catch (err) {
                     console.error('[Security] Forgot password error:', err);
-                    showInlineMessage('forgot-password-feedback', err?.message || 'Erreur lors de l\'envoi de l\'email. Réessayez.', 'error');
+                    showInlineMessage('forgot-password-feedback', err?.message || 'Erreur lors de l\'envoi de l\'email. RÃ©essayez.', 'error');
                 } finally {
                     customerForgotPasswordBtn.disabled = false;
-                    customerForgotPasswordBtn.textContent = 'Mot de passe oublié ?';
+                    customerForgotPasswordBtn.textContent = 'Mot de passe oubliÃ© ?';
                 }
             });
         }
@@ -2197,7 +2064,7 @@
                 });
                 const name = pk.friendly_name || pk.name || 'Appareil inconnu';
                 
-                let pkType = 'WebAuthn / Biométrie';
+                let pkType = 'WebAuthn / BiomÃ©trie';
                 let icon = 'solar:key-minimalistic-bold';
                 const lowerName = name.toLowerCase();
                 
@@ -2211,7 +2078,7 @@
                     pkType = 'Passkey Android';
                     icon = 'bi:android2';
                 } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
-                    pkType = 'Clé de sécurité physique';
+                    pkType = 'ClÃ© de sÃ©curitÃ© physique';
                     icon = 'solar:usb-bold';
                 }
                 
@@ -2224,14 +2091,14 @@
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
                                 <div class="flex items-center gap-2 mt-0.5 flex-wrap">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
-                                    <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">AjoutÃ©e le ${date}</p>
+                                    <span class="text-[10px] text-gray-300 hidden sm:inline">â€¢</span>
                                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
-                            Opérationnelle
+                            OpÃ©rationnelle
                         </div>
                     </div>
                 `;
@@ -2244,16 +2111,16 @@
                     renderCustomerPasskeys(data);
                     if (data && data.length > 0) {
                         const title = registerPasskeyBtnCust.closest('div').querySelector('h2');
-                        if (title && !title.innerHTML.includes('Activée')) {
-                            title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                        if (title && !title.innerHTML.includes('ActivÃ©e')) {
+                            title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">ActivÃ©e</span>';
                         }
-                        registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                        registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> CrÃ©er une autre clÃ© d\'accÃ¨s';
                     } else {
                         const title = registerPasskeyBtnCust.closest('div').querySelector('h2');
-                        if (title && title.innerHTML.includes('Activée')) {
-                            title.innerHTML = "Clé d'accès (Passkey)";
+                        if (title && title.innerHTML.includes('ActivÃ©e')) {
+                            title.innerHTML = "ClÃ© d'accÃ¨s (Passkey)";
                         }
-                        registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
+                        registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> CrÃ©er une clÃ© d\'accÃ¨s';
                     }
                 }).catch(err => console.error("Erreur passkeys:", err));
             }
@@ -2268,22 +2135,22 @@
         if (registerPasskeyBtnCust) {
             registerPasskeyBtnCust.addEventListener('click', async () => {
                 if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
-                    showInlineMessage('passkey-feedback', "Votre navigateur ne supporte pas encore cette fonctionnalité.", 'error');
+                    showInlineMessage('passkey-feedback', "Votre navigateur ne supporte pas encore cette fonctionnalitÃ©.", 'error');
                     return;
                 }
                 const originalText = registerPasskeyBtnCust.innerHTML;
-                registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
+                registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> CrÃ©ation...';
                 registerPasskeyBtnCust.disabled = true;
                 try {
                     const { data, error } = await window.supabaseClient.auth.registerPasskey();
                     if (error) throw error;
-                    showInlineMessage('passkey-feedback', "Clé d'accès créée avec succès !", 'success');
+                    showInlineMessage('passkey-feedback', "ClÃ© d'accÃ¨s crÃ©Ã©e avec succÃ¨s !", 'success');
                     loadCustomerPasskeys();
                 } catch (err) {
                     console.error('Passkey registration error:', err);
-                    let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                    let msg = err.message || "Erreur lors de la crÃ©ation de la clÃ© d'accÃ¨s.";
                     if (msg.includes('cancelled') || msg.includes('cancel')) {
-                        msg = "Création annulée.";
+                        msg = "CrÃ©ation annulÃ©e.";
                     }
                     showInlineMessage('passkey-feedback', msg, 'error');
                 } finally {
@@ -2347,7 +2214,7 @@
                 if (historyCountEl) historyCountEl.textContent = String(rewardHistory.length);
                 if (historyEl) {
                     if (rewardHistory.length === 0) {
-                        historyEl.innerHTML = '<div class="text-sm text-gray-400">Aucune récompense pour le moment.</div>';
+                        historyEl.innerHTML = '<div class="text-sm text-gray-400">Aucune rÃ©compense pour le moment.</div>';
                     } else {
                         historyEl.innerHTML = rewardHistory.slice(0, 6).map((reward) => {
                             const inviteeName = reward?.invitee?.name || reward?.invitee?.email || 'Client';
@@ -2362,7 +2229,7 @@
                                 <div class="flex items-start justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
                                     <div class="min-w-0">
                                         <div class="text-sm font-black text-gray-900 truncate">${inviteeName}</div>
-                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">Récompense conclue le ${rewardedAt}</div>
+                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">RÃ©compense conclue le ${rewardedAt}</div>
                                     </div>
                                     <div class="text-right shrink-0">
                                         <div class="text-sm font-black text-emerald-700">+${rewardAmount} NKToken</div>
@@ -2408,12 +2275,12 @@
                 });
 
                 localStorage.removeItem('newketReferralCode');
-                if (hint) hint.textContent = 'Code validé. Le parrainage est maintenant rattaché à ton compte.';
-                showInlineMessage('referral-feedback', 'Code de parrainage validé.', 'success');
-                // Restaurer le bouton immédiatement, avant le refresh (qui peut être lent)
+                if (hint) hint.textContent = 'Code validÃ©. Le parrainage est maintenant rattachÃ© Ã  ton compte.';
+                showInlineMessage('referral-feedback', 'Code de parrainage validÃ©.', 'success');
+                // Restaurer le bouton immÃ©diatement, avant le refresh (qui peut Ãªtre lent)
                 button.disabled = false;
                 button.textContent = 'Valider';
-                refreshReferralPanel(); // pas de await — on rafraîchit en arrière-plan
+                refreshReferralPanel(); // pas de await â€” on rafraÃ®chit en arriÃ¨re-plan
             } catch (error) {
                 console.error('[Customer Referral] Claim error:', error);
                 showInlineMessage('referral-feedback', error?.message || 'Impossible de valider ce code.', 'error');
@@ -2435,7 +2302,7 @@
                 try {
                     await navigator.clipboard.writeText(value);
                     if (btn) {
-                        btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="14"></iconify-icon> Copié !';
+                        btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="14"></iconify-icon> CopiÃ© !';
                         btn.classList.add('bg-green-600', 'text-white', 'border-green-600');
                         btn.classList.remove('bg-black', 'bg-white', 'border-gray-200');
                         setTimeout(() => {
@@ -2446,7 +2313,7 @@
                     }
                 } catch {
                     if (btn) {
-                        btn.innerHTML = '✗ Erreur';
+                        btn.innerHTML = 'âœ— Erreur';
                         setTimeout(() => { btn.innerHTML = original; }, 2000);
                     }
                 }
@@ -2523,7 +2390,7 @@
                                     <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${new Date(n.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
                                 </div>
                                 <p class="text-xs text-gray-500 truncate">${n.message}</p>
-                                ${isImageIssue ? '<p class="mt-1 text-[10px] font-semibold text-amber-700">Image surveillée en arrière-plan.</p>' : ''}
+                                ${isImageIssue ? '<p class="mt-1 text-[10px] font-semibold text-amber-700">Image surveillÃ©e en arriÃ¨re-plan.</p>' : ''}
                             </div>
                             ${!n.read ? '<div class="w-1.5 h-1.5 rounded-full bg-black"></div>' : ''}
                         </div>
@@ -2585,7 +2452,7 @@
                 if (avgEl) avgEl.textContent = 'Aujourd\'hui';
                 if (pointsEl) pointsEl.textContent = '0 NKToken';
                 if (feed) {
-                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activité pour le moment.</p>';
+                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activitÃ© pour le moment.</p>';
                 }
                 return;
             }
@@ -2602,7 +2469,7 @@
                 if (!window.ActivityManager || typeof ActivityManager.getRecentActivity !== 'function') return;
                 const activities = ActivityManager.getRecentActivity(4);
                 if (activities.length === 0) {
-                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activité pour le moment.</p>';
+                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activitÃ© pour le moment.</p>';
                 } else {
                     feed.innerHTML = activities.map(a => `
                         <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-all">
@@ -2656,12 +2523,12 @@
                 return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'modal' };
             }
             if (status === 'DELIVERED') {
-                return { label: 'Libérer les fonds', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
+                return { label: 'LibÃ©rer les fonds', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
             }
             if (['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'PROCESSING'].includes(status)) {
                 return { label: 'Suivre la commande', icon: 'solar:map-point-wave-bold', required: false, kind: 'achat' };
             }
-            return { label: 'Voir les détails', icon: 'solar:eye-bold', required: false, kind: 'modal' };
+            return { label: 'Voir les dÃ©tails', icon: 'solar:eye-bold', required: false, kind: 'modal' };
         }
 
         function renderCustomerOrdersFocusPanels() {
@@ -2724,7 +2591,7 @@
                                     onclick="${onClick}">
                                     <iconify-icon icon="${next.icon}" width="16"></iconify-icon>
                                     <span class="hidden sm:inline">${next.label}</span>
-                                    <span class="sm:hidden">${next.label.replace('Voir les détails', 'Détails').replace('Voir le litige', 'Litige').replace('Voir le devis', 'Devis').replace('Payer maintenant', 'Payer').replace('Libérer les fonds', 'Libérer').replace('Suivre la commande', 'Suivre')}</span>
+                                    <span class="sm:hidden">${next.label.replace('Voir les dÃ©tails', 'DÃ©tails').replace('Voir le litige', 'Litige').replace('Voir le devis', 'Devis').replace('Payer maintenant', 'Payer').replace('LibÃ©rer les fonds', 'LibÃ©rer').replace('Suivre la commande', 'Suivre')}</span>
                                 </button>
                             </div>
                         </div>
@@ -2855,7 +2722,7 @@
                             <iconify-icon icon="solar:bag-broken" width="48"></iconify-icon>
                         </div>
                         <div class="text-2xl font-bold text-gray-900 mb-2">Aucune commande pour le moment</div>
-                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend, découvrez nos nouveautés.</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyÃ© de demande. L'exceptionnel vous attend, dÃ©couvrez nos nouveautÃ©s.</div>
                         <div class="mt-6">
                             <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
@@ -2872,12 +2739,12 @@
                         ? `event.stopPropagation(); window.goToAchatOrder && window.goToAchatOrder('${order.id}')`
                         : `event.stopPropagation(); (typeof openOrderModal === 'function') && openOrderModal('${order.id}')`;
                     
-                    // Déterminer si c'est au client d'agir sur cette commande
+                    // DÃ©terminer si c'est au client d'agir sur cette commande
                     const isCustomerTurn = next.required;
                     const yourTurnBadge = isCustomerTurn
                         ? `<span class="nk-your-turn-btn" onclick="event.stopPropagation(); ${actionOnClick}">
                                <span class="nk-your-turn-dot"></span>
-                               À vous de jouer
+                               Ã€ vous de jouer
                            </span>`
                         : '';
 
@@ -2958,8 +2825,8 @@
                         <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
                             <iconify-icon icon="solar:heart-broken-linear" width="48"></iconify-icon>
                         </div>
-                        <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</div>
-                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de dÃ©sirs est vide</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous sÃ©duire par nos piÃ¨ces d'exception et dÃ©couvrez nos derniÃ¨res nouveautÃ©s.</div>
                         <div class="mt-6">
                             <a href="/catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
@@ -3086,7 +2953,7 @@
                 container.innerHTML = `
                     <div class="glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:shop-2-bold" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                        <p class="font-bold text-gray-900">Aucun achat prêt pour paiement</p>
+                        <p class="font-bold text-gray-900">Aucun achat prÃªt pour paiement</p>
                         <p class="mt-2 text-sm">Retournez dans "Mes demandes et devis" pour suivre vos demandes.</p>
                         <div class="mt-6">
                             <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.switchTab && window.switchTab('orders')">Aller aux demandes</button>
@@ -3144,8 +3011,8 @@
                     <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-900 flex items-start gap-3">
                         <iconify-icon icon="solar:info-circle-bold" width="22"></iconify-icon>
                         <div>
-                            <div class="font-black">Sélectionnez une demande</div>
-                            <div class="mt-1 text-indigo-800">Vous serez redirigé vers le paiement sécurisé après confirmation.</div>
+                            <div class="font-black">SÃ©lectionnez une demande</div>
+                            <div class="mt-1 text-indigo-800">Vous serez redirigÃ© vers le paiement sÃ©curisÃ© aprÃ¨s confirmation.</div>
                         </div>
                     </div>
                 `);
@@ -3186,7 +3053,7 @@
                                     </div>
                                     <div class="min-w-0">
                                         <div class="font-black text-gray-900 truncate">${safeText(productName)}</div>
-                                        <div class="text-sm text-gray-500 mt-1">Quantité: <span class="font-bold text-gray-700">${qty}</span></div>
+                                        <div class="text-sm text-gray-500 mt-1">QuantitÃ©: <span class="font-bold text-gray-700">${qty}</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -3231,7 +3098,7 @@
                                 <button id="achatDashApplyPromo" class="px-4 py-3 rounded-2xl bg-white border border-gray-100 text-xs font-black tracking-widest uppercase hover:border-black transition-colors">Appliquer</button>
                             </div>
                             <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
-                            <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliqué: ${promoCode}` : ''}</div>
+                            <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliquÃ©: ${promoCode}` : ''}</div>
                             <div id="achatDashPromoError" class="mt-2 text-xs text-red-600 font-semibold hidden"></div>
                         </div>
                         `}
@@ -3240,7 +3107,7 @@
                         <div class="mt-6">
                             <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-emerald-900 flex items-center justify-center gap-3">
                                 <iconify-icon icon="solar:shield-check-bold" width="24"></iconify-icon>
-                                <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
+                                <span class="font-black tracking-tight text-sm uppercase">Paiement sÃ©curisÃ© effectuÃ©</span>
                             </div>
                         </div>
                         ` : `
@@ -3294,7 +3161,7 @@
 
                     const code = safeText(promo?.code || '').trim().toUpperCase();
                     if (promoSuccess) {
-                        promoSuccess.textContent = code ? `Code appliqué: ${code}` : '';
+                        promoSuccess.textContent = code ? `Code appliquÃ©: ${code}` : '';
                         promoSuccess.classList.toggle('hidden', !code);
                     }
                     if (promoRemoveBtn) promoRemoveBtn.classList.toggle('hidden', !code);
@@ -3349,7 +3216,7 @@
                     const PAYMENT_TIMEOUT_MS = 15000;
                     let timeoutId;
                     const timeoutPromise = new Promise((_, reject) => {
-                        timeoutId = setTimeout(() => reject(new Error('La connexion prend trop de temps. Vérifiez votre connexion et réessayez.')), PAYMENT_TIMEOUT_MS);
+                        timeoutId = setTimeout(() => reject(new Error('La connexion prend trop de temps. VÃ©rifiez votre connexion et rÃ©essayez.')), PAYMENT_TIMEOUT_MS);
                     });
 
                     let isRedirecting = false;
@@ -3374,7 +3241,7 @@
                                             <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur z-20">
                                                 <h3 class="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2">
                                                     <iconify-icon icon="solar:wallet-bold" class="text-indigo-600" width="22"></iconify-icon>
-                                                    Détail du paiement
+                                                    DÃ©tail du paiement
                                                 </h3>
                                                 <button onclick="document.getElementById('${modalId}').remove()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all">
                                                     <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
@@ -3388,13 +3255,13 @@
                                                     </div>
                                                     <div class="flex justify-between border-b border-gray-100 pb-3">
                                                         <span class="text-gray-500 font-medium flex items-center gap-1">
-                                                            Frais d'opérateur
+                                                            Frais d'opÃ©rateur
                                                             <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">Mobile Money</span>
                                                         </span>
                                                         <span class="font-bold text-orange-600">+ ${Number(data.pricing_breakdown.payin_fee).toLocaleString('fr-FR')} ${currency}</span>
                                                     </div>
                                                     <div class="flex justify-between pt-2 items-center">
-                                                        <span class="text-gray-900 font-bold">Total à payer</span>
+                                                        <span class="text-gray-900 font-bold">Total Ã  payer</span>
                                                         <span class="text-2xl font-black text-indigo-600">${Number(data.pricing_breakdown.total_to_pay).toLocaleString('fr-FR')} ${currency}</span>
                                                     </div>
                                                 </div>
@@ -3420,7 +3287,7 @@
                         }
                         
                         if (window.showInlineFeedback) {
-                            window.showInlineFeedback(btnPay, safeText(data?.error || 'Lien de paiement non reçu'), 'error');
+                            window.showInlineFeedback(btnPay, safeText(data?.error || 'Lien de paiement non reÃ§u'), 'error');
                         }
                     } catch (e) {
                         clearTimeout(timeoutId);
@@ -3458,9 +3325,9 @@
                         <div class="glass-panel p-12 text-center text-gray-500">
                             <iconify-icon icon="solar:danger-triangle-bold" width="48" class="mb-4 text-gray-300"></iconify-icon>
                             <p class="font-bold text-gray-900">Commande introuvable</p>
-                            <p class="mt-2 text-sm">Retournez à la liste et réessayez.</p>
+                            <p class="mt-2 text-sm">Retournez Ã  la liste et rÃ©essayez.</p>
                             <div class="mt-6">
-                                <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.location.hash='purchases'; window.renderCustomerPurchasesTab && window.renderCustomerPurchasesTab();">Retour à la liste</button>
+                                <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.location.hash='purchases'; window.renderCustomerPurchasesTab && window.renderCustomerPurchasesTab();">Retour Ã  la liste</button>
                             </div>
                         </div>
                     `;
@@ -3493,9 +3360,9 @@
             }
             function getPurchaseStatusBadge(o) {
                 if (isPurchaseCompleted(o)) {
-                    return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-emerald-100 text-emerald-700"><iconify-icon icon="solar:check-circle-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>Terminé</span>';
+                    return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-emerald-100 text-emerald-700"><iconify-icon icon="solar:check-circle-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>TerminÃ©</span>';
                 }
-                return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-green-100 text-green-700"><iconify-icon icon="solar:wallet-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>Payé</span>';
+                return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-green-100 text-green-700"><iconify-icon icon="solar:wallet-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>PayÃ©</span>';
             }
 
             window.renderCustomerPurchasesTab = async function(filter) {
@@ -3613,7 +3480,7 @@
             };
 
             function renderEmptyPurchases(container, filter) {
-                const filterMsg = filter === 'paid' ? 'payé' : filter === 'completed' ? 'terminé' : filter === 'disputed' ? 'en litige' : '';
+                const filterMsg = filter === 'paid' ? 'payÃ©' : filter === 'completed' ? 'terminÃ©' : filter === 'disputed' ? 'en litige' : '';
                 const emptyTitle = filterMsg
                     ? `Aucune commande ${filterMsg}${filter !== 'disputed' ? 'e' : ''}`
                     : 'Aucun achat conclu pour le moment';
@@ -3621,7 +3488,7 @@
                     ? filter === 'disputed' 
                         ? `Vous n'avez aucun litige en cours. C'est une excellente nouvelle !` 
                         : `Il n'y a pas encore de commande avec le statut "${filterMsg}".`
-                    : 'Vos achats apparaîtront ici. Pourquoi ne pas vous faire plaisir en explorant nos offres ?';
+                    : 'Vos achats apparaÃ®tront ici. Pourquoi ne pas vous faire plaisir en explorant nos offres ?';
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in zoom-in-95 duration-700">
                         <div class="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-200 shadow-inner">
@@ -3630,7 +3497,7 @@
                         <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
                         <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
                         <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/catalog'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
-                            Découvrir le catalogue
+                            DÃ©couvrir le catalogue
                         </a>
                     </div>
                 `;
@@ -3655,7 +3522,7 @@
         }
 
         async function openOrderModal(id) {
-            // On part d'abord des données en cache pour afficher le modal immédiatement
+            // On part d'abord des donnÃ©es en cache pour afficher le modal immÃ©diatement
             let order = OrderManager.getOrders().find(o => o.id === id);
             if (!order) return;
             currentSelectedOrder = order;
@@ -3664,14 +3531,14 @@
                 releaseCountdownTimer = null;
             }
 
-            // Puis on recharge la commande fraîche depuis le backend pour obtenir l'OTP à jour
+            // Puis on recharge la commande fraÃ®che depuis le backend pour obtenir l'OTP Ã  jour
             try {
                 if (window.ApiClient) {
                     const fresh = await ApiClient.get(`/orders/${id}`);
                     if (fresh && fresh.id) {
                         order = fresh;
                         currentSelectedOrder = fresh;
-                        // Mettre à jour le cache mémoire
+                        // Mettre Ã  jour le cache mÃ©moire
                         const idx = OrderManager.data?.findIndex?.(o => o.id === id);
                         if (idx !== undefined && idx !== -1) OrderManager.data[idx] = fresh;
                     }
@@ -3714,7 +3581,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} é ${fmtModal(item.price)}</div>
+                        <div class="text-xs text-gray-500">QuantitÃ©: ${item.quantity} Ã© ${fmtModal(item.price)}</div>
                     </div>
                     <div class="text-sm font-bold text-right">${fmtModal(item.price * item.quantity)}</div>
                 </div>
@@ -3798,13 +3665,13 @@
                 const quote = order.latest_delivery_quote || {
                     delivery_fee_amount: order.delivery_fee_amount || 0,
                     estimated_delay_hours: 24,
-                    note: 'Le vendeur a proposé un devis de livraison.'
+                    note: 'Le vendeur a proposÃ© un devis de livraison.'
                 };
                 escrowSection.classList.remove('hidden');
                 quoteSummarySection.classList.remove('hidden');
                 document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, parseFloat(order?.items?.[0]?.custom_exchange_rate || 0) || null) : quote.delivery_fee_amount;
                 document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
-                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposé un devis de livraison.';
+                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposÃ© un devis de livraison.';
                 btnAcceptQuote.classList.remove('hidden');
                 btnRejectQuote.classList.remove('hidden');
             } else if (order.status === 'READY_FOR_PAYMENT') {
@@ -3815,12 +3682,12 @@
                     const customRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
                     document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, customRate > 0 ? customRate : null) : quote.delivery_fee_amount;
                     document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
-                    document.getElementById('quoteNote').textContent = quote.note || 'Devis accepté. Vous pouvez maintenant payer.';
+                    document.getElementById('quoteNote').textContent = quote.note || 'Devis acceptÃ©. Vous pouvez maintenant payer.';
                 } else {
                     const fallbackRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
                     document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0), undefined, true, fallbackRate > 0 ? fallbackRate : null);
-                    document.getElementById('quoteDelay').textContent = 'Confirmé';
-                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement est maintenant en séquestre.';
+                    document.getElementById('quoteDelay').textContent = 'ConfirmÃ©';
+                    document.getElementById('quoteNote').textContent = 'Le devis a Ã©tÃ© acceptÃ©. Le paiement est maintenant en sÃ©questre.';
                 }
                 btnPayOrder.classList.remove('hidden');
             } else if (order.status === 'PAID_HELD') {
@@ -3840,14 +3707,14 @@
                         ? Math.round((releaseAt.getTime() - new Date(order.delivered_at).getTime()) / (1000 * 60 * 60)) 
                         : 72;
                     if (releaseCountdown) {
-                        releaseCountdown.textContent = diffMs === null ? 'Délai à définir' : formatReleaseCountdown(diffMs);
+                        releaseCountdown.textContent = diffMs === null ? 'DÃ©lai Ã  dÃ©finir' : formatReleaseCountdown(diffMs);
                     }
                     if (releaseDelayHint) {
                         releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
                             ? (diffMs > 0
-                                ? `Libération automatique sous ${totalHours}h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
-                                : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
-                            : 'La libération automatique sera affichée dès que le délai sera enregistré.';
+                                ? `LibÃ©ration automatique sous ${totalHours}h aprÃ¨s la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                : 'Le dÃ©lai est Ã©coulÃ©. Les fonds peuvent Ãªtre libÃ©rÃ©s immÃ©diatement.')
+                            : 'La libÃ©ration automatique sera affichÃ©e dÃ¨s que le dÃ©lai sera enregistrÃ©.';
                     }
                 };
                 updateReleaseCountdown();
@@ -3861,10 +3728,10 @@
                 btnDispute.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
-                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
+                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÃˆS avoir reÃ§u et vÃ©rifiÃ© le produit.";
                 }
 
-                // Démarrage du tracking en direct côté client
+                // DÃ©marrage du tracking en direct cÃ´tÃ© client
                 if (window.DeliveryTracker) {
                     const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
                     const peerName = order.vendor?.company_name || order.vendor?.name || 'Vendeur';
@@ -3968,7 +3835,7 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
                     await OrderManager.confirmCompletion(currentSelectedOrder.id);
-                    showInlineMessage('client-modal-feedback', 'Fonds libérés avec succès.', 'success');
+                    showInlineMessage('client-modal-feedback', 'Fonds libÃ©rÃ©s avec succÃ¨s.', 'success');
                     closeOrderModal();
                     await loadDashboardData();
                 } catch (error) {
@@ -3977,20 +3844,20 @@
                 } finally {
                     const btn = document.getElementById('btnValidateDelivery');
                     btn.disabled = false;
-                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Libérer les fonds';
+                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> LibÃ©rer les fonds';
                 }
             };
 
             if (typeof window.showConfirm === 'function') {
                 window.showConfirm(
-                    'Libérer les fonds',
-                    "La validation OTP est déjà confirmée. En continuant, vous libérez maintenant les fonds séquestrés au vendeur. Continuer ?",
+                    'LibÃ©rer les fonds',
+                    "La validation OTP est dÃ©jÃ  confirmÃ©e. En continuant, vous libÃ©rez maintenant les fonds sÃ©questrÃ©s au vendeur. Continuer ?",
                     run
                 );
                 return;
             }
 
-            const confirmed = confirm("Voulez-vous libérer maintenant les fonds pour le vendeur ?");
+            const confirmed = confirm("Voulez-vous libÃ©rer maintenant les fonds pour le vendeur ?");
             if (!confirmed) return;
 
             await run();
@@ -4021,7 +3888,7 @@
                 closeOrderModal();
                 await loadDashboardData();
                 await openOrderModal(orderId);
-                showInlineMessage('client-modal-feedback', 'Devis accepté ! Cliquez sur Passer au paiement.', 'success');
+                showInlineMessage('client-modal-feedback', 'Devis acceptÃ© ! Cliquez sur Passer au paiement.', 'success');
             } catch (error) {
                 showInlineMessage('client-modal-feedback', error.message || "Erreur lors de l'acceptation du devis", 'error');
             } finally {
@@ -4043,7 +3910,7 @@
                     action: 'REJECT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showInlineMessage('client-modal-feedback', 'Devis refusé. La demande a été clôturée.', 'warning');
+                showInlineMessage('client-modal-feedback', 'Devis refusÃ©. La demande a Ã©tÃ© clÃ´turÃ©e.', 'warning');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
@@ -4058,7 +3925,7 @@
         window.handlePayOrder = async function() {
             console.log('[DEBUG handlePayOrder] called, currentSelectedOrder:', currentSelectedOrder);
             if (!currentSelectedOrder) {
-                console.warn('[DEBUG handlePayOrder] currentSelectedOrder est NULL — navigation annulée');
+                console.warn('[DEBUG handlePayOrder] currentSelectedOrder est NULL â€” navigation annulÃ©e');
                 return;
             }
             const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/achat';
@@ -4069,7 +3936,7 @@
 
         // ========================== GESTION DES LITIGES ==========================
 
-        // --- État local photos litige ---
+        // --- Ã‰tat local photos litige ---
         let disputePhotoFiles = []; // Array de { file, previewUrl }
 
         function _updateDisputePhotoUI() {
@@ -4099,7 +3966,7 @@
                 count >= 2 ? 'bg-emerald-500' : 'bg-indigo-500'
             }`;
 
-            // Aperçu miniatures
+            // AperÃ§u miniatures
             if (!previewGrid) return;
             if (count === 0) { previewGrid.classList.add('hidden'); previewGrid.innerHTML = ''; return; }
             previewGrid.classList.remove('hidden');
@@ -4108,7 +3975,7 @@
                     <img src="${item.previewUrl}" class="w-full h-full object-cover rounded-xl border border-gray-200" alt="preuve ${idx + 1}">
                     <button type="button" onclick="_removeDisputePhoto(${idx})"
                         class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md text-xs font-bold pointer-events-none">
-                        ×
+                        Ã—
                     </button>
                 </div>
             `).join('');
@@ -4132,18 +3999,18 @@
 
                 for (const file of toAdd) {
                     if (file.size > 5 * 1024 * 1024) {
-                        showInlineMessage('open-dispute-feedback', `"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
+                        showInlineMessage('open-dispute-feedback', `"${file.name}" dÃ©passe 5 Mo â€” ignorÃ©.`, 'warning');
                         continue;
                     }
                     disputePhotoFiles.push({ file, previewUrl: URL.createObjectURL(file) });
                 }
 
                 if (files.length > remaining) {
-                    showInlineMessage('open-dispute-feedback', `Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
+                    showInlineMessage('open-dispute-feedback', `Maximum 5 photos. ${files.length - remaining} fichier(s) ignorÃ©(s).`, 'warning');
                 }
 
                 _updateDisputePhotoUI();
-                input.value = ''; // reset pour permettre la re-sélection
+                input.value = ''; // reset pour permettre la re-sÃ©lection
             });
         }
 
@@ -4175,7 +4042,7 @@
             modal.classList.add('hidden');
             modal.style.display = 'none';
             document.body.style.overflow = '';
-            // Libérer les object URLs
+            // LibÃ©rer les object URLs
             for (const item of disputePhotoFiles) URL.revokeObjectURL(item.previewUrl);
             disputePhotoFiles = [];
             _updateDisputePhotoUI();
@@ -4189,7 +4056,7 @@
             const videoLink = document.getElementById('disputeVideoLink').value.trim();
 
             if (!category || !description) {
-                showInlineMessage('open-dispute-feedback', 'Catégorie et description sont obligatoires.', 'error');
+                showInlineMessage('open-dispute-feedback', 'CatÃ©gorie et description sont obligatoires.', 'error');
                 return;
             }
 
@@ -4215,7 +4082,7 @@
                         url = await window.SupabaseAdapter.uploadFile('dispute-evidence', fileName, file);
                     }
 
-                    if (!url) throw new Error(`Échec de l'upload de la photo ${i + 1}.`);
+                    if (!url) throw new Error(`Ã‰chec de l'upload de la photo ${i + 1}.`);
                     uploadedPhotoUrls.push(url);
                 }
 
@@ -4230,7 +4097,7 @@
                 // 3. Soumettre le litige
                 await OrderManager.openDispute(currentSelectedOrder.id, category, description, evidence);
 
-                showInlineMessage('client-modal-feedback', 'Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
+                showInlineMessage('client-modal-feedback', 'Litige ouvert. Notre Ã©quipe va analyser votre demande dans les 24h.', 'warning');
                 closeDisputeModal();
                 await loadDashboardData();
             } catch (error) {
@@ -4268,7 +4135,7 @@
                             btnEscalate.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="14"></iconify-icon> Envoi en cours...';
                             try {
                                 await OrderManager.escalateDispute(currentSelectedDispute.id);
-                                showInlineMessage('client-dispute-feedback', "L'administration a été notifiée et va intervenir.", 'success');
+                                showInlineMessage('client-dispute-feedback', "L'administration a Ã©tÃ© notifiÃ©e et va intervenir.", 'success');
                                 escalateSection.classList.add('hidden');
                                 await loadDisputeChat(orderId);
                             } catch (err) {
@@ -4296,7 +4163,7 @@
                             const tick = () => {
                                 const diff = deadline - new Date();
                                 if (diff <= 0) {
-                                    countdownValEl.textContent = 'Délai expiré';
+                                    countdownValEl.textContent = 'DÃ©lai expirÃ©';
                                     countdownEl.classList.add('text-red-600');
                                     return;
                                 }
@@ -4306,7 +4173,7 @@
                                 countdownValEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
                             };
                             tick();
-                            // Fix : on nettoie l'ancien timer avant d'en créer un nouveau
+                            // Fix : on nettoie l'ancien timer avant d'en crÃ©er un nouveau
                             if (window._returnCountdownTimer) clearInterval(window._returnCountdownTimer);
                             window._returnCountdownTimer = setInterval(tick, 1000);
                         }
@@ -4332,14 +4199,14 @@
 
                                 try {
                                     await OrderManager.confirmReturn(currentSelectedDispute.id, otp);
-                                    showInlineMessage('client-dispute-feedback', 'Retour confirmé ! Le remboursement va être effectué.', 'success');
+                                    showInlineMessage('client-dispute-feedback', 'Retour confirmÃ© ! Le remboursement va Ãªtre effectuÃ©.', 'success');
                                     returnOtpSection.classList.add('hidden');
                                     await loadDashboardData();
                                     await loadDisputeChat(orderId);
                                 } catch (err) {
                                     // Affichage inline de l'erreur avec nb d'essais restants
                                     attemptsLeft = Math.max(0, attemptsLeft - 1);
-                                    if (attemptsInfo) attemptsInfo.textContent = attemptsLeft > 0 ? `${attemptsLeft} essai(s) restant(s)` : 'Litige transmis à l\'admin.';
+                                    if (attemptsInfo) attemptsInfo.textContent = attemptsLeft > 0 ? `${attemptsLeft} essai(s) restant(s)` : 'Litige transmis Ã  l\'admin.';
                                     const msg = err.message || 'Code OTP incorrect.';
                                     showInlineMessage('client-dispute-feedback', msg, 'error');
                                     if (attemptsLeft <= 0) {
@@ -4361,9 +4228,9 @@
                 const messages = await OrderManager.getDisputeMessages(currentSelectedDispute.id);
                 container.innerHTML = '';
 
-                // ── Helper pour rendre un message dans le chat ──
+                // â”€â”€ Helper pour rendre un message dans le chat â”€â”€
                 function renderChatMsg(msg, cont) {
-                    // sender_role est maintenant calculé par le backend (top-level)
+                    // sender_role est maintenant calculÃ© par le backend (top-level)
                     const senderRole = msg.sender_role || (msg.payload && msg.payload.sender_role) || 'SYSTEM';
                     const isMe = senderRole === 'CUSTOMER';
                     let roleLabel = '';
@@ -4377,7 +4244,7 @@
                         roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
                         bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
                     } else if (senderRole === 'SYSTEM') {
-                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
+                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÃˆME</span>';
                         bubbleClass = 'bg-gray-100 text-gray-700';
                     } else {
                         roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
@@ -4386,7 +4253,7 @@
 
                     const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                    // Rendu spécial pour les offres partielles
+                    // Rendu spÃ©cial pour les offres partielles
                     if (msg.type === 'OFFER' && msg.payload?.action === 'OFFER_PARTIAL_REFUND') {
                         const amount = Number(msg.payload?.amount || 0).toLocaleString('fr-FR');
                         const note = msg.payload?.message || '';
@@ -4398,7 +4265,7 @@
                                 </div>
                                 <div class="rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-sm overflow-hidden w-full">
                                     <div class="px-3 py-2 bg-amber-500 text-white flex items-center gap-2">
-                                        <span class="text-[10px] font-black uppercase tracking-widest">💰 Offre de remboursement partiel</span>
+                                        <span class="text-[10px] font-black uppercase tracking-widest">ðŸ’° Offre de remboursement partiel</span>
                                     </div>
                                     <div class="px-3 py-2">
                                         <div class="text-lg font-black text-amber-700">${amount} CDF</div>
@@ -4412,7 +4279,7 @@
                         return;
                     }
 
-                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
+                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise Ã  jour';
                     cont.insertAdjacentHTML('beforeend', `
                         <div class="flex flex-col ${alignClass} max-w-[85%]">
                             <div class="flex items-center mb-1">
@@ -4428,14 +4295,14 @@
                 }
 
                 if (!messages || messages.length === 0) {
-                    container.innerHTML = '<div id="noMsgPlaceholder" class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous répondront ici.</div>';
+                    container.innerHTML = '<div id="noMsgPlaceholder" class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous rÃ©pondront ici.</div>';
                 } else {
                     messages.forEach(msg => renderChatMsg(msg, container));
                 }
 
-                // ⚡ Realtime — TOUJOURS actif, même si le chat est vide au départ
+                // âš¡ Realtime â€” TOUJOURS actif, mÃªme si le chat est vide au dÃ©part
                 OrderManager.subscribeToDisputeMessages(currentSelectedDispute.id, (newMsg) => {
-                    // Supprimer le placeholder si présent
+                    // Supprimer le placeholder si prÃ©sent
                     const placeholder = container.querySelector('#noMsgPlaceholder');
                     if (placeholder) placeholder.remove();
                     renderChatMsg(newMsg, container);
@@ -4478,7 +4345,7 @@
             if (!currentSelectedDispute) return;
             try {
                 await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'ACCEPT' });
-                showInlineMessage('client-dispute-feedback', "Proposition vendeur acceptée.", 'success');
+                showInlineMessage('client-dispute-feedback', "Proposition vendeur acceptÃ©e.", 'success');
                 await loadDashboardData();
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
@@ -4530,7 +4397,7 @@
             let discount = Number(order?.promo_discount_amount ?? 0);
             let payinFee = Number(order?.payin_fee_amount ?? 0);
             
-            // N'utilise client_total_paid que s'il est > 0 (évite le $0.00 des paiements mock)
+            // N'utilise client_total_paid que s'il est > 0 (Ã©vite le $0.00 des paiements mock)
             const clientPaid = Number(order?.client_total_paid ?? 0);
             let total = clientPaid > 0
                 ? clientPaid
@@ -4633,7 +4500,7 @@
                 return window.InvoiceQrService.toDataUrl(targetUrl);
             }
 
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect width="220" height="220" fill="#fff"/><rect x="12" y="12" width="196" height="196" rx="18" fill="#f0fdf4" stroke="#bbf7d0"/><text x="110" y="102" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#065f46">QR indisponible</text><text x="110" y="128" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#6b7280">Ouvrir la vérification</text></svg>`;
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect width="220" height="220" fill="#fff"/><rect x="12" y="12" width="196" height="196" rx="18" fill="#f0fdf4" stroke="#bbf7d0"/><text x="110" y="102" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#065f46">QR indisponible</text><text x="110" y="128" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#6b7280">Ouvrir la vÃ©rification</text></svg>`;
             return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
         }
 
@@ -4828,13 +4695,13 @@
             `;
 
             if (isMobile) {
-                // Mobile : ouvrir dans un nouvel onglet — l'utilisateur peut partager/sauvegarder en PDF nativement
+                // Mobile : ouvrir dans un nouvel onglet â€” l'utilisateur peut partager/sauvegarder en PDF nativement
                 try {
                     const blob = new Blob([invoiceHtml], { type: 'text/html;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
                     const tab = window.open(url, '_blank');
                     if (!tab) {
-                        // Popup bloqué — fallback : lien de téléchargement
+                        // Popup bloquÃ© â€” fallback : lien de tÃ©lÃ©chargement
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = `facture-newket-${o.id}.html`;
@@ -4842,14 +4709,14 @@
                         a.click();
                         document.body.removeChild(a);
                     }
-                    // Libérer l'URL après un délai pour laisser le tab s'ouvrir
+                    // LibÃ©rer l'URL aprÃ¨s un dÃ©lai pour laisser le tab s'ouvrir
                     setTimeout(() => URL.revokeObjectURL(url), 10000);
                 } catch (err) {
                     console.error('Erreur ouverture facture mobile:', err);
                     showInlineMessage('client-modal-feedback', 'Impossible d\'ouvrir la facture.', 'error');
                 }
             } else {
-                // Desktop : print via iframe caché
+                // Desktop : print via iframe cachÃ©
                 const printFrame = document.createElement('iframe');
                 printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
                 document.body.appendChild(printFrame);
@@ -4857,7 +4724,7 @@
                 const printDocument = printFrame.contentWindow?.document;
                 if (!printDocument) {
                     printFrame.remove();
-                    showInlineMessage('client-modal-feedback', 'Impossible de préparer la facture.', 'error');
+                    showInlineMessage('client-modal-feedback', 'Impossible de prÃ©parer la facture.', 'error');
                     return;
                 }
 
@@ -4987,28 +4854,28 @@
             <div class="p-6 overflow-y-auto modal-scroll space-y-5">
                 <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 text-sm text-orange-800">
                     <iconify-icon icon="solar:info-circle-linear" class="text-xl shrink-0"></iconify-icon>
-                    <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelés en attendant l'évaluation de notre pôle litige.</p>
+                    <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelÃ©s en attendant l'Ã©valuation de notre pÃ´le litige.</p>
                 </div>
                 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Catégorie du problème</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">CatÃ©gorie du problÃ¨me</label>
                         <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" onchange="updateDisputeReasonHint(this.value)">
-                            <option value="">-- Sélectionnez une catégorie --</option>
-                            <optgroup label="Problèmes de livraison">
-                                <option value="NOT_RECEIVED">📦 Produit non reçu</option>
+                            <option value="">-- SÃ©lectionnez une catÃ©gorie --</option>
+                            <optgroup label="ProblÃ¨mes de livraison">
+                                <option value="NOT_RECEIVED">ðŸ“¦ Produit non reÃ§u</option>
                             </optgroup>
-                            <optgroup label="Problèmes sur le produit">
-                                <option value="DAMAGED">💥 Produit endommagé ou cassé</option>
-                                <option value="NOT_AS_DESCRIBED">🔄 Produit non conforme à la description</option>
-                                <option value="MISSING_ITEM">🧩 Article(s) manquant(s) dans la commande</option>
-                                <option value="WRONG_ITEM">❌ Mauvais article reçu (erreur de référence)</option>
+                            <optgroup label="ProblÃ¨mes sur le produit">
+                                <option value="DAMAGED">ðŸ’¥ Produit endommagÃ© ou cassÃ©</option>
+                                <option value="NOT_AS_DESCRIBED">ðŸ”„ Produit non conforme Ã  la description</option>
+                                <option value="MISSING_ITEM">ðŸ§© Article(s) manquant(s) dans la commande</option>
+                                <option value="WRONG_ITEM">âŒ Mauvais article reÃ§u (erreur de rÃ©fÃ©rence)</option>
                             </optgroup>
                             <optgroup label="Cas graves">
-                                <option value="COUNTERFEIT">⚠️ Produit contrefait / faux article</option>
+                                <option value="COUNTERFEIT">âš ï¸ Produit contrefait / faux article</option>
                             </optgroup>
                             <optgroup label="Autre">
-                                <option value="OTHER">🔍 Autre raison (description détaillée obligatoire)</option>
+                                <option value="OTHER">ðŸ” Autre raison (description dÃ©taillÃ©e obligatoire)</option>
                             </optgroup>
                         </select>
                         <!-- Hint contextuel selon la raison choisie -->
@@ -5016,13 +4883,13 @@
                         <script>
                         (function() {
                             const HINTS = {
-                                NOT_RECEIVED:     { cls: 'bg-blue-50 text-blue-700',   msg: '📦 Le vendeur aura 24h pour répondre. En cas de silence, vous serez remboursé automatiquement.' },
-                                DAMAGED:          { cls: 'bg-orange-50 text-orange-700', msg: '💥 Fournissez des photos claires du dommage. Le vendeur pourra proposer un remboursement partiel ou total.' },
-                                NOT_AS_DESCRIBED: { cls: 'bg-yellow-50 text-yellow-700', msg: '🔄 Prenez des photos comparatives entre ce que vous avez reçu et l\'annonce. Un remboursement partiel est probable.' },
-                                MISSING_ITEM:     { cls: 'bg-purple-50 text-purple-700', msg: '🧩 Photographiez le contenu du colis reçu. Le vendeur proposera un remboursement au prorata des articles manquants.' },
-                                WRONG_ITEM:       { cls: 'bg-red-50 text-red-700',     msg: '❌ Vous devrez retourner le mauvais article au vendeur (frais de retour à sa charge). Le remboursement est déclenché après retour.' },
-                                COUNTERFEIT:      { cls: 'bg-red-100 text-red-800 font-semibold border border-red-300', msg: '⚠️ Ce type de litige est traité directement par notre équipe. Aucun accord amiable ne sera possible. Votre dossier sera examiné sous 72h.' },
-                                OTHER:            { cls: 'bg-gray-50 text-gray-700',   msg: '🔍 Décrivez précisément votre problème (minimum 50 caractères). Ce litige sera examiné directement par notre équipe.' }
+                                NOT_RECEIVED:     { cls: 'bg-blue-50 text-blue-700',   msg: 'ðŸ“¦ Le vendeur aura 24h pour rÃ©pondre. En cas de silence, vous serez remboursÃ© automatiquement.' },
+                                DAMAGED:          { cls: 'bg-orange-50 text-orange-700', msg: 'ðŸ’¥ Fournissez des photos claires du dommage. Le vendeur pourra proposer un remboursement partiel ou total.' },
+                                NOT_AS_DESCRIBED: { cls: 'bg-yellow-50 text-yellow-700', msg: 'ðŸ”„ Prenez des photos comparatives entre ce que vous avez reÃ§u et l\'annonce. Un remboursement partiel est probable.' },
+                                MISSING_ITEM:     { cls: 'bg-purple-50 text-purple-700', msg: 'ðŸ§© Photographiez le contenu du colis reÃ§u. Le vendeur proposera un remboursement au prorata des articles manquants.' },
+                                WRONG_ITEM:       { cls: 'bg-red-50 text-red-700',     msg: 'âŒ Vous devrez retourner le mauvais article au vendeur (frais de retour Ã  sa charge). Le remboursement est dÃ©clenchÃ© aprÃ¨s retour.' },
+                                COUNTERFEIT:      { cls: 'bg-red-100 text-red-800 font-semibold border border-red-300', msg: 'âš ï¸ Ce type de litige est traitÃ© directement par notre Ã©quipe. Aucun accord amiable ne sera possible. Votre dossier sera examinÃ© sous 72h.' },
+                                OTHER:            { cls: 'bg-gray-50 text-gray-700',   msg: 'ðŸ” DÃ©crivez prÃ©cisÃ©ment votre problÃ¨me (minimum 50 caractÃ¨res). Ce litige sera examinÃ© directement par notre Ã©quipe.' }
                             };
                             window.updateDisputeReasonHint = function(val) {
                                 const hint = document.getElementById('disputeReasonHint');
@@ -5041,8 +4908,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Description détaillée</label>
-                        <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Décrivez précisément votre problème avec cette commande..."></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Description dÃ©taillÃ©e</label>
+                        <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="DÃ©crivez prÃ©cisÃ©ment votre problÃ¨me avec cette commande..."></textarea>
                     </div>
 
                     <!-- Zone Photos de Preuves -->
@@ -5054,7 +4921,7 @@
                             </label>
                             <span id="disputePhotoCount" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">0 / 5</span>
                         </div>
-                        <p class="text-xs text-gray-500">Minimum <strong>2 photos</strong> requises, maximum 5. Formats acceptés : JPG, PNG, WEBP.</p>
+                        <p class="text-xs text-gray-500">Minimum <strong>2 photos</strong> requises, maximum 5. Formats acceptÃ©s : JPG, PNG, WEBP.</p>
 
                         <!-- Zone Drag & Drop / Clic -->
                         <div id="disputePhotoDropzone"
@@ -5066,7 +4933,7 @@
                             <p class="text-xs text-gray-300 mt-1">Max 5 Mo par photo</p>
                         </div>
 
-                        <!-- Aperçu miniatures -->
+                        <!-- AperÃ§u miniatures -->
                         <div id="disputePhotoPreview" class="grid grid-cols-5 gap-2 hidden"></div>
 
                         <!-- Barre de progression min -->
@@ -5081,14 +4948,14 @@
                         </div>
                     </div>
 
-                    <!-- Lien Vidéo Externe (optionnel) -->
+                    <!-- Lien VidÃ©o Externe (optionnel) -->
                     <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-700">
                             <iconify-icon icon="solar:play-circle-bold" class="text-orange-400 mr-1"></iconify-icon>
-                            Lien vidéo de preuve
+                            Lien vidÃ©o de preuve
                             <span class="font-normal text-gray-400">(optionnel)</span>
                         </label>
-                        <p class="text-xs text-gray-500">Partagez un lien Google Drive, YouTube (non listé), Dropbox ou similaire.</p>
+                        <p class="text-xs text-gray-500">Partagez un lien Google Drive, YouTube (non listÃ©), Dropbox ou similaire.</p>
                         <div class="relative">
                             <iconify-icon icon="solar:link-bold" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-lg"></iconify-icon>
                             <input type="url" id="disputeVideoLink" class="w-full pl-9 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none text-sm transition-all bg-gray-50" placeholder="https://drive.google.com/file/...">
@@ -5118,357 +4985,6 @@
             window.location.reload();
         };
 
-        // === Live Activity & Diagnostic natif iOS Controller ===
-        document.addEventListener('DOMContentLoaded', () => {
-            const startBtn = document.getElementById('customerTestLiveActivityStartBtn');
-            const deliveredBtn = document.getElementById('customerTestLiveActivityDeliveredBtn');
-            const stopBtn = document.getElementById('customerTestLiveActivityStopBtn');
-            const runAllBtn = document.getElementById('customerTestLiveActivityRunAllBtn');
-            const refreshBtn = document.getElementById('customerDiagRefreshBtn');
-            const copyBtn = document.getElementById('customerDiagCopyBtn');
-            const exportBtn = document.getElementById('customerDiagExportBtn');
-            const clearBtn = document.getElementById('customerDiagClearBtn');
-            const feedback = document.getElementById('customerLiveActivityFeedback');
-            const logsContainer = document.getElementById('customerDiagLogsContainer');
-
-            let lastDiagData = null;
-
-            function showFeedback(msg, isError = false) {
-                if (!feedback) return;
-                feedback.textContent = msg;
-                feedback.className = `text-xs font-semibold text-center py-2 px-3 rounded-xl transition-all ${isError ? 'text-red-700 bg-red-50 border border-red-200' : 'text-emerald-800 bg-emerald-50 border border-emerald-200'}`;
-                feedback.classList.remove('hidden');
-                setTimeout(() => feedback.classList.add('hidden'), 7000);
-            }
-
-            function renderLogs(logs = []) {
-                if (!logsContainer) return;
-                if (!logs || logs.length === 0) {
-                    logsContainer.innerHTML = '<p class="text-gray-400 text-center py-3 italic">Aucun événement enregistré. Appuyez sur un bouton de test.</p>';
-                    return;
-                }
-
-                logsContainer.innerHTML = logs.map(item => {
-                    const isErr = item.status === 'ERROR' || item.tag === 'ERROR' || Boolean(item.error);
-                    const isSucc = item.status === 'SUCCESS';
-                    const badgeColor = isErr ? 'bg-red-100 text-red-700 border-red-200' : (isSucc ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-gray-100 text-gray-700 border-gray-200');
-                    const detailsStr = item.details ? `<div class="text-[10px] text-gray-500 mt-0.5 break-all font-mono">${JSON.stringify(item.details)}</div>` : '';
-                    const errorStr = item.error ? `<div class="text-[10px] text-red-600 mt-0.5 font-bold break-all">${item.error}</div>` : '';
-
-                    return `
-                        <div class="p-1.5 rounded-lg border bg-white shadow-xs">
-                            <div class="flex items-center justify-between text-[10px]">
-                                <span class="font-bold px-1.5 py-0.5 rounded border ${badgeColor}">[${item.tag || 'LOG'}]</span>
-                                <span class="text-gray-400">${item.time || ''}</span>
-                            </div>
-                            <div class="text-gray-800 text-[11px] mt-1 break-words">${item.message || ''}</div>
-                            ${errorStr}
-                            ${detailsStr}
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            async function updateDiagnostics() {
-                try {
-                    if (!window.LiveOrderTracker) {
-                        return;
-                    }
-
-                    const diag = await window.LiveOrderTracker.getDiagnostics();
-                    lastDiagData = diag;
-
-                    // Badges
-                    const akBadge = document.getElementById('diagBadgeActivityKit');
-                    const authBadge = document.getElementById('diagBadgeAuth');
-                    const extBadge = document.getElementById('diagBadgeExtension');
-                    const countBadge = document.getElementById('diagBadgeCount');
-                    const sysInfo = document.getElementById('diagSysInfo');
-                    const lastActId = document.getElementById('diagLastActivityId');
-                    const lastOp = document.getElementById('diagLastOp');
-
-                    if (sysInfo) {
-                        sysInfo.textContent = `${diag.platform.toUpperCase()} · iOS ${diag.native?.iosVersion || 'N/A'}`;
-                    }
-
-                    if (lastOp) {
-                        lastOp.textContent = diag.lastOperation || 'Aucune';
-                    }
-
-                    if (akBadge) {
-                        if (diag.native?.activityKitSupported) {
-                            akBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Supporté';
-                            akBadge.className = 'font-bold text-emerald-700 mt-1 flex items-center gap-1';
-                        } else if (!diag.isNative) {
-                            akBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Web (Simulé)';
-                            akBadge.className = 'font-bold text-amber-700 mt-1 flex items-center gap-1';
-                        } else {
-                            akBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Non supporté';
-                            akBadge.className = 'font-bold text-red-700 mt-1 flex items-center gap-1';
-                        }
-                    }
-
-                    if (authBadge) {
-                        if (diag.native?.areActivitiesEnabled === true) {
-                            authBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Activé';
-                            authBadge.className = 'font-bold text-emerald-700 mt-1 flex items-center gap-1';
-                        } else if (diag.native?.areActivitiesEnabled === false) {
-                            authBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Désactivé (Réglages)';
-                            authBadge.className = 'font-bold text-red-700 mt-1 flex items-center gap-1';
-                        } else {
-                            authBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> N/A';
-                            authBadge.className = 'font-bold text-gray-500 mt-1 flex items-center gap-1';
-                        }
-                    }
-
-                    if (extBadge) {
-                        if (diag.native?.hasWidgetExtension === true) {
-                            extBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Détectée (.appex)';
-                            extBadge.className = 'font-bold text-emerald-700 mt-1 flex items-center gap-1';
-                        } else if (diag.isNative) {
-                            extBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> Absente';
-                            extBadge.className = 'font-bold text-red-700 mt-1 flex items-center gap-1';
-                        } else {
-                            extBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> N/A (Web)';
-                            extBadge.className = 'font-bold text-gray-500 mt-1 flex items-center gap-1';
-                        }
-                    }
-
-                    const activeCount = diag.native?.activeActivitiesCount ?? diag.activeOrdersInJS?.length ?? 0;
-                    if (countBadge) {
-                        countBadge.textContent = `${activeCount} active(s)`;
-                        countBadge.className = activeCount > 0 ? 'font-bold text-emerald-700 mt-1' : 'font-bold text-gray-700 mt-1';
-                    }
-
-                    if (lastActId) {
-                        const acts = diag.native?.activeActivities || [];
-                        if (acts.length > 0) {
-                            lastActId.textContent = acts[0].id || acts[0].orderId;
-                        } else if (diag.lastError) {
-                            lastActId.textContent = 'Erreur : ' + diag.lastError.slice(0, 30);
-                            lastActId.className = 'text-red-400 truncate max-w-[200px]';
-                        } else {
-                            lastActId.textContent = 'Aucune';
-                            lastActId.className = 'text-gray-400 truncate max-w-[200px]';
-                        }
-                    }
-
-                    // Fusionner logs JS et logs natifs
-                    const localLogs = window.LiveOrderTracker.getLocalLogs() || [];
-                    const nativeLogs = (diag.native?.nativeLogs || []).map(nl => ({
-                        id: 'nat-' + nl.time,
-                        time: nl.time ? nl.time.split('T')[1]?.slice(0, 8) : '',
-                        tag: 'NATIVE:' + (nl.tag || 'INFO'),
-                        message: nl.message || '',
-                        error: nl.error || null,
-                        status: nl.error ? 'ERROR' : 'SUCCESS',
-                        details: nl.details || null
-                    }));
-
-                    const allLogs = [...localLogs, ...nativeLogs].sort((a, b) => (b.time || '').localeCompare(a.time || ''));
-                    renderLogs(allLogs.slice(0, 30));
-                } catch (e) {
-                    console.error('[Diagnostic UI] Erreur rendu diagnostic :', e);
-                }
-            }
-
-            // Bouton "En livraison 🛵"
-            if (startBtn) {
-                startBtn.addEventListener('click', async () => {
-                    startBtn.disabled = true;
-                    try {
-                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non initialisé');
-                        const res = await window.LiveOrderTracker.trackOrder({
-                            id: 'cmd-test-101',
-                            order_number: 'CMD-TEST-101',
-                            status: 'IN_DELIVERY',
-                            shop_name: 'NewKet Kinshasa',
-                            item_count: 2,
-                            eta_text: '~15 min'
-                        });
-                        showFeedback(`✅ Succès natif : Live Activity démarrée${res?.activityId ? ' (ID: ' + res.activityId.slice(0, 8) + '...)' : ''}`);
-                    } catch (err) {
-                        showFeedback('❌ Échec natif : ' + (err.message || err), true);
-                    } finally {
-                        startBtn.disabled = false;
-                        await updateDiagnostics();
-                    }
-                });
-            }
-
-            // Bouton "Livré 🎉"
-            if (deliveredBtn) {
-                deliveredBtn.addEventListener('click', async () => {
-                    deliveredBtn.disabled = true;
-                    try {
-                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non initialisé');
-                        const res = await window.LiveOrderTracker.trackOrder({
-                            id: 'cmd-test-101',
-                            order_number: 'CMD-TEST-101',
-                            status: 'DELIVERED',
-                            shop_name: 'NewKet Kinshasa',
-                            item_count: 2,
-                            eta_text: 'Livré 🎉'
-                        });
-                        showFeedback(`✅ Succès natif : Live Activity mise à jour vers Livré`);
-                    } catch (err) {
-                        showFeedback('❌ Échec natif : ' + (err.message || err), true);
-                    } finally {
-                        deliveredBtn.disabled = false;
-                        await updateDiagnostics();
-                    }
-                });
-            }
-
-            // Bouton "Arrêter le suivi"
-            if (stopBtn) {
-                stopBtn.addEventListener('click', async () => {
-                    stopBtn.disabled = true;
-                    try {
-                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non initialisé');
-                        await window.LiveOrderTracker.stopTracking('cmd-test-101');
-                        showFeedback('⏹ Live Activity arrêtée');
-                    } catch (err) {
-                        showFeedback('❌ Échec arrêt : ' + (err.message || err), true);
-                    } finally {
-                        stopBtn.disabled = false;
-                        await updateDiagnostics();
-                    }
-                });
-            }
-
-            // Bouton "Lancer tous les tests 🧪"
-            if (runAllBtn) {
-                runAllBtn.addEventListener('click', async () => {
-                    runAllBtn.disabled = true;
-                    runAllBtn.innerHTML = '<iconify-icon icon="solar:restart-bold" class="animate-spin" width="15"></iconify-icon> Test en cours...';
-
-                    const report = [];
-                    try {
-                        if (!window.LiveOrderTracker) throw new Error('LiveOrderTracker non accessible');
-
-                        // 1. Init check
-                        report.push('1. Initialisation : OK');
-                        await window.LiveOrderTracker.init();
-
-                        // 2. Diag check
-                        const d = await window.LiveOrderTracker.getDiagnostics();
-                        report.push(`2. Plateforme : ${d.platform} (Natif: ${d.isNative})`);
-                        report.push(`3. ActivityKit supporté : ${d.native?.activityKitSupported ? 'OUI' : 'NON'}`);
-                        report.push(`4. Autorisation iOS : ${d.native?.areActivitiesEnabled ? 'AUTORISÉ' : 'DÉSACTIVÉ'}`);
-                        report.push(`5. Extension .appex : ${d.native?.hasWidgetExtension ? 'DÉTECTÉE' : 'ABSENTE'}`);
-
-                        // 3. Test cycle
-                        report.push('6. Tentative de création activité de test...');
-                        const startRes = await window.LiveOrderTracker.trackOrder({
-                            id: 'cmd-autotest-999',
-                            order_number: 'AUTOTEST-999',
-                            status: 'IN_DELIVERY',
-                            shop_name: 'NewKet Diagnostic',
-                            item_count: 1,
-                            eta_text: 'Test ~10m'
-                        });
-                        report.push(`   -> Création réussie ! ID: ${startRes?.activityId || 'N/A'}`);
-
-                        report.push('7. Tentative de mise à jour...');
-                        await window.LiveOrderTracker.trackOrder({
-                            id: 'cmd-autotest-999',
-                            order_number: 'AUTOTEST-999',
-                            status: 'DELIVERED',
-                            shop_name: 'NewKet Diagnostic',
-                            item_count: 1,
-                            eta_text: 'Livré 🎉'
-                        });
-                        report.push('   -> Mise à jour réussie !');
-
-                        report.push('8. Arrêt de l\'activité...');
-                        await window.LiveOrderTracker.stopTracking('cmd-autotest-999');
-                        report.push('   -> Arrêt réussi !');
-
-                        showFeedback('✅ Tous les tests ont été exécutés avec succès !');
-                    } catch (err) {
-                        report.push(`❌ ERREUR À L'ÉTAPE : ${err.message || err}`);
-                        showFeedback('❌ Échec d\'un ou plusieurs tests : ' + (err.message || err), true);
-                    } finally {
-                        window.LiveOrderTracker.logEvent('SUITE_TEST', report.join(' | '), report.some(r => r.startsWith('❌')) ? 'ERROR' : 'SUCCESS');
-                        runAllBtn.disabled = false;
-                        runAllBtn.innerHTML = '<iconify-icon icon="solar:test-tube-bold" width="15"></iconify-icon> Lancer tous les tests 🧪';
-                        await updateDiagnostics();
-                    }
-                });
-            }
-
-            // Actualiser
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', updateDiagnostics);
-            }
-
-            // Copier les diagnostics
-            if (copyBtn) {
-                copyBtn.addEventListener('click', async () => {
-                    if (!lastDiagData) await updateDiagnostics();
-                    const exportText = JSON.stringify({
-                        timestamp: new Date().toISOString(),
-                        diagnostics: lastDiagData,
-                        localLogs: window.LiveOrderTracker?.getLocalLogs?.() || []
-                    }, null, 2);
-
-                    try {
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(exportText);
-                            showFeedback('📋 Diagnostics copiés dans le presse-papier !');
-                        } else {
-                            // Fallback textarea
-                            const ta = document.createElement('textarea');
-                            ta.value = exportText;
-                            document.body.appendChild(ta);
-                            ta.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(ta);
-                            showFeedback('📋 Diagnostics copiés !');
-                        }
-                    } catch (err) {
-                        showFeedback('❌ Impossible de copier automatiquement : ' + err.message, true);
-                    }
-                });
-            }
-
-            // Exporter les diagnostics
-            if (exportBtn) {
-                exportBtn.addEventListener('click', () => {
-                    const exportObj = {
-                        app: 'NewKet',
-                        date: new Date().toISOString(),
-                        diagnostics: lastDiagData,
-                        localLogs: window.LiveOrderTracker?.getLocalLogs?.() || []
-                    };
-                    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `newket-liveactivity-diag-${Date.now()}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showFeedback('📥 Fichier diagnostic téléchargé');
-                });
-            }
-
-            // Vider les logs
-            if (clearBtn) {
-                clearBtn.addEventListener('click', () => {
-                    if (window.LiveOrderTracker) {
-                        window.LiveOrderTracker.clearLogs();
-                        renderLogs([]);
-                        showFeedback('🗑 Journal des logs vidé');
-                    }
-                });
-            }
-
-            // Initial render
-            setTimeout(updateDiagnostics, 1200);
-        });
     </script>
 </body>
 
