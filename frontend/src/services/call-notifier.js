@@ -1,62 +1,42 @@
 /**
- * call-notifier.js - Notificateur d'appel entrant universel (toutes les pages)
- * Permet à un utilisateur (client ou vendeur) de recevoir un toast d'appel entrant
- * avec sonnerie et boutons Décrocher / Refuser, même s'il est sur l'accueil, le catalogue, etc.
+ * call-notifier.js - Interface d'appel vocal identique au dashboard sur toutes les pages
+ * Affiche l'overlay d'appel plein écran & pilule PiP avec le même design, animations et icônes que sur le dashboard.
  */
 
 (function initCallNotifier() {
     'use strict';
 
-    const TOAST_ID = 'nk-incoming-call-toast';
-    const PILL_ID = 'nk-global-call-pill';
-    const DASH_PAGES = ['customer-dashboard.html', 'vendor-dashboard.html'];
     const currentPath = window.location.pathname;
-    const isOnDashboard = DASH_PAGES.some(p => currentPath.endsWith(p));
+    // Sur les dashboards, delivery-tracking.js gère déjà nativement l'appel WebRTC
+    const isOnDashboard = currentPath.includes('customer-dashboard') || currentPath.includes('vendor-dashboard');
+    if (isOnDashboard) return;
 
     let _ringCtx = null;
     let _ringInterval = null;
+    let _currentViewMode = 'fullscreen'; // 'fullscreen' | 'pip'
+    let _activeIncomingData = null;
 
-    // ── 1. Injection des styles CSS ──────────────────────────────────────────
-    function _injectStyles() {
-        if (document.getElementById('nk-call-notif-style')) return;
-        const s = document.createElement('style');
-        s.id = 'nk-call-notif-style';
-        s.textContent = `
-            @keyframes nk-toast-in {
-                from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(0.94); }
-                to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-            }
-            @keyframes nk-toast-out {
-                from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-                to   { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.94); }
-            }
-            @keyframes nk-ring-pulse {
-                0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-                70%  { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(34, 197, 94, 0); }
-                100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-            }
-            @keyframes nk-bell-wiggle {
-                0%, 100% { transform: rotate(0); }
-                20% { transform: rotate(-14deg); }
-                40% { transform: rotate(14deg); }
-                60% { transform: rotate(-10deg); }
-                80% { transform: rotate(10deg); }
-            }
-            @keyframes nk-glow-dot {
-                0%, 100% { opacity: 1; transform: scale(1); }
-                50% { opacity: 0.4; transform: scale(0.85); }
-            }
-            .nk-toast-bounce {
-                animation: nk-toast-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-            }
-            .nk-toast-dismissing {
-                animation: nk-toast-out 0.25s ease-in forwards !important;
-            }
-        `;
-        document.head.appendChild(s);
+    // État du drag pour la pilule PiP
+    const pipDrag = {
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        initialLeft: 0,
+        initialTop: 0,
+        hasMoved: false
+    };
+
+    function _escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
-    // ── 2. Sonnerie Web Audio API (aucun fichier MP3 externe nécessaire) ─────
+    // ── Sonnerie Web Audio API ───────────────────────────────────────────────
     function _playRingTone() {
         try {
             if (_ringInterval) return;
@@ -67,7 +47,6 @@
             const playDualTone = () => {
                 if (!_ringCtx) return;
                 try {
-                    // Fréquences standard téléphone (440Hz + 480Hz)
                     const osc1 = _ringCtx.createOscillator();
                     const osc2 = _ringCtx.createOscillator();
                     const gain = _ringCtx.createGain();
@@ -107,16 +86,104 @@
         }
     }
 
-    // ── 3. Affichage du Toast Appel Entrant ───────────────────────────────────
-    function _showIncomingCallToast(data) {
-        if (document.getElementById(TOAST_ID)) return;
-        _injectStyles();
+    // ── Bascule Plein Écran / PiP ─────────────────────────────────────────────
+    function _setViewMode(mode) {
+        _currentViewMode = mode;
+        const fullEl = document.getElementById('dt-global-call-fullscreen');
+        const pipEl = document.getElementById('dt-global-call-pip');
+        if (!fullEl || !pipEl) return;
+
+        if (mode === 'pip') {
+            fullEl.classList.add('hidden');
+            pipEl.classList.remove('hidden');
+        } else {
+            pipEl.classList.add('hidden');
+            fullEl.classList.remove('hidden');
+        }
+    }
+
+    // ── Drag & Snap pour la pilule PiP ───────────────────────────────────────
+    function _setupPipDrag(pipEl) {
+        if (!pipEl) return;
+
+        const onPointerDown = (e) => {
+            if (e.target.closest('button')) return;
+            pipDrag.isDragging = true;
+            pipDrag.hasMoved = false;
+            pipDrag.startX = e.clientX;
+            pipDrag.startY = e.clientY;
+
+            const rect = pipEl.getBoundingClientRect();
+            pipDrag.initialLeft = rect.left;
+            pipDrag.initialTop = rect.top;
+
+            pipEl.style.transition = 'none';
+            pipEl.setPointerCapture?.(e.pointerId);
+        };
+
+        const onPointerMove = (e) => {
+            if (!pipDrag.isDragging) return;
+            const dx = e.clientX - pipDrag.startX;
+            const dy = e.clientY - pipDrag.startY;
+
+            if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+                pipDrag.hasMoved = true;
+            }
+
+            let newLeft = pipDrag.initialLeft + dx;
+            let newTop = pipDrag.initialTop + dy;
+
+            const pad = 10;
+            newLeft = Math.max(pad, Math.min(window.innerWidth - pipEl.offsetWidth - pad, newLeft));
+            newTop = Math.max(pad, Math.min(window.innerHeight - pipEl.offsetHeight - pad, newTop));
+
+            pipEl.style.left = `${newLeft}px`;
+            pipEl.style.top = `${newTop}px`;
+            pipEl.style.right = 'auto';
+        };
+
+        const onPointerUp = (e) => {
+            if (!pipDrag.isDragging) return;
+            pipDrag.isDragging = false;
+            pipEl.releasePointerCapture?.(e.pointerId);
+
+            pipEl.style.transition = 'left 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), top 0.25s ease-out';
+
+            const rect = pipEl.getBoundingClientRect();
+            const pad = 12;
+            const screenCenter = window.innerWidth / 2;
+            const pillCenter = rect.left + rect.width / 2;
+
+            let targetLeft = pad;
+            if (pillCenter >= screenCenter) {
+                targetLeft = window.innerWidth - rect.width - pad;
+            }
+
+            let targetTop = Math.max(pad, Math.min(window.innerHeight - rect.height - pad, rect.top));
+
+            pipEl.style.left = `${targetLeft}px`;
+            pipEl.style.top = `${targetTop}px`;
+            pipEl.style.right = 'auto';
+
+            setTimeout(() => { pipDrag.hasMoved = false; }, 100);
+        };
+
+        pipEl.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+    }
+
+    // ── Construction de l'interface identique au Dashboard ──────────────────
+    function _buildDashboardStyleCallUI(data) {
+        let root = document.getElementById('newket-global-call-ui-root');
+        if (root) root.remove();
+
+        _activeIncomingData = data;
 
         const callerName = data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client');
         const callerAvatar = data.callerAvatar || '';
         const orderId = data.orderId || '';
 
-        // Destination vers le bon dashboard
         const targetDashboard = data.role === 'vendor'
             ? '/src/pages/customer-dashboard.html'
             : '/src/pages/vendor-dashboard.html';
@@ -124,173 +191,153 @@
             ? `${targetDashboard}?order=${encodeURIComponent(orderId)}`
             : targetDashboard;
 
-        const roleLabel = data.role === 'vendor' ? 'Vendeur NewKet' : 'Client NewKet';
+        const subtitleText = `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`;
+        const initials = callerName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'NK';
 
-        const toast = document.createElement('div');
-        toast.id = TOAST_ID;
-        toast.className = 'nk-toast-bounce';
-        toast.style.cssText = [
-            'position: fixed',
-            'bottom: 96px',
-            'left: 50%',
-            'transform: translateX(-50%)',
-            'z-index: 9999999',
-            'width: min(360px, calc(100vw - 32px))',
-            'background: linear-gradient(145deg, #090d16 0%, #151d2f 100%)',
-            'border: 1px solid rgba(52, 211, 153, 0.45)',
-            'border-radius: 24px',
-            'box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.15)',
-            'padding: 16px 18px',
-            'display: flex',
-            'flex-direction: column',
-            'gap: 14px',
-            'user-select: none',
-            'font-family: inherit'
-        ].join(';');
-
-        const avatarMarkup = callerAvatar
-            ? `<img src="${callerAvatar}" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2.5px solid #34d399;flex-shrink:0;">`
-            : `<div style="width:52px;height:52px;border-radius:50%;background:#1e293b;border:2.5px solid #34d399;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;font-weight:800;color:#6ee7b7;">${(callerName[0] || '?').toUpperCase()}</div>`;
-
-        toast.innerHTML = `
-            <div style="display:flex;align-items:center;gap:12px;">
-                <div style="position:relative;flex-shrink:0;">
-                    ${avatarMarkup}
-                    <div style="position:absolute;bottom:0;right:0;width:16px;height:16px;border-radius:50%;background:#22c55e;border:2px solid #090d16;animation:nk-ring-pulse 1.8s infinite;"></div>
-                </div>
-                <div style="min-width:0;flex:1;">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
-                        <span style="font-size:10px;font-weight:800;color:#34d399;letter-spacing:0.06em;text-transform:uppercase;">Appel Entrant</span>
-                        <span style="font-size:10px;color:#94a3b8;font-weight:600;">• ${roleLabel}</span>
+        root = document.createElement('div');
+        root.id = 'newket-global-call-ui-root';
+        root.innerHTML = `
+            <!-- 1. FULLSCREEN CALL OVERLAY (Identique à delivery-tracking.js) -->
+            <div id="dt-global-call-fullscreen" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[99999] flex flex-col justify-between p-6 sm:p-8 text-white select-none transition-opacity duration-200">
+                <!-- Top Bar: Privacy & Bouton Réduire PiP -->
+                <div class="flex items-center justify-between w-full max-w-xl mx-auto pt-2">
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md">
+                        <iconify-icon icon="solar:shield-check-bold" width="16"></iconify-icon>
+                        <span>Appel Chiffré In-App</span>
                     </div>
-                    <p style="font-size:16px;font-weight:800;color:#ffffff;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2;">
-                        ${callerName}
-                    </p>
-                    <p style="font-size:11px;color:#cbd5e1;margin:3px 0 0;font-weight:500;">
-                        Appel vocal chiffré en direct
-                    </p>
+                    <button id="dt-global-btn-minimize" type="button" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-all shadow-md" title="Réduire en pilule flottante">
+                        <iconify-icon icon="solar:minimize-square-3-bold" width="20"></iconify-icon>
+                    </button>
                 </div>
-                <div style="font-size:24px;animation:nk-bell-wiggle 1s ease infinite;flex-shrink:0;">
-                    📞
+
+                <!-- Center Area: Grand Avatar, Nom, Statut & Chronomètre -->
+                <div class="flex flex-col items-center justify-center text-center my-auto">
+                    <div class="relative mb-5">
+                        <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-emerald-400/80 shadow-2xl overflow-hidden bg-gray-800 flex items-center justify-center text-3xl font-bold text-emerald-400">
+                            ${callerAvatar 
+                                ? `<img src="${callerAvatar}" class="w-full h-full object-cover" alt="Avatar" />` 
+                                : `<span>${initials}</span>`
+                            }
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-gray-900 shadow-lg animate-pulse">
+                            <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl sm:text-2xl font-black tracking-wide text-white mb-1.5">${_escapeHtml(callerName)}</h3>
+                    <h4 class="text-xs font-extrabold uppercase tracking-widest text-emerald-400 mb-1">APPEL ENTRANT...</h4>
+                    <p class="text-xs text-gray-400 mb-3">${_escapeHtml(subtitleText)}</p>
+
+                    <div class="px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-mono text-sm font-bold border border-emerald-500/20">
+                        Sonnerie...
+                    </div>
+                </div>
+
+                <!-- Bottom Bar: Commandes Décrocher / Raccrocher -->
+                <div class="flex items-center justify-center gap-6 pb-6 w-full max-w-md mx-auto">
+                    <!-- Answer Button -->
+                    <button id="dt-global-btn-answer" type="button" class="px-7 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-emerald-500/30 transition-all cursor-pointer">
+                        <iconify-icon icon="solar:phone-bold" width="22"></iconify-icon>
+                        <span>Décrocher</span>
+                    </button>
+
+                    <!-- Decline Button -->
+                    <button id="dt-global-btn-hangup" type="button" class="px-7 py-4 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-red-600/30 transition-all cursor-pointer">
+                        <iconify-icon icon="solar:phone-dead-bold" width="22"></iconify-icon>
+                        <span>Raccrocher</span>
+                    </button>
                 </div>
             </div>
 
-            <div style="display:flex;gap:10px;">
-                <button id="nk-btn-decline-call" type="button" style="flex:1;padding:12px 14px;border-radius:14px;background:#ef4444;color:#fff;border:none;font-size:13px;font-weight:800;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 12px rgba(239,68,68,0.35);transition:transform 0.1s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-                    <span>✕ Refuser</span>
-                </button>
-                <button id="nk-btn-accept-call" type="button" style="flex:1.4;padding:12px 16px;border-radius:14px;background:#10b981;color:#fff;border:none;font-size:13px;font-weight:800;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 14px rgba(16,185,129,0.4);transition:transform 0.1s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-                    <span>📞 Décrocher</span>
-                </button>
+            <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
+            <div id="dt-global-call-pip" class="hidden fixed z-[99999] top-5 right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200">
+                <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
+                <div id="dt-global-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
+                    <!-- Avatar miniature avec point vert direct -->
+                    <div class="relative flex-shrink-0">
+                        <div class="w-9 h-9 rounded-full overflow-hidden bg-gray-800 border-2 border-emerald-400/90 flex items-center justify-center text-xs font-bold text-emerald-400">
+                            ${callerAvatar 
+                                ? `<img src="${callerAvatar}" class="w-full h-full object-cover" alt="Avatar" />` 
+                                : `<span>${initials}</span>`
+                            }
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-gray-950 animate-pulse"></span>
+                    </div>
+
+                    <!-- Nom & Statut -->
+                    <div class="min-w-0 flex-1 truncate">
+                        <div class="text-xs font-bold text-white truncate leading-tight">${_escapeHtml(callerName)}</div>
+                        <div class="text-[11px] font-mono font-semibold text-emerald-400 leading-tight">Appel entrant...</div>
+                    </div>
+                </div>
+
+                <!-- Zone Droite : Boutons d'action compacts -->
+                <div class="flex items-center gap-1.5 flex-shrink-0 pr-0.5">
+                    <button id="dt-global-pip-btn-answer" type="button" class="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Décrocher">
+                        <iconify-icon icon="solar:phone-bold" width="16"></iconify-icon>
+                    </button>
+                    <button id="dt-global-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Refuser">
+                        <iconify-icon icon="solar:phone-dead-bold" width="16"></iconify-icon>
+                    </button>
+                </div>
             </div>
         `;
 
-        document.body.appendChild(toast);
+        document.body.appendChild(root);
+
+        const fullEl = root.querySelector('#dt-global-call-fullscreen');
+        const pipEl = root.querySelector('#dt-global-call-pip');
+
+        _setupPipDrag(pipEl);
+
+        // Minimiser en PiP
+        root.querySelector('#dt-global-btn-minimize')?.addEventListener('click', () => {
+            _setViewMode('pip');
+        });
+
+        // Agrandir en Plein Écran
+        root.querySelector('#dt-global-pip-expand-zone')?.addEventListener('click', () => {
+            if (!pipDrag.hasMoved) {
+                _setViewMode('fullscreen');
+            }
+        });
+
+        // Actions Décrocher
+        const onAnswer = () => {
+            _dismissCallUI();
+            window.location.href = targetUrl;
+        };
+
+        // Actions Refuser
+        const onDecline = () => {
+            _dismissCallUI();
+        };
+
+        root.querySelector('#dt-global-btn-answer')?.addEventListener('click', onAnswer);
+        root.querySelector('#dt-global-pip-btn-answer')?.addEventListener('click', onAnswer);
+
+        root.querySelector('#dt-global-btn-hangup')?.addEventListener('click', onDecline);
+        root.querySelector('#dt-global-pip-btn-hangup')?.addEventListener('click', onDecline);
+
         _playRingTone();
 
-        const autoDismissTimer = setTimeout(() => {
-            _dismissToast();
+        // Auto-dismiss après 35s
+        setTimeout(() => {
+            if (_activeIncomingData) {
+                _dismissCallUI();
+            }
         }, 35000);
-
-        const btnAccept = toast.querySelector('#nk-btn-accept-call');
-        const btnDecline = toast.querySelector('#nk-btn-decline-call');
-
-        btnAccept?.addEventListener('click', () => {
-            clearTimeout(autoDismissTimer);
-            _dismissToast();
-            window.location.href = targetUrl;
-        });
-
-        btnDecline?.addEventListener('click', () => {
-            clearTimeout(autoDismissTimer);
-            _dismissToast();
-        });
     }
 
-    function _dismissToast() {
-        const toast = document.getElementById(TOAST_ID);
-        if (toast) {
-            toast.classList.add('nk-toast-dismissing');
-            setTimeout(() => toast.remove(), 250);
-        }
+    function _dismissCallUI() {
+        _activeIncomingData = null;
+        const root = document.getElementById('newket-global-call-ui-root');
+        if (root) root.remove();
         _stopRingTone();
     }
 
-    // ── 4. Pilule flottante pour appel en cours (cross-page navigation) ───────
-    function _renderPill(data) {
-        let pill = document.getElementById(PILL_ID);
-        if (!data || data.state === 'idle' || !data.state) {
-            if (pill) pill.remove();
-            return;
-        }
-        _injectStyles();
-
-        if (!pill) {
-            pill = document.createElement('div');
-            pill.id = PILL_ID;
-            pill.style.cssText = [
-                'position: fixed',
-                'bottom: 84px',
-                'left: 50%',
-                'transform: translateX(-50%)',
-                'z-index: 999999',
-                'display: flex',
-                'align-items: center',
-                'gap: 10px',
-                'padding: 10px 18px',
-                'border-radius: 999px',
-                'background: linear-gradient(135deg, #111827 0%, #1f2937 100%)',
-                'border: 1px solid rgba(52, 211, 153, 0.4)',
-                'box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5)',
-                'cursor: pointer',
-                'user-select: none',
-                'animation: nk-toast-in 0.28s ease both'
-            ].join(';');
-            document.body.appendChild(pill);
-        }
-
-        const peerName = data.peerName || (data.role === 'vendor' ? 'Client' : 'Vendeur');
-        const avatarUrl = data.peerAvatar || '';
-        const dashUrl = data.dashboardUrl || (data.role === 'vendor' ? '/src/pages/vendor-dashboard.html' : '/src/pages/customer-dashboard.html');
-        const label = data.state === 'connected' ? '📞 En communication' : '📞 Appel en cours';
-
-        const avatarHtml = avatarUrl
-            ? `<img src="${avatarUrl}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #34d399;flex-shrink:0;">`
-            : `<div style="width:28px;height:28px;border-radius:50%;background:#374151;border:2px solid #34d399;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:#6ee7b7;">${(peerName[0] || '?').toUpperCase()}</div>`;
-
-        pill.innerHTML = `
-            ${avatarHtml}
-            <div style="display:flex;flex-direction:column;min-width:0;">
-                <span style="font-size:10px;font-weight:800;color:#6ee7b7;letter-spacing:0.04em;">${label}</span>
-                <span style="font-size:12px;font-weight:700;color:#ffffff;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${peerName}</span>
-            </div>
-            <div style="width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;flex-shrink:0;animation:nk-glow-dot 1.2s ease infinite;"></div>
-        `;
-
-        pill.onclick = () => { window.location.href = dashUrl; };
-    }
-
-    // ── 5. Initialisation du canal Supabase user-ring ─────────────────────────
-    async function _init() {
-        // A) Afficher la pilule si un appel est actif dans sessionStorage
-        if (!isOnDashboard) {
-            try {
-                const saved = sessionStorage.getItem('newket_active_call');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    _renderPill(data);
-                }
-            } catch (_) {}
-
-            if (typeof BroadcastChannel !== 'undefined') {
-                try {
-                    const bc = new BroadcastChannel('newket-call-state');
-                    bc.onmessage = (evt) => _renderPill(evt.data || {});
-                } catch (_) {}
-            }
-        }
-
-        // B) Abonnement Supabase au canal user-ring:{userId}
+    // ── Connexion temps réel Supabase ────────────────────────────────────────
+    function _init() {
         let _channelSubscribed = false;
 
         const connectUserRing = (client, userId) => {
@@ -302,13 +349,12 @@
 
             ringChannel
                 .on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
-                    console.log('[NewKet CallNotifier] Reçu incoming-call:', payload);
-                    if (isOnDashboard) return;
-                    _showIncomingCallToast(payload || {});
+                    console.log('[NewKet CallNotifier] incoming-call reçu sur', channelName, payload);
+                    _buildDashboardStyleCallUI(payload || {});
                 })
                 .on('broadcast', { event: 'cancel-call' }, () => {
-                    console.log('[NewKet CallNotifier] Reçu cancel-call');
-                    _dismissToast();
+                    console.log('[NewKet CallNotifier] cancel-call reçu');
+                    _dismissCallUI();
                 })
                 .subscribe((status) => {
                     console.log('[NewKet CallNotifier] Subscription status:', status, channelName);
@@ -343,7 +389,6 @@
             return false;
         };
 
-        // Boucle d'attente (polling léger jusqu'à 8 secondes)
         let attempts = 0;
         const pollTimer = setInterval(async () => {
             attempts++;
@@ -353,7 +398,6 @@
             }
         }, 200);
 
-        // Écouter aussi l'événement auth change en secours
         try {
             const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
             if (client?.auth?.onAuthStateChange) {
