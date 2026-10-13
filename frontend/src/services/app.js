@@ -347,7 +347,6 @@ setupDeepLinkRouter();
         }
 
         // ② Canal Supabase user-ring : appel entrant quelle que soit la page
-        // Utilise onAuthStateChange pour être sûr d'avoir la session même si la page vient de charger
         const waitForSupabase = () => new Promise((resolve) => {
             const check = () => {
                 const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
@@ -362,7 +361,7 @@ setupDeepLinkRouter();
             let _ringChannel = null;
 
             function _subscribeUserRing(userId) {
-                if (!userId || _ringChannel) return; // déjà abonné
+                if (!userId || _ringChannel) return;
                 const channelName = `user-ring:${userId}`;
                 _ringChannel = client.channel(channelName);
                 _ringChannel.on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
@@ -371,30 +370,36 @@ setupDeepLinkRouter();
                 }).subscribe((status) => {
                     console.log('[NewKet] user-ring subscription:', status, channelName);
                 });
-
                 window.addEventListener('pagehide', () => {
                     try { client.removeChannel(_ringChannel); } catch (_) {}
                 });
             }
 
-            // Essai immédiat via getSession (si la session est déjà disponible)
+            // ─ Approche A : polling getSession() (rattrape toujours la session) ─
+            let _pollAttempts = 0;
+            async function _pollSession() {
+                if (_ringChannel || _pollAttempts > 30) return; // déjà abonné ou timeout 15s
+                _pollAttempts++;
+                try {
+                    const { data } = await client.auth.getSession();
+                    const userId = data?.session?.user?.id;
+                    if (userId) { _subscribeUserRing(userId); return; }
+                } catch (_) {}
+                setTimeout(_pollSession, 500);
+            }
+            _pollSession();
+
+            // ─ Approche B : onAuthStateChange en parallèle (pour SIGNED_IN, etc.) ─
             try {
-                const sessionData = await client.auth.getSession();
-                const userId = sessionData?.data?.session?.user?.id;
-                if (userId) {
-                    _subscribeUserRing(userId);
-                    return; // déjà ok, pas besoin de onAuthStateChange
-                }
+                const { data: { subscription: authSub } } = client.auth.onAuthStateChange((event, session) => {
+                    const userId = session?.user?.id;
+                    if (userId && !_ringChannel) {
+                        _subscribeUserRing(userId);
+                        try { authSub.unsubscribe(); } catch (_) {}
+                    }
+                });
             } catch (_) {}
 
-            // Fallback : attendre onAuthStateChange (session pas encore restaurée)
-            const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
-                const userId = session?.user?.id;
-                if (userId && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
-                    _subscribeUserRing(userId);
-                    subscription.unsubscribe(); // une fois abonné, plus besoin d'écouter
-                }
-            });
         } catch (_) {}
     }
 
