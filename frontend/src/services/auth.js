@@ -304,27 +304,32 @@ const AuthManager = {
                 if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
 
                 // --- ENREGISTREMENT SESSION UNIQUE (1 user = 1 appareil) ---
-                try {
-                    const sessionData = await window.supabaseClient?.auth?.getSession();
-                    const token = sessionData?.data?.session?.access_token;
-                    if (token) {
-                        const sessionRes = await fetch('/api/users/session', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: `Bearer ${token}`
-                            }
-                        });
-                        if (sessionRes.ok) {
-                            const resJson = await sessionRes.json();
-                            if (resJson?.session_token) {
-                                sessionStorage.setItem('newket_session_token', resJson.session_token);
-                                console.log('[NewKet Auth] Session unique enregistrée.');
+                // On n'enregistre un nouveau session_token QUE si cet appareil n'en possède pas encore un.
+                // Cela évite qu'un rafraîchissement de token ou de page ne génère un nouveau token et ne s'auto-kick !
+                const existingSessionToken = sessionStorage.getItem('newket_session_token');
+                if (!existingSessionToken) {
+                    try {
+                        const sessionData = await window.supabaseClient?.auth?.getSession();
+                        const token = sessionData?.data?.session?.access_token;
+                        if (token) {
+                            const sessionRes = await fetch('/api/users/session', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${token}`
+                                }
+                            });
+                            if (sessionRes.ok) {
+                                const resJson = await sessionRes.json();
+                                if (resJson?.session_token) {
+                                    sessionStorage.setItem('newket_session_token', resJson.session_token);
+                                    console.log('[NewKet Auth] Session unique initialisée.');
+                                }
                             }
                         }
+                    } catch (sessionErr) {
+                        console.warn('[NewKet Auth] registerSession failed (non-blocking):', sessionErr.message);
                     }
-                } catch (sessionErr) {
-                    console.warn('[NewKet Auth] registerSession failed (non-blocking):', sessionErr.message);
                 }
                 // --- FIN ENREGISTREMENT SESSION ---
             } catch (err) {

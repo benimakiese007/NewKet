@@ -45,6 +45,20 @@
             this.localStream = null;
             this.remoteStream = null;
             this.callState = 'idle'; // 'idle' | 'calling' | 'incoming' | 'connected'
+            this.callViewMode = 'fullscreen'; // 'fullscreen' | 'pip'
+            this.callDurationSeconds = 0;
+            this.callDurationInterval = null;
+            this.isMuted = false;
+
+            // PiP Drag & Snap state
+            this.pipDrag = {
+                isDragging: false,
+                startX: 0,
+                startY: 0,
+                initialLeft: 0,
+                initialTop: 0,
+                hasMoved: false
+            };
 
             this.markers = {
                 vendor: null,
@@ -103,7 +117,9 @@
 
             this._buildUI();
             this._initMap(initialCustomerCoords);
-            this._initRealtime();
+            if (!this.channel) {
+                this._initRealtime();
+            }
             this._startLocationWatch();
             this._requestWakeLock();
             this._startStaleCheck();
@@ -209,40 +225,6 @@
                         <span class="font-medium text-gray-500">Actualisation 5s</span>
                     </div>
 
-                    <!-- In-App WebRTC Voice Call Overlay / Modal -->
-                    <div id="dt-call-overlay" class="hidden absolute inset-0 bg-gray-900/95 backdrop-blur-md z-[500] flex flex-col items-center justify-center p-6 text-white text-center">
-                        <!-- Profile Avatar Image & Glow Ring -->
-                        <div class="relative mb-3">
-                            <div id="dt-call-avatar-wrap" class="w-20 h-20 rounded-full border-4 border-emerald-400 shadow-2xl overflow-hidden bg-gray-800 flex items-center justify-center text-xl font-bold text-emerald-400 animate-pulse">
-                                <img id="dt-call-avatar-img" src="" class="hidden w-full h-full object-cover" alt="Avatar" />
-                                <span id="dt-call-avatar-initials">NK</span>
-                            </div>
-                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-gray-900 shadow">
-                                <iconify-icon icon="solar:phone-bold" width="14"></iconify-icon>
-                            </div>
-                        </div>
-                        <h3 id="dt-call-peer-name" class="text-base font-black tracking-wide text-white mb-0.5">${this._escapeHtml(peerLabel)}</h3>
-                        <h4 id="dt-call-title" class="text-xs font-extrabold uppercase tracking-wider text-emerald-400 mb-1">APPEL EN COURS...</h4>
-                        <p id="dt-call-subtitle" class="text-xs text-gray-300 mb-6">Connexion audio sécurisée</p>
-                        
-                        <!-- Call Action Buttons -->
-                        <div class="flex items-center gap-4">
-                            <!-- Answer Button (Visible only on incoming) -->
-                            <button id="dt-btn-answer" type="button" class="hidden px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95">
-                                <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
-                                <span>Décrocher</span>
-                            </button>
-                            <!-- Mute Button -->
-                            <button id="dt-btn-mute" type="button" class="hidden px-4 py-3 rounded-2xl bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 font-semibold text-xs flex items-center gap-1.5">
-                                <iconify-icon icon="solar:muted-bold" width="16"></iconify-icon>
-                                <span id="dt-mute-text">Muet</span>
-                            </button>
-                            <!-- End Call Button -->
-                            <button id="dt-btn-hangup" type="button" class="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-500 font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95">
-                                <iconify-icon icon="solar:phone-dead-bold" width="18"></iconify-icon>
-                                <span>Raccrocher</span>
-                            </button>
-                        </div>
                     </div>
                 </div>
             `;
@@ -254,7 +236,6 @@
             this.dom.callBtn = this.dom.container.querySelector('#dt-call-btn');
             this.dom.chatInput = this.dom.container.querySelector('#dt-chat-input');
             this.dom.chatList = this.dom.container.querySelector('#dt-chat-messages');
-            this.dom.callOverlay = this.dom.container.querySelector('#dt-call-overlay');
 
             // Event Listeners
             this.dom.pauseBtn.addEventListener('click', () => this.togglePause());
@@ -275,10 +256,8 @@
                 });
             });
 
-            // Call buttons
-            this.dom.container.querySelector('#dt-btn-answer').addEventListener('click', () => this.acceptCall());
-            this.dom.container.querySelector('#dt-btn-hangup').addEventListener('click', () => this.endCall());
-            this.dom.container.querySelector('#dt-btn-mute').addEventListener('click', () => this.toggleMute());
+            // Build Floating / Fullscreen Call UI in body
+            this._buildCallUI();
         }
 
         /**
@@ -568,6 +547,7 @@
         async acceptCall() {
             if (this.callState !== 'incoming') return;
             this.callState = 'connected';
+            this._startCallTimer();
             this._showCallOverlay('En communication', 'Appel vocal actif', true);
 
             try {
@@ -601,10 +581,69 @@
                 const audioTrack = this.localStream.getAudioTracks()[0];
                 if (audioTrack) {
                     audioTrack.enabled = !audioTrack.enabled;
-                    const muteBtnText = this.dom.container.querySelector('#dt-mute-text');
-                    if (muteBtnText) muteBtnText.textContent = audioTrack.enabled ? 'Muet' : 'Activer Micro';
+                    this.isMuted = !audioTrack.enabled;
+                    this._updateMuteUI();
                 }
             }
+        }
+
+        _updateMuteUI() {
+            // Fullscreen mute button
+            const muteBtnText = document.getElementById('dt-mute-text');
+            const btnMute = document.getElementById('dt-btn-mute');
+            if (btnMute) {
+                btnMute.classList.toggle('bg-red-600/80', this.isMuted);
+                btnMute.classList.toggle('border-red-500', this.isMuted);
+                btnMute.classList.toggle('bg-gray-800', !this.isMuted);
+            }
+            if (muteBtnText) {
+                muteBtnText.textContent = this.isMuted ? 'Micro Coupé' : 'Muet';
+            }
+
+            // PiP pill mute button
+            const pipMuteBtn = document.getElementById('dt-pip-btn-mute');
+            const pipMuteIcon = document.getElementById('dt-pip-mute-icon');
+            if (pipMuteBtn) {
+                pipMuteBtn.classList.toggle('bg-red-600', this.isMuted);
+                pipMuteBtn.classList.toggle('text-white', this.isMuted);
+                pipMuteBtn.classList.toggle('bg-white/10', !this.isMuted);
+                pipMuteBtn.classList.toggle('text-gray-200', !this.isMuted);
+            }
+            if (pipMuteIcon) {
+                pipMuteIcon.setAttribute('icon', this.isMuted ? 'solar:muted-bold' : 'solar:microphone-bold');
+            }
+        }
+
+        _startCallTimer() {
+            this._stopCallTimer();
+            this.callDurationSeconds = 0;
+            this._updateTimerDisplay();
+
+            this.callDurationInterval = setInterval(() => {
+                this.callDurationSeconds++;
+                this._updateTimerDisplay();
+            }, 1000);
+        }
+
+        _stopCallTimer() {
+            if (this.callDurationInterval) {
+                clearInterval(this.callDurationInterval);
+                this.callDurationInterval = null;
+            }
+            this.callDurationSeconds = 0;
+            this._updateTimerDisplay();
+        }
+
+        _updateTimerDisplay() {
+            const minutes = String(Math.floor(this.callDurationSeconds / 60)).padStart(2, '0');
+            const seconds = String(this.callDurationSeconds % 60).padStart(2, '0');
+            const formatted = `${minutes}:${seconds}`;
+
+            const fullTimerEl = document.getElementById('dt-call-timer');
+            const pipTimerEl = document.getElementById('dt-pip-timer');
+
+            if (fullTimerEl) fullTimerEl.textContent = formatted;
+            if (pipTimerEl) pipTimerEl.textContent = formatted;
         }
 
         _createPeerConnection() {
@@ -671,6 +710,7 @@
             } else if (data.type === 'answer' && this.peerConnection) {
                 this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                 this.callState = 'connected';
+                this._startCallTimer();
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, callerName, callerAvatar);
             } else if (data.type === 'candidate' && this.peerConnection) {
                 this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
@@ -679,47 +719,333 @@
             }
         }
 
-        _showCallOverlay(title, subtitle, isConnected = false, isIncoming = false, customPeerName = null, customPeerAvatar = null) {
-            if (!this.dom.callOverlay) return;
-            this.dom.callOverlay.classList.remove('hidden');
+        /**
+         * Construit les deux interfaces d'appel dans document.body (Plein Écran & Pilule PiP).
+         */
+        _buildCallUI() {
+            const existingWrap = document.getElementById('newket-call-ui-root');
+            const isCallActive = this.callState && this.callState !== 'idle';
 
+            // Si les éléments existent déjà et qu'un appel est en cours, ne pas les détruire !
+            if (existingWrap && isCallActive) {
+                return;
+            }
+
+            if (existingWrap) existingWrap.remove();
+
+            const isVendor = this.role === 'vendor';
+            const peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
+
+            const wrap = document.createElement('div');
+            wrap.id = 'newket-call-ui-root';
+            wrap.innerHTML = `
+                <!-- 1. FULLSCREEN CALL OVERLAY -->
+                <div id="dt-call-fullscreen" class="hidden fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[9999] flex flex-col justify-between p-6 sm:p-8 text-white select-none transition-opacity duration-200">
+                    <!-- Top Bar: Privacy & Bouton Réduire PiP -->
+                    <div class="flex items-center justify-between w-full max-w-xl mx-auto pt-2">
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md">
+                            <iconify-icon icon="solar:shield-check-bold" width="16"></iconify-icon>
+                            <span>Appel Chiffré In-App</span>
+                        </div>
+                        <button id="dt-btn-minimize" type="button" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white flex items-center justify-center transition-all shadow-md" title="Réduire en pilule flottante">
+                            <iconify-icon icon="solar:minimize-square-3-bold" width="20"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <!-- Center Area: Grand Avatar, Nom, Statut & Chronomètre -->
+                    <div class="flex flex-col items-center justify-center text-center my-auto">
+                        <div class="relative mb-5">
+                            <div id="dt-call-avatar-wrap" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-emerald-400/80 shadow-2xl overflow-hidden bg-gray-800 flex items-center justify-center text-3xl font-bold text-emerald-400">
+                                <img id="dt-call-avatar-img" src="" class="hidden w-full h-full object-cover" alt="Avatar" />
+                                <span id="dt-call-avatar-initials">NK</span>
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-gray-900 shadow-lg">
+                                <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
+                            </div>
+                        </div>
+
+                        <h3 id="dt-call-peer-name" class="text-xl sm:text-2xl font-black tracking-wide text-white mb-1.5">${this._escapeHtml(peerLabel)}</h3>
+                        <h4 id="dt-call-title" class="text-xs font-extrabold uppercase tracking-widest text-emerald-400 mb-1">APPEL EN COURS...</h4>
+                        <p id="dt-call-subtitle" class="text-xs text-gray-400 mb-3">Connexion audio sécurisée</p>
+
+                        <!-- Chronomètre plein écran -->
+                        <div id="dt-call-timer" class="px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-mono text-sm font-bold border border-emerald-500/20">
+                            00:00
+                        </div>
+                    </div>
+
+                    <!-- Bottom Bar: Commandes Décrocher / Muet / Raccrocher -->
+                    <div class="flex items-center justify-center gap-6 pb-6 w-full max-w-md mx-auto">
+                        <!-- Answer Button (Visible uniquement sur appel entrant) -->
+                        <button id="dt-btn-answer" type="button" class="hidden px-7 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-emerald-500/30 transition-all">
+                            <iconify-icon icon="solar:phone-bold" width="22"></iconify-icon>
+                            <span>Décrocher</span>
+                        </button>
+
+                        <!-- Mute Button -->
+                        <button id="dt-btn-mute" type="button" class="hidden px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all">
+                            <iconify-icon icon="solar:muted-bold" width="20"></iconify-icon>
+                            <span id="dt-mute-text">Muet</span>
+                        </button>
+
+                        <!-- End Call Button -->
+                        <button id="dt-btn-hangup" type="button" class="px-7 py-4 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-red-600/30 transition-all">
+                            <iconify-icon icon="solar:phone-dead-bold" width="22"></iconify-icon>
+                            <span>Raccrocher</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
+                <div id="dt-call-pip" class="hidden fixed z-[9999] top-5 right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200">
+                    <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
+                    <div id="dt-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
+                        <!-- Avatar miniature avec point vert direct -->
+                        <div class="relative flex-shrink-0">
+                            <div class="w-9 h-9 rounded-full overflow-hidden bg-gray-800 border-2 border-emerald-400/90 flex items-center justify-center text-xs font-bold text-emerald-400">
+                                <img id="dt-pip-avatar-img" src="" class="hidden w-full h-full object-cover" alt="Avatar" />
+                                <span id="dt-pip-avatar-initials">NK</span>
+                            </div>
+                            <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-gray-950 animate-pulse"></span>
+                        </div>
+
+                        <!-- Nom & Chrono / Statut -->
+                        <div class="min-w-0 flex-1 truncate">
+                            <div id="dt-pip-peer-name" class="text-xs font-bold text-white truncate leading-tight">${this._escapeHtml(peerLabel)}</div>
+                            <div id="dt-pip-timer" class="text-[11px] font-mono font-semibold text-emerald-400 leading-tight">00:00</div>
+                        </div>
+                    </div>
+
+                    <!-- Zone Droite : Boutons d'action compacts -->
+                    <div class="flex items-center gap-1.5 flex-shrink-0 pr-0.5">
+                        <!-- Décrocher mini (visible uniquement si entrant) -->
+                        <button id="dt-pip-btn-answer" type="button" class="hidden w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white flex items-center justify-center shadow transition-all" title="Décrocher">
+                            <iconify-icon icon="solar:phone-bold" width="16"></iconify-icon>
+                        </button>
+                        <!-- Muet mini -->
+                        <button id="dt-pip-btn-mute" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 flex items-center justify-center transition-all" title="Couper le micro">
+                            <iconify-icon id="dt-pip-mute-icon" icon="solar:microphone-bold" width="16"></iconify-icon>
+                        </button>
+                        <!-- Raccrocher mini -->
+                        <button id="dt-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all" title="Raccrocher">
+                            <iconify-icon icon="solar:phone-dead-bold" width="16"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(wrap);
+
+            // Bind Event Listeners
+            const btnMinimize = wrap.querySelector('#dt-btn-minimize');
+            const pipExpandZone = wrap.querySelector('#dt-pip-expand-zone');
+
+            if (btnMinimize) btnMinimize.addEventListener('click', () => this._setCallViewMode('pip'));
+            if (pipExpandZone) pipExpandZone.addEventListener('click', () => {
+                if (!this.pipDrag.hasMoved) {
+                    this._setCallViewMode('fullscreen');
+                }
+            });
+
+            // Boutons d'actions Plein Écran
+            wrap.querySelector('#dt-btn-answer')?.addEventListener('click', () => this.acceptCall());
+            wrap.querySelector('#dt-btn-hangup')?.addEventListener('click', () => this.endCall());
+            wrap.querySelector('#dt-btn-mute')?.addEventListener('click', () => this.toggleMute());
+
+            // Boutons d'actions Pilule PiP
+            wrap.querySelector('#dt-pip-btn-answer')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.acceptCall();
+            });
+            wrap.querySelector('#dt-pip-btn-hangup')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.endCall();
+            });
+            wrap.querySelector('#dt-pip-btn-mute')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleMute();
+            });
+
+            // Initialiser le système Drag & Aimantation (Snapping) sur la pilule
+            this._setupPipDragAndSnap(wrap.querySelector('#dt-call-pip'));
+        }
+
+        _setCallViewMode(mode) {
+            this.callViewMode = mode;
+            const fullEl = document.getElementById('dt-call-fullscreen');
+            const pipEl = document.getElementById('dt-call-pip');
+            if (!fullEl || !pipEl) return;
+
+            if (this.callState === 'idle') {
+                fullEl.classList.add('hidden');
+                pipEl.classList.add('hidden');
+                return;
+            }
+
+            if (mode === 'pip') {
+                fullEl.classList.add('hidden');
+                pipEl.classList.remove('hidden');
+            } else {
+                pipEl.classList.add('hidden');
+                fullEl.classList.remove('hidden');
+            }
+        }
+
+        _setupPipDragAndSnap(pipEl) {
+            if (!pipEl) return;
+
+            const onPointerDown = (e) => {
+                // Ne pas déclencher de drag si on clique sur les boutons de commande
+                if (e.target.closest('button')) return;
+
+                this.pipDrag.isDragging = true;
+                this.pipDrag.hasMoved = false;
+                this.pipDrag.startX = e.clientX;
+                this.pipDrag.startY = e.clientY;
+
+                const rect = pipEl.getBoundingClientRect();
+                this.pipDrag.initialLeft = rect.left;
+                this.pipDrag.initialTop = rect.top;
+
+                // Désactiver temporairement la transition CSS pendant le drag
+                pipEl.style.transition = 'none';
+                pipEl.setPointerCapture?.(e.pointerId);
+            };
+
+            const onPointerMove = (e) => {
+                if (!this.pipDrag.isDragging) return;
+
+                const dx = e.clientX - this.pipDrag.startX;
+                const dy = e.clientY - this.pipDrag.startY;
+
+                if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+                    this.pipDrag.hasMoved = true;
+                }
+
+                let newLeft = this.pipDrag.initialLeft + dx;
+                let newTop = this.pipDrag.initialTop + dy;
+
+                // Limites écran
+                const pad = 10;
+                newLeft = Math.max(pad, Math.min(window.innerWidth - pipEl.offsetWidth - pad, newLeft));
+                newTop = Math.max(pad, Math.min(window.innerHeight - pipEl.offsetHeight - pad, newTop));
+
+                pipEl.style.left = `${newLeft}px`;
+                pipEl.style.top = `${newTop}px`;
+                pipEl.style.right = 'auto';
+            };
+
+            const onPointerUp = (e) => {
+                if (!this.pipDrag.isDragging) return;
+                this.pipDrag.isDragging = false;
+                pipEl.releasePointerCapture?.(e.pointerId);
+
+                // Réactiver transition pour animation d'aimantation fluide
+                pipEl.style.transition = 'left 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), top 0.25s ease-out';
+
+                const rect = pipEl.getBoundingClientRect();
+                const pad = 12;
+                const screenCenter = window.innerWidth / 2;
+                const pillCenter = rect.left + rect.width / 2;
+
+                // Aimantation au bord gauche ou droit le plus proche
+                let targetLeft = pad;
+                if (pillCenter >= screenCenter) {
+                    targetLeft = window.innerWidth - rect.width - pad;
+                }
+
+                // Vérifier les limites verticales
+                let targetTop = Math.max(pad, Math.min(window.innerHeight - rect.height - pad, rect.top));
+
+                pipEl.style.left = `${targetLeft}px`;
+                pipEl.style.top = `${targetTop}px`;
+                pipEl.style.right = 'auto';
+
+                // Réinitialiser hasMoved après un court délai pour éviter les faux clics
+                setTimeout(() => {
+                    this.pipDrag.hasMoved = false;
+                }, 100);
+            };
+
+            pipEl.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+        }
+
+        _showCallOverlay(title, subtitle, isConnected = false, isIncoming = false, customPeerName = null, customPeerAvatar = null) {
             const name = customPeerName || this.peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
             const avatarUrl = customPeerAvatar || this.peerAvatar || '';
 
-            const peerNameEl = this.dom.container.querySelector('#dt-call-peer-name');
-            const titleEl = this.dom.container.querySelector('#dt-call-title');
-            const subtitleEl = this.dom.container.querySelector('#dt-call-subtitle');
-            const avatarImg = this.dom.container.querySelector('#dt-call-avatar-img');
-            const avatarInitials = this.dom.container.querySelector('#dt-call-avatar-initials');
+            // 1. Mise à jour Fullscreen
+            const fullPeerName = document.getElementById('dt-call-peer-name');
+            const fullTitle = document.getElementById('dt-call-title');
+            const fullSubtitle = document.getElementById('dt-call-subtitle');
+            const fullAvatarImg = document.getElementById('dt-call-avatar-img');
+            const fullAvatarInitials = document.getElementById('dt-call-avatar-initials');
 
-            if (peerNameEl) peerNameEl.textContent = name;
-            if (titleEl) titleEl.textContent = title;
-            if (subtitleEl) subtitleEl.textContent = subtitle;
+            if (fullPeerName) fullPeerName.textContent = name;
+            if (fullTitle) fullTitle.textContent = title;
+            if (fullSubtitle) fullSubtitle.textContent = subtitle;
 
-            // Display Avatar Image or Initials
-            if (avatarImg && avatarInitials) {
+            if (fullAvatarImg && fullAvatarInitials) {
                 if (avatarUrl) {
-                    avatarImg.src = avatarUrl;
-                    avatarImg.classList.remove('hidden');
-                    avatarInitials.classList.add('hidden');
+                    fullAvatarImg.src = avatarUrl;
+                    fullAvatarImg.classList.remove('hidden');
+                    fullAvatarInitials.classList.add('hidden');
                 } else {
-                    avatarImg.classList.add('hidden');
-                    avatarInitials.classList.remove('hidden');
+                    fullAvatarImg.classList.add('hidden');
+                    fullAvatarInitials.classList.remove('hidden');
                     const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'NK';
-                    avatarInitials.textContent = initials;
+                    fullAvatarInitials.textContent = initials;
                 }
             }
 
-            const btnAnswer = this.dom.container.querySelector('#dt-btn-answer');
-            const btnMute = this.dom.container.querySelector('#dt-btn-mute');
+            // Boutons Fullscreen
+            const btnAnswer = document.getElementById('dt-btn-answer');
+            const btnMute = document.getElementById('dt-btn-mute');
+            if (btnAnswer) btnAnswer.classList.toggle('hidden', !isIncoming);
+            if (btnMute) btnMute.classList.toggle('hidden', !isConnected);
 
-            btnAnswer.classList.toggle('hidden', !isIncoming);
-            btnMute.classList.toggle('hidden', !isConnected);
+            // 2. Mise à jour PiP (Pilule)
+            const pipPeerName = document.getElementById('dt-pip-peer-name');
+            const pipAvatarImg = document.getElementById('dt-pip-avatar-img');
+            const pipAvatarInitials = document.getElementById('dt-pip-avatar-initials');
+            const pipTimer = document.getElementById('dt-pip-timer');
+            const pipBtnAnswer = document.getElementById('dt-pip-btn-answer');
+
+            if (pipPeerName) pipPeerName.textContent = name;
+            if (pipAvatarImg && pipAvatarInitials) {
+                if (avatarUrl) {
+                    pipAvatarImg.src = avatarUrl;
+                    pipAvatarImg.classList.remove('hidden');
+                    pipAvatarInitials.classList.add('hidden');
+                } else {
+                    pipAvatarImg.classList.add('hidden');
+                    pipAvatarInitials.classList.remove('hidden');
+                    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'NK';
+                    pipAvatarInitials.textContent = initials;
+                }
+            }
+
+            if (pipBtnAnswer) pipBtnAnswer.classList.toggle('hidden', !isIncoming);
+            if (!isConnected && pipTimer) {
+                pipTimer.textContent = isIncoming ? 'Appel entrant...' : 'Sonnerie...';
+            }
+
+            // Affichage dans le mode courant (ou plein écran par défaut)
+            this._setCallViewMode(this.callViewMode || 'fullscreen');
+            this._updateMuteUI();
         }
 
         _resetCallState() {
             this.callState = 'idle';
-            if (this.dom.callOverlay) this.dom.callOverlay.classList.add('hidden');
+            this.callViewMode = 'fullscreen';
+            this.isMuted = false;
+            this._stopCallTimer();
+
+            const fullEl = document.getElementById('dt-call-fullscreen');
+            const pipEl = document.getElementById('dt-call-pip');
+            if (fullEl) fullEl.classList.add('hidden');
+            if (pipEl) pipEl.classList.add('hidden');
 
             if (this.localStream) {
                 this.localStream.getTracks().forEach(track => track.stop());
@@ -983,9 +1309,21 @@
 
         /**
          * Completely destroy and clean up tracking resources.
+         * Note: Si un appel vocal est actif (connected/calling/incoming), on préserve l'appel et le flux audio !
          */
-        destroy() {
-            this._resetCallState();
+        destroy(forceCallHangup = false) {
+            const isCallActive = this.callState && this.callState !== 'idle';
+
+            if (!isCallActive || forceCallHangup) {
+                this._resetCallState();
+                const callUiRoot = document.getElementById('newket-call-ui-root');
+                if (callUiRoot) {
+                    callUiRoot.remove();
+                }
+            } else {
+                // L'appel est en cours : basculer automatiquement en mode Pilule PiP pour que l'utilisateur continue sa conversation !
+                this._setCallViewMode('pip');
+            }
 
             if (this.watchId && 'geolocation' in navigator) {
                 navigator.geolocation.clearWatch(this.watchId);
@@ -1002,7 +1340,8 @@
                 this.heartbeatInterval = null;
             }
 
-            if (this.channel) {
+            // Ne fermer le canal Realtime que si aucun appel n'est actif
+            if (this.channel && (!isCallActive || forceCallHangup)) {
                 try {
                     const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
                     if (client && typeof client.removeChannel === 'function') {

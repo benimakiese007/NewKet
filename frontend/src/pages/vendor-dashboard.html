@@ -5128,7 +5128,18 @@
                             const myAvatar = vendorProfile?.avatar || '';
                             const peerUserId = order.customer_id || order.user_id || order.customer?.id || null;
 
-                            window.deliveryTrackerInstance = new window.DeliveryTracker();
+                            const isSameOrderCallActive = window.deliveryTrackerInstance 
+                                && window.deliveryTrackerInstance.orderId === order.id
+                                && window.deliveryTrackerInstance.callState 
+                                && window.deliveryTrackerInstance.callState !== 'idle';
+
+                            if (!isSameOrderCallActive) {
+                                if (window.deliveryTrackerInstance) {
+                                    window.deliveryTrackerInstance.destroy();
+                                }
+                                window.deliveryTrackerInstance = new window.DeliveryTracker();
+                            }
+
                             window.deliveryTrackerInstance.start({
                                 orderId: order.id,
                                 role: 'vendor',

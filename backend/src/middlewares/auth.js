@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 
 function decodeJwtPayload(token) {
     try {
@@ -72,7 +72,8 @@ export const requireAuth = async (req, res, next) => {
         const clientSessionToken = req.headers['x-session-token'] || null;
         if (clientSessionToken) {
             try {
-                const { data: profile } = await supabase
+                const dbClient = supabaseAdmin || supabase;
+                const { data: profile } = await dbClient
                     .from('users')
                     .select('session_token')
                     .eq('id', user.id)
