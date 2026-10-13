@@ -580,6 +580,9 @@
             if (this.callState !== 'idle' && this.channel) {
                 this._sendCallSignal({ type: 'hangup' });
             }
+            if (this.peerUserId) {
+                this._sendUserCancelSignal(this.peerUserId);
+            }
             this._resetCallState();
         }
 
@@ -704,36 +707,70 @@
         _sendUserRingSignal(targetUserId) {
             try {
                 const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
-                if (!client || !targetUserId) return;
+                if (!client || !targetUserId) {
+                    console.warn('[DeliveryTracker] Envoi impossible: client ou targetUserId manquant', { targetUserId });
+                    return;
+                }
 
                 const channelName = `user-ring:${targetUserId}`;
                 const ch = client.channel(channelName);
 
                 ch.subscribe((status) => {
                     if (status === 'SUBSCRIBED') {
+                        const payload = {
+                            callerName: this.myName,
+                            callerAvatar: this.myAvatar,
+                            orderId: this.orderId,
+                            role: this.role
+                        };
+                        console.log('[DeliveryTracker] Canal user-ring SUBSCRIBED, diffusion incoming-call vers', targetUserId, payload);
+                        
                         ch.send({
                             type: 'broadcast',
                             event: 'incoming-call',
-                            payload: {
-                                callerName: this.myName,
-                                callerAvatar: this.myAvatar,
-                                orderId: this.orderId,
-                                role: this.role // rôle de l'appelant
-                            }
-                        }).finally(() => {
-                            // Fermer le canal immédiatement, c'est juste un signal one-shot
+                            payload
+                        }).catch(e => console.warn('[DeliveryTracker] Échec send broadcast:', e));
+
+                        // 2ème envoi pour parer aux pertes de paquets
+                        setTimeout(() => {
+                            ch.send({ type: 'broadcast', event: 'incoming-call', payload }).catch(() => {});
+                        }, 400);
+
+                        // Maintenir le canal ouvert 15 secondes pour laisser le temps de transmission
+                        setTimeout(() => {
                             try { client.removeChannel(ch); } catch (_) {}
-                        });
+                        }, 15000);
                     }
                 });
-
-                // Timeout de sécurité : nettoyer si l'abonnement prend trop longtemps
-                setTimeout(() => {
-                    try { client.removeChannel(ch); } catch (_) {}
-                }, 5000);
             } catch (err) {
                 console.warn('[DeliveryTracker] _sendUserRingSignal error:', err);
             }
+        }
+
+        /**
+         * Envoie un signal pour fermer le toast si l'appelant raccroche avant que le destinataire réponde.
+         */
+        _sendUserCancelSignal(targetUserId) {
+            try {
+                const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+                if (!client || !targetUserId) return;
+
+                const channelName = `user-ring:${targetUserId}`;
+                const ch = client.channel(channelName);
+                ch.subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        ch.send({
+                            type: 'broadcast',
+                            event: 'cancel-call',
+                            payload: { orderId: this.orderId }
+                        }).catch(() => {});
+
+                        setTimeout(() => {
+                            try { client.removeChannel(ch); } catch (_) {}
+                        }, 3000);
+                    }
+                });
+            } catch (_) {}
         }
 
 

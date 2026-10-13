@@ -5042,6 +5042,26 @@
                 try { sessionStorage.removeItem('newket_active_call'); } catch (_) {}
             }
         });
+
+        // Décrocher automatique : ouvre la modale si l'utilisateur arrive depuis le toast d'appel (?order=...)
+        (function autoOpenOrderFromQuery() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const orderId = params.get('order') || params.get('order_id');
+                if (!orderId) return;
+
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (typeof openOrderModal === 'function') {
+                        clearInterval(checkInterval);
+                        openOrderModal(orderId);
+                    } else if (attempts >= 50) {
+                        clearInterval(checkInterval);
+                    }
+                }, 200);
+            } catch (_) {}
+        })();
     </script>
 </body>
 

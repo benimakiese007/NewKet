@@ -22,6 +22,7 @@ import './pull-to-refresh.js';
 import './search.js';
 import './components-loader.js';
 import './main.js';
+import './call-notifier.js';
 
 const isLocalHost =
     window.location.hostname === 'localhost' ||
