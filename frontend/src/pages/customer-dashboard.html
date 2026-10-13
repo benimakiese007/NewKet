@@ -3512,32 +3512,7 @@
             }
         }
 
-        async function openOrderModal(id) {
-            // On part d'abord des donnÃ©es en cache pour afficher le modal immÃ©diatement
-            let order = OrderManager.getOrders().find(o => o.id === id);
-            if (!order) return;
-            currentSelectedOrder = order;
-            if (releaseCountdownTimer) {
-                clearInterval(releaseCountdownTimer);
-                releaseCountdownTimer = null;
-            }
-
-            // Puis on recharge la commande fraÃ®che depuis le backend pour obtenir l'OTP Ã  jour
-            try {
-                if (window.ApiClient) {
-                    const fresh = await ApiClient.get(`/orders/${id}`);
-                    if (fresh && fresh.id) {
-                        order = fresh;
-                        currentSelectedOrder = fresh;
-                        // Mettre Ã  jour le cache mÃ©moire
-                        const idx = OrderManager.data?.findIndex?.(o => o.id === id);
-                        if (idx !== undefined && idx !== -1) OrderManager.data[idx] = fresh;
-                    }
-                }
-            } catch (e) {
-                console.warn('[OTP] Impossible de recharger la commande depuis le backend:', e.message);
-            }
-
+        function renderOrderModalDetails(order) {
             document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
             document.getElementById('modalOrderDateText').textContent = new Date(order.date).toLocaleDateString('fr-FR', {
                 year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -3572,7 +3547,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500">QuantitÃ©: ${item.quantity} Ã© ${fmtModal(item.price)}</div>
+                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} × ${fmtModal(item.price)}</div>
                     </div>
                     <div class="text-sm font-bold text-right">${fmtModal(item.price * item.quantity)}</div>
                 </div>
@@ -3632,9 +3607,6 @@
 
             const customerTrackingSection = document.getElementById('customerDeliveryTrackingSection');
             if (customerTrackingSection) customerTrackingSection.classList.add('hidden');
-            if (window.deliveryTrackerInstance) {
-                window.deliveryTrackerInstance.destroy();
-            }
 
             escrowSection.classList.add('hidden');
             otpSection.classList.add('hidden');
@@ -3656,13 +3628,13 @@
                 const quote = order.latest_delivery_quote || {
                     delivery_fee_amount: order.delivery_fee_amount || 0,
                     estimated_delay_hours: 24,
-                    note: 'Le vendeur a proposÃ© un devis de livraison.'
+                    note: 'Le vendeur a proposé un devis de livraison.'
                 };
                 escrowSection.classList.remove('hidden');
                 quoteSummarySection.classList.remove('hidden');
                 document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, parseFloat(order?.items?.[0]?.custom_exchange_rate || 0) || null) : quote.delivery_fee_amount;
                 document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
-                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposÃ© un devis de livraison.';
+                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposé un devis de livraison.';
                 btnAcceptQuote.classList.remove('hidden');
                 btnRejectQuote.classList.remove('hidden');
             } else if (order.status === 'READY_FOR_PAYMENT') {
@@ -3673,12 +3645,12 @@
                     const customRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
                     document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, customRate > 0 ? customRate : null) : quote.delivery_fee_amount;
                     document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
-                    document.getElementById('quoteNote').textContent = quote.note || 'Devis acceptÃ©. Vous pouvez maintenant payer.';
+                    document.getElementById('quoteNote').textContent = quote.note || 'Devis accepté. Vous pouvez maintenant payer.';
                 } else {
                     const fallbackRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
                     document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0), undefined, true, fallbackRate > 0 ? fallbackRate : null);
-                    document.getElementById('quoteDelay').textContent = 'ConfirmÃ©';
-                    document.getElementById('quoteNote').textContent = 'Le devis a Ã©tÃ© acceptÃ©. Le paiement est maintenant en sÃ©questre.';
+                    document.getElementById('quoteDelay').textContent = 'Confirmé';
+                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement est maintenant en séquestre.';
                 }
                 btnPayOrder.classList.remove('hidden');
             } else if (order.status === 'PAID_HELD') {
@@ -3698,17 +3670,18 @@
                         ? Math.round((releaseAt.getTime() - new Date(order.delivered_at).getTime()) / (1000 * 60 * 60)) 
                         : 72;
                     if (releaseCountdown) {
-                        releaseCountdown.textContent = diffMs === null ? 'DÃ©lai Ã  dÃ©finir' : formatReleaseCountdown(diffMs);
+                        releaseCountdown.textContent = diffMs === null ? 'Délai à définir' : formatReleaseCountdown(diffMs);
                     }
                     if (releaseDelayHint) {
                         releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
                             ? (diffMs > 0
-                                ? `LibÃ©ration automatique sous ${totalHours}h aprÃ¨s la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
-                                : 'Le dÃ©lai est Ã©coulÃ©. Les fonds peuvent Ãªtre libÃ©rÃ©s immÃ©diatement.')
-                            : 'La libÃ©ration automatique sera affichÃ©e dÃ¨s que le dÃ©lai sera enregistrÃ©.';
+                                ? `Libération automatique sous ${totalHours}h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
+                            : 'La libération automatique sera affichée dès que le délai sera enregistré.';
                     }
                 };
                 updateReleaseCountdown();
+                if (releaseCountdownTimer) clearInterval(releaseCountdownTimer);
                 releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 1000);
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
@@ -3719,10 +3692,10 @@
                 btnDispute.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
-                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÃˆS avoir reÃ§u et vÃ©rifiÃ© le produit.";
+                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
                 }
 
-                // DÃ©marrage du tracking en direct cÃ´tÃ© client
+                // Démarrage du tracking en direct côté client
                 if (window.DeliveryTracker) {
                     const initialCoords = (order.customer_lat && order.customer_lng) ? { lat: Number(order.customer_lat), lng: Number(order.customer_lng) } : null;
                     const peerName = order.vendor?.company_name || order.vendor?.name || 'Vendeur';
@@ -3739,27 +3712,27 @@
                         && window.deliveryTrackerInstance.callState 
                         && window.deliveryTrackerInstance.callState !== 'idle';
 
-                    if (!isSameOrderCallActive) {
+                    const isAlreadyTrackingSameOrder = window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === order.id;
+
+                    if (!isSameOrderCallActive && !isAlreadyTrackingSameOrder) {
                         if (window.deliveryTrackerInstance) {
                             window.deliveryTrackerInstance.destroy();
                         }
                         window.deliveryTrackerInstance = new window.DeliveryTracker();
+                        window.deliveryTrackerInstance.start({
+                            orderId: order.id,
+                            role: 'customer',
+                            container: '#customerDeliveryTrackingContainer',
+                            initialCustomerCoords: initialCoords,
+                            peerName,
+                            peerAvatar,
+                            myName,
+                            myAvatar,
+                            peerUserId
+                        });
                     }
-
-                    window.deliveryTrackerInstance.start({
-                        orderId: order.id,
-                        role: 'customer',
-                        container: '#customerDeliveryTrackingContainer',
-                        initialCustomerCoords: initialCoords,
-                        peerName,
-                        peerAvatar,
-                        myName,
-                        myAvatar,
-                        peerUserId
-                    });
                 }
             }
-
 
             if (order.status === 'DISPUTE_OPEN' || order.status === 'DISPUTED' || order.status === 'FROZEN') {
                 document.getElementById('modalDisputeChatSection').classList.remove('hidden');
@@ -3767,10 +3740,51 @@
             } else {
                 document.getElementById('modalDisputeChatSection').classList.add('hidden');
             }
+        }
 
-            document.getElementById('orderModal').classList.remove('hidden');
-            document.getElementById('orderModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+        async function openOrderModal(id) {
+            // 1. Ouvrir le modal IMMÉDIATEMENT à partir du cache local (0 milliseconde de latence)
+            let order = OrderManager.getOrders().find(o => o.id === id);
+            if (releaseCountdownTimer) {
+                clearInterval(releaseCountdownTimer);
+                releaseCountdownTimer = null;
+            }
+
+            if (order) {
+                currentSelectedOrder = order;
+                renderOrderModalDetails(order);
+                document.getElementById('orderModal').classList.remove('hidden');
+                document.getElementById('orderModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // 2. Recharger les données fraîches depuis le backend en arrière-plan sans bloquer l'interface
+            try {
+                if (window.ApiClient) {
+                    const fresh = await ApiClient.get(`/orders/${id}`);
+                    if (fresh && fresh.id) {
+                        const idx = OrderManager.data?.findIndex?.(o => o.id === id);
+                        if (idx !== undefined && idx !== -1) OrderManager.data[idx] = fresh;
+
+                        // Vérifier si le modal est toujours affiché pour cette commande
+                        const modalEl = document.getElementById('orderModal');
+                        const isModalVisible = modalEl && !modalEl.classList.contains('hidden') && modalEl.style.display !== 'none';
+                        if (isModalVisible && currentSelectedOrder && currentSelectedOrder.id === id) {
+                            currentSelectedOrder = fresh;
+                            renderOrderModalDetails(fresh);
+                        } else if (!order) {
+                            // Cas où l'élément n'était pas dans le cache mémoire initial
+                            currentSelectedOrder = fresh;
+                            renderOrderModalDetails(fresh);
+                            document.getElementById('orderModal').classList.remove('hidden');
+                            document.getElementById('orderModal').style.display = 'flex';
+                            document.body.style.overflow = 'hidden';
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('[OrderModal] Impossible de recharger la commande depuis le backend:', e.message);
+            }
         }
 
         function buildCustomerOrderTimelineHTML(order) {
