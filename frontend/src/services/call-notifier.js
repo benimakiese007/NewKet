@@ -232,15 +232,15 @@
                     </div>
 
                     <h3 class="text-xl sm:text-2xl font-black tracking-wide text-white mb-1.5">${_escapeHtml(callerName)}</h3>
-                    <h4 class="text-xs font-extrabold uppercase tracking-widest text-emerald-400 mb-1">APPEL ENTRANT...</h4>
-                    <p class="text-xs text-gray-400 mb-3">${_escapeHtml(subtitleText)}</p>
+                    <h4 id="dt-global-call-title" class="text-xs font-extrabold uppercase tracking-widest text-emerald-400 mb-1">APPEL ENTRANT...</h4>
+                    <p id="dt-global-call-subtitle" class="text-xs text-gray-400 mb-3">${_escapeHtml(subtitleText)}</p>
 
-                    <div class="px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-mono text-sm font-bold border border-emerald-500/20">
+                    <div id="dt-global-call-timer" class="px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-mono text-sm font-bold border border-emerald-500/20">
                         Sonnerie...
                     </div>
                 </div>
 
-                <!-- Bottom Bar: Commandes Décrocher / Raccrocher -->
+                <!-- Bottom Bar: Commandes Décrocher / Muet / Raccrocher -->
                 <div class="flex items-center justify-center gap-6 pb-6 w-full max-w-md mx-auto">
                     <!-- Answer Button -->
                     <button id="dt-global-btn-answer" type="button" class="px-7 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-emerald-500/30 transition-all cursor-pointer">
@@ -248,7 +248,13 @@
                         <span>Décrocher</span>
                     </button>
 
-                    <!-- Decline Button -->
+                    <!-- Mute Button (Masqué lors de la sonnerie, visible en appel) -->
+                    <button id="dt-global-btn-mute" type="button" class="hidden px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer">
+                        <iconify-icon id="dt-global-mute-icon" icon="solar:muted-bold" width="20"></iconify-icon>
+                        <span id="dt-global-mute-text">Muet</span>
+                    </button>
+
+                    <!-- Decline / Hangup Button -->
                     <button id="dt-global-btn-hangup" type="button" class="px-7 py-4 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold text-sm flex items-center gap-2.5 shadow-xl shadow-red-600/30 transition-all cursor-pointer">
                         <iconify-icon icon="solar:phone-dead-bold" width="22"></iconify-icon>
                         <span>Raccrocher</span>
@@ -256,7 +262,7 @@
                 </div>
             </div>
 
-            <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
+            <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté - Identique Dashboard) -->
             <div id="dt-global-call-pip" class="hidden fixed z-[99999] top-5 right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200">
                 <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                 <div id="dt-global-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
@@ -271,19 +277,25 @@
                         <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-gray-950 animate-pulse"></span>
                     </div>
 
-                    <!-- Nom & Statut -->
+                    <!-- Nom & Statut / Timer -->
                     <div class="min-w-0 flex-1 truncate">
                         <div class="text-xs font-bold text-white truncate leading-tight">${_escapeHtml(callerName)}</div>
-                        <div class="text-[11px] font-mono font-semibold text-emerald-400 leading-tight">Appel entrant...</div>
+                        <div id="dt-global-pip-timer" class="text-[11px] font-mono font-semibold text-emerald-400 leading-tight">Appel entrant...</div>
                     </div>
                 </div>
 
                 <!-- Zone Droite : Boutons d'action compacts -->
                 <div class="flex items-center gap-1.5 flex-shrink-0 pr-0.5">
+                    <!-- Décrocher mini -->
                     <button id="dt-global-pip-btn-answer" type="button" class="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Décrocher">
                         <iconify-icon icon="solar:phone-bold" width="16"></iconify-icon>
                     </button>
-                    <button id="dt-global-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Refuser">
+                    <!-- Muet mini -->
+                    <button id="dt-global-pip-btn-mute" type="button" class="hidden w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 flex items-center justify-center transition-all cursor-pointer" title="Couper le micro">
+                        <iconify-icon id="dt-global-pip-mute-icon" icon="solar:microphone-bold" width="16"></iconify-icon>
+                    </button>
+                    <!-- Raccrocher mini -->
+                    <button id="dt-global-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Raccrocher">
                         <iconify-icon icon="solar:phone-dead-bold" width="16"></iconify-icon>
                     </button>
                 </div>
@@ -309,28 +321,54 @@
             }
         });
 
-        // Actions Décrocher — WebRTC en place, SANS redirection
+        // Actions Décrocher — WebRTC in-place sans rechargement ni redirection
+        let autoDismissTimer = null;
+
         const onAnswer = () => {
-            _dismissCallUI();
+            if (autoDismissTimer) {
+                clearTimeout(autoDismissTimer);
+                autoDismissTimer = null;
+            }
+            _stopRingTone();
             _acceptCallWebRTC(data);
         };
 
-        // Actions Refuser
+        // Actions Raccrocher / Refuser
         const onDecline = () => {
-            _dismissCallUI();
+            if (autoDismissTimer) {
+                clearTimeout(autoDismissTimer);
+                autoDismissTimer = null;
+            }
+            if (_callState === 'connected' || _callState === 'incoming') {
+                _endCallWebRTC();
+            } else {
+                _dismissCallUI();
+            }
         };
 
         root.querySelector('#dt-global-btn-answer')?.addEventListener('click', onAnswer);
-        root.querySelector('#dt-global-pip-btn-answer')?.addEventListener('click', onAnswer);
+        root.querySelector('#dt-global-pip-btn-answer')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onAnswer();
+        });
 
         root.querySelector('#dt-global-btn-hangup')?.addEventListener('click', onDecline);
-        root.querySelector('#dt-global-pip-btn-hangup')?.addEventListener('click', onDecline);
+        root.querySelector('#dt-global-pip-btn-hangup')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onDecline();
+        });
+
+        root.querySelector('#dt-global-btn-mute')?.addEventListener('click', _toggleMuteWebRTC);
+        root.querySelector('#dt-global-pip-btn-mute')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            _toggleMuteWebRTC();
+        });
 
         _playRingTone();
 
-        // Auto-dismiss après 35s
-        setTimeout(() => {
-            if (_activeIncomingData) {
+        // Auto-dismiss après 35s si toujours en sonnerie
+        autoDismissTimer = setTimeout(() => {
+            if (_activeIncomingData && _callState === 'idle') {
                 _dismissCallUI();
             }
         }, 35000);
@@ -338,6 +376,7 @@
 
     function _dismissCallUI() {
         _activeIncomingData = null;
+        _callState = 'idle';
         const root = document.getElementById('newket-global-call-ui-root');
         if (root) root.remove();
         _stopRingTone();
@@ -346,7 +385,7 @@
     // ── WebRTC Engine (fonctionne sur toutes les pages, sans redirection) ─────
 
     async function _acceptCallWebRTC(data) {
-        if (_callState !== 'idle') return;
+        if (_callState === 'connected') return;
         _callState = 'incoming';
 
         const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
@@ -370,6 +409,9 @@
             _myAvatar = '';
         }
 
+        // Transition UI vers l'état connecté (identique au dashboard)
+        _switchToInCallUI();
+
         // Rejoindre le canal order pour les signaux WebRTC
         const orderId = data.orderId || '';
         if (orderId) {
@@ -383,7 +425,7 @@
             _listenOrderSignals(data);
         }
 
-        // Tenter d'établir la connexion audio
+        // Établir la connexion audio WebRTC
         try {
             _localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             _createPeerConn();
@@ -398,10 +440,8 @@
                 await _peerConnection.setLocalDescription(answer);
                 _sendOrderSignal({ type: 'answer', answer });
                 _callState = 'connected';
-                _switchToInCallUI(data);
             } else {
                 _callState = 'connected';
-                _switchToInCallUI(data);
             }
 
         } catch (err) {
@@ -473,43 +513,32 @@
         });
     }
 
-    function _switchToInCallUI(data) {
-        const callerName = _escapeHtml(data.callerName || 'Correspondant');
-        const existing = document.getElementById('nk-incall-pip');
-        if (existing) existing.remove();
+    function _switchToInCallUI() {
+        // Met à jour l'interface existante (#dt-global-call-fullscreen et #dt-global-call-pip)
+        const fullTitle = document.getElementById('dt-global-call-title');
+        const fullSubtitle = document.getElementById('dt-global-call-subtitle');
+        const btnAnswerFull = document.getElementById('dt-global-btn-answer');
+        const btnMuteFull = document.getElementById('dt-global-btn-mute');
 
-        const pip = document.createElement('div');
-        pip.id = 'nk-incall-pip';
-        pip.style.cssText = `
-            position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-            z-index: 99998; background: #111827; color: #fff;
-            padding: 10px 18px; border-radius: 999px;
-            font-family: system-ui, sans-serif; font-size: 13px; font-weight: 600;
-            display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        `;
-        pip.innerHTML = `
-            <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;animation:nkPulse 1.2s infinite"></span>
-            <span>En appel avec ${callerName}</span>
-            <span id="nk-call-timer-pip" style="color:#6ee7b7;min-width:36px">00:00</span>
-            <button id="nk-mute-btn-pip" title="Muet" style="background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">🎙️</button>
-            <button id="nk-hangup-btn-pip" title="Raccrocher" style="background:#ef4444;border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">📵</button>
-        `;
+        const btnAnswerPip = document.getElementById('dt-global-pip-btn-answer');
+        const btnMutePip = document.getElementById('dt-global-pip-btn-mute');
+        const timerPip = document.getElementById('dt-global-pip-timer');
+        const timerFull = document.getElementById('dt-global-call-timer');
 
-        if (!document.getElementById('nk-pulse-style')) {
-            const style = document.createElement('style');
-            style.id = 'nk-pulse-style';
-            style.textContent = `@keyframes nkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }`;
-            document.head.appendChild(style);
-        }
+        if (fullTitle) fullTitle.textContent = 'EN COMMUNICATION';
+        if (fullSubtitle) fullSubtitle.textContent = 'Appel vocal actif';
+        if (btnAnswerFull) btnAnswerFull.classList.add('hidden');
+        if (btnMuteFull) btnMuteFull.classList.remove('hidden');
 
-        document.body.appendChild(pip);
+        if (btnAnswerPip) btnAnswerPip.classList.add('hidden');
+        if (btnMutePip) btnMutePip.classList.remove('hidden');
 
-        pip.querySelector('#nk-hangup-btn-pip').addEventListener('click', () => _endCallWebRTC());
-        pip.querySelector('#nk-mute-btn-pip').addEventListener('click', () => _toggleMuteWebRTC(pip));
+        if (timerPip) timerPip.textContent = '00:00';
+        if (timerFull) timerFull.textContent = '00:00';
 
         _startCallTimer();
+        _updateMuteUI();
+        _setViewMode('pip');
     }
 
     function _startCallTimer() {
@@ -519,42 +548,83 @@
             _callDurationSecs++;
             const m = String(Math.floor(_callDurationSecs / 60)).padStart(2, '0');
             const s = String(_callDurationSecs % 60).padStart(2, '0');
-            const el = document.getElementById('nk-call-timer-pip');
-            if (el) el.textContent = `${m}:${s}`;
+            const formatted = `${m}:${s}`;
+            const fullTimerEl = document.getElementById('dt-global-call-timer');
+            const pipTimerEl = document.getElementById('dt-global-pip-timer');
+            if (fullTimerEl) fullTimerEl.textContent = formatted;
+            if (pipTimerEl) pipTimerEl.textContent = formatted;
         }, 1000);
     }
 
     function _stopCallTimer() {
-        if (_callTimerInterval) { clearInterval(_callTimerInterval); _callTimerInterval = null; }
+        if (_callTimerInterval) {
+            clearInterval(_callTimerInterval);
+            _callTimerInterval = null;
+        }
         _callDurationSecs = 0;
     }
 
-    function _toggleMuteWebRTC(pip) {
+    function _updateMuteUI() {
+        const fullMuteBtn = document.getElementById('dt-global-btn-mute');
+        const fullMuteText = document.getElementById('dt-global-mute-text');
+        const pipMuteBtn = document.getElementById('dt-global-pip-btn-mute');
+        const pipMuteIcon = document.getElementById('dt-global-pip-mute-icon');
+
+        if (fullMuteBtn) {
+            fullMuteBtn.classList.toggle('bg-red-600/80', _isMuted);
+            fullMuteBtn.classList.toggle('border-red-500', _isMuted);
+            fullMuteBtn.classList.toggle('bg-gray-800', !_isMuted);
+        }
+        if (fullMuteText) {
+            fullMuteText.textContent = _isMuted ? 'Micro Coupé' : 'Muet';
+        }
+
+        if (pipMuteBtn) {
+            pipMuteBtn.classList.toggle('bg-red-600', _isMuted);
+            pipMuteBtn.classList.toggle('text-white', _isMuted);
+            pipMuteBtn.classList.toggle('bg-white/10', !_isMuted);
+            pipMuteBtn.classList.toggle('text-gray-200', !_isMuted);
+        }
+        if (pipMuteIcon) {
+            pipMuteIcon.setAttribute('icon', _isMuted ? 'solar:muted-bold' : 'solar:microphone-bold');
+        }
+    }
+
+    function _toggleMuteWebRTC() {
         if (!_localStream) return;
         const track = _localStream.getAudioTracks()[0];
         if (!track) return;
         _isMuted = !_isMuted;
         track.enabled = !_isMuted;
-        const btn = pip?.querySelector('#nk-mute-btn-pip');
-        if (btn) btn.textContent = _isMuted ? '🔇' : '🎙️';
+        _updateMuteUI();
     }
 
     function _endCallWebRTC() {
         _sendOrderSignal({ type: 'hangup' });
         _stopCallTimer();
 
-        if (_peerConnection) { try { _peerConnection.close(); } catch (_) {} _peerConnection = null; }
-        if (_localStream) { _localStream.getTracks().forEach(t => t.stop()); _localStream = null; }
+        if (_peerConnection) {
+            try { _peerConnection.close(); } catch (_) {}
+            _peerConnection = null;
+        }
+        if (_localStream) {
+            _localStream.getTracks().forEach(t => t.stop());
+            _localStream = null;
+        }
         const audioEl = document.getElementById('nk-notifier-remote-audio');
         if (audioEl) audioEl.remove();
+
         if (_orderChannel) {
-            try { (window.supabaseClient || window.Supabase?.client)?.removeChannel(_orderChannel); } catch (_) {}
+            try {
+                const client = window.supabaseClient || window.Supabase?.client;
+                client?.removeChannel(_orderChannel);
+            } catch (_) {}
             _orderChannel = null;
         }
-        const pip = document.getElementById('nk-incall-pip');
-        if (pip) pip.remove();
+
         _callState = 'idle';
         _isMuted = false;
+        _dismissCallUI();
     }
 
     // ── Connexion temps réel Supabase ────────────────────────────────────────
