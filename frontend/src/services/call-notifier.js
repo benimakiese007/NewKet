@@ -16,6 +16,19 @@
     let _currentViewMode = 'fullscreen'; // 'fullscreen' | 'pip'
     let _activeIncomingData = null;
 
+    // ── WebRTC state (géré directement ici, sans delivery-tracking.js) ────────
+    let _peerConnection = null;
+    let _localStream = null;
+    let _remoteStream = null;
+    let _orderChannel = null;      // Canal Supabase order pour les signaux WebRTC
+    let _callState = 'idle';       // 'idle' | 'incoming' | 'connected'
+    let _callTimerInterval = null;
+    let _callDurationSecs = 0;
+    let _isMuted = false;
+    let _myRole = null;            // rôle de l'utilisateur courant (opposé de data.role)
+    let _myName = null;
+    let _myAvatar = null;
+
     // État du drag pour la pilule PiP
     const pipDrag = {
         isDragging: false,
@@ -25,6 +38,7 @@
         initialTop: 0,
         hasMoved: false
     };
+
 
     function _escapeHtml(str) {
         if (!str) return '';
@@ -295,24 +309,10 @@
             }
         });
 
-        // Destination : si l'appelant est 'vendor', je suis le client → customer-dashboard, et inversement
-        const targetDashboard = data.role === 'vendor'
-            ? '/customer-dashboard'
-            : '/vendor-dashboard';
-        const targetUrl = orderId
-            ? `${targetDashboard}?order=${encodeURIComponent(orderId)}`
-            : targetDashboard;
-
-        // Actions Décrocher
-        // call-notifier ne tourne JAMAIS sur le dashboard (guard ligne 12)
-        // → tout utilisateur qui décroche ici EST hors-dashboard → rediriger vers son dashboard pour WebRTC
+        // Actions Décrocher — WebRTC en place, SANS redirection
         const onAnswer = () => {
-            // 1. Afficher un toast de feedback immédiat
-            _showAnswerToast();
-            // 2. Fermer l'overlay
             _dismissCallUI();
-            // 3. Rediriger vers le dashboard après 600ms (le toast reste visible)
-            setTimeout(() => { window.location.href = targetUrl; }, 600);
+            _acceptCallWebRTC(data);
         };
 
         // Actions Refuser
@@ -343,48 +343,218 @@
         _stopRingTone();
     }
 
-    function _showAnswerToast() {
-        const existing = document.getElementById('nk-answer-toast');
+    // ── WebRTC Engine (fonctionne sur toutes les pages, sans redirection) ─────
+
+    async function _acceptCallWebRTC(data) {
+        if (_callState !== 'idle') return;
+        _callState = 'incoming';
+
+        const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+        if (!client) {
+            console.warn('[CallNotifier] Supabase client non disponible');
+            return;
+        }
+
+        // Résoudre mon rôle et mes infos depuis le localStorage / auth
+        _myRole = data.role === 'vendor' ? 'customer' : 'vendor';
+        try {
+            const { data: { user } } = await client.auth.getUser();
+            const { data: profile } = await client.from('users')
+                .select('username, avatar_url')
+                .eq('id', user?.id)
+                .single();
+            _myName = profile?.username || user?.email || 'Utilisateur';
+            _myAvatar = profile?.avatar_url || '';
+        } catch (_) {
+            _myName = 'Utilisateur';
+            _myAvatar = '';
+        }
+
+        // Rejoindre le canal order pour les signaux WebRTC
+        const orderId = data.orderId || '';
+        if (orderId) {
+            _orderChannel = client.channel(`order-tracking:${orderId}`);
+            _orderChannel.subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    _listenOrderSignals(data);
+                }
+            });
+        } else {
+            _listenOrderSignals(data);
+        }
+
+        // Tenter d'établir la connexion audio
+        try {
+            _localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            _createPeerConn();
+
+            _localStream.getTracks().forEach(track => {
+                _peerConnection.addTrack(track, _localStream);
+            });
+
+            if (data.pendingOffer) {
+                await _peerConnection.setRemoteDescription(new RTCSessionDescription(data.pendingOffer));
+                const answer = await _peerConnection.createAnswer();
+                await _peerConnection.setLocalDescription(answer);
+                _sendOrderSignal({ type: 'answer', answer });
+                _callState = 'connected';
+                _switchToInCallUI(data);
+            } else {
+                _callState = 'connected';
+                _switchToInCallUI(data);
+            }
+
+        } catch (err) {
+            console.warn('[CallNotifier] Erreur micro:', err.message);
+            _endCallWebRTC();
+        }
+    }
+
+    function _createPeerConn() {
+        _peerConnection = new RTCPeerConnection({
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+
+        _peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                _sendOrderSignal({ type: 'candidate', candidate: event.candidate });
+            }
+        };
+
+        _peerConnection.ontrack = (event) => {
+            _remoteStream = event.streams[0];
+            let audioEl = document.getElementById('nk-notifier-remote-audio');
+            if (!audioEl) {
+                audioEl = document.createElement('audio');
+                audioEl.id = 'nk-notifier-remote-audio';
+                audioEl.autoplay = true;
+                document.body.appendChild(audioEl);
+            }
+            audioEl.srcObject = _remoteStream;
+        };
+    }
+
+    function _sendOrderSignal(payload) {
+        if (!_orderChannel) return;
+        _orderChannel.send({
+            type: 'broadcast',
+            event: 'call-signal',
+            payload: {
+                role: _myRole,
+                callerName: _myName,
+                callerAvatar: _myAvatar,
+                ...payload
+            }
+        }).catch(err => console.warn('[CallNotifier] signal send error:', err));
+    }
+
+    function _listenOrderSignals(data) {
+        if (!_orderChannel) return;
+        _orderChannel.on('broadcast', { event: 'call-signal' }, async ({ payload }) => {
+            if (!payload || payload.role === _myRole) return;
+
+            if (payload.type === 'offer' && _peerConnection && !_peerConnection.remoteDescription) {
+                try {
+                    await _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.offer));
+                    const answer = await _peerConnection.createAnswer();
+                    await _peerConnection.setLocalDescription(answer);
+                    _sendOrderSignal({ type: 'answer', answer });
+                } catch (e) { console.warn('[CallNotifier] offer handling error:', e); }
+
+            } else if (payload.type === 'candidate' && _peerConnection) {
+                _peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(() => {});
+
+            } else if (payload.type === 'answer' && _peerConnection) {
+                _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer)).catch(() => {});
+
+            } else if (payload.type === 'hangup') {
+                _endCallWebRTC();
+            }
+        });
+    }
+
+    function _switchToInCallUI(data) {
+        const callerName = _escapeHtml(data.callerName || 'Correspondant');
+        const existing = document.getElementById('nk-incall-pip');
         if (existing) existing.remove();
 
-        const toast = document.createElement('div');
-        toast.id = 'nk-answer-toast';
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 99999;
-            background: #10b981;
-            color: #fff;
-            padding: 14px 24px;
-            border-radius: 14px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: system-ui, sans-serif;
-            box-shadow: 0 8px 32px rgba(16,185,129,0.4);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-            animation: nkToastIn 0.25s ease;
+        const pip = document.createElement('div');
+        pip.id = 'nk-incall-pip';
+        pip.style.cssText = `
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+            z-index: 99998; background: #111827; color: #fff;
+            padding: 10px 18px; border-radius: 999px;
+            font-family: system-ui, sans-serif; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
         `;
-        toast.innerHTML = `
-            <span style="font-size:20px">📞</span>
-            <span>Appel décroché · Connexion en cours...</span>
+        pip.innerHTML = `
+            <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;animation:nkPulse 1.2s infinite"></span>
+            <span>En appel avec ${callerName}</span>
+            <span id="nk-call-timer-pip" style="color:#6ee7b7;min-width:36px">00:00</span>
+            <button id="nk-mute-btn-pip" title="Muet" style="background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">🎙️</button>
+            <button id="nk-hangup-btn-pip" title="Raccrocher" style="background:#ef4444;border:none;color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center">📵</button>
         `;
 
-        // Inject animation keyframe once
-        if (!document.getElementById('nk-toast-style')) {
+        if (!document.getElementById('nk-pulse-style')) {
             const style = document.createElement('style');
-            style.id = 'nk-toast-style';
-            style.textContent = `@keyframes nkToastIn { from { opacity:0; transform:translateX(-50%) translateY(16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }`;
+            style.id = 'nk-pulse-style';
+            style.textContent = `@keyframes nkPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }`;
             document.head.appendChild(style);
         }
 
-        document.body.appendChild(toast);
-        // Le toast disparaît après 2.5s (la redirection a lieu à 600ms)
-        setTimeout(() => toast.remove(), 2500);
+        document.body.appendChild(pip);
+
+        pip.querySelector('#nk-hangup-btn-pip').addEventListener('click', () => _endCallWebRTC());
+        pip.querySelector('#nk-mute-btn-pip').addEventListener('click', () => _toggleMuteWebRTC(pip));
+
+        _startCallTimer();
+    }
+
+    function _startCallTimer() {
+        _stopCallTimer();
+        _callDurationSecs = 0;
+        _callTimerInterval = setInterval(() => {
+            _callDurationSecs++;
+            const m = String(Math.floor(_callDurationSecs / 60)).padStart(2, '0');
+            const s = String(_callDurationSecs % 60).padStart(2, '0');
+            const el = document.getElementById('nk-call-timer-pip');
+            if (el) el.textContent = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function _stopCallTimer() {
+        if (_callTimerInterval) { clearInterval(_callTimerInterval); _callTimerInterval = null; }
+        _callDurationSecs = 0;
+    }
+
+    function _toggleMuteWebRTC(pip) {
+        if (!_localStream) return;
+        const track = _localStream.getAudioTracks()[0];
+        if (!track) return;
+        _isMuted = !_isMuted;
+        track.enabled = !_isMuted;
+        const btn = pip?.querySelector('#nk-mute-btn-pip');
+        if (btn) btn.textContent = _isMuted ? '🔇' : '🎙️';
+    }
+
+    function _endCallWebRTC() {
+        _sendOrderSignal({ type: 'hangup' });
+        _stopCallTimer();
+
+        if (_peerConnection) { try { _peerConnection.close(); } catch (_) {} _peerConnection = null; }
+        if (_localStream) { _localStream.getTracks().forEach(t => t.stop()); _localStream = null; }
+        const audioEl = document.getElementById('nk-notifier-remote-audio');
+        if (audioEl) audioEl.remove();
+        if (_orderChannel) {
+            try { (window.supabaseClient || window.Supabase?.client)?.removeChannel(_orderChannel); } catch (_) {}
+            _orderChannel = null;
+        }
+        const pip = document.getElementById('nk-incall-pip');
+        if (pip) pip.remove();
+        _callState = 'idle';
+        _isMuted = false;
     }
 
     // ── Connexion temps réel Supabase ────────────────────────────────────────
