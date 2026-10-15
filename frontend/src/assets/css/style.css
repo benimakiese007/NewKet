@@ -357,8 +357,9 @@ button {
 
 @media (max-width: 1024px) {
   #header-placeholder {
-    min-height: calc(144px + env(safe-area-inset-top, 0px));
-    /* Fallback for mobile fixed header + search row */
+    /* Fallback dynamique : suit la hauteur réelle du header compact (64px mobile).
+       Le JS (setupHeaderSpacing) met à jour --header-height en temps réel. */
+    min-height: calc(var(--header-height, 64px) + env(safe-area-inset-top, 0px));
   }
 }
 
