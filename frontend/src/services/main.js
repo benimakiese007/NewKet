@@ -808,12 +808,18 @@ const setupIOSLiquidGlassButtons = () => {
             btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
         });
 
-        // 2. Dashboard Buttons (Menu Burger & Déconnexion)
-        const dashMenuBtn = document.getElementById('customerMobileBtn');
-        if (dashMenuBtn) {
-            dashMenuBtn.classList.add('liquid-glass-btn');
-            dashMenuBtn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
-        }
+        // 2. Dashboard Buttons (Menu Burger & Déconnexion sur Customer, Vendor, Admin)
+        const dashMenuBtns = [
+            document.getElementById('customerMobileBtn'),
+            document.getElementById('vendorMobileBtn'),
+            document.getElementById('adminMobileBtn'),
+            document.querySelector('[data-toggle-sidebar]')
+        ].filter(Boolean);
+
+        dashMenuBtns.forEach((btn) => {
+            btn.classList.add('liquid-glass-btn');
+            btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
+        });
 
         const logoutBtns = Array.from(document.querySelectorAll('[data-logout-safe]'));
         logoutBtns.forEach((btn) => {

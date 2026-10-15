@@ -2893,7 +2893,7 @@ window.showLogoutConfirm = () => {
         modal.className = 'nk-modal-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 pointer-events-none transition-opacity duration-400 opacity-0';
         
         modal.innerHTML = `
-            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[4px] pointer-events-auto transition-opacity duration-500 opacity-0" id="${modalId}-backdrop" onclick="window._closeLogoutConfirm('${modalId}', false)"></div>
+            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[4px] pointer-events-auto transition-opacity duration-500 opacity-0" id="${modalId}-backdrop"></div>
             <div class="relative bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl max-w-sm w-full pointer-events-auto border border-white/60 transform scale-95 translate-y-4 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden" id="${modalId}-content">
                 <div class="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-red-400 to-rose-600 rounded-full blur-[3rem] opacity-20 pointer-events-none"></div>
                 <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-orange-400 to-amber-500 rounded-full blur-[3rem] opacity-20 pointer-events-none"></div>
@@ -2912,12 +2912,12 @@ window.showLogoutConfirm = () => {
                     </p>
                     
                     <div class="flex flex-col gap-3 w-full">
-                        <button onclick="window._closeLogoutConfirm('${modalId}', true)" class="w-full px-5 py-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-[1.25rem] shadow-[0_8px_16px_-4px_rgba(239,68,68,0.3)] hover:shadow-[0_16px_24px_-4px_rgba(239,68,68,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-[0.98] text-[15px] flex items-center justify-center gap-2 group relative overflow-hidden">
+                        <button id="${modalId}-btn-confirm" type="button" class="w-full px-5 py-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-[1.25rem] shadow-[0_8px_16px_-4px_rgba(239,68,68,0.3)] hover:shadow-[0_16px_24px_-4px_rgba(239,68,68,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-[0.98] text-[15px] flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer">
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out skew-x-12"></div>
                             <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-1">Oui, me déconnecter</span>
                             <iconify-icon icon="solar:logout-3-bold" width="18" class="relative z-10 transition-transform duration-300 group-hover:translate-x-2 group-hover:rotate-6"></iconify-icon>
                         </button>
-                        <button onclick="window._closeLogoutConfirm('${modalId}', false)" class="w-full px-5 py-4 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-[1.25rem] transition-all duration-300 active:scale-[0.98] text-[15px] border-2 border-gray-100 hover:border-gray-200 hover:-translate-y-1 hover:shadow-md flex items-center justify-center">
+                        <button id="${modalId}-btn-cancel" type="button" class="w-full px-5 py-4 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-[1.25rem] transition-all duration-300 active:scale-[0.98] text-[15px] border-2 border-gray-100 hover:border-gray-200 hover:-translate-y-1 hover:shadow-md flex items-center justify-center cursor-pointer">
                             Rester connecté
                         </button>
                     </div>
@@ -2927,14 +2927,38 @@ window.showLogoutConfirm = () => {
 
         mountModalOverlay(modal);
 
-        // Animate in
+        // Binding explicite des événements clics et touch (résout le blocage sous WKWebView iOS)
+        const btnConfirm = document.getElementById(`${modalId}-btn-confirm`);
+        const btnCancel = document.getElementById(`${modalId}-btn-cancel`);
+        const backdrop = document.getElementById(`${modalId}-backdrop`);
+
+        const triggerConfirm = (e) => {
+            if (e) e.preventDefault();
+            window._closeLogoutConfirm(modalId, true);
+        };
+        const triggerCancel = (e) => {
+            if (e) e.preventDefault();
+            window._closeLogoutConfirm(modalId, false);
+        };
+
+        btnConfirm?.addEventListener('click', triggerConfirm);
+        btnConfirm?.addEventListener('touchend', triggerConfirm);
+
+        btnCancel?.addEventListener('click', triggerCancel);
+        btnCancel?.addEventListener('touchend', triggerCancel);
+
+        backdrop?.addEventListener('click', triggerCancel);
+        backdrop?.addEventListener('touchend', triggerCancel);
+
+        // Animate in et déverrouillage des pointer-events sur le conteneur parent
         requestAnimationFrame(() => {
-            modal.classList.remove('opacity-0');
-            const backdrop = document.getElementById(`${modalId}-backdrop`);
-            const content = document.getElementById(`${modalId}-content`);
-            if (backdrop) backdrop.classList.remove('opacity-0');
-            if (content) {
-                content.classList.remove('scale-95', 'translate-y-4', 'opacity-0');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('pointer-events-auto');
+            const bd = document.getElementById(`${modalId}-backdrop`);
+            const ct = document.getElementById(`${modalId}-content`);
+            if (bd) bd.classList.remove('opacity-0');
+            if (ct) {
+                ct.classList.remove('scale-95', 'translate-y-4', 'opacity-0');
             }
         });
 
