@@ -10711,18 +10711,18 @@ html.dark .liquid-sliding-lens {
 
 .liquid-glass-nav .nav-item iconify-icon {
   filter: none !important;
-  color: #000000 !important;
+  color: #8E8E93 !important;
   transition: color 0.2s ease !important;
 }
 
 .liquid-glass-nav .nav-item span {
   font-weight: 500 !important;
   letter-spacing: 0.01em !important;
-  color: #000000 !important;
+  color: #8E8E93 !important;
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
-/* Active Tab: icône bold (filled) + noir absolu */
+/* Active Tab: icône bold (filled) + noir absolu Apple (#000000) */
 .liquid-glass-nav .nav-item.active {
   color: #000000 !important;
   background: transparent !important;
@@ -26320,18 +26320,26 @@ video {
 }
 
 
-/* Standard bottom nav (Web / PWA / Android) item styling: noir absolu inactif et actif rempli (bold) */
+/* Standard bottom nav (Web / PWA / Android) item styling: gris Apple #8E8E93 inactif et actif noir #000000 rempli (bold) */
 .standard-bottom-nav .nav-item {
-  color: #000000 !important;
+  color: #8E8E93 !important;
 }
 .standard-bottom-nav .nav-item iconify-icon {
-  color: #000000 !important;
+  color: #8E8E93 !important;
+  transition: color 0.2s ease !important;
+}
+.standard-bottom-nav .nav-item span {
+  color: #8E8E93 !important;
+  transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 .standard-bottom-nav .nav-item.active {
   color: #000000 !important;
   font-weight: 700 !important;
 }
 .standard-bottom-nav .nav-item.active iconify-icon {
+  color: #000000 !important;
+}
+.standard-bottom-nav .nav-item.active span {
   color: #000000 !important;
 }
 html.dark .standard-bottom-nav .nav-item {
