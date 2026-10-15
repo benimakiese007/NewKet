@@ -873,46 +873,76 @@ const setupIOSLiquidGlassDragGesture = () => {
             const isMatch = it === item;
             it.classList.toggle('active', isMatch);
         });
-        // Petit clic haptique quand le doigt traverse un nouvel onglet
+        // Clic haptique Taptic Engine natif Apple au franchissement d'un onglet
         window.NewKetHaptics.trigger('light');
     };
 
-    nav.addEventListener('touchstart', (e) => {
-        if (e.touches.length !== 1) return;
-        const touch = e.touches[0];
-        const target = findClosestItem(touch.clientX);
+    const handleStart = (clientX, pointerId = null) => {
+        const target = findClosestItem(clientX);
         if (!target) return;
 
         isDragging = true;
+        // 🍏 iOS 26 Rubber Band: la barre entière grossit vers le haut avec rebond élastique
+        nav.classList.add('pressed');
         slider.classList.add('is-dragging');
         lastHighlightedItem = null;
         highlightItem(target);
 
+        if (pointerId !== null && typeof nav.setPointerCapture === 'function') {
+            try { nav.setPointerCapture(pointerId); } catch (_) {}
+        }
+
         const navRect = nav.getBoundingClientRect();
         const itemRect = target.getBoundingClientRect();
-        const leftOffset = Math.max(0, Math.min(touch.clientX - navRect.left - itemRect.width / 2, navRect.width - itemRect.width));
+        const leftOffset = Math.max(0, Math.min(clientX - navRect.left - itemRect.width / 2, navRect.width - itemRect.width));
         slider.style.width = `${itemRect.width}px`;
-        slider.style.transform = `translateX(${leftOffset}px)`;
-    }, { passive: true });
+        slider.style.transform = `translateX(${leftOffset}px) scale(1.08)`;
+    };
 
-    nav.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length !== 1) return;
-        const touch = e.touches[0];
+    const handleMove = (clientX) => {
+        if (!isDragging) return;
         const navRect = nav.getBoundingClientRect();
-        const target = findClosestItem(touch.clientX);
+        const target = findClosestItem(clientX);
         if (target) {
             highlightItem(target);
-            const itemRect = target.getBoundingClientRect();
-            // La pastille suit le centre du doigt
-            const leftOffset = Math.max(0, Math.min(touch.clientX - navRect.left - itemRect.width / 2, navRect.width - itemRect.width));
-            slider.style.width = `${itemRect.width}px`;
-            slider.style.transform = `translateX(${leftOffset}px)`;
         }
-    }, { passive: true });
 
-    const handleTouchEnd = () => {
+        const items = getItems();
+        const activeItem = target || lastHighlightedItem || items[0];
+        const itemWidth = activeItem ? activeItem.getBoundingClientRect().width : (navRect.width / (items.length || 4));
+        const rawOffset = clientX - navRect.left - itemWidth / 2;
+        const maxOffset = navRect.width - itemWidth;
+
+        let currentOffset = rawOffset;
+        let scaleX = 1.06;
+        let scaleY = 1.04;
+
+        // 🍏 Vraie formule Apple Rubber-Band (UIScrollView dampening curve)
+        if (rawOffset < 0) {
+            // Dépassement à gauche : résistance progressive + écrasement/étirement liquide
+            const overflow = -rawOffset;
+            const rubberOffset = -(overflow * 0.45) / (1 + overflow / 120);
+            currentOffset = rubberOffset;
+            scaleX = 1.06 + Math.min(0.25, overflow / 250);
+            scaleY = Math.max(0.85, 1.04 - overflow / 500);
+        } else if (rawOffset > maxOffset) {
+            // Dépassement à droite : résistance progressive + étirement liquide
+            const overflow = rawOffset - maxOffset;
+            const rubberOffset = maxOffset + (overflow * 0.45) / (1 + overflow / 120);
+            currentOffset = rubberOffset;
+            scaleX = 1.06 + Math.min(0.25, overflow / 250);
+            scaleY = Math.max(0.85, 1.04 - overflow / 500);
+        }
+
+        slider.style.width = `${itemWidth}px`;
+        slider.style.transform = `translateX(${currentOffset}px) scale(${scaleX}, ${scaleY})`;
+    };
+
+    const handleEnd = () => {
         if (!isDragging) return;
         isDragging = false;
+        // 🍏 Relâchement : la barre et la pastille reprennent leur taille avec rebond élastique cubic-bezier
+        nav.classList.remove('pressed');
         slider.classList.remove('is-dragging');
 
         if (lastHighlightedItem) {
@@ -921,22 +951,49 @@ const setupIOSLiquidGlassDragGesture = () => {
             const itemRect = lastHighlightedItem.getBoundingClientRect();
             const leftOffset = itemRect.left - navRect.left;
             slider.style.width = `${itemRect.width}px`;
-            slider.style.transform = `translateX(${leftOffset}px)`;
+            slider.style.transform = `translateX(${leftOffset}px) scale(1)`;
+
+            window.NewKetHaptics.trigger('light');
 
             // Déclenche l'action de l'onglet
             const href = lastHighlightedItem.getAttribute('href');
             if (href && href !== '#' && !href.startsWith('javascript:')) {
                 setTimeout(() => {
                     window.location.href = href;
-                }, 120);
+                }, 140);
             } else {
                 lastHighlightedItem.click();
             }
         }
     };
 
-    nav.addEventListener('touchend', handleTouchEnd, { passive: true });
-    nav.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    // Pointer Events modernes
+    nav.addEventListener('pointerdown', (e) => {
+        if (e.isPrimary === false) return;
+        handleStart(e.clientX, e.pointerId);
+    });
+
+    nav.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        handleMove(e.clientX);
+    });
+
+    nav.addEventListener('pointerup', handleEnd);
+    nav.addEventListener('pointercancel', handleEnd);
+
+    // Fallback Touch Events pour iOS WKWebView
+    nav.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        handleStart(e.touches[0].clientX);
+    }, { passive: true });
+
+    nav.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        handleMove(e.touches[0].clientX);
+    }, { passive: true });
+
+    nav.addEventListener('touchend', handleEnd, { passive: true });
+    nav.addEventListener('touchcancel', handleEnd, { passive: true });
 };
 
 window.addEventListener('DOMContentLoaded', setupIOSLiquidGlassButtons);
