@@ -7,9 +7,7 @@
     'use strict';
 
     const currentPath = window.location.pathname;
-    // Sur les dashboards, delivery-tracking.js gère déjà nativement l'appel WebRTC
     const isOnDashboard = currentPath.includes('customer-dashboard') || currentPath.includes('vendor-dashboard');
-    if (isOnDashboard) return;
 
     let _ringCtx = null;
     let _ringInterval = null;
@@ -627,6 +625,140 @@
         _dismissCallUI();
     }
 
+    // ── Toast In-App pour messages de chat et vocaux ─────────────────────────
+    let _activeChatToast = null;
+    let _chatToastTimeout = null;
+
+    function _playChatDingSound() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
+            setTimeout(() => { try { ctx.close(); } catch (_) {} }, 500);
+        } catch (_) {}
+    }
+
+    function _dismissChatMessageToast() {
+        if (_chatToastTimeout) {
+            clearTimeout(_chatToastTimeout);
+            _chatToastTimeout = null;
+        }
+        if (_activeChatToast) {
+            _activeChatToast.classList.add('opacity-0', '-translate-y-4');
+            const el = _activeChatToast;
+            setTimeout(() => {
+                try { el.remove(); } catch (_) {}
+            }, 300);
+            _activeChatToast = null;
+        }
+    }
+
+    function _showChatMessageToast(payload) {
+        _dismissChatMessageToast();
+
+        const senderName = payload.senderName || (payload.role === 'vendor' ? 'Vendeur' : 'Client');
+        const senderAvatar = payload.senderAvatar || '';
+        const orderId = payload.orderId || '';
+        const isAudio = payload.messageType === 'audio';
+        const preview = isAudio 
+            ? `🎙️ Message vocal (${payload.duration || '0:18'})` 
+            : (_escapeHtml(payload.text || 'Nouveau message'));
+
+        const initials = (senderName.charAt(0) || 'U').toUpperCase();
+
+        const toast = document.createElement('div');
+        toast.id = 'dt-chat-toast-pill';
+        toast.className = 'fixed z-[99999] top-5 right-4 w-[330px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
+
+        toast.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <!-- Avatar miniature -->
+                <div class="relative flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-800 border-2 border-emerald-400/90 flex items-center justify-center text-xs font-bold text-emerald-400 shadow-sm">
+                        ${senderAvatar 
+                            ? `<img src="${senderAvatar}" class="w-full h-full object-cover" alt="Avatar" />` 
+                            : `<span>${initials}</span>`
+                        }
+                    </div>
+                    <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-gray-950"></span>
+                </div>
+
+                <!-- Text & Message Preview -->
+                <div class="min-w-0 flex-1 pr-1.5">
+                    <div class="flex items-center justify-between gap-1">
+                        <span class="text-xs font-bold text-white truncate leading-tight">${_escapeHtml(senderName)}</span>
+                        <span class="text-[10px] text-emerald-400 font-medium shrink-0">À l'instant</span>
+                    </div>
+                    <div class="text-[11px] ${isAudio ? 'text-emerald-400 font-semibold' : 'text-gray-300'} truncate leading-tight mt-0.5">
+                        ${preview}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton de fermeture discret -->
+            <button id="dt-chat-toast-close" type="button" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 text-gray-400 hover:text-white flex items-center justify-center transition-all cursor-pointer flex-shrink-0 ml-1" title="Fermer">
+                <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon>
+            </button>
+        `;
+
+        // Click sur la capsule -> ouvrir le chat
+        toast.addEventListener('click', () => {
+            _dismissChatMessageToast();
+            if (orderId) {
+                if (window.location.pathname.includes('customer-dashboard')) {
+                    if (typeof window.openOrderModal === 'function') {
+                        window.openOrderModal(orderId);
+                        return;
+                    }
+                    if (typeof window.goToAchatOrder === 'function') {
+                        window.goToAchatOrder(orderId);
+                        return;
+                    }
+                    window.location.hash = `purchases?order_id=${encodeURIComponent(orderId)}&open_chat=1`;
+                    window.location.reload();
+                    return;
+                }
+                window.location.href = `/customer-dashboard#purchases?order_id=${encodeURIComponent(orderId)}&open_chat=1`;
+            }
+        });
+
+        // Click sur le bouton fermer -> stopper propagation
+        const closeBtn = toast.querySelector('#dt-chat-toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                _dismissChatMessageToast();
+            });
+        }
+
+        document.body.appendChild(toast);
+        _activeChatToast = toast;
+
+        // Animation d'apparition
+        requestAnimationFrame(() => {
+            toast.classList.remove('-translate-y-4', 'opacity-0');
+        });
+
+        // Son ding discret
+        _playChatDingSound();
+
+        // Auto-dismiss 4 secondes
+        _chatToastTimeout = setTimeout(() => {
+            _dismissChatMessageToast();
+        }, 4000);
+    }
+
     // ── Connexion temps réel Supabase ────────────────────────────────────────
     function _init() {
         let _channelSubscribed = false;
@@ -641,11 +773,29 @@
             ringChannel
                 .on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
                     console.log('[NewKet CallNotifier] incoming-call reçu sur', channelName, payload);
+                    // Si on est sur le dashboard et qu'une instance deliveryTracker est déjà active sur cette commande
+                    const isTracked = isOnDashboard && window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === payload?.orderId;
+                    if (isTracked) return;
+
                     _buildDashboardStyleCallUI(payload || {});
                 })
                 .on('broadcast', { event: 'cancel-call' }, () => {
                     console.log('[NewKet CallNotifier] cancel-call reçu');
                     _dismissCallUI();
+                })
+                .on('broadcast', { event: 'incoming-message' }, ({ payload }) => {
+                    if (!payload) return;
+                    console.log('[NewKet CallNotifier] incoming-message reçu sur', channelName, payload);
+
+                    // Si le chat pour cette commande est déjà ouvert et visible à l'écran, pas de toast
+                    const tracker = window.deliveryTrackerInstance;
+                    const chatEl = document.getElementById('dt-chat-messages');
+                    const isChatVisible = tracker && tracker.orderId === payload.orderId && chatEl && (chatEl.offsetParent !== null || chatEl.offsetHeight > 0);
+                    if (isChatVisible) {
+                        return;
+                    }
+
+                    _showChatMessageToast(payload);
                 })
                 .subscribe((status) => {
                     console.log('[NewKet CallNotifier] Subscription status:', status, channelName);

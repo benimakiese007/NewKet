@@ -88,3 +88,26 @@ export const sendCallRing = async (req, res, next) => {
     }
 };
 
+export const sendChatMessage = async (req, res, next) => {
+    try {
+        const { target_user_id, sender_name, sender_avatar, message_type, text, duration, order_id } = req.body || {};
+        if (!target_user_id || !order_id) {
+            return res.status(400).json({ error: 'Champs requis manquants (target_user_id, order_id).' });
+        }
+
+        const result = await WebPushService.sendChatMessageNotification({
+            targetUserId: target_user_id,
+            senderName: sender_name,
+            senderAvatar: sender_avatar,
+            messageType: message_type || 'text',
+            text: text || '',
+            duration: duration || '',
+            orderId: order_id
+        });
+
+        res.json({ success: true, sent: result.sent });
+    } catch (error) {
+        console.error('[PushController] sendChatMessage error:', error);
+        next(error);
+    }
+};

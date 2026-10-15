@@ -1,7 +1,7 @@
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { createHash } from 'crypto';
 
 function getHtmlPages(dir, baseDir = '') {
@@ -102,13 +102,25 @@ export default defineConfig({
       name: 'newket-service-worker-build-version',
       closeBundle() {
         const swPath = resolve(__dirname, 'dist/sw.js');
+        const customSwPath = resolve(__dirname, 'public/sw.js');
         try {
-          const source = readFileSync(swPath, 'utf8');
-          writeFileSync(
-            swPath,
-            source.replaceAll('__NEWKET_BUILD_VERSION__', buildVersion),
-            'utf8'
-          );
+          let source = readFileSync(swPath, 'utf8');
+          source = source.replaceAll('__NEWKET_BUILD_VERSION__', buildVersion);
+
+          // Inject custom push & notificationclick handlers from public/sw.js if not already present
+          if (existsSync(customSwPath) && !source.includes("event.data?.type === 'chat-message'")) {
+            const customSw = readFileSync(customSwPath, 'utf8');
+            const pushStart = customSw.indexOf("self.addEventListener('push'");
+            const fetchStart = customSw.indexOf("// Fetch Event");
+            if (pushStart !== -1) {
+              const pushHandlers = fetchStart !== -1 
+                ? customSw.slice(pushStart, fetchStart)
+                : customSw.slice(pushStart);
+              source += '\n\n/* NewKet Web Push & Notification Handlers */\n' + pushHandlers.trim() + '\n';
+            }
+          }
+
+          writeFileSync(swPath, source, 'utf8');
         } catch (err) {
           console.warn('[NewKet] Unable to stamp service worker build version:', err?.message || err);
         }

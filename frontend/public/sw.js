@@ -98,6 +98,21 @@ self.addEventListener('push', (event) => {
         return;
     }
 
+    if (options.data?.type === 'chat-message') {
+        const orderId = options.data.order_id;
+        const chatOptions = {
+            ...options,
+            tag: `chat-${orderId}`,
+            requireInteraction: false,
+            vibrate: [250, 100, 250],
+            actions: [
+                { action: 'open', title: '💬 Ouvrir le chat' }
+            ]
+        };
+        event.waitUntil(self.registration.showNotification(title, chatOptions));
+        return;
+    }
+
     event.waitUntil(self.registration.showNotification(title, options));
 });
 

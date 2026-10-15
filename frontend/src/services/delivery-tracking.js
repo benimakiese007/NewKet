@@ -578,6 +578,16 @@
                     if (error) console.warn('[DeliveryTracker] Chat message DB save error:', error.message);
                 }).catch(() => {});
             }
+
+            // 4. In-app realtime notification sur canal user-ring (si peerUserId)
+            if (this.peerUserId) {
+                this._sendUserChatMessageSignal({ messageType: 'text', text: message });
+            }
+
+            // 5. Push notification de secours (si le destinataire est hors de l'application)
+            if (this.peerUserId) {
+                this._sendChatPushNotification({ messageType: 'text', text: message });
+            }
         }
 
         /**
@@ -796,6 +806,19 @@
                     }).then(({ error }) => {
                         if (error) console.warn('[DeliveryTracker] Voice note DB save error:', error.message);
                     }).catch(() => {});
+                }
+
+                const totalDur = result.duration || durationSec;
+                const formattedDur = `${Math.floor(totalDur / 60)}:${String(totalDur % 60).padStart(2, '0')}`;
+
+                // 4. In-app realtime notification sur canal user-ring
+                if (this.peerUserId) {
+                    this._sendUserChatMessageSignal({ messageType: 'audio', duration: formattedDur });
+                }
+
+                // 5. Push notification de secours
+                if (this.peerUserId) {
+                    this._sendChatPushNotification({ messageType: 'audio', duration: formattedDur });
                 }
             } catch (err) {
                 console.error('[DeliveryTracker] Failed to upload/send voice note:', err);
@@ -1220,6 +1243,74 @@
                 });
             } catch (_) {}
         }
+
+        /**
+         * Envoie un signal de message entrant sur le canal user-ring du destinataire
+         * pour afficher le toast in-app s'il est sur une autre page de l'application.
+         */
+        _sendUserChatMessageSignal({ messageType, text = '', duration = '' }) {
+            try {
+                const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
+                if (!client || !this.peerUserId) return;
+
+                const channelName = `user-ring:${this.peerUserId}`;
+                const ch = client.channel(channelName);
+
+                ch.subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        const payload = {
+                            senderName: this.myName,
+                            senderAvatar: this.myAvatar,
+                            messageType,
+                            text,
+                            duration,
+                            orderId: this.orderId,
+                            role: this.role
+                        };
+                        ch.send({
+                            type: 'broadcast',
+                            event: 'incoming-message',
+                            payload
+                        }).catch(() => {});
+
+                        setTimeout(() => {
+                            try { client.removeChannel(ch); } catch (_) {}
+                        }, 5000);
+                    }
+                });
+            } catch (err) {
+                console.warn('[DeliveryTracker] _sendUserChatMessageSignal error:', err);
+            }
+        }
+
+        /**
+         * Envoie une notification Web Push au destinataire s'il est hors de l'application.
+         */
+        async _sendChatPushNotification({ messageType, text = '', duration = '' }) {
+            try {
+                const sessionData = await window.supabaseClient?.auth?.getSession();
+                const token = sessionData?.data?.session?.access_token;
+                if (!token || !this.peerUserId) return;
+
+                fetch('/api/push/chat-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        target_user_id: this.peerUserId,
+                        sender_name: this.myName,
+                        sender_avatar: this.myAvatar,
+                        message_type: messageType,
+                        text,
+                        duration,
+                        order_id: this.orderId
+                    })
+                }).catch(() => {});
+            } catch (_) {}
+        }
+
 
 
         _handleCallSignal(data) {

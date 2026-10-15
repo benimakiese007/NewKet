@@ -232,6 +232,44 @@ const WebPushService = {
             console.error('[WebPush] sendCallRingNotification error:', err);
             return { sent: 0 };
         }
+    },
+
+    async sendChatMessageNotification({ targetUserId, senderName, senderAvatar, messageType, text, duration, orderId }) {
+        if (!isConfigured || !targetUserId) return { sent: 0 };
+
+        try {
+            const { data: subs, error } = await supabaseAdmin
+                .from('push_subscriptions')
+                .select('endpoint, subscription')
+                .eq('user_id', targetUserId)
+                .is('revoked_at', null);
+
+            if (error || !subs || subs.length === 0) return { sent: 0 };
+
+            const body = messageType === 'audio'
+                ? `🎙️ Message vocal (${duration || '0:00'})`
+                : (text || '');
+
+            const payload = {
+                title: senderName || 'NewKet',
+                body,
+                icon: senderAvatar || '/Images/Logo NewKet PNG-192.png',
+                badge: '/favicon-32x32.png',
+                tag: `chat-${orderId}`,
+                requireInteraction: false,
+                data: {
+                    type: 'chat-message',
+                    order_id: orderId,
+                    url: `/customer-dashboard#purchases?order_id=${encodeURIComponent(orderId)}&open_chat=1`
+                }
+            };
+
+            const results = await Promise.all(subs.map(row => sendRow(row, payload)));
+            return { sent: results.filter(Boolean).length };
+        } catch (err) {
+            console.error('[WebPush] sendChatMessageNotification error:', err);
+            return { sent: 0 };
+        }
     }
 };
 
