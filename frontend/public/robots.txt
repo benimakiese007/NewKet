@@ -22,4 +22,4 @@ Disallow: /achat
 # API — ne pas indexer
 Disallow: /api/
 
-Sitemap: https://newket.market/sitemap.xml
+Sitemap: https://newket.vercel.app/sitemap.xml
