@@ -26320,13 +26320,31 @@ video {
 }
 
 
-/* Standard bottom nav (Web / PWA / Android) active item styling - simple color accent, no bubble */
+/* Standard bottom nav (Web / PWA / Android) item styling: noir absolu inactif et actif rempli (bold) */
+.standard-bottom-nav .nav-item {
+  color: #000000 !important;
+}
+.standard-bottom-nav .nav-item iconify-icon {
+  color: #000000 !important;
+}
 .standard-bottom-nav .nav-item.active {
-  color: #0A4A2E !important;
-  font-weight: 600;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+.standard-bottom-nav .nav-item.active iconify-icon {
+  color: #000000 !important;
+}
+html.dark .standard-bottom-nav .nav-item {
+  color: #FFFFFF !important;
+}
+html.dark .standard-bottom-nav .nav-item iconify-icon {
+  color: #FFFFFF !important;
 }
 html.dark .standard-bottom-nav .nav-item.active {
-  color: #34D399 !important;
+  color: #FFFFFF !important;
+}
+html.dark .standard-bottom-nav .nav-item.active iconify-icon {
+  color: #FFFFFF !important;
 }
 .standard-bottom-nav .nav-indicator {
   display: none !important;
