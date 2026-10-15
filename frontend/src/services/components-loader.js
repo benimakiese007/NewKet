@@ -40,19 +40,13 @@ const HEADER_HTML = `
                         <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
                     </div>
 
-                    <!-- Notifications Icon (Mobile) -->
-                    <a href="{{ROOT}}notifications" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
-                        title="Notifications" aria-label="Voir les notifications">
-                        <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
-                        <span class="notification-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
-                    </a>
-
-                    <!-- Favorites Icon (Mobile) -->
-                    <a href="{{ROOT}}favorites" class="header-icon-button admin-hidden relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
-                        title="Favoris" aria-label="Voir les favoris">
-                        <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
-                        <span class="favorites-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
-                    </a>
+                    <!-- Search Icon (Mobile) — toggle la search bar -->
+                    <button id="mobileHeaderSearchBtn"
+                        class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Rechercher" aria-label="Rechercher"
+                        onclick="const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput')?.focus(), 50);">
+                        <iconify-icon icon="solar:magnifer-linear" width="22" class="text-white"></iconify-icon>
+                    </button>
                 </div>
             </div>
 
@@ -424,11 +418,68 @@ const isIOSCapacitor = () => {
     }
 };
 
-const getBottomNavHTML = (role) => {
+const getBottomNavHTML = (role, isGuest = false) => {
     const isSeller = role === 'seller' || role === 'supplier';
-    const isAdmin = role === 'admin';
+    const isAdmin  = role === 'admin';
     const useLiquidGlass = isIOSCapacitor();
 
+    // ── Item 3 : Boutiques (défaut) | Vendre (seller) ──────────────────────
+    const item3_lg = isSeller
+        ? `<a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Vendre" data-track-action="navigation:publish_click">
+        <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Vendre</span>
+    </a>`
+        : `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
+        <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Boutiques</span>
+    </a>`;
+
+    const item3_std = isSeller
+        ? `<a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Vendre" data-track-action="navigation:publish_click">
+            <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
+            <span>Vendre</span>
+        </a>`
+        : `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Boutiques">
+            <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
+            <span>Boutiques</span>
+        </a>`;
+
+    // ── Item 4 : Notifs (admin) | Panier→login (invité) | Panier→drawer (buyer/seller) ──
+    const item4_lg = isAdmin
+        ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Notifications">
+        <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Notifs</span>
+    </a>`
+        : isGuest
+        ? `<a href="{{ROOT}}login" data-bottom-nav-item="cart" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
+        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Panier</span>
+    </a>`
+        : `<a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
+        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
+        <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
+        <span class="text-[9px] font-medium tracking-wide">Panier</span>
+    </a>`;
+
+    const item4_std = isAdmin
+        ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Notifications">
+            <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+            <span>Notifs</span>
+        </a>`
+        : isGuest
+        ? `<a href="{{ROOT}}login" data-bottom-nav-item="cart" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Panier">
+            <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
+            <span>Panier</span>
+        </a>`
+        : `<a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Panier">
+            <div class="relative flex items-center justify-center">
+                <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
+                <span class="cart-badge absolute -top-1 -right-2 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
+            </div>
+            <span>Panier</span>
+        </a>`;
+
+    // ── Liquid Glass (iOS Capacitor uniquement) ─────────────────────────────
     if (useLiquidGlass) {
         return `<!-- Liquid Glass Bottom Navbar (iOS Capacitor Only) -->
 <nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-3 sm:hidden rounded-[32px] w-[calc(100%-32px)] left-[16px] h-[62px]" style="bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 4px));">
@@ -436,65 +487,36 @@ const getBottomNavHTML = (role) => {
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>
     </a>
-    <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Recherche">
-        <iconify-icon icon="solar:magnifer-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Recherche</span>
+    <a href="{{ROOT}}catalog" data-bottom-nav-item="catalog" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Catalogue">
+        <iconify-icon icon="solar:shop-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Catalogue</span>
     </a>
-    ${isSeller ? `
-    <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Publier" data-track-action="navigation:publish_click">
-        <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Publier</span>
-    </a>` : `
-    <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
-        <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Boutique</span>
-    </a>`}
-    ${!isAdmin ? `
-    <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
-        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
-        <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
-        <span class="text-[9px] font-medium tracking-wide">Panier</span>
-    </a>` : ''}
-    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Profil">
+    ${item3_lg}
+    ${item4_lg}
+    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Compte">
         <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Profil</span>
+        <span class="text-[9px] font-medium tracking-wide">Compte</span>
     </a>
 </nav>`;
     }
 
-    // Classic / Standard Bottom Nav Bar (Web, PWA, Android)
+    // ── Standard (Web / PWA / Android) ─────────────────────────────────────
     return `<!-- Standard Mobile Bottom Navbar (Web / PWA / Android) -->
 <nav id="mobileBottomNav" class="standard-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200/60 dark:border-gray-700/60 sm:hidden transition-transform duration-300" style="padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);">
     <div class="relative flex items-stretch justify-around h-[62px] overflow-hidden">
-        
         <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Accueil">
             <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
             <span>Accueil</span>
         </a>
-        <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Recherche">
-            <iconify-icon icon="solar:magnifer-linear" width="22"></iconify-icon>
-            <span>Recherche</span>
+        <a href="{{ROOT}}catalog" data-bottom-nav-item="catalog" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Catalogue">
+            <iconify-icon icon="solar:shop-linear" width="22"></iconify-icon>
+            <span>Catalogue</span>
         </a>
-        ${isSeller ? `
-        <a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Publier" data-track-action="navigation:publish_click">
-            <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
-            <span>Publier</span>
-        </a>` : `
-        <a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Boutiques">
-            <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
-            <span>Boutique</span>
-        </a>`}
-        ${!isAdmin ? `
-        <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Panier">
-            <div class="relative flex items-center justify-center">
-                <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
-                <span class="cart-badge absolute -top-1 -right-2 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
-            </div>
-            <span>Panier</span>
-        </a>` : ''}
-        <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Profil">
+        ${item3_std}
+        ${item4_std}
+        <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Compte">
             <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
-            <span>Profil</span>
+            <span>Compte</span>
         </a>
     </div>
 </nav>`;
@@ -563,12 +585,14 @@ const ComponentLoader = {
             }
             
             let userRole = 'buyer';
+            let isGuest  = false;
             try {
                 userRole = localStorage.getItem('newketRole') || 'buyer';
+                isGuest  = !localStorage.getItem('newketUserId');
             } catch (e) {}
 
             componentsToLoad.push(
-                this.loadComponent('mobile-nav-placeholder', '', getBottomNavHTML(userRole))
+                this.loadComponent('mobile-nav-placeholder', '', getBottomNavHTML(userRole, isGuest))
             );
         }
 
