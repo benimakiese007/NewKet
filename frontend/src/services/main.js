@@ -820,7 +820,117 @@ const setupIOSLiquidGlassButtons = () => {
             btn.classList.add('liquid-glass-btn-danger');
             btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('medium'), { passive: true });
         });
+
+        // 3. Bottom Nav Gesture Glissement au doigt (Swipe / Drag interactif)
+        setupIOSLiquidGlassDragGesture();
     } catch (_) {}
+};
+
+/**
+ * 🍏 Gesture Glissement Continu Apple (Drag & Magnetic Snap)
+ * Permet à l'utilisateur de poser son doigt et de glisser librement sur la barre
+ * pour que la pastille de verre suive le doigt en temps réel, avec retour haptique
+ * à chaque passage d'onglet et aimantation magnétique finale au relâchement.
+ */
+const setupIOSLiquidGlassDragGesture = () => {
+    const nav = document.getElementById('mobileBottomNav');
+    const slider = document.getElementById('liquidGlassSlider');
+    if (!nav || !slider || nav.dataset.dragInitialized === 'true') return;
+    nav.dataset.dragInitialized = 'true';
+
+    let isDragging = false;
+    let lastHighlightedItem = null;
+
+    const getItems = () => Array.from(nav.querySelectorAll('[data-bottom-nav-item]'));
+
+    const findClosestItem = (clientX) => {
+        const items = getItems();
+        let closest = null;
+        let minDistance = Infinity;
+
+        items.forEach((item) => {
+            const rect = item.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const dist = Math.abs(clientX - centerX);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closest = item;
+            }
+        });
+        return closest;
+    };
+
+    const highlightItem = (item) => {
+        if (!item || item === lastHighlightedItem) return;
+        lastHighlightedItem = item;
+        getItems().forEach((it) => {
+            const isMatch = it === item;
+            it.classList.toggle('active', isMatch);
+        });
+        // Petit clic haptique quand le doigt traverse un nouvel onglet
+        window.NewKetHaptics.trigger('light');
+    };
+
+    nav.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const target = findClosestItem(touch.clientX);
+        if (!target) return;
+
+        isDragging = true;
+        slider.classList.add('is-dragging');
+        lastHighlightedItem = null;
+        highlightItem(target);
+
+        const navRect = nav.getBoundingClientRect();
+        const itemRect = target.getBoundingClientRect();
+        const leftOffset = Math.max(0, Math.min(touch.clientX - navRect.left - itemRect.width / 2, navRect.width - itemRect.width));
+        slider.style.width = `${itemRect.width}px`;
+        slider.style.transform = `translateX(${leftOffset}px)`;
+    }, { passive: true });
+
+    nav.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const navRect = nav.getBoundingClientRect();
+        const target = findClosestItem(touch.clientX);
+        if (target) {
+            highlightItem(target);
+            const itemRect = target.getBoundingClientRect();
+            // La pastille suit le centre du doigt
+            const leftOffset = Math.max(0, Math.min(touch.clientX - navRect.left - itemRect.width / 2, navRect.width - itemRect.width));
+            slider.style.width = `${itemRect.width}px`;
+            slider.style.transform = `translateX(${leftOffset}px)`;
+        }
+    }, { passive: true });
+
+    const handleTouchEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        slider.classList.remove('is-dragging');
+
+        if (lastHighlightedItem) {
+            // Aimantation magnétique sur l'onglet sélectionné
+            const navRect = nav.getBoundingClientRect();
+            const itemRect = lastHighlightedItem.getBoundingClientRect();
+            const leftOffset = itemRect.left - navRect.left;
+            slider.style.width = `${itemRect.width}px`;
+            slider.style.transform = `translateX(${leftOffset}px)`;
+
+            // Déclenche l'action de l'onglet
+            const href = lastHighlightedItem.getAttribute('href');
+            if (href && href !== '#' && !href.startsWith('javascript:')) {
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 120);
+            } else {
+                lastHighlightedItem.click();
+            }
+        }
+    };
+
+    nav.addEventListener('touchend', handleTouchEnd, { passive: true });
+    nav.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 };
 
 window.addEventListener('DOMContentLoaded', setupIOSLiquidGlassButtons);
