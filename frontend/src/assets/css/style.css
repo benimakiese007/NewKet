@@ -10631,24 +10631,24 @@ html.dark .liquid-sliding-lens {
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
-/* Active Tab: Pure color accent, NO indicator pill / capsule background */
+/* Active Tab: Couleur Anthracite officiel du Header NewKet (#1F2937) */
 .liquid-glass-nav .nav-item.active {
-  color: #0A4A2E !important;
+  color: #1F2937 !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
 .liquid-glass-nav .nav-item.active iconify-icon {
-  color: #0A4A2E !important;
+  color: #1F2937 !important;
   transform: none !important;
 }
 
 .liquid-glass-nav .nav-item.active span {
-  color: #0A4A2E !important;
+  color: #1F2937 !important;
   font-weight: 700 !important;
 }
 
-/* Dark mode */
+/* Dark mode : Blanc pur étincelant sur verre fumé */
 html.dark .liquid-glass-nav .nav-item {
   color: #94A3B8 !important;
   background: transparent !important;
@@ -10661,16 +10661,16 @@ html.dark .liquid-glass-nav .nav-item span {
   color: #94A3B8 !important;
 }
 html.dark .liquid-glass-nav .nav-item.active {
-  color: #34D399 !important;
+  color: #FFFFFF !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 html.dark .liquid-glass-nav .nav-item.active iconify-icon {
-  color: #34D399 !important;
+  color: #FFFFFF !important;
   transform: none !important;
 }
 html.dark .liquid-glass-nav .nav-item.active span {
-  color: #34D399 !important;
+  color: #FFFFFF !important;
 }
 
 /* Active Tab Indicator / Selection Indicator completely disabled everywhere */
