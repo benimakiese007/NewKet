@@ -15,7 +15,8 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "startActivity", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "updateActivity", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "endActivity", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "getDiagnostics", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "getDiagnostics", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "triggerHaptic", returnType: CAPPluginReturnPromise)
     ]
 
     // Store active activities mapped by orderId
@@ -397,5 +398,28 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
 
         Self.logEvent(tag: "DIAG", message: "Diagnostics exported to JS")
         call.resolve(diag)
+    }
+
+    // MARK: - triggerHaptic
+    /// Produit un micro-clic haptique Taptic Engine authentique d'Apple
+    @objc func triggerHaptic(_ call: CAPPluginCall) {
+        let styleStr = call.getString("style", "light")
+        DispatchQueue.main.async {
+            switch styleStr {
+            case "medium":
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.prepare()
+                generator.impactOccurred()
+            case "heavy":
+                let generator = UIImpactFeedbackGenerator(style: .heavy)
+                generator.prepare()
+                generator.impactOccurred()
+            default:
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.prepare()
+                generator.impactOccurred()
+            }
+            call.resolve()
+        }
     }
 }

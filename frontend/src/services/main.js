@@ -777,3 +777,52 @@ window.addEventListener('online', () => {
     }
 });
 // -------------------------------
+
+// === 🍏 iOS Capacitor Native Haptics & Liquid Glass Button Enhancement ===
+window.NewKetHaptics = {
+    trigger: async (style = 'light') => {
+        try {
+            if (window.Capacitor?.isNativePlatform?.() && window.Capacitor.getPlatform?.() === 'ios') {
+                const plugin = window.Capacitor.Plugins?.LiveActivityPlugin;
+                if (plugin && typeof plugin.triggerHaptic === 'function') {
+                    await plugin.triggerHaptic({ style });
+                }
+            }
+        } catch (_) {}
+    }
+};
+
+const setupIOSLiquidGlassButtons = () => {
+    try {
+        const isIOS = !!(window.Capacitor?.isNativePlatform?.() && window.Capacitor.getPlatform?.() === 'ios');
+        if (!isIOS) return;
+
+        // 1. Header Buttons (Menu Burger & Recherche)
+        const headerButtons = [
+            document.getElementById('mobileMenuBtn'),
+            document.getElementById('mobileHeaderSearchBtn')
+        ].filter(Boolean);
+
+        headerButtons.forEach((btn) => {
+            btn.classList.add('liquid-glass-btn');
+            btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
+        });
+
+        // 2. Dashboard Buttons (Menu Burger & Déconnexion)
+        const dashMenuBtn = document.getElementById('customerMobileBtn');
+        if (dashMenuBtn) {
+            dashMenuBtn.classList.add('liquid-glass-btn');
+            dashMenuBtn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
+        }
+
+        const logoutBtns = Array.from(document.querySelectorAll('[data-logout-safe]'));
+        logoutBtns.forEach((btn) => {
+            btn.classList.add('liquid-glass-btn-danger');
+            btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('medium'), { passive: true });
+        });
+    } catch (_) {}
+};
+
+window.addEventListener('DOMContentLoaded', setupIOSLiquidGlassButtons);
+window.addEventListener('componentsLoaded', setupIOSLiquidGlassButtons);
+
