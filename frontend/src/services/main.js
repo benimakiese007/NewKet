@@ -337,6 +337,18 @@ const App = {
                 } else {
                     item.removeAttribute('aria-current');
                 }
+                // Switch icône linear ↔ bold (filled) selon l'état actif
+                const iconEl = item.querySelector('iconify-icon');
+                if (iconEl) {
+                    const currentIcon = iconEl.getAttribute('icon') || '';
+                    if (isActive) {
+                        // linear → bold (rempli)
+                        iconEl.setAttribute('icon', currentIcon.replace(/-linear$/, '-bold'));
+                    } else {
+                        // bold → linear (outline)
+                        iconEl.setAttribute('icon', currentIcon.replace(/-bold$/, '-linear'));
+                    }
+                }
             });
 
             // Positionne la pastille glissante Liquid Glass (iOS Capacitor)

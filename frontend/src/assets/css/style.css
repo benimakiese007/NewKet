@@ -10711,45 +10711,45 @@ html.dark .liquid-sliding-lens {
 
 .liquid-glass-nav .nav-item iconify-icon {
   filter: none !important;
-  color: #64748B !important;
+  color: #000000 !important;
   transition: color 0.2s ease !important;
 }
 
 .liquid-glass-nav .nav-item span {
   font-weight: 500 !important;
   letter-spacing: 0.01em !important;
-  color: #64748B !important;
+  color: #000000 !important;
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
-/* Active Tab: Couleur Anthracite officiel du Header NewKet (#1F2937) */
+/* Active Tab: icône bold (filled) + noir absolu */
 .liquid-glass-nav .nav-item.active {
-  color: #1F2937 !important;
+  color: #000000 !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
 .liquid-glass-nav .nav-item.active iconify-icon {
-  color: #1F2937 !important;
+  color: #000000 !important;
   transform: none !important;
 }
 
 .liquid-glass-nav .nav-item.active span {
-  color: #1F2937 !important;
+  color: #000000 !important;
   font-weight: 700 !important;
 }
 
-/* Dark mode : Blanc pur étincelant sur verre fumé */
+/* Dark mode : icône bold (filled) blanc pur sur verre fumé */
 html.dark .liquid-glass-nav .nav-item {
-  color: #94A3B8 !important;
+  color: #FFFFFF !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 html.dark .liquid-glass-nav .nav-item iconify-icon {
-  color: #94A3B8 !important;
+  color: #FFFFFF !important;
 }
 html.dark .liquid-glass-nav .nav-item span {
-  color: #94A3B8 !important;
+  color: #FFFFFF !important;
 }
 html.dark .liquid-glass-nav .nav-item.active {
   color: #FFFFFF !important;
