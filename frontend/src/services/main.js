@@ -338,6 +338,19 @@ const App = {
                     item.removeAttribute('aria-current');
                 }
             });
+
+            // Positionne la pastille glissante Liquid Glass (iOS Capacitor)
+            const slider = document.getElementById('liquidGlassSlider');
+            if (slider && activeItem) {
+                const navRect = nav.getBoundingClientRect();
+                const itemRect = activeItem.getBoundingClientRect();
+                if (navRect.width > 0 && itemRect.width > 0) {
+                    const leftOffset = itemRect.left - navRect.left;
+                    slider.style.width = `${itemRect.width}px`;
+                    slider.style.transform = `translateX(${leftOffset}px)`;
+                    slider.style.opacity = '1';
+                }
+            }
         };
 
         const scheduleMobileBottomNavSync = () => {

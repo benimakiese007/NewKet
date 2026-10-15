@@ -425,11 +425,11 @@ const getBottomNavHTML = (role, isGuest = false) => {
 
     // ── Item 3 : Boutiques (défaut) | Vendre (seller) ──────────────────────
     const item3_lg = isSeller
-        ? `<a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Vendre" data-track-action="navigation:publish_click">
+        ? `<a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Vendre" data-track-action="navigation:publish_click">
         <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Vendre</span>
     </a>`
-        : `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
+        : `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
         <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Boutiques</span>
     </a>`;
@@ -446,16 +446,16 @@ const getBottomNavHTML = (role, isGuest = false) => {
 
     // ── Item 4 : Notifs (admin) | Panier→login (invité) | Panier→drawer (buyer/seller) ──
     const item4_lg = isAdmin
-        ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Notifications">
+        ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Notifications">
         <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Notifs</span>
     </a>`
         : isGuest
-        ? `<a href="{{ROOT}}login" data-bottom-nav-item="cart" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
+        ? `<a href="{{ROOT}}login" data-bottom-nav-item="cart" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
         <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Panier</span>
     </a>`
-        : `<a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
+        : `<a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Panier">
         <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
         <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
         <span class="text-[9px] font-medium tracking-wide">Panier</span>
@@ -482,18 +482,19 @@ const getBottomNavHTML = (role, isGuest = false) => {
     // ── Liquid Glass (iOS Capacitor uniquement) ─────────────────────────────
     if (useLiquidGlass) {
         return `<!-- Liquid Glass Bottom Navbar (iOS Capacitor Only) -->
-<nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-3 sm:hidden rounded-[32px] w-[calc(100%-32px)] left-[16px] h-[62px]" style="bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 4px));">
-    <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Accueil">
+<nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-2 sm:hidden rounded-[32px] w-[calc(100%-32px)] left-[16px] h-[62px]" style="bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 4px));">
+    <div id="liquidGlassSlider" class="liquid-sliding-lens" aria-hidden="true"></div>
+    <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>
     </a>
-    <a href="{{ROOT}}catalog" data-bottom-nav-item="catalog" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Catalogue">
+    <a href="{{ROOT}}catalog" data-bottom-nav-item="catalog" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Catalogue">
         <iconify-icon icon="solar:shop-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Catalogue</span>
     </a>
     ${item3_lg}
     ${item4_lg}
-    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Compte">
+    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Compte">
         <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Compte</span>
     </a>
