@@ -10529,18 +10529,25 @@ html.dark .skeleton::after {
 
 .liquid-glass-nav {
   /* 1. Pure Ultra-Clear Glass Tint: crisp transparent crystal, NOT dark/muddy */
-  background: rgba(255, 255, 255, 0.42) !important;
+  background: rgba(255, 255, 255, 0.45) !important;
   
   /* 2. Apple Native WebKit Blur & Specular Refraction */
   -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(108%) !important;
   backdrop-filter: blur(28px) saturate(190%) brightness(108%) !important;
   
-  /* 3. Beveled Prismatic Rim: sharp top light reflection, crystal bottom border */
-  border: 0.5px solid rgba(255, 255, 255, 0.65) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.35) !important;
+  /* 3. Hardware acceleration: Force iPhone GPU Metal rendering (120Hz smooth scroll) */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  will-change: backdrop-filter, -webkit-backdrop-filter;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   
-  /* 4. Natural Ambient Glass Shadow (soft, light, zero muddy black box) */
+  /* 4. Beveled Prismatic Rim: sharp top light reflection, crystal bottom border */
+  border: 0.5px solid rgba(255, 255, 255, 0.70) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.40) !important;
+  
+  /* 5. Natural Ambient Glass Shadow (soft, light, zero muddy black box) */
   box-shadow:
     0 12px 32px -4px rgba(0, 0, 0, 0.12),
     0 4px 12px -2px rgba(0, 0, 0, 0.06),
@@ -10554,11 +10561,14 @@ html.dark .skeleton::after {
 
 /* Dark Mode Liquid Glass: Deep crystalline smoked glass */
 html.dark .liquid-glass-nav {
-  background: rgba(23, 27, 34, 0.62) !important;
+  background: rgba(23, 27, 34, 0.65) !important;
   -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(105%) !important;
   backdrop-filter: blur(28px) saturate(180%) brightness(105%) !important;
-  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  will-change: backdrop-filter, -webkit-backdrop-filter;
+  border: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
   box-shadow:
     0 16px 36px -4px rgba(0, 0, 0, 0.5),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.25) !important;
