@@ -1285,10 +1285,12 @@ const AuthManager = {
         const guestCTA = document.getElementById('mobileGuestCTA');
         const loggedCTA = document.getElementById('mobileLoggedCTA');
         const logoutBtn = document.getElementById('mobileLogoutBtn');
+        const mobileNotifs = document.getElementById('mobileNotificationsShortcut');
 
         if (guestCTA) guestCTA.style.display = isLoggedIn ? 'none' : 'block';
         if (loggedCTA) loggedCTA.style.display = isLoggedIn ? 'block' : 'none';
         if (logoutBtn) logoutBtn.style.display = isLoggedIn ? 'flex' : 'none';
+        if (mobileNotifs) mobileNotifs.style.display = isLoggedIn ? 'flex' : 'none';
 
         if (this.role === 'supplier' || this.role === 'admin') {
             const isAdmin = this.role === 'admin';
@@ -1628,9 +1630,11 @@ const AuthManager = {
                 const guestCTA = document.getElementById('mobileGuestCTA');
                 const loggedCTA = document.getElementById('mobileLoggedCTA');
                 const logoutBtn = document.getElementById('mobileLogoutBtn');
+                const mobileNotifs = document.getElementById('mobileNotificationsShortcut');
                 if (guestCTA) guestCTA.style.display = 'block';
                 if (loggedCTA) loggedCTA.style.display = 'none';
                 if (logoutBtn) logoutBtn.style.display = 'none';
+                if (mobileNotifs) mobileNotifs.style.display = 'none';
             }
         });
 

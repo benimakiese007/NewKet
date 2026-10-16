@@ -242,7 +242,7 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
                 </a>
-                <a href="{{ROOT}}notifications" onclick="if (!window.location.pathname.includes('/notifications')) { event.preventDefault(); window.SidebarManager?.close?.(); window.DrawersManager?.openNotifications(); }" class="mobile-menu-shortcut-card">
+                <a id="mobileNotificationsShortcut" href="{{ROOT}}notifications" onclick="if (!window.location.pathname.includes('/notifications')) { event.preventDefault(); window.SidebarManager?.close?.(); window.DrawersManager?.openNotifications(); }" class="mobile-menu-shortcut-card" style="display:none">
                     <iconify-icon icon="solar:bell-linear" width="20"></iconify-icon>
                     <span>Notifications</span>
                     <span class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden absolute top-2 right-2">0</span>
