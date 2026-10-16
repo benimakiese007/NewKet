@@ -360,7 +360,7 @@ const App = {
                     const leftOffset = itemRect.left - navRect.left;
                     slider.style.width = `${itemRect.width}px`;
                     slider.style.transform = `translateX(${leftOffset}px)`;
-                    slider.style.opacity = '1';
+                    // Opacité gérée à 100% par le CSS (50% au repos, 100% pressé, opaque si accessibilité)
                 }
             }
         };
@@ -467,6 +467,13 @@ const App = {
         window.addEventListener('resize', scheduleMobileBottomNavSync);
         window.addEventListener('orientationchange', scheduleMobileBottomNavSync);
         window.addEventListener('load', scheduleMobileBottomNavSync, { once: true });
+
+        // 🍏 Réactivité en direct aux Réglages Système iOS (Accessibilité & Contraste)
+        try {
+            window.matchMedia('(prefers-reduced-transparency: reduce)').addEventListener('change', scheduleMobileBottomNavSync);
+            window.matchMedia('(prefers-contrast: more)').addEventListener('change', scheduleMobileBottomNavSync);
+        } catch (_) {}
+
         scheduleMobileBottomNavSync();
         watchForMobileBottomNav();
 
