@@ -23,7 +23,7 @@ body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: none;
-    touch-action: pan-y pinch-zoom;
+    touch-action: manipulation;
     min-height: 100vh;
     min-height: 100dvh;
 }

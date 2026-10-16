@@ -2,6 +2,12 @@ import UIKit
 import Capacitor
 
 open class NewKetBridgeViewController: CAPBridgeViewController {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        // Permet le geste iOS natif "Swipe to Back" (Interactive Pop Gesture) de manière immédiate et fluide
+        webView?.allowsBackForwardNavigationGestures = true
+    }
+
     override open func capacitorDidLoad() {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(LiveActivityPlugin())
