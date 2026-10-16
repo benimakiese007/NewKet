@@ -1071,6 +1071,8 @@ const setupIOSLiquidGlassDragGesture = () => {
         slider.style.transform = `translate3d(${targetLeft}px, -50%, 0)`;
     };
 
+    let isNavigating = false;
+
     const handleEnd = () => {
         if (!isDragging) return;
         isDragging = false;
@@ -1083,34 +1085,44 @@ const setupIOSLiquidGlassDragGesture = () => {
         if (lastHighlightedItem) {
             updateLens(lastHighlightedItem, false);
 
-            const href = lastHighlightedItem.getAttribute('href');
-            const navItemType = lastHighlightedItem.getAttribute('data-bottom-nav-item');
+            // ✅ S'il y a eu un glissement (drag), l'utilisateur a relâché sur un item cible :
+            // on déclenche la navigation vers cet item relâché.
+            // Si c'était un simple tap (hasDragged === false), on ne fait RIEN ici :
+            // l'événement click natif du navigateur sur la balise <a> ou <button> s'exécute déjà naturellement !
+            // Faire window.location.href en plus du click natif provoquait une double navigation et corrompait l'historique iOS.
+            if (hasDragged) {
+                const href = lastHighlightedItem.getAttribute('href');
+                const navItemType = lastHighlightedItem.getAttribute('data-bottom-nav-item');
 
-            if (navItemType === 'cart' || (href && (href === '#' || href.startsWith('javascript:')))) {
-                // Pour le panier ou actions modales/tiroirs
-                setTimeout(() => {
+                if (navItemType === 'cart' || (href && (href === '#' || href.startsWith('javascript:')))) {
                     if (window.CartManager && typeof window.CartManager.toggleCartUI === 'function') {
                         window.CartManager.toggleCartUI();
                     } else {
                         lastHighlightedItem.click();
                     }
-                }, hasDragged ? 120 : 0);
-            } else if (href && href !== '#' && !href.startsWith('javascript:')) {
-                // Navigation vers la page de l'onglet
-                setTimeout(() => {
-                    window.location.href = href;
-                }, hasDragged ? 150 : 120);
-            } else {
-                lastHighlightedItem.click();
+                } else if (href && href !== '#' && !href.startsWith('javascript:')) {
+                    if (!isNavigating) {
+                        isNavigating = true;
+                        setTimeout(() => {
+                            window.location.href = href;
+                        }, 80);
+                    }
+                } else {
+                    lastHighlightedItem.click();
+                }
             }
         }
 
         setTimeout(() => { hasDragged = false; }, 60);
     };
 
-    // Pointer Events modernes
+    // Empêcher la double exécution si pointerdown a déjà pris en charge le geste
+    let usingPointer = false;
+
+    // Pointer Events modernes (prioritaires)
     nav.addEventListener('pointerdown', (e) => {
         if (e.isPrimary === false) return;
+        usingPointer = true;
         handleStart(e.clientX, e.pointerId);
     });
 
@@ -1122,19 +1134,34 @@ const setupIOSLiquidGlassDragGesture = () => {
     nav.addEventListener('pointerup', handleEnd);
     nav.addEventListener('pointercancel', handleEnd);
 
-    // Fallback Touch Events pour iOS WKWebView
+    // Fallback Touch Events UNIQUEMENT si pointer events n'ont pas démarré
     nav.addEventListener('touchstart', (e) => {
+        if (usingPointer) return;
         if (e.touches.length !== 1) return;
         handleStart(e.touches[0].clientX);
     }, { passive: true });
 
     nav.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length !== 1) return;
+        if (usingPointer || !isDragging || e.touches.length !== 1) return;
         handleMove(e.touches[0].clientX);
     }, { passive: true });
 
-    nav.addEventListener('touchend', handleEnd, { passive: true });
-    nav.addEventListener('touchcancel', handleEnd, { passive: true });
+    nav.addEventListener('touchend', (e) => {
+        if (usingPointer) {
+            // Réinitialise le flag pour le prochain toucher après le cycle complet d'événements
+            setTimeout(() => { usingPointer = false; }, 100);
+            return;
+        }
+        handleEnd();
+    }, { passive: true });
+
+    nav.addEventListener('touchcancel', (e) => {
+        if (usingPointer) {
+            setTimeout(() => { usingPointer = false; }, 100);
+            return;
+        }
+        handleEnd();
+    }, { passive: true });
 };
 
 window.addEventListener('DOMContentLoaded', setupIOSLiquidGlassButtons);

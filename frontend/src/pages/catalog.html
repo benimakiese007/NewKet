@@ -1218,9 +1218,9 @@
                 }
             // Try server-side query first
             } else if (window.SupabaseAdapter && window.supabaseClient) {
-                try {
-                    const options = {
-                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
+                const buildQueryOptions = (selectClause) => {
+                    const opts = {
+                        select: selectClause,
                         range: [from, to],
                         skipCache: true // Always fresh for catalog browsing
                     };
@@ -1228,80 +1228,114 @@
                     // Search filter (or across name and category)
                     if (query) {
                         const safeQuery = query.replace(/"/g, '');
-                        options.or = `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`;
+                        opts.or = `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`;
                     }
 
-                    // ✅ Toujours masquer les produits épuisés et archivés côté public
-                    options.eq = [['is_archived', false]];
-                    options.gt = [['stock', 0]];
+                    // ✅ Toujours masquer les produits archivés côté public
+                    opts.eq = [['is_archived', false]];
 
                     // Category filter
                     if (activeCategories.length > 0) {
-                        options.in = [['category', activeCategories]];
+                        opts.in = [['category', activeCategories]];
                     }
 
                     // Price range
                     if (minPrice > 0) {
-                        options.gte = [['price', minPrice]];
+                        opts.gte = [['price', minPrice]];
                     }
                     if (maxPrice < Infinity) {
-                        options.lte = [['price', maxPrice]];
+                        opts.lte = [['price', maxPrice]];
                     }
 
                     // Condition filter
                     if (activeConditions.length === 1) {
-                        options.eq.push(['is_new', activeConditions[0] === 'true']);
+                        opts.eq.push(['is_new', activeConditions[0] === 'true']);
                     }
 
                     // Promo filter (is_promo flag OR products with an old price)
                     if (activePromo) {
                         const promoOr = 'is_promo.eq.true,old_price.gt.0';
-                        if (options.or) {
-                            options.or = Array.isArray(options.or) ? options.or : [options.or];
-                            options.or.push(promoOr);
+                        if (opts.or) {
+                            opts.or = Array.isArray(opts.or) ? opts.or : [opts.or];
+                            opts.or.push(promoOr);
                         } else {
-                            options.or = promoOr;
+                            opts.or = promoOr;
                         }
                     }
 
                     // Rating filter
                     if (activeRating > 0) {
-                        // We use reviews as a proxy for rating if rating is not explicitly in table
-                        options.gte = [['reviews', activeRating]];
+                        opts.gte = [['reviews', activeRating]];
                     }
 
                     // Sort
                     if (sortBy === 'price-asc') {
-                        options.order = ['price', { ascending: true }];
+                        opts.order = ['price', { ascending: true }];
                     } else if (sortBy === 'price-desc') {
-                        options.order = ['price', { ascending: false }];
+                        opts.order = ['price', { ascending: false }];
                     } else if (sortBy === 'newest') {
-                        options.order = ['created_at', { ascending: false }];
+                        opts.order = ['created_at', { ascending: false }];
                     } else {
-                        options.order = ['created_at', { ascending: false }];
+                        opts.order = ['created_at', { ascending: false }];
                     }
 
-                    products = await SupabaseAdapter.fetchWithFilters('products', options);
+                    return opts;
+                };
 
-                    // ✅ Si une requête plus récente a démarré pendant l'await → on abandonne
-                    if (mySeq !== catalogRenderSeq) return;
+                try {
+                    // 1. Essai avec jointure users!supplier_email
+                    const optionsWithJoin = buildQueryOptions('*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug)');
+                    products = await SupabaseAdapter.fetchWithFilters('products', optionsWithJoin);
+                } catch (joinErr) {
+                    console.warn('[NewKet Catalog] Join query failed, retrying without foreign join:', joinErr.message);
+                    try {
+                        // 2. Fallback robuste sans jointure (comme products.js line 320)
+                        const optionsSimple = buildQueryOptions('*');
+                        products = await SupabaseAdapter.fetchWithFilters('products', optionsSimple);
+                    } catch (fallbackErr) {
+                        console.warn('[NewKet Catalog] Simple query also failed:', fallbackErr.message);
+                        products = null;
+                        hasError = true;
+                    }
+                }
 
-                    // Map raw products to standardization format (converts snake_case to camelCase)
-                    if (products && products.length > 0 && typeof ProductManager._mapProduct === 'function') {
+                if (mySeq !== catalogRenderSeq) return;
+
+                if (products && products.length > 0) {
+                    // Filter out zero-stock items in memory if stock is present
+                    products = products.filter(p => {
+                        const s = p.stock ?? p.stock_quantity ?? p.quantity;
+                        return s === null || s === undefined || Number(s) > 0;
+                    });
+
+                    // Map raw products to standardization format
+                    if (typeof ProductManager?._mapProduct === 'function') {
                         products = products.map(p => ProductManager._mapProduct(p));
                     }
-
                     catalogHasMore = products.length === CATALOG_PAGE_SIZE;
-                } catch (err) {
-                    console.warn('[NewKet Catalog] Server-side query failed, falling back to client-side:', err.message);
-                    products = null; // Flag to use fallback
-                    hasError = true;
+                } else if (products !== null && products.length === 0 && !query && activeCategories.length === 0) {
+                    // Si la requête retourne 0 mais qu'on n'a pas de filtre spécifique, tenter de récupérer les produits via ProductManager
+                    if (window.ProductManager && (!window.ProductManager.products || window.ProductManager.products.length === 0)) {
+                        try {
+                            await window.ProductManager.fetchFreshData();
+                            const fresh = window.ProductManager.getPublicProducts();
+                            if (fresh && fresh.length > 0) {
+                                products = fresh.slice(from, to + 1);
+                                catalogHasMore = fresh.length > to + 1;
+                            }
+                        } catch (_) {}
+                    }
                 }
             }
 
-            // Fallback: client-side filtering (when Supabase is unavailable)
-            if (products === null || (!window.SupabaseAdapter && window.ProductManager)) {
-                let allProducts = ProductManager.getPublicProducts();
+            // Fallback: client-side filtering (when Supabase failed or returned empty)
+            if (products === null || (Array.isArray(products) && products.length === 0 && !query && activeCategories.length === 0)) {
+                if (window.ProductManager && (!window.ProductManager.products || window.ProductManager.products.length === 0)) {
+                    try {
+                        await window.ProductManager.fetchFreshData();
+                    } catch (_) {}
+                }
+                let allProducts = window.ProductManager ? ProductManager.getPublicProducts() : [];
 
                 if (query) {
                     allProducts = allProducts.filter(p =>
