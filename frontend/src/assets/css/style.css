@@ -10778,6 +10778,145 @@ html.dark .liquid-glass-nav .nav-item.active span {
   pointer-events: none !important;
 }
 
+/* ============================================================
+ * 🍏 iOS Accessibility: Réduire la transparence
+ * Détecté via : Réglages > Accessibilité > Affichage et taille
+ *               du texte > Réduire la transparence (ON)
+ * La navbar devient opaque et solide — zéro flou, contraste max.
+ * ============================================================ */
+@media (prefers-reduced-transparency: reduce) {
+  /* Navbar principale : verre → fond solide opaque */
+  .liquid-glass-nav {
+    background: rgba(242, 242, 247, 0.98) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0.5px solid rgba(0, 0, 0, 0.12) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow:
+      0 -0.5px 0 rgba(0, 0, 0, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  }
+  html.dark .liquid-glass-nav {
+    background: rgba(28, 28, 30, 0.98) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.10) !important;
+  }
+
+  /* Capsule glissante : fond opaque pur */
+  .liquid-sliding-lens {
+    background: rgba(0, 0, 0, 0.10) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    opacity: 0.70 !important;
+  }
+  .liquid-glass-nav.pressed .liquid-sliding-lens,
+  .liquid-sliding-lens.is-dragging {
+    background: rgba(0, 0, 0, 0.12) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    opacity: 1 !important;
+  }
+  html.dark .liquid-sliding-lens {
+    background: rgba(255, 255, 255, 0.14) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* ============================================================
+ * 🍏 iOS 26 Liquid Glass: "Teinté" (mode fort contraste verre)
+ * Détecté via : Réglages > Accessibilité > Augmenter le contraste
+ * La navbar passe en verre teinté/contrasté (moins transparent).
+ * ============================================================ */
+@media (prefers-contrast: more) {
+  /* Navbar : verre plus opaque, bords plus nets */
+  .liquid-glass-nav {
+    background: rgba(248, 248, 252, 0.92) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+    backdrop-filter: blur(4px) saturate(120%) !important;
+    border: 1px solid rgba(0, 0, 0, 0.20) !important;
+    border-top: 1.5px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.12),
+      0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  }
+  html.dark .liquid-glass-nav {
+    background: rgba(22, 22, 26, 0.94) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(120%) !important;
+    backdrop-filter: blur(4px) saturate(120%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  }
+
+  /* Capsule : teinture plus visible pour meilleure lisibilité */
+  .liquid-sliding-lens {
+    background: rgba(0, 0, 0, 0.14) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    opacity: 0.75 !important;
+  }
+  .liquid-glass-nav.pressed .liquid-sliding-lens,
+  .liquid-sliding-lens.is-dragging {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.20) !important;
+    box-shadow:
+      0 8px 20px rgba(0, 0, 0, 0.22),
+      inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+    opacity: 1 !important;
+  }
+  html.dark .liquid-sliding-lens {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.40) !important;
+  }
+
+  /* Icônes : contraste noir pur */
+  .liquid-glass-nav .nav-item {
+    color: #000000 !important;
+  }
+  .liquid-glass-nav .nav-item iconify-icon {
+    color: #000000 !important;
+  }
+  html.dark .liquid-glass-nav .nav-item {
+    color: #FFFFFF !important;
+  }
+  html.dark .liquid-glass-nav .nav-item iconify-icon {
+    color: #FFFFFF !important;
+  }
+}
+
+/* ============================================================
+ * 🍏 Combiné : Réduire transparence + Augmenter contraste
+ * Rendu maximum : navbar complètement solide, aucun effet verre.
+ * ============================================================ */
+@media (prefers-reduced-transparency: reduce) and (prefers-contrast: more) {
+  .liquid-glass-nav {
+    background: rgba(235, 235, 240, 1.0) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.25) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10) !important;
+  }
+  html.dark .liquid-glass-nav {
+    background: rgba(18, 18, 20, 1.0) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  }
+  .liquid-sliding-lens {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .liquid-glass-nav.pressed .liquid-sliding-lens,
+  .liquid-sliding-lens.is-dragging {
+    background: rgba(0, 0, 0, 0.15) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 @media (max-width: 639px) {
   /*
    * The floating bottom navigation intentionally stays offset from the
