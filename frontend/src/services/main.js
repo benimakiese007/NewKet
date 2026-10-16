@@ -1083,24 +1083,25 @@ const setupIOSLiquidGlassDragGesture = () => {
         if (lastHighlightedItem) {
             updateLens(lastHighlightedItem, false);
 
-            // ✅ Anti-click : ne déclenche l'action que si c'était un vrai tap (pas un swipe)
-            if (!hasDragged) {
-                const href = lastHighlightedItem.getAttribute('href');
-                if (href && href !== '#' && !href.startsWith('javascript:')) {
-                    setTimeout(() => {
-                        window.location.href = href;
-                    }, 140);
-                } else {
-                    lastHighlightedItem.click();
-                }
+            const href = lastHighlightedItem.getAttribute('href');
+            const navItemType = lastHighlightedItem.getAttribute('data-bottom-nav-item');
+
+            if (navItemType === 'cart' || (href && (href === '#' || href.startsWith('javascript:')))) {
+                // Pour le panier ou actions modales/tiroirs
+                setTimeout(() => {
+                    if (window.CartManager && typeof window.CartManager.toggleCartUI === 'function') {
+                        window.CartManager.toggleCartUI();
+                    } else {
+                        lastHighlightedItem.click();
+                    }
+                }, hasDragged ? 120 : 0);
+            } else if (href && href !== '#' && !href.startsWith('javascript:')) {
+                // Navigation vers la page de l'onglet
+                setTimeout(() => {
+                    window.location.href = href;
+                }, hasDragged ? 150 : 120);
             } else {
-                // Swipe terminé → juste naviguer vers l'onglet sélectionné
-                const href = lastHighlightedItem.getAttribute('href');
-                if (href && href !== '#' && !href.startsWith('javascript:')) {
-                    setTimeout(() => {
-                        window.location.href = href;
-                    }, 180);
-                }
+                lastHighlightedItem.click();
             }
         }
 
