@@ -24,7 +24,7 @@ const resolveLocalBackendReady = async () => {
 };
 
 // Admin emails are made available early by auth/admin-config so shell code can read them.
-// ADMIN_PASSWORD intentionally removed â€” use Supabase Auth only.
+// ADMIN_PASSWORD intentionally removed — use Supabase Auth only.
 
 const App = {
     async init() {
@@ -53,7 +53,7 @@ const App = {
         initCapacitorPlugins().catch(e => console.warn('[App] Capacitor plugins init:', e?.message));
 
 
-        // Initialize Presence Tracking (non-blocking â€” fire & forget)
+        // Initialize Presence Tracking (non-blocking — fire & forget)
         if (window.PresenceManager) PresenceManager.init().catch(e => console.warn('[App] PresenceManager init failed:', e?.message));
         if (window.BehaviorTracking) BehaviorTracking.init();
 
@@ -130,10 +130,10 @@ const App = {
                         <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:8px 14px; border-radius:999px; background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;">
                             Maintenance en cours
                         </div>
-                        <h1 style="font-size:clamp(1.9rem, 4vw, 2.6rem); font-weight:900; line-height:1.1; margin:0 0 14px;">AccÃ¨s public suspendu</h1>
+                        <h1 style="font-size:clamp(1.9rem, 4vw, 2.6rem); font-weight:900; line-height:1.1; margin:0 0 14px;">Accès public suspendu</h1>
                         <p style="color:#cbd5e1; max-width:460px; margin:0 auto; line-height:1.7; font-size:15px;">
-                            Les clients, vendeurs et invitÃ©s ne peuvent pas utiliser la plateforme pendant cette fenÃªtre de maintenance.
-                            Lâ€™espace administrateur reste disponible pour la connexion et la supervision.
+                            Les clients, vendeurs et invités ne peuvent pas utiliser la plateforme pendant cette fenêtre de maintenance.
+                            L’espace administrateur reste disponible pour la connexion et la supervision.
                         </p>
                         <div style="margin-top:28px; display:flex; justify-content:center;">
                             <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/login';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
@@ -175,16 +175,16 @@ const App = {
             return; // Halt further initialization
         }
 
-        // â”€â”€ AFFICHAGE IMMÃ‰DIAT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        // L'auth est vÃ©rifiÃ©e (AuthManager.init() est terminÃ©).
+        // ── AFFICHAGE IMMÉDIAT ──────────────────────────────────────────────
+        // L'auth est vérifiée (AuthManager.init() est terminé).
         // On retire la classe de chargement maintenant pour afficher les skeletons
-        // dÃ©jÃ  prÃ©sents dans le HTML, pendant que les managers chargent en arriÃ¨re-plan.
+        // déjà présents dans le HTML, pendant que les managers chargent en arrière-plan.
         document.documentElement.classList.remove('auth-loading');
         window.newketInitialized = true;
         window.dispatchEvent(new CustomEvent('newketInitialized'));
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ───────────────────────────────────────────────────────────────────
 
-        // 3. Initialize UI State (synchrone, instantanÃ©)
+        // 3. Initialize UI State (synchrone, instantané)
         if (window.CurrencyManager) {
             CurrencyManager.init();
         }
@@ -195,9 +195,9 @@ const App = {
         // 4. Global Event Listeners
         this.bindGlobalEvents();
 
-        // â”€â”€ MANAGERS EN ARRIÃˆRE-PLAN (non-bloquants) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── MANAGERS EN ARRIÈRE-PLAN (non-bloquants) ────────────────────────
         // On ne bloque plus l'affichage. Les skeletons se remplacent par les vraies
-        // donnÃ©es dÃ¨s que chaque manager a fini de charger.
+        // données dès que chaque manager a fini de charger.
         (async () => {
             const backendReady = await resolveLocalBackendReady();
             window.newketBackendReady = backendReady;
@@ -226,12 +226,12 @@ const App = {
                 }
             });
 
-            // Mettre Ã  jour les favoris une fois les donnÃ©es prÃªtes
+            // Mettre à jour les favoris une fois les données prêtes
             if (window.FavoritesManager) {
                 FavoritesManager.updateUI();
             }
         })().catch(e => console.warn('[App] Background init error:', e?.message));
-        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ───────────────────────────────────────────────────────────────────
     },
 
     bindGlobalEvents() {
@@ -592,7 +592,7 @@ const App = {
         applyHeaderScrollState(lastScrollTop);
         window.addEventListener('scroll', queueHeaderScrollUpdate, { passive: true });
 
-        // Global Modal Manager â€” with robust touch scroll-lock and reference counting
+        // Global Modal Manager — with robust touch scroll-lock and reference counting
         const setupGlobalModals = () => {
             window.NewKet = window.NewKet || {};
             
@@ -616,7 +616,7 @@ const App = {
                 clearTimeout(_failsafeTimer);
                 _failsafeTimer = setTimeout(() => {
                     if (_lockCount > 0) {
-                        console.warn('[NewKet] Scroll lock failsafe triggered (15s) â€” force releasing lock.');
+                        console.warn('[NewKet] Scroll lock failsafe triggered (15s) — force releasing lock.');
                         resetScrollLock();
                     }
                 }, 15000);
@@ -846,9 +846,10 @@ const setupIOSLiquidGlassButtons = () => {
 
 /**
  * 🍏 Gesture Glissement Continu Apple (Drag & Magnetic Snap)
- * Permet à l'utilisateur de poser son doigt et de glisser librement sur la barre
- * pour que la pastille de verre suive le doigt en temps réel, avec retour haptique
- * à chaque passage d'onglet et aimantation magnétique finale au relâchement.
+ * ✅ Suivi 1:1 du doigt en temps réel (targetLeft = fingerX - lensWidth/2)
+ * ✅ Anti-click conflict : hasDragged empêche les clics parasites après un swipe
+ * ✅ Rubber-band calibré : plafond strict à 8px max
+ * ✅ Effet ressort : nav.pressed → scale(1.035) via CSS
  */
 const setupIOSLiquidGlassDragGesture = () => {
     const nav = document.getElementById('mobileBottomNav');
@@ -857,6 +858,9 @@ const setupIOSLiquidGlassDragGesture = () => {
     nav.dataset.dragInitialized = 'true';
 
     let isDragging = false;
+    let hasDragged = false;        // ✅ Anti-click : detecte un vrai swipe
+    let startX = 0;
+    let pointerId = null;
     let lastHighlightedItem = null;
 
     const getItems = () => Array.from(nav.querySelectorAll('[data-bottom-nav-item]'));
@@ -884,7 +888,7 @@ const setupIOSLiquidGlassDragGesture = () => {
         const itemRect = item.getBoundingClientRect();
         if (navRect.width <= 0 || itemRect.width <= 0) return;
 
-        // 🌟 Débordement franc sur les côtés (+28px total : +14px gauche, +14px droite)
+        // ✅ Débordement +28px total (±14px chaque côté) en mode pressé
         const extraSide = isPopped ? 28 : 0;
         const baseOffset = (itemRect.left - navRect.left) - (extraSide / 2);
         const finalOffset = customX !== null ? customX : baseOffset;
@@ -920,61 +924,73 @@ const setupIOSLiquidGlassDragGesture = () => {
         return (overflow * maxAllowed) / (overflow + 30);
     };
 
-    const handleStart = (clientX, pointerId = null) => {
-        const target = findClosestItem(clientX);
-        if (!target) return;
-
+    const handleStart = (clientX, pId = null) => {
         isDragging = true;
-        // 🍏 iOS 26 Liquid Glass : la capsule gonfle, déborde aux 4 coins en 3D
+        hasDragged = false;
+        startX = clientX;
+        pointerId = pId;
+
+        // ✅ Effet ressort : navbar zoome au scale(1.035) via CSS .pressed
         nav.classList.add('pressed');
         slider.classList.add('is-dragging');
         lastHighlightedItem = null;
-        highlightItem(target);
 
-        if (pointerId !== null && typeof nav.setPointerCapture === 'function') {
-            try { nav.setPointerCapture(pointerId); } catch (_) {}
+        const target = findClosestItem(clientX);
+        if (target) highlightItem(target);
+
+        if (pId !== null && typeof nav.setPointerCapture === 'function') {
+            try { nav.setPointerCapture(pId); } catch (_) {}
         }
 
-        updateLens(target, true);
+        if (target) updateLens(target, true);
     };
 
     const handleMove = (clientX) => {
         if (!isDragging) return;
-        const target = findClosestItem(clientX);
-        if (target) {
-            highlightItem(target);
+
+        // ✅ Anti-click : si déplacement > 4px → c'est un vrai swipe
+        if (Math.abs(clientX - startX) > 4) {
+            hasDragged = true;
         }
 
         const items = getItems();
-        const activeItem = target || lastHighlightedItem || items[0];
         const navRect = nav.getBoundingClientRect();
-        const itemRect = activeItem.getBoundingClientRect();
-        const extraSide = 28;
-
         const firstRect = items[0].getBoundingClientRect();
         const lastRect = items[items.length - 1].getBoundingClientRect();
-        const minOffset = (firstRect.left - navRect.left) - (extraSide / 2);
-        const maxOffset = (lastRect.left - navRect.left) - (extraSide / 2);
 
-        let currentOffset = (itemRect.left - navRect.left) - (extraSide / 2);
+        const target = findClosestItem(clientX);
+        if (target) highlightItem(target);
 
-        // Si on tire au-delà des bords extrêmes : rubber-band 8px max
-        if (clientX < firstRect.left) {
-            const overflow = firstRect.left - clientX;
-            currentOffset = minOffset - rubberBand(overflow, 8);
-        } else if (clientX > lastRect.right) {
-            const overflow = clientX - lastRect.right;
-            currentOffset = maxOffset + rubberBand(overflow, 8);
+        const activeItem = target || lastHighlightedItem || items[0];
+        const itemRect = activeItem.getBoundingClientRect();
+        const extraSide = 28;
+        const lensWidth = itemRect.width + extraSide;
+
+        // ✅ Suivi 1:1 du doigt : le centre de la capsule suit le doigt exactement
+        let targetLeft = (clientX - navRect.left) - (lensWidth / 2);
+
+        const minLeft = (firstRect.left - navRect.left) - (extraSide / 2);
+        const maxLeft = (lastRect.left - navRect.left) - (extraSide / 2);
+
+        // Rubber-band aux extrémités
+        if (targetLeft < minLeft) {
+            const overflow = minLeft - targetLeft;
+            targetLeft = minLeft - rubberBand(overflow, 8);
+        } else if (targetLeft > maxLeft) {
+            const overflow = targetLeft - maxLeft;
+            targetLeft = maxLeft + rubberBand(overflow, 8);
         }
 
         slider.style.transition = 'none';
-        updateLens(activeItem, true, currentOffset);
+        slider.style.width = `${lensWidth}px`;
+        slider.style.transform = `translateX(${targetLeft}px)`;
     };
 
     const handleEnd = () => {
         if (!isDragging) return;
         isDragging = false;
-        // 🍏 Relâchement : la lentille se rétracte et s'assoit sagement dans la barre
+
+        // ✅ Relâchement : navbar rebondit sur scale(1) avec spring cubic-bezier
         nav.classList.remove('pressed');
         slider.classList.remove('is-dragging');
         slider.style.transition = '';
@@ -983,16 +999,28 @@ const setupIOSLiquidGlassDragGesture = () => {
             updateLens(lastHighlightedItem, false);
             window.NewKetHaptics.trigger('light');
 
-            // Déclenche l'action de l'onglet
-            const href = lastHighlightedItem.getAttribute('href');
-            if (href && href !== '#' && !href.startsWith('javascript:')) {
-                setTimeout(() => {
-                    window.location.href = href;
-                }, 140);
+            // ✅ Anti-click : ne déclenche l'action que si c'était un vrai tap (pas un swipe)
+            if (!hasDragged) {
+                const href = lastHighlightedItem.getAttribute('href');
+                if (href && href !== '#' && !href.startsWith('javascript:')) {
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 140);
+                } else {
+                    lastHighlightedItem.click();
+                }
             } else {
-                lastHighlightedItem.click();
+                // Swipe terminé → juste naviguer vers l'onglet sélectionné
+                const href = lastHighlightedItem.getAttribute('href');
+                if (href && href !== '#' && !href.startsWith('javascript:')) {
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 180);
+                }
             }
         }
+
+        setTimeout(() => { hasDragged = false; }, 60);
     };
 
     // Pointer Events modernes

@@ -10576,11 +10576,12 @@ html.dark .skeleton::after {
 
 .liquid-glass-nav {
   /* 1. Pure Ultra-Clear Glass Tint: crisp transparent crystal, NOT dark/muddy */
-  background: rgba(255, 255, 255, 0.45) !important;
+  /* ✅ Paramètres validés : 40% opacité, blur 4px, saturation 180% */
+  background: rgba(255, 255, 255, 0.40) !important;
   
   /* 2. Apple Native WebKit Blur & Specular Refraction */
-  -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(108%) !important;
-  backdrop-filter: blur(28px) saturate(190%) brightness(108%) !important;
+  -webkit-backdrop-filter: blur(4px) saturate(180%) brightness(108%) !important;
+  backdrop-filter: blur(4px) saturate(180%) brightness(108%) !important;
   
   /* 3. Hardware acceleration: Force iPhone GPU Metal rendering (120Hz smooth scroll) */
   -webkit-transform: translate3d(0, 0, 0);
@@ -10612,7 +10613,10 @@ html.dark .skeleton::after {
 }
 
 /* 🍏 Rubber-Band Effect iOS 26 : État pressé / Doigt posé (la barre grossit vers le haut avec rebond élastique) */
+/* ✅ Effet ressort validé : zoom scale(1.035) au maintien/swipe, retour élastique au relâchement */
 .liquid-glass-nav.pressed {
+  transform: scale(1.035) !important;
+  -webkit-transform: scale(1.035) !important;
   box-shadow:
     0 22px 50px -4px rgba(0, 0, 0, 0.20),
     0 8px 20px -2px rgba(0, 0, 0, 0.08),
@@ -10649,17 +10653,18 @@ html.dark .liquid-glass-nav.pressed {
   height: 48px;
   border-radius: 24px !important;
   width: 0;
-  opacity: 0;
+  /* ✅ Indicateur actif au repos : 50% opacité (validé) */
+  opacity: 0.50;
   transform-origin: center center !important;
   will-change: transform, width, height, opacity;
-  /* Teinte fumée douce gris Apple Music en état repos, sagement posée dans la barre */
-  background: rgba(0, 0, 0, 0.07) !important;
+  /* Pastille de verre blanc translucide au repos - visible à 50% */
+  background: rgba(255, 255, 255, 0.50) !important;
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   backdrop-filter: blur(14px) saturate(160%) !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.05) !important;
+  border: 0.8px solid rgba(255, 255, 255, 0.85) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
   box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.07),
+    0 3px 12px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
   z-index: 1;
   pointer-events: none;
@@ -10669,10 +10674,12 @@ html.dark .liquid-glass-nav.pressed {
 }
 
 /* 🫧 Mode Pressé / Glissement : la lentille liquide SORT de la navbar aux 4 coins en relief 3D */
+/* ✅ Capsule validée : 80px hauteur (déborde de 8px haut/bas), border-radius 40px */
 .liquid-glass-nav.pressed .liquid-sliding-lens,
 .liquid-sliding-lens.is-dragging {
-  height: 78px !important; /* Déborde de 8px au-dessus et 8px en-dessous de la barre (62px) */
-  border-radius: 39px !important;
+  height: 80px !important; /* Déborde de 8px au-dessus et 8px en-dessous de la barre (64px) */
+  border-radius: 40px !important;
+  opacity: 1 !important;
   background: rgba(255, 255, 255, 0.90) !important;
   border: 1.5px solid rgba(255, 255, 255, 1) !important;
   box-shadow:
