@@ -92,6 +92,15 @@ export default defineConfig({
             footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
             footerHtml = footerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
             newHtml = newHtml.replace('<div id="footer-placeholder"></div>', footerHtml);
+
+            // Pre-render mobile bottom navigation so it appears immediately with 0ms delay / no FOUC
+            let bottomNavHtml = readFileSync(resolve(__dirname, 'src/partials/mobile-bottom-nav.html'), 'utf8');
+            bottomNavHtml = bottomNavHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+            if (newHtml.includes('<div id="mobile-nav-placeholder"></div>')) {
+              newHtml = newHtml.replace('<div id="mobile-nav-placeholder"></div>', bottomNavHtml);
+            } else if (!newHtml.includes('id="mobileBottomNav"')) {
+              newHtml = newHtml.replace('</body>', `${bottomNavHtml}\n</body>`);
+            }
           }
         }
         

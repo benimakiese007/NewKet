@@ -578,23 +578,27 @@ const ComponentLoader = {
                 );
             }
 
-            let mobileNavPlaceholder = document.getElementById('mobile-nav-placeholder');
-            if (!mobileNavPlaceholder) {
-                mobileNavPlaceholder = document.createElement('div');
-                mobileNavPlaceholder.id = 'mobile-nav-placeholder';
-                document.body.appendChild(mobileNavPlaceholder);
-            }
-            
-            let userRole = 'buyer';
-            let isGuest  = false;
-            try {
-                userRole = localStorage.getItem('newketRole') || 'buyer';
-                isGuest  = !localStorage.getItem('newketUserId');
-            } catch (e) {}
+            // Si la navbar est déjà pré-injectée dans le DOM (Option 2), ne pas la recréer pour éviter tout FOUC
+            const existingMobileNav = document.getElementById('mobileBottomNav');
+            if (!existingMobileNav) {
+                let mobileNavPlaceholder = document.getElementById('mobile-nav-placeholder');
+                if (!mobileNavPlaceholder) {
+                    mobileNavPlaceholder = document.createElement('div');
+                    mobileNavPlaceholder.id = 'mobile-nav-placeholder';
+                    document.body.appendChild(mobileNavPlaceholder);
+                }
+                
+                let userRole = 'buyer';
+                let isGuest  = false;
+                try {
+                    userRole = localStorage.getItem('newketRole') || 'buyer';
+                    isGuest  = !localStorage.getItem('newketUserId');
+                } catch (e) {}
 
-            componentsToLoad.push(
-                this.loadComponent('mobile-nav-placeholder', '', getBottomNavHTML(userRole, isGuest))
-            );
+                componentsToLoad.push(
+                    this.loadComponent('mobile-nav-placeholder', '', getBottomNavHTML(userRole, isGuest))
+                );
+            }
         }
 
         await Promise.all(componentsToLoad);
