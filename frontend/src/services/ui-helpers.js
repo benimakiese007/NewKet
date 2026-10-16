@@ -66,7 +66,7 @@ async function _processToastQueue() {
     const icon = iconOverride || icons[type] || icons.info;
     
     const displayTitles = {
-        success: 'SuccÃ¨s',
+        success: 'Succès',
         danger: 'Erreur',
         error: 'Erreur',
         warning: 'Attention',
@@ -228,7 +228,7 @@ function _nkNormalizeForSlug(value) {
     return String(value || '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[â€™']/g, '')
+        .replace(/[’']/g, '')
         .replace(/[^a-zA-Z0-9]+/g, '_')
         .replace(/_+/g, '_')
         .replace(/^_+|_+$/g, '');
@@ -355,7 +355,7 @@ document.addEventListener('click', async (event) => {
     }
 
     if (window.copyAndAnimateButton) {
-        window.copyAndAnimateButton({ currentTarget: shareButton }, productUrl, 'Lien copiÃ© !');
+        window.copyAndAnimateButton({ currentTarget: shareButton }, productUrl, 'Lien copié !');
     } else {
         await copyTextToClipboard(productUrl);
     }
@@ -477,7 +477,7 @@ export const SidebarManager = {
             if (toggleBtn) {
                 const hasToggleAttr = toggleBtn.getAttribute('data-toggle-sidebar');
                 if (hasToggleAttr) {
-                    // Only the capture listener calls toggle() â€” no onclick on these buttons.
+                    // Only the capture listener calls toggle() — no onclick on these buttons.
                     // Stop propagation so no other listener fires toggle() again.
                     e.stopPropagation();
                     this.toggle();
@@ -615,11 +615,11 @@ export const SidebarManager = {
 window.SidebarManager = SidebarManager;
 
 /**
- * GÃ©nÃ¨re les Ã©toiles de notation avec support des Ã©toiles partielles.
- * Ex : 4.7 â†’ 4 Ã©toiles pleines + 1 Ã©toile colorÃ©e Ã  70%.
- * Utilise clip-path:inset() pour Ã©viter les problÃ¨mes shadow DOM des web components iconify-icon.
+ * Génère les étoiles de notation avec support des étoiles partielles.
+ * Ex : 4.7 → 4 étoiles pleines + 1 étoile colorée à 70%.
+ * Utilise clip-path:inset() pour éviter les problèmes shadow DOM des web components iconify-icon.
  * @param {number} rating - Note entre 0 et 5.
- * @returns {string} HTML des Ã©toiles.
+ * @returns {string} HTML des étoiles.
  */
 export function buildStarsHTML(rating) {
     const SIZE = 14;
@@ -629,7 +629,7 @@ export function buildStarsHTML(rating) {
     const hasPartial = partial > 0;
     const emptyStars = 5 - fullStars - (hasPartial ? 1 : 0);
     // Pour clip-path: inset(top right bottom left)
-    // On veut garder {partial}% depuis la gauche â†’ couper (100-partial)% Ã  droite
+    // On veut garder {partial}% depuis la gauche → couper (100-partial)% à droite
     const clipRight = 100 - partial;
     const starSvg = (fill, extraStyle = '') => `
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
@@ -639,12 +639,12 @@ export function buildStarsHTML(rating) {
 
     let html = '';
 
-    // Ã‰toiles pleines
+    // Étoiles pleines
     for (let i = 0; i < fullStars; i++) {
         html += starSvg('#F59E0B');
     }
 
-    // Ã‰toile partielle : Ã©toile grise en fond + Ã©toile jaune clipÃ©e via clip-path
+    // Étoile partielle : étoile grise en fond + étoile jaune clipée via clip-path
     if (hasPartial) {
         html +=
             `<span style="position:relative;display:inline-block;flex:0 0 ${SIZE}px;width:${SIZE}px;height:${SIZE}px;line-height:0;">` +
@@ -653,7 +653,7 @@ export function buildStarsHTML(rating) {
             `</span>`;
     }
 
-    // Ã‰toiles vides restantes (mÃªme icÃ´ne que les pleines, juste grise â€” taille identique garantie)
+    // Étoiles vides restantes (même icône que les pleines, juste grise — taille identique garantie)
     for (let i = 0; i < emptyStars; i++) {
         html += starSvg('#E5E7EB');
     }
@@ -679,7 +679,7 @@ export function buildProductCardHTML(p, options = {}) {
     const safeName = String(p.name || 'Produit NewKet').replace(/"/g, '&quot;');
     const isFavorite = window.FavoritesManager ? FavoritesManager.isInFavorites(p.id) : false;
 
-    // Handle image (could be comma separated or array-backed) â€” use the first real token.
+    // Handle image (could be comma separated or array-backed) — use the first real token.
     const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     const primaryImageSource = Array.isArray(p.images) && p.images.length > 0
         ? p.images[0]
@@ -775,7 +775,7 @@ export function buildProductCardHTML(p, options = {}) {
             : `/boutique/${encodeURIComponent(shopSlugFallback)}`);
 
     const certifiedBadge = vendor?.seller_type === 'certified' 
-        ? `<iconify-icon icon="solar:verified-check-bold" class="inline-block align-text-bottom ml-1" style="color: #3b82f6 !important;" width="18" title="Vendeur CertifiÃ©"></iconify-icon>`
+        ? `<iconify-icon icon="solar:verified-check-bold" class="inline-block align-text-bottom ml-1" style="color: #3b82f6 !important;" width="18" title="Vendeur Certifié"></iconify-icon>`
         : '';
 
     return `
@@ -825,7 +825,7 @@ export function buildProductCardHTML(p, options = {}) {
                         <iconify-icon icon="solar:cart-plus-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
                         <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Ajouter' : 'Indisponible'}</span>
                     </button>
-                    <button onclick="if(navigator.share){ navigator.share({title:'${safeName.replace(/'/g, "\\'")} â€” NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id='); }"
+                    <button onclick="if(navigator.share){ navigator.share({title:'${safeName.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id='); }"
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 bg-white hover:bg-gray-50 flex-shrink-0 transition-all"
                         aria-label="Partager ce produit"
                         title="Partager">
@@ -1213,7 +1213,7 @@ function splitImageCandidates(value) {
 }
 
 function isKnownPlaceholderImageUrl(value) {
-    // DÃ©sactivÃ© pour permettre l'affichage des images (loremflickr, placehold, etc.)
+    // Désactivé pour permettre l'affichage des images (loremflickr, placehold, etc.)
     return false;
 }
 
@@ -1362,14 +1362,14 @@ export function resolveProductImageSource(productOrImage, opts = {}) {
     for (const candidate of candidates) {
         const normalized = getOptimizedImageUrl(candidate, opts);
         if (normalized && normalized !== fallback) {
-            // Rejeter toute URL externe : seules Cloudinary et Supabase Storage sont autorisÃ©es
+            // Rejeter toute URL externe : seules Cloudinary et Supabase Storage sont autorisées
             const lower = normalized.toLowerCase();
             if (lower.startsWith('http') &&
                 !lower.includes('res.cloudinary.com') &&
                 !lower.includes('.supabase.co/storage/v1/') &&
                 !lower.includes('/storage/v1/object/public/') &&
                 !lower.includes('/storage/v1/render/image/public/')) {
-                continue; // URL externe â†’ ignorer, essayer le candidat suivant
+                continue; // URL externe → ignorer, essayer le candidat suivant
             }
             return normalized;
         }
@@ -1424,13 +1424,13 @@ function nkCheckoutNameLooksLikeRoleLabel(raw) {
         'administrateur',
         'administration',
         'moderator',
-        'modÃ©rateur',
+        'modérateur',
         'support',
         'newket',
         'user',
         'utilisateur',
         'guest',
-        'invitÃ©'
+        'invité'
     ]);
     if (banned.has(v)) return true;
     // Very short labels are usually not a real full name
@@ -1700,7 +1700,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                     <!-- Body -->
                     <div class="px-5 py-4 sm:px-6 sm:py-5 space-y-4 overflow-y-auto overscroll-contain flex-1">
                         <div class="bg-indigo-50/50 p-4 rounded-2xl flex items-center justify-between mb-2 border border-indigo-100/50">
-                            <span class="text-sm font-semibold text-indigo-900">Total Ã  payer</span>
+                            <span class="text-sm font-semibold text-indigo-900">Total à payer</span>
                             <div class="text-right">
                                 <span id="${modalId}-total-amount" class="text-xl font-black text-indigo-600">${priceStr}</span>
                             </div>
@@ -1709,17 +1709,17 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                         ${hideQuantity ? '' : `
                         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                             <div class="flex items-center justify-between gap-3 mb-3">
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">QuantitÃ©</label>
-                                <span id="${modalId}-stock-hint" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${stockLimit ? `Stock dispo: ${stockLimit}` : 'QuantitÃ© libre'}</span>
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Quantité</label>
+                                <span id="${modalId}-stock-hint" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${stockLimit ? `Stock dispo: ${stockLimit}` : 'Quantité libre'}</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button type="button" id="${modalId}-qty-minus" class="-gray-200 text-gray-700 font-black text-2xl leading-none transition-colors flex items-center justify-center rounded-xl" aria-label="RÃ©duire la quantitÃ©">âˆ’</button>
+                                <button type="button" id="${modalId}-qty-minus" class="-gray-200 text-gray-700 font-black text-2xl leading-none transition-colors flex items-center justify-center rounded-xl" aria-label="Réduire la quantité">−</button>
                                 <input type="number" id="${modalId}-quantity" min="1" ${stockLimit ? `max="${stockLimit}"` : ''} value="${initialQuantity}" inputmode="numeric"
                                     class="flex-1 h-12 rounded-xl border border-gray-200 bg-gray-50 text-center text-base font-black text-gray-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                <button type="button" id="${modalId}-qty-plus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Augmenter la quantitÃ©">+</button>
+                                <button type="button" id="${modalId}-qty-plus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Augmenter la quantité">+</button>
                             </div>
                             <div id="${modalId}-qty-note" class="mt-3 text-[11px] text-gray-500 leading-snug">
-                                La quantitÃ© modifie le total avant validation.
+                                La quantité modifie le total avant validation.
                             </div>
                         </div>
                         `}
@@ -1739,7 +1739,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
                                     </div>
-                                    <input type="tel" id="${modalId}-phone" placeholder="NumÃ©ro de tÃ©l. (ex: 070707...)" value="${escapeAttr(prefillPhone)}" required 
+                                    <input type="tel" id="${modalId}-phone" placeholder="Numéro de tél. (ex: 070707...)" value="${escapeAttr(prefillPhone)}" required
                                         class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
 
@@ -1849,7 +1849,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             if (qtyMinusBtn()) qtyMinusBtn().disabled = q <= 1;
             if (qtyPlusBtn()) qtyPlusBtn().disabled = !!stockLimit && q >= stockLimit;
             if (stockHintEl()) {
-                stockHintEl().textContent = stockLimit ? `Stock dispo: ${stockLimit}` : 'QuantitÃ© libre';
+                stockHintEl().textContent = stockLimit ? `Stock dispo: ${stockLimit}` : 'Quantité libre';
             }
             return q;
         };
@@ -1871,7 +1871,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                     
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 18,
-                        attribution: 'Â© OpenStreetMap'
+                        attribution: '© OpenStreetMap'
                     }).addTo(map);
 
                     marker = L.marker(defaultMapCenter, { draggable: true }).addTo(map);
@@ -1927,7 +1927,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                     if (statusEl) {
                         statusEl.innerHTML = `
                             <iconify-icon icon="solar:danger-triangle-bold" width="14" class="text-red-500"></iconify-icon>
-                            <span class="text-red-600 font-medium">GÃ©olocalisation non supportÃ©e par votre navigateur</span>
+                            <span class="text-red-600 font-medium">Géolocalisation non supportée par votre navigateur</span>
                         `;
                     }
                     return;
@@ -1968,16 +1968,16 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                         }
 
                         // Success UI feedback
-                        updateStatusUI(`Position dÃ©tectÃ©e (PrÃ©cision: Â±${Math.round(accuracy)}m).`);
+                        updateStatusUI(`Position détectée (Précision: ±${Math.round(accuracy)}m).`);
                         if (badgeEl) badgeEl.classList.remove('hidden');
 
                         if (locateBtn) {
                             locateBtn.disabled = false;
-                            locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position trouvÃ©e !</span>`;
+                            locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position trouvée !</span>`;
                             locateBtn.classList.replace('from-indigo-600', 'from-green-600');
                             
                             setTimeout(() => {
-                                locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Mettre Ã  jour la position</span>`;
+                                locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Mettre à jour la position</span>`;
                                 locateBtn.classList.replace('from-green-600', 'from-indigo-600');
                             }, 3000);
                         }
@@ -1986,14 +1986,14 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                     (error) => {
                         console.error("Geolocation error:", error);
                         let errorMsg = 'Impossible de vous localiser.';
-                        if (error.code === 1) errorMsg = 'Permission refusÃ©e. Veuillez activer le GPS.';
+                        if (error.code === 1) errorMsg = 'Permission refusée. Veuillez activer le GPS.';
                         else if (error.code === 2) errorMsg = 'Position non disponible.';
                         
                         updateStatusUI(errorMsg, true);
                         
                         if (locateBtn) {
                             locateBtn.disabled = false;
-                            locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>RÃ©essayer</span>`;
+                            locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Réessayer</span>`;
                         }
                     },
                     {
@@ -2033,7 +2033,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             const city = document.getElementById(`${id}-city`).value.trim();
 
             if (!phone) {
-                setCheckoutFeedback("Le numÃ©ro de tÃ©lÃ©phone est obligatoire");
+                setCheckoutFeedback("Le numéro de téléphone est obligatoire");
                 return;
             }
             
@@ -2127,7 +2127,7 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
     if (document.getElementById('nk-announcement-modal')) return;
     
     // Check if user has already dismissed this specific announcement in this session
-    // (only applies to non-forced calls â€” broadcasts always shown)
+    // (only applies to non-forced calls — broadcasts always shown)
     if (!force && sessionStorage.getItem(`dismissed_${title}`)) return;
 
 
@@ -2480,7 +2480,7 @@ window.showPromptModal = ({
         }
 
         if (window.AuthManager?.role === 'admin') {
-            showInlineCheckoutError('Les administrateurs ne peuvent pas effectuer dâ€™achat.');
+            showInlineCheckoutError('Les administrateurs ne peuvent pas effectuer d’achat.');
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
             return;
@@ -2530,11 +2530,11 @@ window.showPromptModal = ({
             lng: customerLng
         } = customerInfo;
 
-        // VÃ©rifier que l'utilisateur est connectÃ© avant de payer
+        // Vérifier que l'utilisateur est connecté avant de payer
         if (window.SupabaseAdapter) {
             const session = await window.SupabaseAdapter.getSession(3000);
             if (!session?.access_token) {
-                showInlineCheckoutError('Vous devez Ãªtre connectÃ© pour passer une commande.');
+                showInlineCheckoutError('Vous devez être connecté pour passer une commande.');
                 btnElement.innerHTML = originalHtml;
                 btnElement.disabled = false;
                 return;
@@ -2577,7 +2577,7 @@ window.showPromptModal = ({
           const successNotice = document.createElement('p');
           successNotice.className = 'checkout-inline-restriction mt-3 text-sm font-semibold text-emerald-600';
           successNotice.setAttribute('role', 'status');
-          successNotice.textContent = "Demande envoyÃ©e au vendeur. Il doit maintenant proposer le devis de livraison.";
+          successNotice.textContent = "Demande envoyée au vendeur. Il doit maintenant proposer le devis de livraison.";
           btnElement?.parentElement?.querySelector('.checkout-inline-restriction')?.remove();
           btnElement?.insertAdjacentElement('afterend', successNotice);
           btnElement.innerHTML = originalHtml;
@@ -2625,7 +2625,7 @@ window.showPromptModal = ({
           };
 
           if (!window.initCheckout) {
-              showContactSellerFallback('Checkout non initialisÃ©.', resolvedBtn);
+              showContactSellerFallback('Checkout non initialisé.', resolvedBtn);
               return;
           }
           if (!resolvedBtn) {
@@ -2638,14 +2638,14 @@ window.showPromptModal = ({
   }
 
 /**
- * âœ… LAZY LOADING via IntersectionObserver
+ * ✅ LAZY LOADING via IntersectionObserver
  * 
- * Ã€ appeler aprÃ¨s chaque inject de cartes HTML dans le DOM.
- * uniquement quand ils entrent dans le viewport (Ã©conomise 60%+ de bande passante).
+ * À appeler après chaque inject de cartes HTML dans le DOM.
+ * uniquement quand ils entrent dans le viewport (économise 60%+ de bande passante).
  * 
  * Utilise le native loading="lazy" + IntersectionObserver comme double filet:
  * - loading="lazy" est natif et efficace sur la plupart des navigateurs.
- * - IntersectionObserver contrÃ´le plus finement l'animation de fondu.
+ * - IntersectionObserver contrôle plus finement l'animation de fondu.
  */
 let _lazyObserver = null;
 
@@ -2697,7 +2697,7 @@ export function initLazyImages(root = document) {
                     _lazyObserver.unobserve(img);
                 });
             }, {
-                rootMargin: '200px 0px',   // Commence Ã  charger 200px avant l'entrÃ©e dans le viewport
+                rootMargin: '200px 0px',   // Commence à charger 200px avant l'entrée dans le viewport
                 threshold: 0.01
             });
         }
@@ -2821,8 +2821,8 @@ export function renderAvatar(name, url, imgId, placeholderId) {
 
 /**
  * ThemeManager
- * GÃ¨re le mode clair/sombre de l'application via TailwindCSS (class 'dark' sur html)
- * et sauvegarde la prÃ©fÃ©rence dans le localStorage.
+ * Gère le mode clair/sombre de l'application via TailwindCSS (class 'dark' sur html)
+ * et sauvegarde la préférence dans le localStorage.
  */
 export const ThemeManager = {
     _boundToggleHandler: false,
@@ -2855,7 +2855,7 @@ export const ThemeManager = {
     }
 };
 
-// Initialisation immÃ©diate pour Ã©viter le FOUC au maximum
+// Initialisation immédiate pour éviter le FOUC au maximum
 ThemeManager.init();
 
 window.showToast = showToast;
@@ -2927,21 +2927,21 @@ window.showLogoutConfirm = () => {
                         <iconify-icon icon="solar:logout-3-bold" class="text-red-500 text-4xl relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform duration-500"></iconify-icon>
                     </div>
                     
-                    <h3 class="text-2xl font-black text-gray-900 leading-tight mb-2 tracking-tight">DÃ©connexion</h3>
+                    <h3 class="text-2xl font-black text-gray-900 leading-tight mb-2 tracking-tight">Déconnexion</h3>
                     <p class="text-[11px] text-red-500 font-bold uppercase tracking-[0.2em] mb-4 bg-red-50 px-3 py-1 rounded-full border border-red-100">Session NewKet</p>
                     
                     <p class="text-[14px] text-gray-500 font-medium leading-relaxed mb-8">
-                        ÃŠtes-vous sÃ»r de vouloir fermer votre session ? Vous devrez vous reconnecter pour accÃ©der Ã  votre compte.
+                        Êtes-vous sûr de vouloir fermer votre session ? Vous devrez vous reconnecter pour accéder à votre compte.
                     </p>
                     
                     <div class="flex flex-col gap-3 w-full">
                         <button id="${modalId}-btn-confirm" type="button" class="w-full px-5 py-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-[1.25rem] shadow-[0_8px_16px_-4px_rgba(239,68,68,0.3)] hover:shadow-[0_16px_24px_-4px_rgba(239,68,68,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-[0.98] text-[15px] flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer">
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out skew-x-12"></div>
-                            <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-1">Oui, me dÃ©connecter</span>
+                            <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-1">Oui, me déconnecter</span>
                             <iconify-icon icon="solar:logout-3-bold" width="18" class="relative z-10 transition-transform duration-300 group-hover:translate-x-2 group-hover:rotate-6"></iconify-icon>
                         </button>
                         <button id="${modalId}-btn-cancel" type="button" class="w-full px-5 py-4 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-[1.25rem] transition-all duration-300 active:scale-[0.98] text-[15px] border-2 border-gray-100 hover:border-gray-200 hover:-translate-y-1 hover:shadow-md flex items-center justify-center cursor-pointer">
-                            Rester connectÃ©
+                            Rester connecté
                         </button>
                     </div>
                 </div>
@@ -2950,7 +2950,7 @@ window.showLogoutConfirm = () => {
 
         mountModalOverlay(modal);
 
-        // Binding explicite des Ã©vÃ©nements clics et touch (rÃ©sout le blocage sous WKWebView iOS)
+        // Binding explicite des événements clics et touch (résout le blocage sous WKWebView iOS)
         const btnConfirm = document.getElementById(`${modalId}-btn-confirm`);
         const btnCancel = document.getElementById(`${modalId}-btn-cancel`);
         const backdrop = document.getElementById(`${modalId}-backdrop`);
@@ -2973,7 +2973,7 @@ window.showLogoutConfirm = () => {
         backdrop?.addEventListener('click', triggerCancel);
         backdrop?.addEventListener('touchend', triggerCancel);
 
-        // Animate in et dÃ©verrouillage des pointer-events sur le conteneur parent
+        // Animate in et déverrouillage des pointer-events sur le conteneur parent
         requestAnimationFrame(() => {
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.classList.add('pointer-events-auto');
@@ -3084,8 +3084,8 @@ window.showOrderSuccessModal = function() {
                         <path id="successCheck" class="stroke-current text-green-500" fill="none" stroke-width="3" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke-dasharray="35" stroke-dashoffset="35" style="transition: stroke-dashoffset 0.5s ease-out 0.8s;"/>
                     </svg>
                 </div>
-                <h2 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Commande validÃ©e !</h2>
-                <p class="text-gray-500 font-medium mb-8 max-w-sm">Merci pour votre achat. Vous allez Ãªtre redirigÃ© vers le suivi de votre commande.</p>
+                <h2 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Commande validée !</h2>
+                <p class="text-gray-500 font-medium mb-8 max-w-sm">Merci pour votre achat. Vous allez être redirigé vers le suivi de votre commande.</p>
             </div>
         </div>
     `;
@@ -3127,8 +3127,8 @@ window.showPaymentSuccessModal = function() {
                         <path id="paymentSuccessCheck" class="stroke-current text-green-500" fill="none" stroke-width="3" d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke-dasharray="35" stroke-dashoffset="35" style="transition: stroke-dashoffset 0.5s ease-out 0.8s;"/>
                     </svg>
                 </div>
-                <h2 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Paiement acceptÃ© !</h2>
-                <p class="text-gray-500 font-medium mb-8 max-w-sm">Votre transaction a bien Ã©tÃ© effectuÃ©e. Vous allez Ãªtre redirigÃ© vers vos achats.</p>
+                <h2 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tight">Paiement accepté !</h2>
+                <p class="text-gray-500 font-medium mb-8 max-w-sm">Votre transaction a bien été effectuée. Vous allez être redirigé vers vos achats.</p>
             </div>
         </div>
     `;
@@ -3163,7 +3163,7 @@ window.showPaymentSuccessModal = function() {
     });
 };
 
-window.copyAndAnimateButton = async function(event, text, successText = 'CopiÃ© !') {
+window.copyAndAnimateButton = async function(event, text, successText = 'Copié !') {
     const btn = event.currentTarget;
     if (!btn || btn._isAnimatingCopy) return;
     btn._isAnimatingCopy = true;
