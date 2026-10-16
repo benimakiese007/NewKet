@@ -359,7 +359,7 @@ const App = {
                 if (navRect.width > 0 && itemRect.width > 0) {
                     const leftOffset = itemRect.left - navRect.left;
                     slider.style.width = `${itemRect.width}px`;
-                    slider.style.transform = `translateX(${leftOffset}px)`;
+                    slider.style.transform = `translate3d(${leftOffset}px, -50%, 0)`;
                     // Opacité gérée à 100% par le CSS (50% au repos, 100% pressé, opaque si accessibilité)
                 }
             }
@@ -901,7 +901,7 @@ const setupIOSLiquidGlassDragGesture = () => {
         const finalOffset = customX !== null ? customX : baseOffset;
 
         slider.style.width = `${itemRect.width + extraSide}px`;
-        slider.style.transform = `translateX(${finalOffset}px)`;
+        slider.style.transform = `translate3d(${finalOffset}px, -50%, 0)`;
     };
 
     const highlightItem = (item) => {
@@ -990,7 +990,7 @@ const setupIOSLiquidGlassDragGesture = () => {
 
         slider.style.transition = 'none';
         slider.style.width = `${lensWidth}px`;
-        slider.style.transform = `translateX(${targetLeft}px)`;
+        slider.style.transform = `translate3d(${targetLeft}px, -50%, 0)`;
     };
 
     const handleEnd = () => {

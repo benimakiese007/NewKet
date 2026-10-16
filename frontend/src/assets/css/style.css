@@ -10650,6 +10650,8 @@ html.dark .liquid-glass-nav.pressed {
   position: absolute;
   top: 50%;
   left: 0;
+  -webkit-transform: translate3d(0, -50%, 0);
+  transform: translate3d(0, -50%, 0);
   height: 48px;
   border-radius: 24px !important;
   width: 0;
@@ -10700,11 +10702,11 @@ html.dark .liquid-sliding-lens {
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Nav item typography and icon styling */
+/* Nav item typography and icon styling - ✅ THEME MONOCHROME NOIR PUR (#000000) */
 .liquid-glass-nav .nav-item {
   position: relative;
   z-index: 2;
-  color: #64748B !important;
+  color: #000000 !important;
   text-shadow: none !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -10715,14 +10717,14 @@ html.dark .liquid-sliding-lens {
 
 .liquid-glass-nav .nav-item iconify-icon {
   filter: none !important;
-  color: #8E8E93 !important;
+  color: #000000 !important;
   transition: color 0.2s ease !important;
 }
 
 .liquid-glass-nav .nav-item span {
   font-weight: 500 !important;
   letter-spacing: 0.01em !important;
-  color: #8E8E93 !important;
+  color: #000000 !important;
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
