@@ -921,8 +921,6 @@ const setupIOSLiquidGlassDragGesture = () => {
                 }
             }
         });
-        // Clic haptique Taptic Engine natif Apple au franchissement d'un onglet
-        window.NewKetHaptics.trigger('light');
     };
 
     // 🍏 Formule Rubber-Band Apple calibrée : plafond strict à 8px max
@@ -1004,7 +1002,6 @@ const setupIOSLiquidGlassDragGesture = () => {
 
         if (lastHighlightedItem) {
             updateLens(lastHighlightedItem, false);
-            window.NewKetHaptics.trigger('light');
 
             // ✅ Anti-click : ne déclenche l'action que si c'était un vrai tap (pas un swipe)
             if (!hasDragged) {
