@@ -1102,15 +1102,15 @@
             const dashboardView = document.getElementById('view-dashboard');
             const dashboardLink = document.getElementById('link-dashboard');
 
-            // Update Hash for persistence (preserve achat deep-links like #achat?order_id=...)
+            // Update Hash for persistence sans polluer l'historique (évite le double-back)
             try {
                 const raw = (window.location.hash || '').replace(/^#/, '');
                 const decoded = decodeURIComponent(raw || '').trim();
                 if (!decoded || decoded.indexOf(tabId) !== 0) {
-                    window.location.hash = tabId;
+                    history.replaceState(null, '', '#' + tabId);
                 }
             } catch (e) {
-                window.location.hash = tabId;
+                try { history.replaceState(null, '', '#' + tabId); } catch (_) { window.location.hash = tabId; }
             }
 
             ['orders', 'purchases', 'favorites', 'notifications', 'settings'].forEach(t => {

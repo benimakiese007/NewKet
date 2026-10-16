@@ -863,8 +863,9 @@
 
             initializePriceSlider();
 
-            // Re-render when currency changes
+            // Re-render when currency changes or products update
             window.addEventListener('currencyChanged', () => renderCatalog());
+            window.addEventListener('productsUpdated', () => renderCatalog());
 
             // Instant filter on search input
             // ✅ Fix: debounce créé UNE SEULE FOIS (évite de le recréer à chaque frappe)
@@ -1387,12 +1388,6 @@
                 return;
             }
 
-            // Skeletons normaux pour le chargement initial du catalogue
-            const isLoading = window.ProductManager && window.ProductManager.loading;
-            if (isLoading && products.length === 0 && !append) {
-                grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
-                return;
-            }
 
             if (products.length === 0 && !append) {
                 if (catalogVisualSearchError) {

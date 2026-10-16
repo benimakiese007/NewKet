@@ -1557,9 +1557,13 @@
                         event.stopPropagation();
                     }
                     
-                    // Update Hash
+                    // Update Hash sans polluer l'historique (évite le double-back)
                     if (window.location.hash !== '#' + tabId) {
-                        window.location.hash = tabId;
+                        try {
+                            history.replaceState(null, '', '#' + tabId);
+                        } catch (_) {
+                            window.location.hash = tabId;
+                        }
                     }
 
                     window.newketVendorActiveTab = tabId;
