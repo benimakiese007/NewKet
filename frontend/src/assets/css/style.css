@@ -10602,7 +10602,7 @@ html.dark .skeleton::after {
     inset 0 -0.5px 1px 0 rgba(255, 255, 255, 0.3) !important;
     
   border-radius: 32px !important;
-  overflow: hidden;
+  overflow: visible !important; /* Permet à la lentille liquide de sortir de la barre en 3D comme sur iOS 26 */
   position: fixed;
   transform-origin: center bottom !important;
   -webkit-transition: -webkit-transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
@@ -10613,8 +10613,6 @@ html.dark .skeleton::after {
 
 /* 🍏 Rubber-Band Effect iOS 26 : État pressé / Doigt posé (la barre grossit vers le haut avec rebond élastique) */
 .liquid-glass-nav.pressed {
-  -webkit-transform: scale(1.05) translate3d(0, -3px, 0) !important;
-  transform: scale(1.05) translate3d(0, -3px, 0) !important;
   box-shadow:
     0 22px 50px -4px rgba(0, 0, 0, 0.20),
     0 8px 20px -2px rgba(0, 0, 0, 0.08),
@@ -10638,52 +10636,51 @@ html.dark .liquid-glass-nav {
 }
 
 html.dark .liquid-glass-nav.pressed {
-  -webkit-transform: scale(1.05) translate3d(0, -3px, 0) !important;
-  transform: scale(1.05) translate3d(0, -3px, 0) !important;
   box-shadow:
     0 24px 54px -4px rgba(0, 0, 0, 0.65),
     inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
-/* Pastille de verre glissante Apple (Liquid Lens - Style Apple Music) */
+/* Pastille de verre glissante Apple (Liquid Lens - Style Apple Music / iOS 26) */
 .liquid-sliding-lens {
   position: absolute;
-  top: 5px;
-  bottom: 5px;
+  top: 50%;
   left: 0;
+  height: 48px;
+  border-radius: 24px !important;
   width: 0;
   opacity: 0;
   transform-origin: center center !important;
-  will-change: transform, width, opacity;
-  /* Teinte fumée douce gris Apple Music parfaitement visible sur fond blanc et clair */
-  background: rgba(0, 0, 0, 0.08) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  backdrop-filter: blur(16px) saturate(160%) !important;
-  border: 0.5px solid rgba(0, 0, 0, 0.06) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.90) !important;
+  will-change: transform, width, height, opacity;
+  /* Teinte fumée douce gris Apple Music en état repos, sagement posée dans la barre */
+  background: rgba(0, 0, 0, 0.07) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.05) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.95) !important;
   box-shadow:
-    0 4px 14px -2px rgba(0, 0, 0, 0.12),
-    0 1px 3px 0 rgba(0, 0, 0, 0.06),
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.8),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.04) !important;
-  border-radius: 26px !important;
+    0 3px 12px rgba(0, 0, 0, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
   z-index: 1;
   pointer-events: none;
-  /* Ressort physique Apple (spring physics) */
-  -webkit-transition: -webkit-transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s ease, opacity 0.2s ease !important;
-  transition: transform 0.40s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s ease, opacity 0.2s ease !important;
+  /* Ressort physique Apple (spring physics fluide) */
+  -webkit-transition: -webkit-transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.35s ease, opacity 0.2s ease, background 0.25s ease, box-shadow 0.25s ease !important;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-radius 0.35s ease, opacity 0.2s ease, background 0.25s ease, box-shadow 0.25s ease !important;
 }
 
-/* Mode Glissement au doigt direct (zéro délai pendant le drag + pop visuel de goutte de liquide) */
+/* 🫧 Mode Pressé / Glissement : la lentille liquide SORT de la navbar aux 4 coins en relief 3D */
+.liquid-glass-nav.pressed .liquid-sliding-lens,
 .liquid-sliding-lens.is-dragging {
-  -webkit-transition: none !important;
-  transition: none !important;
-  background: rgba(0, 0, 0, 0.13) !important;
+  height: 78px !important; /* Déborde de 8px au-dessus et 8px en-dessous de la barre (62px) */
+  border-radius: 39px !important;
+  background: rgba(255, 255, 255, 0.90) !important;
+  border: 1.5px solid rgba(255, 255, 255, 1) !important;
   box-shadow:
-    0 6px 18px -2px rgba(0, 0, 0, 0.18),
-    0 2px 6px 0 rgba(0, 0, 0, 0.10),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.06) !important;
+    0 16px 36px rgba(0, 0, 0, 0.20),
+    0 4px 12px rgba(0, 0, 0, 0.10),
+    inset 0 2px 2px rgba(255, 255, 255, 1),
+    inset 0 -1.5px 2.5px rgba(0, 180, 255, 0.35),
+    inset 1.5px 0 2.5px rgba(255, 70, 120, 0.28) !important;
 }
 
 /* Dark mode pour la pastille Apple Music */

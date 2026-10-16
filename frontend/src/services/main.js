@@ -878,15 +878,46 @@ const setupIOSLiquidGlassDragGesture = () => {
         return closest;
     };
 
+    const updateLens = (item, isPopped = false, customX = null) => {
+        if (!item || !slider) return;
+        const navRect = nav.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        if (navRect.width <= 0 || itemRect.width <= 0) return;
+
+        // 🌟 Débordement franc sur les côtés (+28px total : +14px gauche, +14px droite)
+        const extraSide = isPopped ? 28 : 0;
+        const baseOffset = (itemRect.left - navRect.left) - (extraSide / 2);
+        const finalOffset = customX !== null ? customX : baseOffset;
+
+        slider.style.width = `${itemRect.width + extraSide}px`;
+        slider.style.transform = `translateX(${finalOffset}px)`;
+    };
+
     const highlightItem = (item) => {
         if (!item || item === lastHighlightedItem) return;
         lastHighlightedItem = item;
         getItems().forEach((it) => {
             const isMatch = it === item;
             it.classList.toggle('active', isMatch);
+            // Switch icône linear ↔ bold (filled)
+            const iconEl = it.querySelector('iconify-icon');
+            if (iconEl) {
+                const currentIcon = iconEl.getAttribute('icon') || '';
+                if (isMatch) {
+                    iconEl.setAttribute('icon', currentIcon.replace(/-linear$/, '-bold'));
+                } else {
+                    iconEl.setAttribute('icon', currentIcon.replace(/-bold$/, '-linear'));
+                }
+            }
         });
         // Clic haptique Taptic Engine natif Apple au franchissement d'un onglet
         window.NewKetHaptics.trigger('light');
+    };
+
+    // 🍏 Formule Rubber-Band Apple calibrée : plafond strict à 8px max
+    const rubberBand = (overflow, maxAllowed = 8) => {
+        if (overflow <= 0) return 0;
+        return (overflow * maxAllowed) / (overflow + 30);
     };
 
     const handleStart = (clientX, pointerId = null) => {
@@ -894,7 +925,7 @@ const setupIOSLiquidGlassDragGesture = () => {
         if (!target) return;
 
         isDragging = true;
-        // 🍏 iOS 26 Rubber Band: la barre entière grossit vers le haut avec rebond élastique
+        // 🍏 iOS 26 Liquid Glass : la capsule gonfle, déborde aux 4 coins en 3D
         nav.classList.add('pressed');
         slider.classList.add('is-dragging');
         lastHighlightedItem = null;
@@ -904,16 +935,11 @@ const setupIOSLiquidGlassDragGesture = () => {
             try { nav.setPointerCapture(pointerId); } catch (_) {}
         }
 
-        const navRect = nav.getBoundingClientRect();
-        const itemRect = target.getBoundingClientRect();
-        const leftOffset = Math.max(0, Math.min(clientX - navRect.left - itemRect.width / 2, navRect.width - itemRect.width));
-        slider.style.width = `${itemRect.width}px`;
-        slider.style.transform = `translateX(${leftOffset}px) scale(1.08)`;
+        updateLens(target, true);
     };
 
     const handleMove = (clientX) => {
         if (!isDragging) return;
-        const navRect = nav.getBoundingClientRect();
         const target = findClosestItem(clientX);
         if (target) {
             highlightItem(target);
@@ -921,50 +947,40 @@ const setupIOSLiquidGlassDragGesture = () => {
 
         const items = getItems();
         const activeItem = target || lastHighlightedItem || items[0];
-        const itemWidth = activeItem ? activeItem.getBoundingClientRect().width : (navRect.width / (items.length || 4));
-        const rawOffset = clientX - navRect.left - itemWidth / 2;
-        const maxOffset = navRect.width - itemWidth;
+        const navRect = nav.getBoundingClientRect();
+        const itemRect = activeItem.getBoundingClientRect();
+        const extraSide = 28;
 
-        let currentOffset = rawOffset;
-        let scaleX = 1.06;
-        let scaleY = 1.04;
+        const firstRect = items[0].getBoundingClientRect();
+        const lastRect = items[items.length - 1].getBoundingClientRect();
+        const minOffset = (firstRect.left - navRect.left) - (extraSide / 2);
+        const maxOffset = (lastRect.left - navRect.left) - (extraSide / 2);
 
-        // 🍏 Vraie formule Apple Rubber-Band (UIScrollView dampening curve)
-        if (rawOffset < 0) {
-            // Dépassement à gauche : résistance progressive + écrasement/étirement liquide
-            const overflow = -rawOffset;
-            const rubberOffset = -(overflow * 0.45) / (1 + overflow / 120);
-            currentOffset = rubberOffset;
-            scaleX = 1.06 + Math.min(0.25, overflow / 250);
-            scaleY = Math.max(0.85, 1.04 - overflow / 500);
-        } else if (rawOffset > maxOffset) {
-            // Dépassement à droite : résistance progressive + étirement liquide
-            const overflow = rawOffset - maxOffset;
-            const rubberOffset = maxOffset + (overflow * 0.45) / (1 + overflow / 120);
-            currentOffset = rubberOffset;
-            scaleX = 1.06 + Math.min(0.25, overflow / 250);
-            scaleY = Math.max(0.85, 1.04 - overflow / 500);
+        let currentOffset = (itemRect.left - navRect.left) - (extraSide / 2);
+
+        // Si on tire au-delà des bords extrêmes : rubber-band 8px max
+        if (clientX < firstRect.left) {
+            const overflow = firstRect.left - clientX;
+            currentOffset = minOffset - rubberBand(overflow, 8);
+        } else if (clientX > lastRect.right) {
+            const overflow = clientX - lastRect.right;
+            currentOffset = maxOffset + rubberBand(overflow, 8);
         }
 
-        slider.style.width = `${itemWidth}px`;
-        slider.style.transform = `translateX(${currentOffset}px) scale(${scaleX}, ${scaleY})`;
+        slider.style.transition = 'none';
+        updateLens(activeItem, true, currentOffset);
     };
 
     const handleEnd = () => {
         if (!isDragging) return;
         isDragging = false;
-        // 🍏 Relâchement : la barre et la pastille reprennent leur taille avec rebond élastique cubic-bezier
+        // 🍏 Relâchement : la lentille se rétracte et s'assoit sagement dans la barre
         nav.classList.remove('pressed');
         slider.classList.remove('is-dragging');
+        slider.style.transition = '';
 
         if (lastHighlightedItem) {
-            // Aimantation magnétique sur l'onglet sélectionné
-            const navRect = nav.getBoundingClientRect();
-            const itemRect = lastHighlightedItem.getBoundingClientRect();
-            const leftOffset = itemRect.left - navRect.left;
-            slider.style.width = `${itemRect.width}px`;
-            slider.style.transform = `translateX(${leftOffset}px) scale(1)`;
-
+            updateLens(lastHighlightedItem, false);
             window.NewKetHaptics.trigger('light');
 
             // Déclenche l'action de l'onglet
