@@ -1095,9 +1095,22 @@
             // Libérer la mémoire après fermeture
             setTimeout(() => { if (img) { img.src = ''; img.classList.remove('opacity-100'); img.classList.add('opacity-0'); } }, 350);
         };
-        window.shareProduct = () => {
-            if (navigator.share) return navigator.share({ title: document.title, url: window.location.href });
-            navigator.clipboard.writeText(window.location.href);
+        window.shareProduct = async () => {
+            const shareUrl = window.location.href;
+            const shareTitle = document.title || 'Produit NewKet';
+            if (window.NewKetShare) {
+                const res = await window.NewKetShare({ title: shareTitle, url: shareUrl });
+                if (res?.method === 'clipboard' && res?.success) {
+                    const feedback = document.getElementById('productActionFeedback');
+                    if (feedback) {
+                        feedback.textContent = 'Lien copié !';
+                        feedback.className = 'rounded-2xl px-4 py-3 text-sm font-semibold bg-emerald-50 text-emerald-700';
+                    }
+                }
+                return;
+            }
+            if (navigator.share) return navigator.share({ title: shareTitle, url: shareUrl });
+            navigator.clipboard.writeText(shareUrl);
             const feedback = document.getElementById('productActionFeedback');
             if (!feedback) return;
             feedback.textContent = 'Lien copié !';

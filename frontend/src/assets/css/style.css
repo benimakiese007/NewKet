@@ -10655,19 +10655,19 @@ html.dark .liquid-glass-nav.pressed {
   height: 48px;
   border-radius: 24px !important;
   width: 0;
-  /* ✅ Indicateur actif au repos : Teinte Ardoise #384656 (rgb(56, 70, 86)) */
+  /* ✅ Indicateur actif au repos : Gris Apple Officiel #8E8E93 (rgb(142, 142, 147)) */
   opacity: 1 !important;
   transform-origin: center center !important;
   will-change: transform, width, height, opacity;
-  /* Pastille teinte ardoise #384656 */
-  background: rgba(56, 70, 86, 0.45) !important;
+  /* Pastille teinte gris Apple #8E8E93 */
+  background: rgba(142, 142, 147, 0.35) !important;
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   backdrop-filter: blur(14px) saturate(160%) !important;
-  border: 0.8px solid rgba(255, 255, 255, 0.45) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.70) !important;
+  border: 0.8px solid rgba(255, 255, 255, 0.65) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.50) !important;
+    0 3px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70) !important;
   z-index: 1;
   pointer-events: none;
   /* Ressort physique Apple (spring physics fluide) */
@@ -10692,11 +10692,11 @@ html.dark .liquid-glass-nav.pressed {
     inset 1.5px 0 2.5px rgba(255, 70, 120, 0.28) !important;
 }
 
-/* Dark mode pour la pastille Apple Music : Teinte Ardoise #384656 fumée */
+/* Dark mode pour la pastille Apple Music : Teinte Gris Apple #8E8E93 */
 html.dark .liquid-sliding-lens {
-  background: rgba(56, 70, 86, 0.65) !important;
-  border: 0.8px solid rgba(255, 255, 255, 0.25) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.45) !important;
+  background: rgba(142, 142, 147, 0.45) !important;
+  border: 0.8px solid rgba(255, 255, 255, 0.30) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.50) !important;
   box-shadow:
     0 6px 18px -2px rgba(0, 0, 0, 0.5),
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;

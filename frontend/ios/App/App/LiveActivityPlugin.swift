@@ -16,7 +16,8 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "updateActivity", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "endActivity", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getDiagnostics", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "triggerHaptic", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "triggerHaptic", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "share", returnType: CAPPluginReturnPromise)
     ]
 
     // Store active activities mapped by orderId
@@ -420,6 +421,68 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
                 generator.impactOccurred()
             }
             call.resolve()
+        }
+    }
+
+    // MARK: - share
+    /// Ouvre la feuille de partage native iOS (UIActivityViewController)
+    /// 100% compatible compte Apple gratuit, zéro extension, zéro entitlement requis
+    @objc func share(_ call: CAPPluginCall) {
+        let title = call.getString("title")
+        let text = call.getString("text")
+        let urlStr = call.getString("url")
+
+        DispatchQueue.main.async {
+            var itemsToShare: [Any] = []
+
+            if let urlStr = urlStr, let url = URL(string: urlStr) {
+                itemsToShare.append(url)
+            } else if let urlStr = urlStr, !urlStr.isEmpty {
+                itemsToShare.append(urlStr)
+            }
+
+            if let text = text, !text.isEmpty {
+                itemsToShare.append(text)
+            } else if let title = title, !title.isEmpty, itemsToShare.isEmpty {
+                itemsToShare.append(title)
+            }
+
+            if itemsToShare.isEmpty {
+                call.reject("Aucun contenu à partager fourni")
+                return
+            }
+
+            let activityVC = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+
+            if let title = title, !title.isEmpty {
+                activityVC.setValue(title, forKey: "subject")
+            }
+
+            // Support iPad popover
+            if let popover = activityVC.popoverPresentationController {
+                if let view = self.bridge?.viewController?.view {
+                    popover.sourceView = view
+                    popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+                    popover.permittedArrowDirections = []
+                }
+            }
+
+            activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, activityError in
+                if let error = activityError {
+                    call.reject(error.localizedDescription)
+                } else {
+                    call.resolve([
+                        "completed": completed,
+                        "activityType": activityType?.rawValue ?? ""
+                    ])
+                }
+            }
+
+            if let presenter = self.bridge?.viewController {
+                presenter.present(activityVC, animated: true, completion: nil)
+            } else {
+                call.reject("Impossible de trouver le contrôleur de vue pour afficher le partage")
+            }
         }
     }
 }

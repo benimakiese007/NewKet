@@ -1139,3 +1139,71 @@ const setupIOSLiquidGlassDragGesture = () => {
 window.addEventListener('DOMContentLoaded', setupIOSLiquidGlassButtons);
 window.addEventListener('componentsLoaded', setupIOSLiquidGlassButtons);
 
+/**
+ * Gestionnaire universel de partage NewKet :
+ * 1. Sur iOS Capacitor natif : utilise LiveActivityPlugin.share() (UIActivityViewController natif Apple)
+ * 2. Sur Web / Android avec Web Share API : utilise navigator.share()
+ * 3. Fallback universel : copie automatique dans le presse-papier + notification toast
+ */
+window.NewKetShare = async function ({ title, text, url } = {}) {
+    const shareUrl = url || window.location.href;
+    const shareTitle = title || document.title || 'NewKet';
+    const shareText = text || '';
+
+    // Détection plugin natif Capacitor iOS
+    const nativePlugin = window.Capacitor?.Plugins?.LiveActivityPlugin;
+    if (nativePlugin && typeof nativePlugin.share === 'function') {
+        try {
+            const res = await nativePlugin.share({
+                title: shareTitle,
+                text: shareText,
+                url: shareUrl
+            });
+            return { success: true, method: 'native-ios', details: res };
+        } catch (err) {
+            console.warn('[NewKetShare] Native iOS share sheet error or canceled:', err);
+            // Si l'utilisateur a annulé, on ne force pas le fallback clipboard
+            const errStr = String(err?.message || err || '');
+            if (errStr.toLowerCase().includes('cancel') || errStr.toLowerCase().includes('abort')) {
+                return { success: false, method: 'native-ios-canceled' };
+            }
+        }
+    }
+
+    // Web Share API standard (Safari mobile, Chrome Android, etc.)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: shareTitle,
+                text: shareText,
+                url: shareUrl
+            });
+            return { success: true, method: 'web-share' };
+        } catch (err) {
+            if (err && (err.name === 'AbortError' || err.code === 20)) {
+                return { success: false, method: 'web-share-canceled' };
+            }
+            console.warn('[NewKetShare] navigator.share failed, fallback to clipboard:', err);
+        }
+    }
+
+    // Fallback presse-papier
+    let copied = false;
+    if (window.copyTextToClipboard) {
+        copied = await window.copyTextToClipboard(shareUrl);
+    } else if (navigator.clipboard?.writeText) {
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            copied = true;
+        } catch {
+            copied = false;
+        }
+    }
+
+    if (window.showToast) {
+        window.showToast(copied ? 'Lien copié dans le presse-papier !' : 'Impossible de copier le lien.', copied ? 'success' : 'error');
+    }
+
+    return { success: copied, method: 'clipboard' };
+};
+

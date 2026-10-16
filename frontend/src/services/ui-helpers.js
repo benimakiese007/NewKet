@@ -342,10 +342,20 @@ document.addEventListener('click', async (event) => {
     event.stopPropagation();
 
     const productName = productCard?.getAttribute('data-product-name') || 'Produit NewKet';
+    const shareTitle = `${productName} - NewKet`;
+    if (window.NewKetShare) {
+        const res = await window.NewKetShare({ title: shareTitle, url: productUrl });
+        if (res?.method === 'clipboard') {
+            if (window.copyAndAnimateButton) {
+                window.copyAndAnimateButton({ currentTarget: shareButton }, productUrl, 'Lien copié !');
+            }
+        }
+        return;
+    }
     try {
         if (navigator.share) {
             await navigator.share({
-                title: `${productName} - NewKet`,
+                title: shareTitle,
                 url: productUrl
             });
             return;
@@ -825,7 +835,7 @@ export function buildProductCardHTML(p, options = {}) {
                         <iconify-icon icon="solar:cart-plus-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
                         <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Ajouter' : 'Indisponible'}</span>
                     </button>
-                    <button onclick="if(navigator.share){ navigator.share({title:'${safeName.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id='); }"
+                    <button onclick="if(window.NewKetShare){ window.NewKetShare({title:'${safeName.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else if(navigator.share){ navigator.share({title:'${safeName.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { window.copyAndAnimateButton(event, window.location.origin + resolvePath('pages/product') + '?id=${p.id}'); }"
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 bg-white hover:bg-gray-50 flex-shrink-0 transition-all"
                         aria-label="Partager ce produit"
                         title="Partager">

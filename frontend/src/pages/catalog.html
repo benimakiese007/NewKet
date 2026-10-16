@@ -1594,7 +1594,12 @@
                 url: productUrl
             };
 
-            if (navigator.share) {
+            if (window.NewKetShare) {
+                const res = await window.NewKetShare(shareData);
+                if (res?.method === 'clipboard') {
+                    window.copyAndAnimateButton(event, productUrl);
+                }
+            } else if (navigator.share) {
                 navigator.share(shareData).catch(() => { });
             } else {
                 window.copyAndAnimateButton(event, productUrl);
