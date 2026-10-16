@@ -381,6 +381,9 @@ class CartManager {
                 document.body.style.overflow = '';
                 document.body.style.removeProperty('overflow');
             }
+            try {
+                window.dispatchEvent(new CustomEvent('cartClosed'));
+            } catch (_) {}
         }
     }
 

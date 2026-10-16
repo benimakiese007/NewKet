@@ -299,6 +299,7 @@ const App = {
                 const url = new URL(value, window.location.origin);
                 let path = url.pathname || '/';
                 path = path.replace(/\/index\.html$/i, '/');
+                path = path.replace(/^\/src\/pages/i, '').replace(/\.html$/i, '');
                 if (path.length > 1 && path.endsWith('/')) {
                     path = path.slice(0, -1);
                 }
@@ -306,11 +307,42 @@ const App = {
             } catch (_) {
                 let path = String(value).split('?')[0].split('#')[0] || '/';
                 path = path.replace(/\/index\.html$/i, '/');
+                path = path.replace(/^\/src\/pages/i, '').replace(/\.html$/i, '');
                 if (path.length > 1 && path.endsWith('/')) {
                     path = path.slice(0, -1);
                 }
                 return path || '/';
             }
+        };
+
+        // 🗺️ Table de Filiation Intelligente (Option B : Onglets Parents)
+        const ROUTE_PARENT_MAP = {
+            // Filiation Catalogue
+            '/product': 'catalog',
+            '/lens': 'catalog',
+            '/promo': 'catalog',
+
+            // Filiation Boutiques / Vendre
+            '/shop': 'shops',
+            '/shops': 'shops',
+            '/seller': 'sell',
+            '/seller-onboarding': 'sell',
+            '/publish': 'sell',
+
+            // Filiation Panier & Tunnel d'achat
+            '/achat': 'cart',
+            '/payment-success': 'cart',
+            '/payment-cancel': 'cart',
+            '/invoice-verify': 'cart',
+
+            // Filiation Compte utilisateur
+            '/settings': 'account',
+            '/favorites': 'account',
+            '/customer-dashboard': 'account',
+            '/vendor-dashboard': 'account',
+            '/choose-role': 'account',
+            '/reset-password': 'account',
+            '/notifications': 'notifications'
         };
 
         let bottomNavRaf = 0;
@@ -322,15 +354,39 @@ const App = {
             if (!nav || items.length === 0) return;
 
             const currentPath = normalizeBottomNavPath(window.location.href);
-            const activeItem = items.find((item) => {
+
+            // 1. Recherche par correspondance exacte d'URL sur les onglets
+            let activeItem = items.find((item) => {
                 const href = item.getAttribute('href');
                 if (!href || href === '#') return false;
                 if (href.startsWith('javascript:')) return false;
                 return normalizeBottomNavPath(href) === currentPath;
-            }) || items.find((item) => item.dataset.bottomNavItem === 'home') || items[0];
+            });
+
+            // 2. Si pas de match direct, recherche par filiation parent (Option B)
+            if (!activeItem) {
+                const parentKey = ROUTE_PARENT_MAP[currentPath];
+                if (parentKey) {
+                    activeItem = items.find((item) => {
+                        const navKey = item.dataset.bottomNavItem;
+                        if (navKey === parentKey) return true;
+                        if ((parentKey === 'shops' || parentKey === 'sell') && (navKey === 'shops' || navKey === 'sell')) return true;
+                        if (parentKey === 'notifications' && navKey === 'cart') return true;
+                        return false;
+                    });
+                }
+            }
+
+            // 3. Cas de la racine / Accueil
+            if (!activeItem && (currentPath === '/' || currentPath === '')) {
+                activeItem = items.find((item) => item.dataset.bottomNavItem === 'home');
+            }
+
+            // 4. Si la page n'a aucun parent direct (ex: /faq, /about, /terms, /404)
+            // activeItem reste null : aucun onglet n'est faussement allumé, et la pastille s'efface
 
             items.forEach((item) => {
-                const isActive = item === activeItem;
+                const isActive = !!(activeItem && item === activeItem);
                 item.classList.toggle('active', isActive);
                 if (isActive) {
                     item.setAttribute('aria-current', 'page');
@@ -342,10 +398,8 @@ const App = {
                 if (iconEl) {
                     const currentIcon = iconEl.getAttribute('icon') || '';
                     if (isActive) {
-                        // linear → bold (rempli)
                         iconEl.setAttribute('icon', currentIcon.replace(/-linear$/, '-bold'));
                     } else {
-                        // bold → linear (outline)
                         iconEl.setAttribute('icon', currentIcon.replace(/-bold$/, '-linear'));
                     }
                 }
@@ -353,14 +407,19 @@ const App = {
 
             // Positionne la pastille glissante Liquid Glass (iOS Capacitor)
             const slider = document.getElementById('liquidGlassSlider');
-            if (slider && activeItem) {
-                const navRect = nav.getBoundingClientRect();
-                const itemRect = activeItem.getBoundingClientRect();
-                if (navRect.width > 0 && itemRect.width > 0) {
-                    const leftOffset = itemRect.left - navRect.left;
-                    slider.style.width = `${itemRect.width}px`;
-                    slider.style.transform = `translate3d(${leftOffset}px, -50%, 0)`;
-                    // Opacité gérée à 100% par le CSS (50% au repos, 100% pressé, opaque si accessibilité)
+            if (slider) {
+                if (activeItem) {
+                    const navRect = nav.getBoundingClientRect();
+                    const itemRect = activeItem.getBoundingClientRect();
+                    if (navRect.width > 0 && itemRect.width > 0) {
+                        const leftOffset = itemRect.left - navRect.left;
+                        slider.style.width = `${itemRect.width}px`;
+                        slider.style.transform = `translate3d(${leftOffset}px, -50%, 0)`;
+                        slider.style.opacity = ''; // Rétablit l'opacité CSS standard
+                    }
+                } else {
+                    // Page orpheline hors navbar : la pastille s'estompe discrètement
+                    slider.style.opacity = '0';
                 }
             }
         };
@@ -467,6 +526,27 @@ const App = {
         window.addEventListener('resize', scheduleMobileBottomNavSync);
         window.addEventListener('orientationchange', scheduleMobileBottomNavSync);
         window.addEventListener('load', scheduleMobileBottomNavSync, { once: true });
+        // 🍏 Synchronisation instantanée lors du retour arrière (iOS bfcache & popstate)
+        window.addEventListener('pageshow', scheduleMobileBottomNavSync);
+        window.addEventListener('popstate', scheduleMobileBottomNavSync);
+        // 🛒 Synchronisation lors de la fermeture du panier
+        window.addEventListener('cartClosed', scheduleMobileBottomNavSync);
+
+        // Surveillance dynamique de la fermeture du tiroir panier (#cartSlideOver)
+        const setupCartSlideOverObserver = () => {
+            const cartSlideOver = document.getElementById('cartSlideOver');
+            if (cartSlideOver && !cartSlideOver._navObserverAttached) {
+                cartSlideOver._navObserverAttached = true;
+                const observer = new MutationObserver(() => {
+                    if (cartSlideOver.classList.contains('translate-x-full')) {
+                        scheduleMobileBottomNavSync();
+                    }
+                });
+                observer.observe(cartSlideOver, { attributes: true, attributeFilter: ['class'] });
+            }
+        };
+        setupCartSlideOverObserver();
+        window.addEventListener('componentsLoaded', setupCartSlideOverObserver);
 
         // 🍏 Réactivité en direct aux Réglages Système iOS (Accessibilité & Contraste)
         try {
