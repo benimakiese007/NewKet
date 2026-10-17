@@ -1009,7 +1009,7 @@
             if (quickList.length > 0) return quickList;
 
             try {
-                const raw = localStorage.getItem('newket_products_cache');
+                const raw = localStorage.getItem('newket_products_cache_v2') || localStorage.getItem('newket_products_cache');
                 if (!raw) return [];
                 const parsed = JSON.parse(raw);
                 return Array.isArray(parsed) ? parsed : [];
@@ -1172,7 +1172,7 @@
                 // on affiche les résultats locaux IMMÉDIATEMENT sans skeleton,
                 // Supabase remplace ensuite avec les vrais résultats en arrière-plan.
                 const localCache = getCachedCatalogProducts();
-                if (query && localCache.length > 0 && !isVisualSearch) {
+                if (localCache.length > 0 && !isVisualSearch && activeCategories.length === 0 && !activePromo && activeRating === 0) {
                     const localState = getCatalogQueryState();
                     const localFiltered = filterCatalogProducts(localCache, localState);
                     if (localFiltered.length > 0) {
@@ -1297,7 +1297,11 @@
                     if (opts.lte) for (const [col, val] of opts.lte) q = q.lte(col, val);
                     if (opts.order) q = q.order(opts.order[0], opts.order[1] || {});
                     if (opts.range) q = q.range(opts.range[0], opts.range[1]);
-                    const { data, error } = await q;
+
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('SUPABASE_QUERY_TIMEOUT')), 5000)
+                    );
+                    const { data, error } = await Promise.race([q, timeoutPromise]);
                     if (error) throw error; // ✅ Vrai throw — le catch JOIN déclenchera le fallback
                     return data || [];
                 };
