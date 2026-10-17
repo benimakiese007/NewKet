@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -1216,13 +1216,12 @@
                     products = [];
                     catalogHasMore = false;
                 }
-            // Try server-side query first
-            } else if (window.SupabaseAdapter && window.supabaseClient) {
+            // Try server-side query first — requête directe supabaseClient (bypass fetchWithFilters)
+            } else if (window.supabaseClient) {
                 const buildQueryOptions = (selectClause) => {
                     const opts = {
                         select: selectClause,
                         range: [from, to],
-                        skipCache: true // Always fresh for catalog browsing
                     };
 
                     // Search filter (or across name and category)
@@ -1273,8 +1272,6 @@
                         opts.order = ['price', { ascending: true }];
                     } else if (sortBy === 'price-desc') {
                         opts.order = ['price', { ascending: false }];
-                    } else if (sortBy === 'newest') {
-                        opts.order = ['created_at', { ascending: false }];
                     } else {
                         opts.order = ['created_at', { ascending: false }];
                     }
@@ -1282,16 +1279,39 @@
                     return opts;
                 };
 
+                // ✅ Requête directe supabaseClient — bypass fetchWithFilters qui avale les erreurs
+                // silencieusement (retourne [] au lieu de throw), empêchant le fallback sans JOIN.
+                const runDirectQuery = async (selectClause) => {
+                    const opts = buildQueryOptions(selectClause);
+                    let q = window.supabaseClient.from('products').select(opts.select);
+                    if (opts.eq) for (const [col, val] of opts.eq) q = q.eq(col, val);
+                    if (opts.in) for (const [col, vals] of opts.in) q = q.in(col, vals);
+                    if (opts.or) {
+                        if (Array.isArray(opts.or)) {
+                            for (const orCond of opts.or) q = q.or(orCond);
+                        } else {
+                            q = q.or(opts.or);
+                        }
+                    }
+                    if (opts.gte) for (const [col, val] of opts.gte) q = q.gte(col, val);
+                    if (opts.lte) for (const [col, val] of opts.lte) q = q.lte(col, val);
+                    if (opts.order) q = q.order(opts.order[0], opts.order[1] || {});
+                    if (opts.range) q = q.range(opts.range[0], opts.range[1]);
+                    const { data, error } = await q;
+                    if (error) throw error; // ✅ Vrai throw — le catch JOIN déclenchera le fallback
+                    return data || [];
+                };
+
                 try {
                     // 1. Essai avec jointure users!supplier_email
-                    const optionsWithJoin = buildQueryOptions('*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug)');
-                    products = await SupabaseAdapter.fetchWithFilters('products', optionsWithJoin);
+                    products = await runDirectQuery('*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug)');
+                    console.log('[CATALOG DEBUG] Join query OK, products count:', products.length);
                 } catch (joinErr) {
                     console.warn('[NewKet Catalog] Join query failed, retrying without foreign join:', joinErr.message);
                     try {
-                        // 2. Fallback robuste sans jointure (comme products.js line 320)
-                        const optionsSimple = buildQueryOptions('*');
-                        products = await SupabaseAdapter.fetchWithFilters('products', optionsSimple);
+                        // 2. Fallback robuste sans jointure
+                        products = await runDirectQuery('*');
+                        console.log('[CATALOG DEBUG] Simple query OK, products count:', products.length);
                     } catch (fallbackErr) {
                         console.warn('[NewKet Catalog] Simple query also failed:', fallbackErr.message);
                         products = null;
@@ -1314,16 +1334,17 @@
                     }
                     catalogHasMore = products.length === CATALOG_PAGE_SIZE;
                 } else if (products !== null && products.length === 0 && !query && activeCategories.length === 0) {
-                    // Si la requête retourne 0 mais qu'on n'a pas de filtre spécifique, tenter de récupérer les produits via ProductManager
+                    // Si la requête retourne 0 mais qu'on n'a pas de filtre spécifique, tenter via ProductManager
+                    console.warn('[CATALOG DEBUG] Supabase returned 0 products, trying ProductManager.fetchFreshData()');
                     if (window.ProductManager && (!window.ProductManager.products || window.ProductManager.products.length === 0)) {
                         try {
                             await window.ProductManager.fetchFreshData();
-                            const fresh = window.ProductManager.getPublicProducts();
-                            if (fresh && fresh.length > 0) {
-                                products = fresh.slice(from, to + 1);
-                                catalogHasMore = fresh.length > to + 1;
-                            }
                         } catch (_) {}
+                    }
+                    const fresh = window.ProductManager ? window.ProductManager.getPublicProducts() : [];
+                    if (fresh && fresh.length > 0) {
+                        products = fresh.slice(from, to + 1);
+                        catalogHasMore = fresh.length > to + 1;
                     }
                 }
             }
