@@ -1,4 +1,4 @@
-﻿/* NewKet EMarket - Main Orchestrator */
+/* NewKet EMarket - Main Orchestrator */
 import { initSentry, setSentryUser } from './sentry.js';
 import { initCapacitorPlugins } from './capacitor-plugins.js';
 
@@ -405,10 +405,14 @@ const App = {
                 }
             });
 
-            // Positionne la pastille glissante Liquid Glass (iOS Capacitor)
+            // Positionne la pastille glissante Liquid Glass (iOS Capacitor uniquement)
             const slider = document.getElementById('liquidGlassSlider');
             if (slider) {
-                if (activeItem) {
+                const isLiquidGlass = nav.classList.contains('liquid-glass-nav');
+                if (!isLiquidGlass) {
+                    slider.style.display = 'none';
+                } else if (activeItem) {
+                    slider.style.display = '';
                     const navRect = nav.getBoundingClientRect();
                     const itemRect = activeItem.getBoundingClientRect();
                     if (navRect.width > 0 && itemRect.width > 0) {

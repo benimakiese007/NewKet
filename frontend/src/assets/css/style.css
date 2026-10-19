@@ -26488,15 +26488,22 @@ video {
   color: #000000 !important;
 }
 html.dark .standard-bottom-nav .nav-item {
-  color: #FFFFFF !important;
+  color: #9CA3AF !important;
 }
 html.dark .standard-bottom-nav .nav-item iconify-icon {
-  color: #FFFFFF !important;
+  color: #9CA3AF !important;
+}
+html.dark .standard-bottom-nav .nav-item span {
+  color: #9CA3AF !important;
 }
 html.dark .standard-bottom-nav .nav-item.active {
   color: #FFFFFF !important;
+  font-weight: 700 !important;
 }
 html.dark .standard-bottom-nav .nav-item.active iconify-icon {
+  color: #FFFFFF !important;
+}
+html.dark .standard-bottom-nav .nav-item.active span {
   color: #FFFFFF !important;
 }
 .standard-bottom-nav .nav-indicator {

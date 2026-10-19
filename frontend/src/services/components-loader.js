@@ -578,22 +578,28 @@ const ComponentLoader = {
                 );
             }
 
-            // Si la navbar est déjà pré-injectée dans le DOM (Option 2), ne pas la recréer pour éviter tout FOUC
+            // La navbar standard est pré-injectée dans le DOM par Vite (0ms FOUC pour Web, PWA et Android).
+            // Sur iOS natif (Capacitor), on bascule vers le design Liquid Glass.
+            // Pour les vendeurs/admins, on adapte également l'onglet dédié (Vendre / Notifs).
             const existingMobileNav = document.getElementById('mobileBottomNav');
-            if (!existingMobileNav) {
+            let userRole = 'buyer';
+            let isGuest  = false;
+            try {
+                userRole = localStorage.getItem('newketRole') || 'buyer';
+                isGuest  = !localStorage.getItem('newketUserId');
+            } catch (e) {}
+
+            const isSellerOrAdmin = userRole === 'seller' || userRole === 'supplier' || userRole === 'admin';
+            if (existingMobileNav && (isIOSCapacitor() || isSellerOrAdmin)) {
+                const navHTML = getBottomNavHTML(userRole, isGuest).replace(/\{\{ROOT\}\}/g, this.getAdjustedPath(''));
+                existingMobileNav.outerHTML = navHTML;
+            } else if (!existingMobileNav) {
                 let mobileNavPlaceholder = document.getElementById('mobile-nav-placeholder');
                 if (!mobileNavPlaceholder) {
                     mobileNavPlaceholder = document.createElement('div');
                     mobileNavPlaceholder.id = 'mobile-nav-placeholder';
                     document.body.appendChild(mobileNavPlaceholder);
                 }
-                
-                let userRole = 'buyer';
-                let isGuest  = false;
-                try {
-                    userRole = localStorage.getItem('newketRole') || 'buyer';
-                    isGuest  = !localStorage.getItem('newketUserId');
-                } catch (e) {}
 
                 componentsToLoad.push(
                     this.loadComponent('mobile-nav-placeholder', '', getBottomNavHTML(userRole, isGuest))
