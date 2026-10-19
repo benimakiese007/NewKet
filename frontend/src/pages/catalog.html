@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -1632,7 +1632,8 @@
             }
         }
 
-        function shareProductCard(id, name) {
+        async function shareProductCard(id, name, evt) {
+            const ev = evt || window.event;
             const product = window.ProductManager ? ProductManager.getProduct(id) : null;
             const productUrl = window.NewKetLinks?.buildProductShareUrl
                 ? window.NewKetLinks.buildProductShareUrl({
@@ -1651,12 +1652,12 @@
             if (window.NewKetShare) {
                 const res = await window.NewKetShare(shareData);
                 if (res?.method === 'clipboard') {
-                    window.copyAndAnimateButton(event, productUrl);
+                    window.copyAndAnimateButton(ev, productUrl);
                 }
             } else if (navigator.share) {
                 navigator.share(shareData).catch(() => { });
             } else {
-                window.copyAndAnimateButton(event, productUrl);
+                window.copyAndAnimateButton(ev, productUrl);
             }
         }
 
