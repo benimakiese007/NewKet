@@ -798,6 +798,70 @@ const ProductManager = {
         return null;
     },
 
+    /**
+     * Résoudre un produit depuis le slug de son nom dans l'URL.
+     * Utilisé quand product.html est chargé via une URL propre sans ?id=
+     * ex: /boutique/mon-shop/produit/iphone-15-pro → cherche le produit par slug
+     * @param {string} slug - Slug du nom du produit (ex: "iphone-15-pro")
+     * @param {string} [shopSlug] - Slug du shop (optionnel, pour affiner la recherche)
+     * @returns {Promise<Object|null>}
+     */
+    async fetchProductBySlug(slug, shopSlug = null) {
+        if (!slug) return null;
+
+        // Normalise un nom en slug (même logique que buildProductSlug côté ui-helpers)
+        function _toSlug(value) {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/['']/g, '')
+                .replace(/[^a-zA-Z0-9]+/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_+|_+$/g, '')
+                .toLowerCase();
+        }
+
+        const normalizedSlug = _toSlug(slug);
+        if (!normalizedSlug) return null;
+
+        try {
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                // Chercher les candidats via le shop si dispo, sinon global
+                let query = {
+                    select: '*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug), product_variants(*)',
+                };
+                if (shopSlug) {
+                    // On cherche les produits du shop via la jointure users
+                    query.eq = [['users.shop_slug', shopSlug]];
+                }
+
+                // Récupérer les produits et filtrer côté client par slug
+                // (on ne peut pas faire de slug match côté Supabase sans colonne dédiée)
+                const { data, error } = await window.supabaseClient
+                    .from('products')
+                    .select('*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug), product_variants(*)')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false })
+                    .limit(500);
+
+                if (!error && data && data.length) {
+                    // Chercher le produit dont le slug du nom correspond
+                    const match = data.find(p => _toSlug(p.name) === normalizedSlug);
+                    if (match) {
+                        const mapped = this._mapProduct(match);
+                        this._productByIdCache.set(mapped.id, mapped);
+                        this._cacheProduct(mapped);
+                        return mapped;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('[ProductManager] fetchProductBySlug error:', err);
+        }
+
+        return null;
+    },
+
     async addProduct(product) {
         const userId = localStorage.getItem('newketUserId');
         

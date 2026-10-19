@@ -300,6 +300,24 @@
 
         let productId = new URLSearchParams(window.location.search).get('id');
         if (!productId) productId = _nkExtractProductIdFromPathname();
+
+        // Fallback : resolution depuis le slug du nom dans l URL (lien partage sans ?id=)
+        // Ex: /boutique/mon-shop/produit/iphone-15-pro sans ?id=UUID
+        let _nkSlugFallbackPending = false;
+        if (!productId) {
+            try {
+                const _slugParts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+                // /boutique/:shopSlug/produit/:productSlug
+                if (_slugParts.length >= 4 && _slugParts[0].toLowerCase() === 'boutique' && _slugParts[2].toLowerCase() === 'produit') {
+                    window._nkProductSlugFallback = {
+                        productSlug: decodeURIComponent(_slugParts[3] || ''),
+                        shopSlug: decodeURIComponent(_slugParts[1] || '')
+                    };
+                    _nkSlugFallbackPending = true;
+                }
+            } catch (_e) {}
+        }
+
         let currentProduct = null;
         let _nkShareMeta = null;
         let currentRating = 0;
@@ -392,6 +410,23 @@
             }
 
             showSkeleton();
+
+            // Slug fallback : si pas de ?id= on tente de resoudre via le slug du nom dans l URL
+            if (!productId && _nkSlugFallbackPending && window._nkProductSlugFallback) {
+                const { productSlug, shopSlug } = window._nkProductSlugFallback;
+                const resolved = await ProductManager.fetchProductBySlug(productSlug, shopSlug);
+                if (resolved && resolved.id) {
+                    productId = resolved.id;
+                    _nkSlugFallbackPending = false;
+                    // Mettre a jour l URL proprement sans recharger la page
+                    try {
+                        const cleanUrl = new URL(window.location.href);
+                        cleanUrl.searchParams.set('id', productId);
+                        history.replaceState(null, '', cleanUrl.toString());
+                    } catch (_e) {}
+                }
+            }
+
             if (!productId) {
                 window.location.href = typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/catalog';
                 return;

@@ -160,7 +160,7 @@
     },
     {
       "source": "/boutique/:shopSlug/produit/:productSlug",
-      "destination": "/src/pages/product?id=:productSlug"
+      "destination": "/src/pages/product"
     },
     {
       "source": "/catalog",
