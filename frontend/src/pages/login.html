@@ -323,6 +323,15 @@
 
                     <!-- Logo for Desktop inside form (Removed because it's now in the header) -->
 
+                    <!-- Back to Login (Signup Only - Facebook Style) -->
+                    <div id="backToLoginContainer" class="hidden mb-6 animate-item">
+                        <button type="button" id="backToLoginBtn"
+                            class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-black transition-colors rounded-xl py-1.5 px-3 bg-gray-50 hover:bg-gray-100 border border-gray-200/60 cursor-pointer">
+                            <iconify-icon icon="solar:arrow-left-linear" width="16"></iconify-icon>
+                            <span>Déjà un compte ? Se connecter</span>
+                        </button>
+                    </div>
+
                     <!-- Header Texts -->
                     <div class="mb-6 sm:mb-8 animate-item">
                         <h2 class="text-3xl font-black tracking-tighter text-gray-900 mb-2" id="formTitle">Bienvenue</h2>
@@ -330,8 +339,8 @@
                         </p>
                     </div>
 
-                    <!-- Tabs -->
-                    <div id="tabsContainer" class="flex items-center gap-8 mb-8 border-b border-gray-100 animate-item">
+                    <!-- Tabs (Preserved in DOM for compatibility, hidden in favor of Facebook-style layout) -->
+                    <div id="tabsContainer" class="hidden items-center gap-8 mb-8 border-b border-gray-100 animate-item">
                         <button id="tabLogin" data-track-action="auth_login:tab_login_click"
                             class="tab-btn active pb-3 text-sm font-bold uppercase tracking-widest text-black transition-colors flex items-center gap-2 rounded-xl">
                             <iconify-icon icon="solar:login-2-bold-duotone" width="14"></iconify-icon>
@@ -582,6 +591,26 @@
                             </div>
                         </button>
                     </div>
+                    
+                    <!-- Create Account Callout (Login Only - Facebook Style) -->
+                    <div id="createAccountSection" class="mt-8 pt-6 border-t border-gray-100 text-center animate-item">
+                        <p class="text-xs text-gray-500 font-medium mb-3">Vous n'avez pas encore de compte ?</p>
+                        <button type="button" id="goToSignupBtn" data-track-action="auth_login:go_to_signup_click"
+                            class="w-full h-13 rounded-2xl border-2 border-black bg-white hover:bg-black hover:text-white text-black font-black text-xs uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2.5 shadow-sm group cursor-pointer">
+                            <iconify-icon icon="solar:user-plus-bold-duotone" width="18" class="text-gray-600 group-hover:text-white transition-colors"></iconify-icon>
+                            <span>Créer un nouveau compte</span>
+                        </button>
+                    </div>
+
+                    <!-- Already have account Callout (Signup Only) -->
+                    <div id="alreadyHaveAccountSection" class="hidden mt-8 pt-6 border-t border-gray-100 text-center animate-item">
+                        <p class="text-xs text-gray-500 font-medium">
+                            Vous avez déjà un compte ?
+                            <button type="button" id="footerBackToLoginBtn" class="font-bold text-black hover:underline ml-1 cursor-pointer">
+                                Se connecter
+                            </button>
+                        </p>
+                    </div>
 
                 </div>
             </main>
@@ -661,6 +690,12 @@
         const tabLogin = document.getElementById('tabLogin');
         const tabSignup = document.getElementById('tabSignup');
         const tabsContainer = document.getElementById('tabsContainer');
+        const createAccountSection = document.getElementById('createAccountSection');
+        const alreadyHaveAccountSection = document.getElementById('alreadyHaveAccountSection');
+        const backToLoginContainer = document.getElementById('backToLoginContainer');
+        const goToSignupBtn = document.getElementById('goToSignupBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        const footerBackToLoginBtn = document.getElementById('footerBackToLoginBtn');
         const formTitle = document.getElementById('formTitle');
         const formSubtitle = document.getElementById('formSubtitle');
         const roleContainer = document.getElementById('roleContainer');
@@ -909,6 +944,9 @@
         // Setup initial UI for recovery
         if (isRecovery) {
             tabsContainer.classList.add('hidden');
+            createAccountSection?.classList.add('hidden');
+            alreadyHaveAccountSection?.classList.add('hidden');
+            backToLoginContainer?.classList.add('hidden');
             emailContainer.classList.add('hidden');
             document.getElementById('email').removeAttribute('required');
             roleContainer.classList.add('hidden');
@@ -956,13 +994,29 @@
             formError.classList.add('hidden');
             if (formSuccess) formSuccess.classList.add('hidden');
 
+            try {
+                const url = new URL(window.location.href);
+                if (toLogin) {
+                    url.searchParams.delete('tab');
+                    url.searchParams.delete('signup');
+                    url.searchParams.delete('mode');
+                } else {
+                    url.searchParams.set('tab', 'signup');
+                }
+                window.history.replaceState({}, '', url.toString());
+            } catch (e) {}
+
             // GSAP Transition for Form Elements
             const applyMode = () => {
                 if (isLogin) {
-                    tabLogin.classList.replace('text-gray-400', 'text-black');
-                    tabLogin.classList.add('active');
-                    tabSignup.classList.replace('text-black', 'text-gray-400');
-                    tabSignup.classList.remove('active');
+                    if (tabLogin) {
+                        tabLogin.classList.replace('text-gray-400', 'text-black');
+                        tabLogin.classList.add('active');
+                    }
+                    if (tabSignup) {
+                        tabSignup.classList.replace('text-black', 'text-gray-400');
+                        tabSignup.classList.remove('active');
+                    }
 
                     formTitle.textContent = "Bienvenue";
                     formSubtitle.textContent = "Veuillez renseigner vos identifiants.";
@@ -974,11 +1028,18 @@
                     loginActions.classList.remove('hidden');
                     if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.add('hidden');
                     if (passkeyBtn) passkeyBtn.classList.remove('hidden');
+                    createAccountSection?.classList.remove('hidden');
+                    alreadyHaveAccountSection?.classList.add('hidden');
+                    backToLoginContainer?.classList.add('hidden');
                 } else {
-                    tabSignup.classList.replace('text-gray-400', 'text-black');
-                    tabSignup.classList.add('active');
-                    tabLogin.classList.replace('text-black', 'text-gray-400');
-                    tabLogin.classList.remove('active');
+                    if (tabSignup) {
+                        tabSignup.classList.replace('text-gray-400', 'text-black');
+                        tabSignup.classList.add('active');
+                    }
+                    if (tabLogin) {
+                        tabLogin.classList.replace('text-black', 'text-gray-400');
+                        tabLogin.classList.remove('active');
+                    }
 
                     formTitle.textContent = "Créer un compte";
                     formSubtitle.textContent = "Rejoignez la nouvelle ère du commerce.";
@@ -990,10 +1051,11 @@
                     loginActions.classList.add('hidden');
                     if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.remove('hidden');
                     if (passkeyBtn) passkeyBtn.classList.add('hidden');
+                    createAccountSection?.classList.add('hidden');
+                    alreadyHaveAccountSection?.classList.remove('hidden');
+                    backToLoginContainer?.classList.remove('hidden');
                 }
 
-                // No grid class toggling needed anymore, flexbox handles it perfectly.
-                
                 // Update Google & Facebook button labels and spans dynamically
                 const googleBtn = document.getElementById('google-btn');
                 if (googleBtn) {
@@ -1039,8 +1101,11 @@
 
         const fbBtn = document.getElementById('facebook-btn');
 
-        tabLogin.addEventListener('click', () => switchTab(true));
-        tabSignup.addEventListener('click', () => switchTab(false));
+        tabLogin?.addEventListener('click', () => switchTab(true));
+        tabSignup?.addEventListener('click', () => switchTab(false));
+        goToSignupBtn?.addEventListener('click', () => switchTab(false));
+        backToLoginBtn?.addEventListener('click', () => switchTab(true));
+        footerBackToLoginBtn?.addEventListener('click', () => switchTab(true));
         signupRoleInputs.forEach((input) => input.addEventListener('change', updateSignupFieldsVisibility));
         forgotPasswordBtn?.addEventListener('click', handleForgotPassword);
         googleBtn?.addEventListener('click', signInWithGoogle);
@@ -1396,6 +1461,9 @@
                     // Hide auth form, show OTP form
                     authForm.classList.add('hidden');
                     tabsContainer.classList.add('hidden');
+                    createAccountSection?.classList.add('hidden');
+                    alreadyHaveAccountSection?.classList.add('hidden');
+                    backToLoginContainer?.classList.add('hidden');
                     if (dividerBlock) dividerBlock.classList.add('hidden');
                     if (oauthProviders) oauthProviders.classList.add('hidden');
                     formSubtitle.innerHTML = "<span class='text-green-600 font-bold'>Code envoyé !</span> Vérifiez vos emails et entrez le code ci-dessous.";
@@ -1417,6 +1485,9 @@
                         // Switch to OTP form
                         authForm.classList.add('hidden');
                         tabsContainer.classList.add('hidden');
+                        createAccountSection?.classList.add('hidden');
+                        alreadyHaveAccountSection?.classList.add('hidden');
+                        backToLoginContainer?.classList.add('hidden');
                         if (dividerBlock) dividerBlock.classList.add('hidden');
                         if (oauthProviders) oauthProviders.classList.add('hidden');
                         formSubtitle.textContent = "Veuillez entrer le code de vérification pour finaliser votre inscription.";
