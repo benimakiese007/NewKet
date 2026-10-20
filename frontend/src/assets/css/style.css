@@ -10967,6 +10967,159 @@ html.dark .liquid-glass-nav .nav-item.active span {
   }
 }
 
+/* ==========================================================================
+   LIQUID GLASS SYSTEM (Apple iOS 26 Optic Glass for Header & Action Buttons)
+   ========================================================================== */
+:root {
+  --liquid-glass-opacity: 0.28;
+  --liquid-glass-blur: 24px;
+  --liquid-glass-saturate: 190%;
+  --liquid-glass-bg: rgba(255, 255, 255, var(--liquid-glass-opacity, 0.28));
+  --liquid-glass-border: rgba(255, 255, 255, 0.35);
+  --liquid-glass-specular: inset 0 1.5px 1.5px rgba(255, 255, 255, 0.7), inset 0 -1px 2px rgba(0, 0, 0, 0.08);
+  --liquid-glass-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.16);
+}
+
+/* Boutons Liquid Glass génériques */
+.btn-liquid-glass {
+  position: relative !important;
+  background: var(--liquid-glass-bg) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  border: 1px solid var(--liquid-glass-border) !important;
+  box-shadow: var(--liquid-glass-specular), var(--liquid-glass-shadow) !important;
+  border-radius: 9999px !important;
+  color: #ffffff !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-liquid-glass:active {
+  transform: scale(0.95) !important;
+  background: rgba(255, 255, 255, calc(var(--liquid-glass-opacity, 0.28) + 0.15)) !important;
+}
+
+/* 1. Menu Burger du Header Marketplace */
+.newket-header-shell #mobileMenuBtn,
+.newket-header-shell #mobileHeaderSearchBtn {
+  background: var(--liquid-glass-bg) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  border: 1px solid var(--liquid-glass-border) !important;
+  box-shadow: var(--liquid-glass-specular), 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.newket-header-shell #mobileMenuBtn iconify-icon,
+.newket-header-shell #mobileHeaderSearchBtn iconify-icon {
+  color: #ffffff !important;
+}
+
+.newket-header-shell #mobileMenuBtn:active,
+.newket-header-shell #mobileHeaderSearchBtn:active {
+  transform: scale(0.92) !important;
+  background: rgba(255, 255, 255, calc(var(--liquid-glass-opacity, 0.28) + 0.15)) !important;
+}
+
+/* 2. Barre de Recherche du Header Marketplace */
+.newket-header-shell .search-bar {
+  background: rgba(255, 255, 255, var(--liquid-glass-opacity, 0.28)) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: inset 0 1.5px 1.5px rgba(255, 255, 255, 0.65), inset 0 -1px 2px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.14) !important;
+  border-radius: 16px !important;
+  transition: all 0.25s ease !important;
+}
+
+.newket-header-shell .search-bar:focus-within {
+  background: rgba(255, 255, 255, calc(var(--liquid-glass-opacity, 0.28) + 0.12)) !important;
+  border-color: rgba(255, 255, 255, 0.65) !important;
+  box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, 0.85), 0 8px 30px rgba(0, 0, 0, 0.22) !important;
+}
+
+.newket-header-shell .search-input {
+  color: #ffffff !important;
+}
+
+.newket-header-shell .search-input::placeholder {
+  color: rgba(255, 255, 255, 0.70) !important;
+}
+
+.newket-header-shell .search-category-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+/* 3. Menu Burger des Headers Dashboard (Client & Vendeur & Admin) */
+.newket-dashboard-header #customerMobileBtn,
+.newket-dashboard-header #vendorMobileBtn,
+.dashboard-topbar #customerMobileBtn,
+.dashboard-topbar #vendorMobileBtn,
+.dashboard-topbar #adminMobileMenuBtn {
+  background: var(--liquid-glass-bg) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  border: 1px solid var(--liquid-glass-border) !important;
+  box-shadow: var(--liquid-glass-specular), 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.newket-dashboard-header #customerMobileBtn iconify-icon,
+.newket-dashboard-header #vendorMobileBtn iconify-icon,
+.dashboard-topbar #customerMobileBtn iconify-icon,
+.dashboard-topbar #vendorMobileBtn iconify-icon,
+.dashboard-topbar #adminMobileMenuBtn iconify-icon {
+  color: #ffffff !important;
+}
+
+.newket-dashboard-header #customerMobileBtn:active,
+.newket-dashboard-header #vendorMobileBtn:active,
+.dashboard-topbar #customerMobileBtn:active,
+.dashboard-topbar #vendorMobileBtn:active,
+.dashboard-topbar #adminMobileMenuBtn:active {
+  transform: scale(0.92) !important;
+  background: rgba(255, 255, 255, calc(var(--liquid-glass-opacity, 0.28) + 0.15)) !important;
+}
+
+/* 4. Bouton Déconnexion des Headers Dashboard (Client & Vendeur & Admin) */
+.newket-dashboard-header [data-logout-safe],
+.dashboard-topbar [data-logout-safe] {
+  background: rgba(239, 68, 68, 0.20) !important;
+  -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate)) !important;
+  border: 1px solid rgba(248, 113, 113, 0.40) !important;
+  box-shadow: inset 0 1.5px 1.5px rgba(254, 202, 202, 0.55), 0 4px 16px rgba(220, 38, 38, 0.15) !important;
+  border-radius: 14px !important;
+  color: #fca5a5 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.newket-dashboard-header [data-logout-safe] iconify-icon,
+.dashboard-topbar [data-logout-safe] iconify-icon {
+  color: #fca5a5 !important;
+}
+
+.newket-dashboard-header [data-logout-safe]:hover,
+.newket-dashboard-header [data-logout-safe]:active,
+.dashboard-topbar [data-logout-safe]:hover,
+.dashboard-topbar [data-logout-safe]:active {
+  background: rgba(239, 68, 68, 0.35) !important;
+  color: #ffffff !important;
+  transform: scale(0.95) !important;
+}
+
+.newket-dashboard-header [data-logout-safe]:hover iconify-icon,
+.newket-dashboard-header [data-logout-safe]:active iconify-icon,
+.dashboard-topbar [data-logout-safe]:hover iconify-icon,
+.dashboard-topbar [data-logout-safe]:active iconify-icon {
+  color: #ffffff !important;
+}
+
 /* Modal/Popup scrollable zone — scrollbar toujours visible */
 
 .modal-scroll {
