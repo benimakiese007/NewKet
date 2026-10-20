@@ -97,13 +97,14 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 }
 
-// MARK: - GlassCapsuleButton (iOS 26+)
+// MARK: - GlassCircleButton (iOS 26+ Liquid Glass Sphere)
 
-/// A 34x34pt compact Liquid Glass capsule identical to Apple's system back button:
-/// Outer UIVisualEffectView container with UIGlassEffect and rounded corners,
-/// with a 100% transparent (.plain) UIButton inside its contentView.
+/// A 38x38pt perfect round circular Liquid Glass sphere conforming to Apple HIG:
+/// - Circular UIVisualEffectView container with UIGlassEffect (in: .circle)
+/// - 44x44pt touch hit target for 100% accessible touch responsiveness
+/// - Inner 100% transparent (.plain) button with 16pt semibold SF Symbol
 @available(iOS 26.0, *)
-class GlassCapsuleButton: UIView {
+class GlassCircleButton: UIView {
 
     let glassEffectView: UIVisualEffectView
     let button: UIButton
@@ -115,14 +116,15 @@ class GlassCapsuleButton: UIView {
 
         super.init(frame: .zero)
 
-        // Outer shadow for 3D depth elevation (matches system back button)
+        // Outer shadow for 3D depth elevation (matches system circular back button)
         layer.shadowColor   = UIColor.black.cgColor
         layer.shadowOpacity = 0.22
-        layer.shadowRadius  = 4
+        layer.shadowRadius  = 5
         layer.shadowOffset  = CGSize(width: 0, height: 2)
 
-        // Glass capsule container
-        glassEffectView.layer.cornerRadius = 10
+        // Perfect circular glass sphere: cornerRadius = width / 2 (38 / 2 = 19)
+        glassEffectView.layer.cornerRadius = 19
+        glassEffectView.layer.cornerCurve  = .circular
         glassEffectView.clipsToBounds      = true
         glassEffectView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(glassEffectView)
@@ -134,7 +136,7 @@ class GlassCapsuleButton: UIView {
             glassEffectView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
-        // Subtle dark translucent tint inside contentView for high contrast against light web content
+        // Subtle dark translucent tint inside contentView for crisp contrast
         let tintLayer = UIView()
         tintLayer.backgroundColor = UIColor { trait in
             trait.userInterfaceStyle == .dark
@@ -169,6 +171,14 @@ class GlassCapsuleButton: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// Expands touch target to 44x44pt as recommended by Apple HIG
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        let dx = max(0, (44 - bounds.width) / 2)
+        let dy = max(0, (44 - bounds.height) / 2)
+        let expanded = bounds.insetBy(dx: -dx, dy: -dy)
+        return expanded.contains(point)
+    }
+
     func updateSymbol(_ sfSymbol: String) {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
         let image = UIImage(systemName: sfSymbol, withConfiguration: symbolConfig)
@@ -190,16 +200,16 @@ class NativeHeaderButtonsView: UIView {
     var onLeftTap:  (() -> Void)?
     var onRightTap: (() -> Void)?
 
-    private let leftCapsule:  GlassCapsuleButton
-    private let rightCapsule: GlassCapsuleButton
+    private let leftCircle:  GlassCircleButton
+    private let rightCircle: GlassCircleButton
 
     private var rightIconName: String
     private var heightConstraint: NSLayoutConstraint?
 
     init(showLeft: Bool, showRight: Bool, rightIcon: String) {
         self.rightIconName = rightIcon
-        self.leftCapsule   = GlassCapsuleButton(sfSymbol: "line.3.horizontal")
-        self.rightCapsule  = GlassCapsuleButton(sfSymbol: rightIcon)
+        self.leftCircle    = GlassCircleButton(sfSymbol: "line.3.horizontal")
+        self.rightCircle   = GlassCircleButton(sfSymbol: rightIcon)
         super.init(frame: .zero)
         setupUI(showLeft: showLeft, showRight: showRight)
     }
@@ -240,37 +250,37 @@ class NativeHeaderButtonsView: UIView {
         heightConstraint = h
 
         // Wire taps
-        leftCapsule.button.addTarget(self, action: #selector(handleLeftTap), for: .touchUpInside)
-        leftCapsule.isHidden = !showLeft
-        leftCapsule.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(leftCapsule)
+        leftCircle.button.addTarget(self, action: #selector(handleLeftTap), for: .touchUpInside)
+        leftCircle.isHidden = !showLeft
+        leftCircle.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(leftCircle)
 
-        rightCapsule.button.addTarget(self, action: #selector(handleRightTap), for: .touchUpInside)
-        rightCapsule.isHidden = !showRight
-        rightCapsule.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(rightCapsule)
+        rightCircle.button.addTarget(self, action: #selector(handleRightTap), for: .touchUpInside)
+        rightCircle.isHidden = !showRight
+        rightCircle.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(rightCircle)
 
         NSLayoutConstraint.activate([
-            // Left capsule: pinned to leading edge
-            leftCapsule.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            leftCapsule.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
-            leftCapsule.widthAnchor.constraint(equalToConstant: 34),
-            leftCapsule.heightAnchor.constraint(equalToConstant: 34),
+            // Left circle: pinned to leading edge, 38x38pt perfect sphere
+            leftCircle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            leftCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
+            leftCircle.widthAnchor.constraint(equalToConstant: 38),
+            leftCircle.heightAnchor.constraint(equalToConstant: 38),
 
-            // Right capsule: pinned to trailing edge
-            rightCapsule.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            rightCapsule.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
-            rightCapsule.widthAnchor.constraint(equalToConstant: 34),
-            rightCapsule.heightAnchor.constraint(equalToConstant: 34),
+            // Right circle: pinned to trailing edge, 38x38pt perfect sphere
+            rightCircle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            rightCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
+            rightCircle.widthAnchor.constraint(equalToConstant: 38),
+            rightCircle.heightAnchor.constraint(equalToConstant: 38),
         ])
     }
 
     func update(showLeft: Bool?, showRight: Bool?, rightIcon: String?) {
-        if let showLeft  { leftCapsule.isHidden  = !showLeft  }
-        if let showRight { rightCapsule.isHidden = !showRight }
+        if let showLeft  { leftCircle.isHidden  = !showLeft  }
+        if let showRight { rightCircle.isHidden = !showRight }
         if let icon = rightIcon, icon != rightIconName {
             rightIconName = icon
-            rightCapsule.updateSymbol(icon)
+            rightCircle.updateSymbol(icon)
         }
     }
 
