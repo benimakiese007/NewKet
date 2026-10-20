@@ -16,9 +16,8 @@
       "enabled": true
     },
     "StatusBar": {
-      "backgroundColor": "#1f2937",
-      "style": "DARK",
-      "overlaysWebView": false
+      "style": "DEFAULT",
+      "overlaysWebView": true
     },
     "SplashScreen": {
       "launchShowDuration": 1500,

@@ -1,4 +1,4 @@
-if (!window.ComponentLoader) {
+﻿if (!window.ComponentLoader) {
 
 /* NewKet EMarket Component Loader */
 
@@ -479,26 +479,9 @@ const getBottomNavHTML = (role, isGuest = false) => {
             <span>Panier</span>
         </a>`;
 
-    // ── Liquid Glass (iOS Capacitor uniquement) ─────────────────────────────
+    // ── Liquid Glass (iOS Capacitor : Tab bar 100% native SwiftUI) ─────────
     if (useLiquidGlass) {
-        return `<!-- Liquid Glass Bottom Navbar (iOS Capacitor Only) -->
-<nav id="mobileBottomNav" class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-2 sm:hidden rounded-[32px] w-[calc(100%-32px)] left-[16px] h-[62px]" style="bottom: max(12px, calc(env(safe-area-inset-bottom, 0px) - 4px));">
-    <div id="liquidGlassSlider" class="liquid-sliding-lens" aria-hidden="true"></div>
-    <a href="{{ROOT}}" data-bottom-nav-item="home" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Accueil">
-        <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Accueil</span>
-    </a>
-    <a href="{{ROOT}}catalog" data-bottom-nav-item="catalog" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Catalogue">
-        <iconify-icon icon="solar:shop-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Catalogue</span>
-    </a>
-    ${item3_lg}
-    ${item4_lg}
-    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Compte">
-        <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Compte</span>
-    </a>
-</nav>`;
+        return '<!-- Native SwiftUI TabView Active on iOS -->';
     }
 
     // ── Standard (Web / PWA / Android) ─────────────────────────────────────
@@ -590,7 +573,13 @@ const ComponentLoader = {
             } catch (e) {}
 
             const isSellerOrAdmin = userRole === 'seller' || userRole === 'supplier' || userRole === 'admin';
-            if (existingMobileNav && (isIOSCapacitor() || isSellerOrAdmin)) {
+            if (isIOSCapacitor()) {
+                // Sur iOS, la Tab Bar est 100% native SwiftUI (Liquid Glass iOS 26)
+                if (existingMobileNav) existingMobileNav.remove();
+                try {
+                    window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: userRole });
+                } catch (_) {}
+            } else if (existingMobileNav && isSellerOrAdmin) {
                 const navHTML = getBottomNavHTML(userRole, isGuest).replace(/\{\{ROOT\}\}/g, this.getAdjustedPath(''));
                 existingMobileNav.outerHTML = navHTML;
             } else if (!existingMobileNav) {

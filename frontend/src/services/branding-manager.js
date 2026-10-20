@@ -1,4 +1,4 @@
-// branding-manager.js - Applies site-wide branding (colors, fonts, icons) from ConfigManager
+﻿// branding-manager.js - Applies site-wide branding (colors, fonts, icons) from ConfigManager
 
 function clamp(num, min, max) {
     return Math.min(max, Math.max(min, num));
@@ -99,10 +99,16 @@ const BrandingManager = {
         upsertMeta('theme-color', themeColor);
 
         // Capacitor Mobile StatusBar synchronization
+        // iOS 26 Liquid Glass : ne pas forcer backgroundColor sur iOS —
+        // le systeme gere la teinte translucide native (Liquid Glass).
+        // Sur Android uniquement, on applique la couleur de marque.
         if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
             try {
-                window.Capacitor.Plugins.StatusBar.setBackgroundColor({ color: themeColor });
-                window.Capacitor.Plugins.StatusBar.setStyle({ style: 'DARK' });
+                const _lcPlatform = window.Capacitor.getPlatform?.();
+                if (_lcPlatform === 'android') {
+                    window.Capacitor.Plugins.StatusBar.setBackgroundColor({ color: themeColor });
+                    window.Capacitor.Plugins.StatusBar.setStyle({ style: 'DARK' });
+                }
             } catch (err) {
                 console.warn('[BrandingManager] Failed to update Capacitor StatusBar:', err);
             }

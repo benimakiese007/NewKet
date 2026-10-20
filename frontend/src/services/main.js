@@ -1,4 +1,4 @@
-/* NewKet EMarket - Main Orchestrator */
+﻿/* NewKet EMarket - Main Orchestrator */
 import { initSentry, setSentryUser } from './sentry.js';
 import { initCapacitorPlugins } from './capacitor-plugins.js';
 
@@ -404,6 +404,16 @@ const App = {
                     }
                 }
             });
+
+            // Synchronise avec la TabBar 100% native SwiftUI (iOS 26 Liquid Glass)
+            try {
+                if (window.Capacitor?.Plugins?.NativeTabBar) {
+                    const activeTabId = activeItem?.dataset?.bottomNavItem || ROUTE_PARENT_MAP[currentPath] || (currentPath === '/' || currentPath === '' ? 'home' : null);
+                    if (activeTabId) {
+                        window.Capacitor.Plugins.NativeTabBar.setActiveTab({ tabId: activeTabId }).catch(() => {});
+                    }
+                }
+            } catch (_) {}
 
             // Positionne la pastille glissante Liquid Glass (iOS Capacitor uniquement)
             const slider = document.getElementById('liquidGlassSlider');

@@ -10702,11 +10702,12 @@ html.dark .liquid-sliding-lens {
     inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Nav item typography and icon styling - ✅ THEME MONOCHROME NOIR PUR (#000000) */
+/* Nav item typography and icon styling - ✅ THEME ADAPTATIF : système contrôle les icônes non-sélectionnées */
 .liquid-glass-nav .nav-item {
   position: relative;
   z-index: 2;
-  color: #000000 !important;
+  /* Laisser iOS 26 gérer la couleur des icônes inactives (teinte Liquid Glass native) */
+  color: inherit !important;
   text-shadow: none !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -10717,14 +10718,13 @@ html.dark .liquid-sliding-lens {
 
 .liquid-glass-nav .nav-item iconify-icon {
   filter: none !important;
-  color: #000000 !important;
+  /* Pas de couleur forcée sur les icônes inactives : iOS 26 gère l'opacité/teinte */
   transition: color 0.2s ease !important;
 }
 
 .liquid-glass-nav .nav-item span {
   font-weight: 500 !important;
   letter-spacing: 0.01em !important;
-  color: #000000 !important;
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
@@ -10933,7 +10933,8 @@ html.dark .liquid-glass-nav .nav-item.active span {
 
   body.home-page main,
   body.home-page #main-content {
-    padding-bottom: 16px !important;
+    /* Liquid Glass nav flottante : laisser le contenu passer librement derrière */
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   body.home-page .newket-footer-shell {
