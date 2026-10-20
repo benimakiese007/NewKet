@@ -348,12 +348,22 @@ const App = {
         let bottomNavRaf = 0;
         let bottomNavObserver = null;
         const syncMobileBottomNav = () => {
+            const currentPath = normalizeBottomNavPath(window.location.href);
+
+            // Synchronise avec la TabBar 100% native SwiftUI (iOS 26 Liquid Glass)
+            try {
+                if (window.Capacitor?.Plugins?.NativeTabBar) {
+                    const activeTabId = ROUTE_PARENT_MAP[currentPath] || (currentPath === '/' || currentPath === '' ? 'home' : null);
+                    if (activeTabId) {
+                        window.Capacitor.Plugins.NativeTabBar.setActiveTab({ tabId: activeTabId }).catch(() => {});
+                    }
+                }
+            } catch (_) {}
+
             const nav = document.getElementById('mobileBottomNav');
             const items = nav ? Array.from(nav.querySelectorAll('[data-bottom-nav-item]')) : [];
 
             if (!nav || items.length === 0) return;
-
-            const currentPath = normalizeBottomNavPath(window.location.href);
 
             // 1. Recherche par correspondance exacte d'URL sur les onglets
             let activeItem = items.find((item) => {

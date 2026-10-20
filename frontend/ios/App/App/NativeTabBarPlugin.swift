@@ -13,22 +13,22 @@ public struct TabItem: Identifiable, Hashable {
 }
 
 extension TabItem {
-    /// Default consumer tabs
+    /// Default consumer tabs (Capacitor physical file paths)
     public static let defaultTabs: [TabItem] = [
-        TabItem(id: "home",    label: "Accueil",   systemImage: "house",          path: "/"),
-        TabItem(id: "catalog", label: "Catalogue", systemImage: "storefront",     path: "/catalog"),
-        TabItem(id: "shops",   label: "Boutiques", systemImage: "bag",            path: "/shops"),
+        TabItem(id: "home",    label: "Accueil",   systemImage: "house",          path: "/index.html"),
+        TabItem(id: "catalog", label: "Catalogue", systemImage: "storefront",     path: "/src/pages/catalog.html"),
+        TabItem(id: "shops",   label: "Boutiques", systemImage: "bag",            path: "/src/pages/shops.html"),
         TabItem(id: "cart",    label: "Panier",    systemImage: "cart",           path: "##cart"),
-        TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/customer-dashboard"),
+        TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/src/pages/customer-dashboard.html"),
     ]
 
     /// Seller tabs (replaces Boutiques with Vendre)
     public static let sellerTabs: [TabItem] = [
-        TabItem(id: "home",    label: "Accueil",   systemImage: "house",          path: "/"),
-        TabItem(id: "catalog", label: "Catalogue", systemImage: "storefront",     path: "/catalog"),
-        TabItem(id: "sell",    label: "Vendre",    systemImage: "plus.circle",    path: "/publish"),
+        TabItem(id: "home",    label: "Accueil",   systemImage: "house",          path: "/index.html"),
+        TabItem(id: "catalog", label: "Catalogue", systemImage: "storefront",     path: "/src/pages/catalog.html"),
+        TabItem(id: "sell",    label: "Vendre",    systemImage: "plus.circle",    path: "/src/pages/publish.html"),
         TabItem(id: "cart",    label: "Panier",    systemImage: "cart",           path: "##cart"),
-        TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/vendor-dashboard"),
+        TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/src/pages/vendor-dashboard.html"),
     ]
 }
 
@@ -119,7 +119,7 @@ public final class NativeTabCoordinator: ObservableObject {
             if (window.CartManager && typeof window.CartManager.toggleCartUI === 'function') {
                 window.CartManager.toggleCartUI();
             } else {
-                window.location.href = '/customer-dashboard';
+                window.location.href = '/src/pages/customer-dashboard.html';
             }
             """
             bridgeVC?.bridge?.webView?.evaluateJavaScript(cartJs, completionHandler: nil)
@@ -134,9 +134,8 @@ public final class NativeTabCoordinator: ObservableObject {
         (function() {
             var target = '\(targetPath)';
             var curr = window.location.pathname;
-            var normCurr = (curr.length > 1 && curr.endsWith('/')) ? curr.slice(0, -1) : curr;
-            var normTarget = (target.length > 1 && target.endsWith('/')) ? target.slice(0, -1) : target;
-            if (normCurr !== normTarget && normCurr !== normTarget + '.html') {
+            var isSame = (curr === target) || (target === '/index.html' && (curr === '/' || curr === '' || curr.endsWith('/index.html')));
+            if (!isSame) {
                 window.location.href = target;
             } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });

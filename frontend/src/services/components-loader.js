@@ -575,6 +575,7 @@ const ComponentLoader = {
             const isSellerOrAdmin = userRole === 'seller' || userRole === 'supplier' || userRole === 'admin';
             if (isIOSCapacitor()) {
                 // Sur iOS, la Tab Bar est 100% native SwiftUI (Liquid Glass iOS 26)
+                document.documentElement.classList.add('is-ios-capacitor');
                 if (existingMobileNav) existingMobileNav.remove();
                 try {
                     window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: userRole });

@@ -7,6 +7,22 @@
 (function () {
     'use strict';
 
+    // Application mobile native (Capacitor iOS & Android) : aucune bannière cookies web
+    // Apple et Google déconseillent les bannières de cookies web dans les applications natives.
+    const isNativeMobile = typeof window !== 'undefined' && (
+        (window.Capacitor && (
+            (typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ||
+            window.Capacitor.isNative ||
+            (typeof window.Capacitor.getPlatform === 'function' && ['ios', 'android'].includes(window.Capacitor.getPlatform()))
+        )) ||
+        (window.location && window.location.protocol === 'capacitor:') ||
+        (window.origin && window.origin.includes('capacitor:')) ||
+        (typeof navigator !== 'undefined' && /Capacitor/i.test(navigator.userAgent))
+    );
+    if (isNativeMobile) {
+        return;
+    }
+
     // Empêche les doubles injections quand la bannière est chargée à la fois
     // directement dans une page et via components-loader.js.
     if (window.__nkCookieConsentLoaded) {

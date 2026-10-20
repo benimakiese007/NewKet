@@ -93,7 +93,7 @@ class DrawersManager {
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-white border-t border-gray-100 p-4 shrink-0 text-center" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));">
+                <div class="drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 text-center" style="padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px));">
                     <a href="/catalog" onclick="window.DrawersManager.closeFavorites()" class="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors btn-active-scale">
                         <iconify-icon icon="solar:shop-2-linear" width="16"></iconify-icon>
                         Découvrir d'autres articles
@@ -332,7 +332,7 @@ class DrawersManager {
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-white border-t border-gray-100 p-4 shrink-0 flex items-center justify-between" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));">
+                <div class="drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 flex items-center justify-between" style="padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px));">
                     <button onclick="window.DrawersManager.clearAllNotifications()" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
                         Effacer l'historique
                     </button>

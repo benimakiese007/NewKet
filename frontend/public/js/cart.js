@@ -568,7 +568,7 @@ class CartManager {
                 </div>
                 
                 <!-- Footer / Checkout -->
-                <div class="bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] text-center" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));">
+                <div class="cart-drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] text-center" style="padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px));">
                     <p class="text-[10px] text-gray-400">
                         <iconify-icon icon="solar:shield-check-bold" width="12" class="inline align-middle"></iconify-icon> 
                         Vos paiements sont sécurisés. Les frais de livraison seront calculés lors du paiement.

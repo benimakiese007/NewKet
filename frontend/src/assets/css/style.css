@@ -10927,24 +10927,43 @@ html.dark .liquid-glass-nav .nav-item.active span {
    */
 
   main, #main-content, .main-content,
-  .page-content, #page-content, #app-body {
-    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+  .page-content, #page-content, #app-body,
+  .customer-main-content, .vendor-main-content,
+  .newket-footer-shell {
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 34px)) !important;
   }
 
   body.home-page main,
   body.home-page #main-content {
     /* Liquid Glass nav flottante : laisser le contenu passer librement derrière */
-    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 34px)) !important;
   }
 
   body.home-page .newket-footer-shell {
     margin-top: 1.5rem !important;
+    padding-bottom: calc(116px + env(safe-area-inset-bottom, 34px)) !important;
   }
 
   /* Footer already has its own padding, remove any body-level shift */
 
   body {
     padding-bottom: 0 !important;
+  }
+
+  /* Modals / Drawers footer clearance for native mobile bottom bar */
+  #cartSlideOver > div:last-child,
+  #favoritesSlideOver > div:last-child,
+  #notificationsSlideOver > div:last-child,
+  .cart-drawer-footer,
+  .drawer-footer {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 34px)) !important;
+  }
+
+  /* Masquer complètement l'ancienne navbar HTML quand l'application native iOS Capacitor est active */
+  html.plt-ios #mobileBottomNav,
+  html.capacitor-ios #mobileBottomNav,
+  body.is-ios-capacitor #mobileBottomNav {
+    display: none !important;
   }
 }
 
