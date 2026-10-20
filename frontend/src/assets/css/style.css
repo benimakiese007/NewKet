@@ -10972,6 +10972,7 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #mobileHeaderSearchBtn,
   html.is-ios-capacitor #customerMobileBtn,
   html.is-ios-capacitor #vendorMobileBtn,
+  html.is-ios-capacitor #adminMobileMenuBtn,
   html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
     opacity: 0 !important;
     pointer-events: none !important;

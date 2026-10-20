@@ -938,11 +938,11 @@ const ComponentLoader = {
         if (!plugin) return;
 
         const path = window.location.pathname;
-        const isDashboard = path.includes('-dashboard') || path.includes('dashboard');
-        const isAdmin     = path.includes('/admin');
+        const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
+        const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
         const isMinimal   = path.includes('/login') || path.includes('/choose-role');
 
-        if (isAdmin || isMinimal) {
+        if (isMinimal) {
             plugin.hide().catch(() => {});
             return;
         }
@@ -957,7 +957,9 @@ const ComponentLoader = {
 
         // -- Wire burger tap --> open mobile menu -------------------------
         plugin.addListener('burgerTap', () => {
-            if (typeof window.openMobileMenu === 'function') {
+            if (document.getElementById('adminMobileMenuBtn')) {
+                document.getElementById('adminMobileMenuBtn').click();
+            } else if (typeof window.openMobileMenu === 'function') {
                 window.openMobileMenu();
             } else if (document.getElementById('mobileMenuBtn')) {
                 document.getElementById('mobileMenuBtn').click();

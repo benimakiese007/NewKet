@@ -97,17 +97,23 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 }
 
-// MARK: - GlassCircleButton (iOS 26+ Liquid Glass Sphere)
+// MARK: - GlassCircleButton (iOS 26+ Interactive Liquid Glass Sphere)
 
 /// A 38x38pt perfect round circular Liquid Glass sphere conforming to Apple HIG:
 /// - Circular UIVisualEffectView container with UIGlassEffect (in: .circle)
-/// - 44x44pt touch hit target for 100% accessible touch responsiveness
-/// - Inner 100% transparent (.plain) button with 16pt semibold SF Symbol
+/// - Interactive touch & drag fluid physics: compression on touch, rubber-band fluid displacement on drag,
+///   and natural Apple spring rebound on release with haptic feedback.
+/// - 44x44pt touch hit target for 100% accessible touch responsiveness.
+/// - Inner 100% transparent (.plain) button with 16pt semibold SF Symbol.
 @available(iOS 26.0, *)
 class GlassCircleButton: UIView {
 
     let glassEffectView: UIVisualEffectView
     let button: UIButton
+    var onTap: (() -> Void)?
+
+    private var initialTouchPoint: CGPoint = .zero
+    private var isDragging: Bool = false
 
     init(sfSymbol: String) {
         let glass = UIGlassEffect()
@@ -154,8 +160,9 @@ class GlassCircleButton: UIView {
             tintLayer.bottomAnchor.constraint(equalTo: glassEffectView.contentView.bottomAnchor),
         ])
 
-        // Inner plain button
+        // Inner plain button — touches handled on container for fluid physics
         updateSymbol(sfSymbol)
+        button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         glassEffectView.contentView.addSubview(button)
 
@@ -165,6 +172,8 @@ class GlassCircleButton: UIView {
             button.trailingAnchor.constraint(equalTo: glassEffectView.contentView.trailingAnchor),
             button.bottomAnchor.constraint(equalTo: glassEffectView.contentView.bottomAnchor),
         ])
+
+        isUserInteractionEnabled = true
     }
 
     required init?(coder: NSCoder) {
@@ -177,6 +186,72 @@ class GlassCircleButton: UIView {
         let dy = max(0, (44 - bounds.height) / 2)
         let expanded = bounds.insetBy(dx: -dx, dy: -dy)
         return expanded.contains(point)
+    }
+
+    // MARK: - Interactive Liquid Glass Physics (Touch & Drag)
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        guard let touch = touches.first else { return }
+        initialTouchPoint = touch.location(in: self)
+        isDragging = true
+
+        // Haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.prepare()
+        generator.impactOccurred()
+
+        // Fluid depression: compress the glass bubble slightly
+        UIView.animate(withDuration: 0.22, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [.allowUserInteraction, .beginFromCurrentState]) {
+            self.transform = CGAffineTransform(scaleX: 0.90, y: 0.90)
+            self.alpha = 0.88
+        }
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesMoved(touches, with: event)
+        guard isDragging, let touch = touches.first else { return }
+        let currentPoint = touch.location(in: self)
+
+        let deltaX = (currentPoint.x - initialTouchPoint.x) * 0.25
+        let deltaY = (currentPoint.y - initialTouchPoint.y) * 0.25
+
+        // Rubber-band elastic resistance: limit maximum fluid stretch
+        let clampedX = max(-10, min(10, deltaX))
+        let clampedY = max(-10, min(10, deltaY))
+
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState, .curveEaseOut]) {
+            self.transform = CGAffineTransform(translationX: clampedX, y: clampedY).scaledBy(x: 0.92, y: 0.92)
+        }
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        isDragging = false
+        guard let touch = touches.first else { return }
+        let endPoint = touch.location(in: self)
+
+        // Elastic spring rebound back to original shape
+        UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.48, initialSpringVelocity: 0.8, options: [.allowUserInteraction, .beginFromCurrentState]) {
+            self.transform = .identity
+            self.alpha = 1.0
+        }
+
+        // Trigger action if touch ended inside expanded touch area
+        if point(inside: endPoint, with: event) {
+            let feedback = UISelectionFeedbackGenerator()
+            feedback.selectionChanged()
+            onTap?()
+        }
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        isDragging = false
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: [.allowUserInteraction, .beginFromCurrentState]) {
+            self.transform = .identity
+            self.alpha = 1.0
+        }
     }
 
     func updateSymbol(_ sfSymbol: String) {
@@ -249,13 +324,17 @@ class NativeHeaderButtonsView: UIView {
         h.isActive = true
         heightConstraint = h
 
-        // Wire taps
-        leftCircle.button.addTarget(self, action: #selector(handleLeftTap), for: .touchUpInside)
+        // Wire taps via interactive fluid closure
+        leftCircle.onTap = { [weak self] in
+            self?.handleLeftTap()
+        }
         leftCircle.isHidden = !showLeft
         leftCircle.translatesAutoresizingMaskIntoConstraints = false
         addSubview(leftCircle)
 
-        rightCircle.button.addTarget(self, action: #selector(handleRightTap), for: .touchUpInside)
+        rightCircle.onTap = { [weak self] in
+            self?.handleRightTap()
+        }
         rightCircle.isHidden = !showRight
         rightCircle.translatesAutoresizingMaskIntoConstraints = false
         addSubview(rightCircle)
