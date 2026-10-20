@@ -14,7 +14,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "update", returnType: CAPPluginReturnPromise),
     ]
 
-    private var overlayView: NativeHeaderButtonsView?
+    private var overlayView: UIView?
 
     // MARK: - show
 
@@ -97,7 +97,9 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         let rightIcon = call.getString("rightIcon")
 
         DispatchQueue.main.async { [weak self] in
-            self?.overlayView?.update(showLeft: showLeft, showRight: showRight, rightIcon: rightIcon)
+            if let overlay = self?.overlayView as? NativeHeaderButtonsView {
+                overlay.update(showLeft: showLeft, showRight: showRight, rightIcon: rightIcon)
+            }
             call.resolve()
         }
     }
@@ -202,8 +204,6 @@ class NativeHeaderButtonsView: UIView {
     // MARK: Button style — identical to iOS back button (glass capsule)
 
     private func configureButton(_ button: UIButton, sfSymbol: String) {
-        guard #available(iOS 26.0, *) else { return }
-
         // SF Symbol config — medium weight, 17pt
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
         let image = UIImage(systemName: sfSymbol, withConfiguration: symbolConfig)
