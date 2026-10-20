@@ -1,4 +1,4 @@
-﻿/* NewKet EMarket - Main Orchestrator */
+/* NewKet EMarket - Main Orchestrator */
 import { initSentry, setSentryUser } from './sentry.js';
 import { initCapacitorPlugins } from './capacitor-plugins.js';
 

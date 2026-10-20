@@ -1,4 +1,4 @@
-﻿if (!window.ComponentLoader) {
+if (!window.ComponentLoader) {
 
 /* NewKet EMarket Component Loader */
 

@@ -81,6 +81,7 @@ jobs:
           xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
+            -destination "generic/platform=iOS" \
             -sdk iphoneos \
             SYMROOT=$(PWD)/build_ios \
             CODE_SIGN_IDENTITY="" \

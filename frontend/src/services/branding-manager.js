@@ -1,4 +1,4 @@
-﻿// branding-manager.js - Applies site-wide branding (colors, fonts, icons) from ConfigManager
+// branding-manager.js - Applies site-wide branding (colors, fonts, icons) from ConfigManager
 
 function clamp(num, min, max) {
     return Math.min(max, Math.max(min, num));
