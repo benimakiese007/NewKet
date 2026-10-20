@@ -37,10 +37,6 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version || true
           xcodebuild -version
 
-      - name: 📲 Téléchargement de la plateforme iOS (Xcode Components)
-        run: |
-          sudo xcodebuild -downloadPlatform iOS || true
-
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v7
         with:
