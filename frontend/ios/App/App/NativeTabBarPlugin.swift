@@ -111,23 +111,6 @@ public final class NativeTabCoordinator: ObservableObject {
     }
 
     public func onTabSelected(id: String) {
-        if id == "search" {
-            let searchJs = """
-            (function() {
-                if (window.location.pathname.includes('catalog.html')) {
-                    const searchInput = document.querySelector('.search-input') || document.querySelector('input[type="search"]');
-                    if (searchInput) {
-                        searchInput.focus();
-                        searchInput.scrollIntoView({ behavior: 'smooth' });
-                    }
-                } else {
-                    window.location.href = '/src/pages/catalog.html?focus=search';
-                }
-            })();
-            """
-            bridgeVC?.bridge?.webView?.evaluateJavaScript(searchJs, completionHandler: nil)
-            return
-        }
 
         guard let tab = tabs.first(where: { $0.id == id }) else { return }
 
@@ -211,11 +194,6 @@ public struct NativeTabRootView: View {
                                 .ignoresSafeArea()
                         }
                         .badge(coordinator.badges[tab.id] ?? 0)
-                    }
-
-                    Tab(value: "search", role: .search) {
-                        CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
-                            .ignoresSafeArea()
                     }
                 }
                 .tint(Color(red: 10.0 / 255.0, green: 132.0 / 255.0, blue: 255.0 / 255.0))
