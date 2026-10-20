@@ -20,6 +20,7 @@ extension TabItem {
         TabItem(id: "shops",   label: "Boutiques", systemImage: "bag",            path: "/src/pages/shops.html"),
         TabItem(id: "cart",    label: "Panier",    systemImage: "cart",           path: "##cart"),
         TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/src/pages/customer-dashboard.html"),
+        TabItem(id: "menu",    label: "Menu",      systemImage: "line.3.horizontal", path: "##menu"),
     ]
 
     /// Seller tabs (replaces Boutiques with Vendre)
@@ -29,6 +30,7 @@ extension TabItem {
         TabItem(id: "sell",    label: "Vendre",    systemImage: "plus.circle",    path: "/src/pages/publish.html"),
         TabItem(id: "cart",    label: "Panier",    systemImage: "cart",           path: "##cart"),
         TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/src/pages/vendor-dashboard.html"),
+        TabItem(id: "menu",    label: "Menu",      systemImage: "line.3.horizontal", path: "##menu"),
     ]
 }
 
@@ -111,7 +113,43 @@ public final class NativeTabCoordinator: ObservableObject {
     }
 
     public func onTabSelected(id: String) {
+        if id == "search" {
+            let searchJs = """
+            (function() {
+                if (window.location.pathname.includes('catalog.html')) {
+                    const searchInput = document.querySelector('.search-input') || document.querySelector('input[type="search"]');
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.scrollIntoView({ behavior: 'smooth' });
+                    }
+                } else {
+                    window.location.href = '/src/pages/catalog.html?focus=search';
+                }
+            })();
+            """
+            bridgeVC?.bridge?.webView?.evaluateJavaScript(searchJs, completionHandler: nil)
+            return
+        }
+
         guard let tab = tabs.first(where: { $0.id == id }) else { return }
+
+        if tab.path == "##menu" {
+            let menuJs = """
+            (function() {
+                if (typeof window.SidebarManager !== 'undefined' && typeof window.SidebarManager.toggle === 'function') {
+                    window.SidebarManager.toggle();
+                } else if (document.getElementById('mobileMenuBtn')) {
+                    document.getElementById('mobileMenuBtn').click();
+                } else if (document.getElementById('customerMobileBtn')) {
+                    document.getElementById('customerMobileBtn').click();
+                } else if (document.getElementById('vendorMobileBtn')) {
+                    document.getElementById('vendorMobileBtn').click();
+                }
+            })();
+            """
+            bridgeVC?.bridge?.webView?.evaluateJavaScript(menuJs, completionHandler: nil)
+            return
+        }
 
         if tab.path == "##cart" {
             // Trigger cart drawer via JS without changing active page
@@ -194,8 +232,12 @@ public struct NativeTabRootView: View {
                         }
                         .badge(coordinator.badges[tab.id] ?? 0)
                     }
+
+                    Tab(value: "search", role: .search) {
+                        CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
+                            .ignoresSafeArea()
+                    }
                 }
-                .tint(Color(red: 31/255.0, green: 41/255.0, blue: 55/255.0))
             } else {
                 // Fallback for earlier iOS versions
                 TabView(selection: Binding(
@@ -212,7 +254,6 @@ public struct NativeTabRootView: View {
                             .badge(coordinator.badges[tab.id] ?? 0)
                     }
                 }
-                .tint(Color(red: 31/255.0, green: 41/255.0, blue: 55/255.0))
             }
         }
         .onAppear {
