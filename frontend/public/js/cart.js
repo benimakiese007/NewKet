@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet Cart Manager
  * Handles the state of the shopping cart using LocalStorage
  */
@@ -98,7 +98,7 @@ class CartManager {
         try {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.cart));
             this.updateUI();
-            // Sync silencieux vers Supabase (panier abandonné tracking)
+            // Sync silencieux vers Supabase (panier abandonnÃ© tracking)
             this.syncToSupabase();
         } catch (e) {
             console.error('Failed to save cart to localStorage', e);
@@ -106,17 +106,17 @@ class CartManager {
     }
 
     /**
-     * Synchronise le panier vers Supabase pour le tracking des paniers abandonnés.
-     * Fire-and-forget : ne bloque jamais l'UX en cas d'erreur ou si l'utilisateur n'est pas connecté.
+     * Synchronise le panier vers Supabase pour le tracking des paniers abandonnÃ©s.
+     * Fire-and-forget : ne bloque jamais l'UX en cas d'erreur ou si l'utilisateur n'est pas connectÃ©.
      */
     async syncToSupabase() {
         try {
-            // Récupérer la session utilisateur (uniquement si connecté)
+            // RÃ©cupÃ©rer la session utilisateur (uniquement si connectÃ©)
             const supabase = window.SupabaseAdapter?.client || window._supabaseClient;
             if (!supabase) return;
 
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session?.user?.id) return; // Pas connecté → on ne sync pas
+            if (!session?.user?.id) return; // Pas connectÃ© â†’ on ne sync pas
 
             const cartData = this.cart.map(item => ({
                 id: item.id,
@@ -129,9 +129,9 @@ class CartManager {
                 vendor: item.vendor,
             }));
 
-            // Upsert : insert ou update si la ligne existe déjà
-            // On remet reminder_count à 0 si le client modifie son panier
-            // (il a manifesté de l'intérêt, donc on repart de zéro)
+            // Upsert : insert ou update si la ligne existe dÃ©jÃ 
+            // On remet reminder_count Ã  0 si le client modifie son panier
+            // (il a manifestÃ© de l'intÃ©rÃªt, donc on repart de zÃ©ro)
             await supabase.from('user_carts').upsert({
                 user_id: session.user.id,
                 cart_data: cartData,
@@ -365,6 +365,8 @@ class CartManager {
                 document.body.style.overflow = 'hidden';
             }
             this.renderCartItems();
+            // Hide native iOS header buttons while cart panel is open
+            try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
         }
     }
     
@@ -383,6 +385,8 @@ class CartManager {
             }
             try {
                 window.dispatchEvent(new CustomEvent('cartClosed'));
+                // Restore native iOS header buttons
+                window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
             } catch (_) {}
         }
     }
@@ -395,7 +399,7 @@ class CartManager {
         }
 
         if (window.AuthManager?.role === 'admin') {
-            this.showInlineRestriction('Les administrateurs ne peuvent pas effectuer d’achat.', anchor);
+            this.showInlineRestriction('Les administrateurs ne peuvent pas effectuer dâ€™achat.', anchor);
             return;
         }
 
@@ -416,14 +420,14 @@ class CartManager {
             if (window.SupabaseAdapter) {
                 const session = await window.SupabaseAdapter.getSession(3000);
                 if (!session?.access_token) {
-                    this.showInlineRestriction('Vous devez être connecté pour passer une commande.', anchor);
+                    this.showInlineRestriction('Vous devez Ãªtre connectÃ© pour passer une commande.', anchor);
                     return;
                 }
             }
 
             const { name, phone, city, email, lat, lng } = customerInfo;
             
-            this.showInlineRestriction("Création de votre commande en cours...", anchor, 'info');
+            this.showInlineRestriction("CrÃ©ation de votre commande en cours...", anchor, 'info');
 
             const data = await window.ApiClient?.post('/orders', {
                 product_id: item.id,
@@ -440,16 +444,16 @@ class CartManager {
             
             if (!data?.success) {
                 console.error("Order error for item", item.id, data?.error);
-                this.showInlineRestriction(data?.error || "L'article n'a pas pu être commandé.", anchor);
+                this.showInlineRestriction(data?.error || "L'article n'a pas pu Ãªtre commandÃ©.", anchor);
             } else {
-                // Supprimer l'article du panier une fois la commande validée
+                // Supprimer l'article du panier une fois la commande validÃ©e
                 this.remove(productIdOrCartItemId);
                 
                 this.toggleCartUI(false);
                 if (window.showOrderSuccessModal) {
                     window.showOrderSuccessModal();
                 } else {
-                    console.warn('[NewKet Cart] showOrderSuccessModal non disponible — commande validée sans animation.');
+                    console.warn('[NewKet Cart] showOrderSuccessModal non disponible â€” commande validÃ©e sans animation.');
                 }
             }
         } else {
@@ -497,13 +501,13 @@ class CartManager {
                         <div class="pr-6">
                             <h4 class="text-sm font-bold text-gray-900 line-clamp-1">${item.title}</h4>
                             <p class="text-xs text-gray-500 mt-0.5">${item.vendor || 'NewKet'}</p>
-                            ${item.variant_attributes ? `<p class="text-xs text-blue-600 mt-1">Option: ${item.variant_attributes.value || 'Sélectionnée'}</p>` : ''}
+                            ${item.variant_attributes ? `<p class="text-xs text-blue-600 mt-1">Option: ${item.variant_attributes.value || 'SÃ©lectionnÃ©e'}</p>` : ''}
                         </div>
                         <div class="flex items-center justify-between mt-2 mb-2">
                             <div class="font-black text-slate-900 text-sm">${priceFormatted}</div>
                             <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-100">
                                 <button onclick="window.CartManager.updateQuantity('${item.cartItemId || item.id}', ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
-                                    −
+                                    âˆ’
                                 </button>
                                 <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
                                 <button onclick="window.CartManager.updateQuantity('${item.cartItemId || item.id}', ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
@@ -552,7 +556,7 @@ class CartManager {
                             <iconify-icon icon="solar:cart-large-minimalistic-bold" width="20"></iconify-icon>
                         </div>
                         <h2 class="text-lg font-black uppercase tracking-widest text-white">Mon Panier</h2>
-                        <div class="network-status-icon ${navigator.onLine ? 'hidden' : ''} flex items-center gap-2 text-red-500 bg-red-500/20 h-8 px-2 rounded-lg border border-red-500/30 ml-2" title="Vous êtes hors ligne">
+                        <div class="network-status-icon ${navigator.onLine ? 'hidden' : ''} flex items-center gap-2 text-red-500 bg-red-500/20 h-8 px-2 rounded-lg border border-red-500/30 ml-2" title="Vous Ãªtes hors ligne">
                             <iconify-icon icon="mdi:wifi-off" width="16"></iconify-icon>
                             <span class="text-[9px] font-black uppercase tracking-widest text-white hidden sm:inline">Hors ligne</span>
                         </div>
@@ -571,7 +575,7 @@ class CartManager {
                 <div class="cart-drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] text-center" style="padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px));">
                     <p class="text-[10px] text-gray-400">
                         <iconify-icon icon="solar:shield-check-bold" width="12" class="inline align-middle"></iconify-icon> 
-                        Vos paiements sont sécurisés. Les frais de livraison seront calculés lors du paiement.
+                        Vos paiements sont sÃ©curisÃ©s. Les frais de livraison seront calculÃ©s lors du paiement.
                     </p>
                 </div>
             </div>

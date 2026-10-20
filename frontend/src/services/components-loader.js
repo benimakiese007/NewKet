@@ -955,6 +955,60 @@ const ComponentLoader = {
         // Show the overlay buttons
         plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
 
+        // ------------------------------------------------------------------
+        // Auto-hide / auto-show when a web overlay (sidebar, panier, drawer)
+        // opens or closes. Since our native overlay sits on top of WKWebView,
+        // it must be hidden while any web panel is visible.
+        // ------------------------------------------------------------------
+        let _overlayOpenCount = 0;
+
+        const _hideButtons = () => {
+            _overlayOpenCount++;
+            if (_overlayOpenCount === 1) {
+                plugin.update({ showLeft: false, showRight: false }).catch(() => {});
+            }
+        };
+        const _showButtons = () => {
+            _overlayOpenCount = Math.max(0, _overlayOpenCount - 1);
+            if (_overlayOpenCount === 0) {
+                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+            }
+        };
+
+        // Global events that web layers dispatch when they open/close
+        window.addEventListener('nativeOverlayOpen',  _hideButtons);
+        window.addEventListener('nativeOverlayClose', _showButtons);
+
+        // Also observe DOM mutations: watch #mobileMenu aria-hidden attribute
+        // (the main sidebar uses aria-hidden="true/false")
+        const mobileMenuObserver = new MutationObserver(() => {
+            const menu = document.getElementById('mobileMenu');
+            if (!menu) return;
+            if (menu.getAttribute('aria-hidden') === 'false') {
+                _hideButtons();
+                // Watch for close
+                const closeObserver = new MutationObserver(() => {
+                    if (menu.getAttribute('aria-hidden') === 'true') {
+                        _showButtons();
+                        closeObserver.disconnect();
+                    }
+                });
+                closeObserver.observe(menu, { attributes: true, attributeFilter: ['aria-hidden'] });
+                mobileMenuObserver.disconnect(); // re-arm after close
+            }
+        });
+
+        // Arm the observer once the menu is in DOM
+        const armMenuObserver = () => {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                mobileMenuObserver.observe(menu, { attributes: true, attributeFilter: ['aria-hidden'] });
+            } else {
+                setTimeout(armMenuObserver, 300);
+            }
+        };
+        armMenuObserver();
+
         // -- Wire burger tap --> open mobile menu -------------------------
         plugin.addListener('burgerTap', () => {
             if (document.getElementById('adminMobileMenuBtn')) {
@@ -984,9 +1038,20 @@ const ComponentLoader = {
             } else {
                 const sc = document.getElementById('mobileSearchContainer');
                 if (sc) {
+                    const isOpening = sc.classList.contains('user-hidden-on-mobile');
                     sc.classList.toggle('user-hidden-on-mobile');
-                    if (!sc.classList.contains('user-hidden-on-mobile')) {
+                    if (isOpening) {
+                        // Search panel is now visible → hide buttons
+                        _hideButtons();
                         setTimeout(() => document.getElementById('searchInput')?.focus(), 50);
+                        // Watch for close (re-add class = close)
+                        const searchObs = new MutationObserver(() => {
+                            if (sc.classList.contains('user-hidden-on-mobile')) {
+                                _showButtons();
+                                searchObs.disconnect();
+                            }
+                        });
+                        searchObs.observe(sc, { attributes: true, attributeFilter: ['class'] });
                     }
                 } else {
                     document.getElementById('mobileHeaderSearchBtn')?.click();
