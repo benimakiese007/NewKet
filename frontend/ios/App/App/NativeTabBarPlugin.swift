@@ -238,6 +238,7 @@ public struct NativeTabRootView: View {
                             .ignoresSafeArea()
                     }
                 }
+                .tint(Color(red: 10.0 / 255.0, green: 132.0 / 255.0, blue: 255.0 / 255.0))
             } else {
                 // Fallback for earlier iOS versions
                 TabView(selection: Binding(
@@ -254,6 +255,7 @@ public struct NativeTabRootView: View {
                             .badge(coordinator.badges[tab.id] ?? 0)
                     }
                 }
+                .tint(Color(red: 10.0 / 255.0, green: 132.0 / 255.0, blue: 255.0 / 255.0))
             }
         }
         .onAppear {
