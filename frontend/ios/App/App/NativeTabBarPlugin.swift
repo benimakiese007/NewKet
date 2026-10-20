@@ -103,18 +103,26 @@ public final class NativeTabCoordinator: ObservableObject {
     @Published public var selectedTabId: String = "home"
     @Published public var badges: [String: Int] = [:]
 
-    weak var plugin: NativeTabBarPlugin?
-    weak var bridgeVC: NewKetBridgeViewController?
+    public weak var plugin: NativeTabBarPlugin?
+    public weak var bridgeVC: NewKetBridgeViewController?
+
+    public init(bridgeVC: NewKetBridgeViewController? = nil) {
+        self.bridgeVC = bridgeVC
+    }
 
     public func onTabSelected(id: String) {
         guard let tab = tabs.first(where: { $0.id == id }) else { return }
 
         if tab.path == "##cart" {
-            // Special trigger: toggle cart drawer without changing tab selection
-            bridgeVC?.bridge?.webView?.evaluateJavaScript(
-                "window.CartManager?.toggleCartUI?.();",
-                completionHandler: nil
-            )
+            // Trigger cart drawer via JS without changing active page
+            let cartJs = """
+            if (window.CartManager && typeof window.CartManager.toggleCartUI === 'function') {
+                window.CartManager.toggleCartUI();
+            } else {
+                window.location.href = '/customer-dashboard';
+            }
+            """
+            bridgeVC?.bridge?.webView?.evaluateJavaScript(cartJs, completionHandler: nil)
             return
         }
 
@@ -125,14 +133,21 @@ public final class NativeTabCoordinator: ObservableObject {
         let js = """
         (function() {
             var target = '\(targetPath)';
-            if (window.location.pathname !== target) {
-                window.history.pushState({}, '', target);
-                window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
-                window.scrollTo({ top: 0, behavior: 'instant' });
+            var curr = window.location.pathname;
+            var normCurr = (curr.length > 1 && curr.endsWith('/')) ? curr.slice(0, -1) : curr;
+            var normTarget = (target.length > 1 && target.endsWith('/')) ? target.slice(0, -1) : target;
+            if (normCurr !== normTarget && normCurr !== normTarget + '.html') {
+                window.location.href = target;
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         })();
         """
-        bridgeVC?.bridge?.webView?.evaluateJavaScript(js, completionHandler: nil)
+        bridgeVC?.bridge?.webView?.evaluateJavaScript(js) { _, err in
+            if let err = err {
+                print("[NativeTabBar] Navigation error: \(err)")
+            }
+        }
     }
 
     public func selectTab(id: String) {
@@ -155,16 +170,14 @@ public final class NativeTabCoordinator: ObservableObject {
 
 // MARK: - Full Native SwiftUI TabView (Liquid Glass on iOS 26)
 
-/// The root SwiftUI view.
-/// Uses the modern `Tab("Title", systemImage: "...", value: ...)` syntax (iOS 18+ / iOS 26)
-/// as seen in the official Liquid Glass SwiftUI demonstration.
 public struct NativeTabRootView: View {
 
-    @StateObject private var coordinator = NativeTabCoordinator()
+    @ObservedObject public var coordinator: NativeTabCoordinator
     public let bridgeVC: NewKetBridgeViewController
 
-    public init(bridgeVC: NewKetBridgeViewController) {
+    public init(bridgeVC: NewKetBridgeViewController, coordinator: NativeTabCoordinator) {
         self.bridgeVC = bridgeVC
+        self.coordinator = coordinator
     }
 
     public var body: some View {

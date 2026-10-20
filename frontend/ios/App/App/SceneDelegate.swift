@@ -3,6 +3,8 @@ import SwiftUI
 import Capacitor
 
 open class NewKetBridgeViewController: CAPBridgeViewController {
+    public weak var nativeTabCoordinator: NativeTabCoordinator?
+
     override open func viewDidLoad() {
         super.viewDidLoad()
         // Swipe-to-back gesture natif iOS
@@ -19,7 +21,10 @@ open class NewKetBridgeViewController: CAPBridgeViewController {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(LiveActivityPlugin())
         bridge?.registerPluginInstance(AdminNavbarPlugin())
-        bridge?.registerPluginInstance(NativeTabBarPlugin())
+        let tabPlugin = NativeTabBarPlugin()
+        tabPlugin.coordinator = nativeTabCoordinator
+        nativeTabCoordinator?.plugin = tabPlugin
+        bridge?.registerPluginInstance(tabPlugin)
     }
 }
 
@@ -31,9 +36,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // ── Native SwiftUI TabView (Liquid Glass automatique sur iOS 26) ──────
         // Le même BridgeViewController est partagé entre tous les onglets.
-        // Le TabView SwiftUI navigue la WebView via JS (history.pushState).
+        // Le TabView SwiftUI navigue la WebView en temps réel (window.location.href).
         let bridgeVC = NewKetBridgeViewController()
-        let rootView = NativeTabRootView(bridgeVC: bridgeVC)
+        let coordinator = NativeTabCoordinator(bridgeVC: bridgeVC)
+        bridgeVC.nativeTabCoordinator = coordinator
+
+        let rootView = NativeTabRootView(bridgeVC: bridgeVC, coordinator: coordinator)
         let hostingVC = UIHostingController(rootView: rootView)
         hostingVC.view.backgroundColor = .systemBackground
 
