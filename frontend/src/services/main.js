@@ -266,6 +266,7 @@ const App = {
                 overlay.style.backdropFilter = window.matchMedia('(min-width: 1024px)').matches
                     ? 'blur(14px)'
                     : 'blur(3px)';
+                try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
             } else {
                 menu.style.transform = 'translateX(-100%)';
                 menu.style.opacity = '0';
@@ -275,6 +276,7 @@ const App = {
                 overlay.style.pointerEvents = 'none';
                 overlay.classList.add('hidden');
                 overlay.style.display = 'none';
+                try { window.dispatchEvent(new CustomEvent('nativeOverlayClose')); } catch (_) {}
             }
 
             if (openBtn) openBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');

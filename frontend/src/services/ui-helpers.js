@@ -562,7 +562,7 @@ export const SidebarManager = {
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0'); // Ensure it is shown
                 if (overlay) overlay.classList.remove('hidden');
-                if (window._newketLockScroll) window._newketLockScroll(); else { document.documentElement.classList.add('overflow-hidden'); document.body.classList.add('overflow-hidden'); }
+                if (window._newketLockScroll) window._newketLockScroll(); else { document.documentElement.classList.add('overflow-hidden'); document.body.classList.add('overflow-hidden'); } try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
 
                 // After the slide-in transition completes, remove transform to keep text crisp on mobile Safari.
                 // (Transforms + large fixed panels can cause persistent subpixel blur on iOS.)
@@ -578,7 +578,7 @@ export const SidebarManager = {
                 sidebar.classList.remove('translate-x-0'); // Ensure we don't have conflicting translate classes
                 sidebar.classList.add('-translate-x-full');
                 if (overlay) overlay.classList.add('hidden');
-                if (window._newketUnlockScroll) window._newketUnlockScroll(); else { document.documentElement.classList.remove('overflow-hidden'); document.body.classList.remove('overflow-hidden'); }
+                if (window._newketUnlockScroll) window._newketUnlockScroll(); else { document.documentElement.classList.remove('overflow-hidden'); document.body.classList.remove('overflow-hidden'); } try { window.dispatchEvent(new CustomEvent('nativeOverlayClose')); } catch (_) {}
             }
             // Ensure no collapse state on mobile
             sidebar.classList.remove('sidebar-collapsed');

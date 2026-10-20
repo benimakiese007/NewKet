@@ -960,54 +960,51 @@ const ComponentLoader = {
         // opens or closes. Since our native overlay sits on top of WKWebView,
         // it must be hidden while any web panel is visible.
         // ------------------------------------------------------------------
-        let _overlayOpenCount = 0;
+        const isAnyWebOverlayOpen = () => {
+            const menu = document.getElementById('mobileMenu');
+            if (menu && (menu.getAttribute('aria-hidden') === 'false' || menu.style.visibility === 'visible' || menu.style.opacity === '1')) return true;
+            const cart = document.getElementById('cartSlideOver');
+            if (cart && !cart.classList.contains('translate-x-full')) return true;
+            const fav = document.getElementById('favoritesSlideOver');
+            if (fav && !fav.classList.contains('translate-x-full')) return true;
+            const notif = document.getElementById('notificationsSlideOver');
+            if (notif && !notif.classList.contains('translate-x-full')) return true;
+            const adminSb = document.getElementById('adminSidebar');
+            if (adminSb && adminSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
+            const vendorSb = document.getElementById('vendorSidebar');
+            if (vendorSb && vendorSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
+            const searchContainer = document.getElementById('mobileSearchContainer');
+            if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
+            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal');
+            if (modal) return true;
+            return false;
+        };
 
         const _hideButtons = () => {
-            _overlayOpenCount++;
-            if (_overlayOpenCount === 1) {
-                plugin.update({ showLeft: false, showRight: false }).catch(() => {});
-            }
+            plugin.update({ showLeft: false, showRight: false }).catch(() => {});
         };
+
         const _showButtons = () => {
-            _overlayOpenCount = Math.max(0, _overlayOpenCount - 1);
-            if (_overlayOpenCount === 0) {
-                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
-            }
+            setTimeout(() => {
+                if (!isAnyWebOverlayOpen()) {
+                    plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+                }
+            }, 120);
         };
 
         // Global events that web layers dispatch when they open/close
         window.addEventListener('nativeOverlayOpen',  _hideButtons);
         window.addEventListener('nativeOverlayClose', _showButtons);
 
-        // Also observe DOM mutations: watch #mobileMenu aria-hidden attribute
-        // (the main sidebar uses aria-hidden="true/false")
-        const mobileMenuObserver = new MutationObserver(() => {
-            const menu = document.getElementById('mobileMenu');
-            if (!menu) return;
-            if (menu.getAttribute('aria-hidden') === 'false') {
+        // Also observe DOM mutations on body for modals & drawer class changes
+        const bodyOverlayObserver = new MutationObserver(() => {
+            if (isAnyWebOverlayOpen()) {
                 _hideButtons();
-                // Watch for close
-                const closeObserver = new MutationObserver(() => {
-                    if (menu.getAttribute('aria-hidden') === 'true') {
-                        _showButtons();
-                        closeObserver.disconnect();
-                    }
-                });
-                closeObserver.observe(menu, { attributes: true, attributeFilter: ['aria-hidden'] });
-                mobileMenuObserver.disconnect(); // re-arm after close
+            } else {
+                _showButtons();
             }
         });
-
-        // Arm the observer once the menu is in DOM
-        const armMenuObserver = () => {
-            const menu = document.getElementById('mobileMenu');
-            if (menu) {
-                mobileMenuObserver.observe(menu, { attributes: true, attributeFilter: ['aria-hidden'] });
-            } else {
-                setTimeout(armMenuObserver, 300);
-            }
-        };
-        armMenuObserver();
+        bodyOverlayObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'aria-hidden'] });
 
         // -- Wire burger tap --> open mobile menu -------------------------
         plugin.addListener('burgerTap', () => {
