@@ -21,6 +21,7 @@ open class NewKetBridgeViewController: CAPBridgeViewController {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(LiveActivityPlugin())
         bridge?.registerPluginInstance(AdminNavbarPlugin())
+        bridge?.registerPluginInstance(NativeHeaderButtonsPlugin())
         let tabPlugin = NativeTabBarPlugin()
         tabPlugin.coordinator = nativeTabCoordinator
         nativeTabCoordinator?.plugin = tabPlugin

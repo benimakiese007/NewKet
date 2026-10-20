@@ -18,6 +18,7 @@
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		A1B2C3D4E5F60000ADNAVBAR /* AdminNavbarPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001ADNAVBAR /* AdminNavbarPlugin.swift */; };
 		B1C2D3E4F5A60000NATTABAR /* NativeTabBarPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60001NATTABAR /* NativeTabBarPlugin.swift */; };
+		C1D2E3F4A5B60000NATHEADB /* NativeHeaderButtonsPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60001NATHEADB /* NativeHeaderButtonsPlugin.swift */; };
 		/* LiveActivityPlugin files in App target */
 		NK001A0000001LAPLUG /* LiveActivityPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = NK001F0000001LAPLUG /* LiveActivityPlugin.swift */; };
 		NK001A0000002LAPLUG /* LiveActivityPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = NK001F0000002LAPLUG /* LiveActivityPlugin.m */; };
@@ -66,6 +67,7 @@
 		9582B6822FE993A50072D4E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60001ADNAVBAR /* AdminNavbarPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminNavbarPlugin.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A60001NATTABAR /* NativeTabBarPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTabBarPlugin.swift; sourceTree = "<group>"; };
+		C1D2E3F4A5B60001NATHEADB /* NativeHeaderButtonsPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeHeaderButtonsPlugin.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		NK001F0000001LAPLUG /* LiveActivityPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityPlugin.swift; sourceTree = "<group>"; };
 		NK001F0000002LAPLUG /* LiveActivityPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LiveActivityPlugin.m; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				A1B2C3D4E5F60001ADNAVBAR /* AdminNavbarPlugin.swift */,
 				B1C2D3E4F5A60001NATTABAR /* NativeTabBarPlugin.swift */,
+				C1D2E3F4A5B60001NATHEADB /* NativeHeaderButtonsPlugin.swift */,
 				NK001F0000001LAPLUG /* LiveActivityPlugin.swift */,
 				NK001F0000002LAPLUG /* LiveActivityPlugin.m */,
 				NK001F0000003ATTRS /* OrderAttributes.swift */,
@@ -264,6 +267,7 @@
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				A1B2C3D4E5F60000ADNAVBAR /* AdminNavbarPlugin.swift in Sources */,
 				B1C2D3E4F5A60000NATTABAR /* NativeTabBarPlugin.swift in Sources */,
+				C1D2E3F4A5B60000NATHEADB /* NativeHeaderButtonsPlugin.swift in Sources */,
 				NK001A0000001LAPLUG /* LiveActivityPlugin.swift in Sources */,
 				NK001A0000002LAPLUG /* LiveActivityPlugin.m in Sources */,
 				NK001A0000003ATTRS /* OrderAttributes.swift in Sources (App) */,

@@ -535,6 +535,15 @@ const ComponentLoader = {
             }
         });
 
+        if (isIOSCapacitor()) {
+            document.documentElement.classList.add('is-ios-capacitor');
+            document.getElementById('mobileBottomNav')?.remove();
+            let earlyRole = 'buyer';
+            try { earlyRole = localStorage.getItem('newketRole') || 'buyer'; } catch (e) {}
+            try { window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: earlyRole }); } catch (_) {}
+            this.initNativeHeaderButtons();
+        }
+
         const componentsToLoad = [];
 
         if (isAdminPage) {
@@ -580,6 +589,8 @@ const ComponentLoader = {
                 try {
                     window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: userRole });
                 } catch (_) {}
+                // Inject native header buttons (burger + search/logout) on all pages
+                this.initNativeHeaderButtons();
             } else if (existingMobileNav && isSellerOrAdmin) {
                 const navHTML = getBottomNavHTML(userRole, isGuest).replace(/\{\{ROOT\}\}/g, this.getAdjustedPath(''));
                 existingMobileNav.outerHTML = navHTML;
@@ -912,6 +923,75 @@ const ComponentLoader = {
         }
     },
 
+
+    // -- iOS Native Header Buttons -------------------------------------------
+    /**
+     * Shows two native Liquid Glass buttons (burger left, search/logout right)
+     * floating above the WebView on iOS 26+.
+     * Called once per page load when running in iOS Capacitor.
+     */
+    initNativeHeaderButtons() {
+        if (this._nativeHeaderButtonsInitialized) return;
+        this._nativeHeaderButtonsInitialized = true;
+
+        const plugin = window.Capacitor?.Plugins?.NativeHeaderButtons;
+        if (!plugin) return;
+
+        const path = window.location.pathname;
+        const isDashboard = path.includes('-dashboard') || path.includes('dashboard');
+        const isAdmin     = path.includes('/admin');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role');
+
+        if (isAdmin || isMinimal) {
+            plugin.hide().catch(() => {});
+            return;
+        }
+
+        // Choose right-button icon based on page type
+        const rightIcon = isDashboard
+            ? 'rectangle.portrait.and.arrow.right'
+            : 'magnifyingglass';
+
+        // Show the overlay buttons
+        plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+
+        // -- Wire burger tap --> open mobile menu -------------------------
+        plugin.addListener('burgerTap', () => {
+            if (typeof window.openMobileMenu === 'function') {
+                window.openMobileMenu();
+            } else if (document.getElementById('mobileMenuBtn')) {
+                document.getElementById('mobileMenuBtn').click();
+            } else if (document.getElementById('customerMobileBtn')) {
+                document.getElementById('customerMobileBtn').click();
+            } else if (document.getElementById('vendorMobileBtn')) {
+                document.getElementById('vendorMobileBtn').click();
+            } else if (typeof window.SidebarManager?.toggle === 'function') {
+                window.SidebarManager.toggle();
+            }
+        });
+
+        // -- Wire right tap --> search or logout --------------------------
+        plugin.addListener('rightTap', () => {
+            if (isDashboard) {
+                if (typeof window.AuthManager?.handleLogoutClick === 'function') {
+                    const logoutBtn = document.querySelector('[data-logout-safe], [data-action="logout"]');
+                    window.AuthManager.handleLogoutClick(logoutBtn || document.body);
+                } else {
+                    document.querySelector('[data-logout-safe], [data-action="logout"]')?.click();
+                }
+            } else {
+                const sc = document.getElementById('mobileSearchContainer');
+                if (sc) {
+                    sc.classList.toggle('user-hidden-on-mobile');
+                    if (!sc.classList.contains('user-hidden-on-mobile')) {
+                        setTimeout(() => document.getElementById('searchInput')?.focus(), 50);
+                    }
+                } else {
+                    document.getElementById('mobileHeaderSearchBtn')?.click();
+                }
+            }
+        });
+    },
     bindGlobalActions() {
         if (this.globalActionsBound) return;
         this.globalActionsBound = true;

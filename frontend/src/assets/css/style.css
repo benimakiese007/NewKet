@@ -10962,8 +10962,19 @@ html.dark .liquid-glass-nav .nav-item.active span {
   /* Masquer complètement l'ancienne navbar HTML quand l'application native iOS Capacitor est active */
   html.plt-ios #mobileBottomNav,
   html.capacitor-ios #mobileBottomNav,
-  body.is-ios-capacitor #mobileBottomNav {
+  body.is-ios-capacitor #mobileBottomNav,
+  html.is-ios-capacitor #mobileBottomNav {
     display: none !important;
+  }
+
+  /* Sur iOS Capacitor, les boutons headers sont 100% natifs UIKit Liquid Glass */
+  html.is-ios-capacitor #mobileMenuBtn,
+  html.is-ios-capacitor #mobileHeaderSearchBtn,
+  html.is-ios-capacitor #customerMobileBtn,
+  html.is-ios-capacitor #vendorMobileBtn,
+  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 
