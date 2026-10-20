@@ -44,9 +44,27 @@ public class NativeTabBarPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "setRole",       returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setBadge",      returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "clearBadge",    returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "show",          returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "hide",          returnType: CAPPluginReturnPromise),
     ]
 
     public weak var coordinator: NativeTabCoordinator?
+
+    @objc func show(_ call: CAPPluginCall) {
+        let animated = call.getBool("animated") ?? true
+        DispatchQueue.main.async {
+            self.coordinator?.setTabBarHidden(false, animated: animated)
+        }
+        call.resolve(["hidden": false])
+    }
+
+    @objc func hide(_ call: CAPPluginCall) {
+        let animated = call.getBool("animated") ?? true
+        DispatchQueue.main.async {
+            self.coordinator?.setTabBarHidden(true, animated: animated)
+        }
+        call.resolve(["hidden": true])
+    }
 
     @objc func setActiveTab(_ call: CAPPluginCall) {
         guard let tabId = call.getString("tabId") else {
@@ -102,6 +120,7 @@ public final class NativeTabCoordinator: ObservableObject {
     @Published public var tabs: [TabItem] = TabItem.defaultTabs
     @Published public var selectedTabId: String = "home"
     @Published public var badges: [String: Int] = [:]
+    @Published public var isTabBarHidden: Bool = false
 
     public weak var plugin: NativeTabBarPlugin?
     public weak var bridgeVC: NewKetBridgeViewController?
@@ -166,6 +185,28 @@ public final class NativeTabCoordinator: ObservableObject {
     public func setBadge(tabId: String, count: Int) {
         badges[tabId] = count > 0 ? count : nil
     }
+
+    public func setTabBarHidden(_ hidden: Bool, animated: Bool = true) {
+        if isTabBarHidden == hidden { return }
+        if animated {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                self.isTabBarHidden = hidden
+            }
+        } else {
+            self.isTabBarHidden = hidden
+        }
+        if let tabVC = bridgeVC?.tabBarController {
+            if animated {
+                UIView.animate(withDuration: 0.25) {
+                    tabVC.tabBar.alpha = hidden ? 0 : 1
+                    tabVC.tabBar.isHidden = hidden
+                }
+            } else {
+                tabVC.tabBar.alpha = hidden ? 0 : 1
+                tabVC.tabBar.isHidden = hidden
+            }
+        }
+    }
 }
 
 // MARK: - Full Native SwiftUI TabView (Liquid Glass on iOS 26)
@@ -192,11 +233,13 @@ public struct NativeTabRootView: View {
                         Tab(tab.label, systemImage: tab.systemImage, value: tab.id) {
                             CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
                                 .ignoresSafeArea()
+                                .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
                         }
                         .badge(coordinator.badges[tab.id] ?? 0)
                     }
                 }
-                .tint(Color(red: 10.0 / 255.0, green: 132.0 / 255.0, blue: 255.0 / 255.0))
+                .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
+                .tint(Color.primary)
             } else {
                 // Fallback for earlier iOS versions
                 TabView(selection: Binding(
@@ -206,6 +249,7 @@ public struct NativeTabRootView: View {
                     ForEach(coordinator.tabs) { tab in
                         CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
                             .ignoresSafeArea()
+                            .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
                             .tabItem {
                                 Label(tab.label, systemImage: tab.systemImage)
                             }
@@ -213,9 +257,11 @@ public struct NativeTabRootView: View {
                             .badge(coordinator.badges[tab.id] ?? 0)
                     }
                 }
-                .tint(Color(red: 10.0 / 255.0, green: 132.0 / 255.0, blue: 255.0 / 255.0))
+                .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
+                .tint(Color.primary)
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: coordinator.isTabBarHidden)
         .onAppear {
             coordinator.bridgeVC = bridgeVC
             if let plugin = bridgeVC.bridge?.plugin(withName: "NativeTabBarPlugin") as? NativeTabBarPlugin {

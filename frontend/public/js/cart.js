@@ -331,6 +331,18 @@ class CartManager {
                 badge.style.display = 'none';
             }
         });
+
+        // 🍏 Synchronisation Badge Natif iOS (Liquid Glass TabView)
+        try {
+            const nativeTabBar = window.Capacitor?.Plugins?.NativeTabBar;
+            if (nativeTabBar) {
+                if (count > 0) {
+                    nativeTabBar.setBadge({ tabId: 'cart', count: count });
+                } else {
+                    nativeTabBar.clearBadge({ tabId: 'cart' });
+                }
+            }
+        } catch (_) {}
     }
 
     // Toggle the slide-over Cart UI

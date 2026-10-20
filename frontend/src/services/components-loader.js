@@ -940,7 +940,27 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish');
+
+        // Initial badge sync for cart on iOS native TabView
+        try {
+            const rawCart = localStorage.getItem('newket_cart');
+            if (rawCart) {
+                const parsed = JSON.parse(rawCart);
+                const cartCount = Array.isArray(parsed) ? parsed.reduce((sum, item) => sum + (parseInt(item.quantity) || 1), 0) : 0;
+                if (cartCount > 0) {
+                    window.Capacitor?.Plugins?.NativeTabBar?.setBadge?.({ tabId: 'cart', count: cartCount });
+                }
+            }
+        } catch (_) {}
+
+        // Hide TabBar on minimal pages (login, choose-role, publish) & admin, matching web behavior
+        const isTabBarForbidden = isMinimal || isAdmin;
+        if (isTabBarForbidden) {
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        } else {
+            window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+        }
 
         if (isMinimal) {
             plugin.hide().catch(() => {});
@@ -982,12 +1002,18 @@ const ComponentLoader = {
 
         const _hideButtons = () => {
             plugin.update({ showLeft: false, showRight: false }).catch(() => {});
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         };
 
         const _showButtons = () => {
             setTimeout(() => {
                 if (!isAnyWebOverlayOpen()) {
-                    plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+                    if (!isMinimal) {
+                        plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+                    }
+                    if (!isTabBarForbidden) {
+                        window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+                    }
                 }
             }, 120);
         };
