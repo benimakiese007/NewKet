@@ -33,9 +33,13 @@ jobs:
 
       - name: 🔍 Vérification SDK iOS (doit afficher iOS 26.x pour Liquid Glass)
         run: |
-          xcodebuild -showsdks | grep -E "iphoneos|iphonesimulator"
-          xcrun --sdk iphoneos --show-sdk-version
+          xcodebuild -showsdks | grep -E "iphoneos|iphonesimulator" || true
+          xcrun --sdk iphoneos --show-sdk-version || true
           xcodebuild -version
+
+      - name: 📲 Téléchargement de la plateforme iOS (Xcode Components)
+        run: |
+          sudo xcodebuild -downloadPlatform iOS || true
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v7
