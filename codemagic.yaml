@@ -29,26 +29,34 @@ workflows:
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string newket" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Set :UIDesignRequiresCompatibility false" ios/App/App/Info.plist 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIDesignRequiresCompatibility bool false" ios/App/App/Info.plist 2>/dev/null || true
       - name: 🍎 Compilation Xcode (Sans signature) & Création IPA
         script: |
-          cd frontend/ios/App
-          xcodebuild clean build \
-            -workspace App.xcworkspace \
+          cd frontend
+          
+          xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath ./DerivedData \
-            CODE_SIGNING_ALLOWED=NO \
+            -destination "generic/platform=iOS" \
+            -sdk iphoneos \
+            SYMROOT=$(PWD)/build_ios \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+          # Embed Widget Extension
+          mkdir -p build_ios/Release-iphoneos/App.app/PlugIns
+          if [ -d "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" ]; then
+            cp -r "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" "build_ios/Release-iphoneos/App.app/PlugIns/"
+          fi
 
           # Emballage du .app en .ipa
-          mkdir -p build/Payload
-          APP_PATH=$(find ./DerivedData/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
-          cp -R "$APP_PATH" build/Payload/
-          cd build
+          mkdir -p Payload
+          cp -r build_ios/Release-iphoneos/App.app Payload/
           zip -r NewKet-unsigned.ipa Payload
+          
           cp NewKet-unsigned.ipa $CM_BUILD_DIR/NewKet-unsigned.ipa
     artifacts:
       - NewKet-unsigned.ipa
-      - frontend/ios/App/build/*.ipa
+      - frontend/NewKet-unsigned.ipa
