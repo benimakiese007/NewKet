@@ -1,0 +1,54 @@
+workflows:
+  ios-unsigned-build:
+    name: Build iOS App (Unsigned IPA)
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      node: 22
+      xcode: latest
+    scripts:
+      - name: 📦 Installation des dépendances et build Web Vite
+        script: |
+          cd frontend
+          npm install
+          
+          # Configuration .env
+          echo "VITE_SUPABASE_URL=https://kuygjocnnlvjtoaquicq.supabase.co" > .env
+          echo "VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY" >> .env
+          echo "VITE_APP_ENV=production" >> .env
+          
+          npm run build
+      - name: 🔄 Synchronisation Capacitor iOS
+        script: |
+          cd frontend
+          npx cap add ios || true
+          npx cap sync ios
+
+          # Inject custom URL scheme "newket://"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/App/App/Info.plist 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string newket" ios/App/App/Info.plist 2>/dev/null || true
+      - name: 🍎 Compilation Xcode (Sans signature) & Création IPA
+        script: |
+          cd frontend/ios/App
+          xcodebuild clean build \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath ./DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+
+          # Emballage du .app en .ipa
+          mkdir -p build/Payload
+          APP_PATH=$(find ./DerivedData/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
+          cp -R "$APP_PATH" build/Payload/
+          cd build
+          zip -r NewKet-unsigned.ipa Payload
+          cp NewKet-unsigned.ipa $CM_BUILD_DIR/NewKet-unsigned.ipa
+    artifacts:
+      - NewKet-unsigned.ipa
+      - frontend/ios/App/build/*.ipa
