@@ -123,11 +123,12 @@
     <script>
         // Détection de l'environnement : PWA (standalone) ou App Mobile (Capacitor)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        const isCapacitor = !!window.Capacitor || (window.origin && window.origin.includes('capacitor'));
+        const isCapacitor = !!window.Capacitor || (window.origin && window.origin.includes('capacitor')) || (window.location && (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:'));
         const isAlreadySeen = sessionStorage.getItem('nk_splash_shown');
         
-        // Bloquer l'affichage si c'est le site web normal (onglet de navigateur classique) OU si déjà vu
-        if ((!isStandalone && !isCapacitor) || isAlreadySeen) {
+        // Desactive sur Capacitor (evite le double splash screen sur iOS/Android)
+        // N'apparait que sur PWA installee (standalone) au premier lancement de session
+        if (isCapacitor || !isStandalone || isAlreadySeen) {
             document.documentElement.classList.add('skip-splash');
         }
     </script>
