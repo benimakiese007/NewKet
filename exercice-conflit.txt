@@ -1,4 +1,4 @@
 Titre : Page Accueil NewKet
 Version : 1.0.0
-Bouton : [Texte Initial]
+Bouton : [Commander maintenant (Par moi)]
 Pied de page : NewKet 2026
