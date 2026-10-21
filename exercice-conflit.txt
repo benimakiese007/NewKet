@@ -1,4 +1,4 @@
 Titre : Page Accueil NewKet
 Version : 1.0.0
-Bouton : [Texte Initial]
+Bouton : [Acheter en 1 clic (Par le collegue)]
 Pied de page : NewKet 2026
