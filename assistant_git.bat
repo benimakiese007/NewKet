@@ -908,6 +908,40 @@ echo.
 echo ==================================================
 echo.
 echo --------------------------------------------------
+echo   Appuyez sur une touche pour la suite (FLUX D'EQUIPE ET CONFLITS)...
+pause >nul
+cls
+echo ==================================================
+echo        FLUX DE TRAVAIL & CONFLITS EN EQUIPE
+echo ==================================================
+echo.
+echo   1. COMMENT DEMARRER UNE TACHE :
+echo      -^> Option 2 [DEPART] : cree ta propre branche (ex: feat/mon-panier).
+echo      -^> REGLE ABSOLUE : ne JAMAIS coder directement sur 'main' !
+echo.
+echo   2. PENDANT LE TRAVAIL (LA REGLE D'OR) :
+echo      -^> Fais regulierement Option 3 [MAJ] pour recuperer ce que les
+echo          autres collegues ont envoye sur main.
+echo      -^> Ca t'evite de travailler sur une version perimee du projet.
+echo.
+echo   3. ENVOYER SON CODE SUR GITHUB :
+echo      -^> Option 4 [FIN] : sauvegarde (commit) et envoie (push).
+echo      -^> L'Assistant te propose automatiquement de creer une Pull Request.
+echo.
+echo   4. CONFLIT DE MERGE ? PAS DE PANIQUE !
+echo      -^> Pourquoi ? Deux personnes ont touche aux memes lignes de code.
+echo      -^> Tu ne perds JAMAIS ton travail : Git bloque expres pour proteger !
+echo      -^> Option 3 [MAJ] ou 21 [CONFLITS] t'affiche les fichiers touches.
+echo      -^> Ouvre le fichier dans ton editeur (Antigravity) :
+echo          * Les balises ^<^<^<^<^<^<^< marquent ton code et celui du collegue.
+echo          * Choisis ce qu'il faut garder (ton code, le sien, OU LES DEUX !).
+echo          * Supprime les balises de conflit et sauvegarde le fichier.
+echo      -^> Lance Option 4 [FIN] pour valider la fusion.
+echo      -^> Sur GitHub : le bouton vert redevient actif automatiquement !
+echo.
+echo ==================================================
+echo.
+echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
 pause >nul
 goto MENU
