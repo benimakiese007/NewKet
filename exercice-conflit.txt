@@ -1,0 +1,4 @@
+Titre : Page Accueil NewKet
+Version : 1.0.0
+Bouton : [Texte Initial]
+Pied de page : NewKet 2026
