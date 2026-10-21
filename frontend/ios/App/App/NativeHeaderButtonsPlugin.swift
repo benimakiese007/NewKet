@@ -128,8 +128,8 @@ class GlassCircleButton: UIView {
         layer.shadowRadius  = 5
         layer.shadowOffset  = CGSize(width: 0, height: 2)
 
-        // Perfect circular glass sphere: cornerRadius = width / 2 (38 / 2 = 19)
-        glassEffectView.layer.cornerRadius = 19
+        // Perfect circular glass sphere: cornerRadius = width / 2 (48 / 2 = 24)
+        glassEffectView.layer.cornerRadius = 24
         glassEffectView.layer.cornerCurve  = .circular
         glassEffectView.clipsToBounds      = true
         glassEffectView.translatesAutoresizingMaskIntoConstraints = false
@@ -182,8 +182,8 @@ class GlassCircleButton: UIView {
 
     /// Expands touch target to 44x44pt as recommended by Apple HIG
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        let dx = max(0, (44 - bounds.width) / 2)
-        let dy = max(0, (44 - bounds.height) / 2)
+        let dx = max(0, (48 - bounds.width) / 2)
+        let dy = max(0, (48 - bounds.height) / 2)
         let expanded = bounds.insetBy(dx: -dx, dy: -dy)
         return expanded.contains(point)
     }
@@ -255,7 +255,7 @@ class GlassCircleButton: UIView {
     }
 
     func updateSymbol(_ sfSymbol: String) {
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
         let image = UIImage(systemName: sfSymbol, withConfiguration: symbolConfig)
 
         var config = UIButton.Configuration.plain()
@@ -340,17 +340,17 @@ class NativeHeaderButtonsView: UIView {
         addSubview(rightCircle)
 
         NSLayoutConstraint.activate([
-            // Left circle: pinned to leading edge, 38x38pt perfect sphere
+            // Left circle: pinned to leading edge, 48x48pt perfect sphere
             leftCircle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            leftCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
-            leftCircle.widthAnchor.constraint(equalToConstant: 38),
-            leftCircle.heightAnchor.constraint(equalToConstant: 38),
+            leftCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
+            leftCircle.widthAnchor.constraint(equalToConstant: 48),
+            leftCircle.heightAnchor.constraint(equalToConstant: 48),
 
-            // Right circle: pinned to trailing edge, 38x38pt perfect sphere
+            // Right circle: pinned to trailing edge, 48x48pt perfect sphere
             rightCircle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            rightCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
-            rightCircle.widthAnchor.constraint(equalToConstant: 38),
-            rightCircle.heightAnchor.constraint(equalToConstant: 38),
+            rightCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
+            rightCircle.widthAnchor.constraint(equalToConstant: 48),
+            rightCircle.heightAnchor.constraint(equalToConstant: 48),
         ])
     }
 
