@@ -120,7 +120,7 @@ public final class NativeTabCoordinator: ObservableObject {
     @Published public var tabs: [TabItem] = TabItem.defaultTabs
     @Published public var selectedTabId: String = "home"
     @Published public var badges: [String: Int] = [:]
-    @Published public var isTabBarHidden: Bool = false
+    @Published public var isTabBarHidden: Bool = true
 
     public weak var plugin: NativeTabBarPlugin?
     public weak var bridgeVC: NewKetBridgeViewController?

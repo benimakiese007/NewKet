@@ -92,7 +92,7 @@ echo   21. [CONFLITS]        Outil de resolution de conflits  (git mergetool)
 echo.
 echo   --- Equipe NewKet --------------------------------
 echo.
-echo   22. [EQUIPE]          Contributions de chaque membre   (git shortlog)
+echo   22. [EQUIPE]          Collaborateurs et contributions  (GitHub + Git)
 echo.
 echo   23. [MES BRANCHES]    Branches locales et sur GitHub   (git branch -vv)
 echo.
@@ -102,13 +102,15 @@ echo   25. [PULL REQUESTS]   Voir les PR (ouvertes, merger)   (gh pr list)
 echo.
 echo   26. [ACTIONS]         GitHub Actions (Build iOS, etc.) (gh workflow)
 echo.
+echo   27. [BUILD APK]       Compiler l'APK Android (local)   (build-apk.ps1)
+echo.
 echo   --------------------------------------------------
 echo.
-echo   27. [AIDE]            Comprendre chaque option
+echo   28. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-27) : "
+set /p choix="   Choix (0-28) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -136,7 +138,8 @@ if "%choix%"=="23" goto MES_BRANCHES
 if "%choix%"=="24" goto RETOUR_BRANCHE
 if "%choix%"=="25" goto PULL_REQUESTS
 if "%choix%"=="26" goto GITHUB_ACTIONS
-if "%choix%"=="27" goto HELP
+if "%choix%"=="27" goto BUILD_APK
+if "%choix%"=="28" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -868,6 +871,10 @@ echo             -^> Telecharge dans Desktop\NewKet-Builds\Build-#XX
 echo             -^> Ouvre automatiquement le dossier apres telechargement
 echo.
 echo          6. Ouvrir GitHub Actions dans le navigateur
+echo          7. Lancer la compilation de l'APK Android (local)
+echo.
+echo   27  - BUILD APK : Compiler l'APK Android en local via build-apk.ps1.
+echo                 Depose l'APK final pret a installer sur le Bureau.
 echo.
 echo ==================================================
 echo.
@@ -924,30 +931,68 @@ REM ============================================================
 :EQUIPE
 cls
 echo ==================================================
-echo       CONTRIBUTIONS DE L'EQUIPE NEWKET
+echo         COLLABORATEURS ET EQUIPE NEWKET
 echo ==================================================
 echo.
-echo   Commits par membre (tous les temps) :
+echo   [1] Collaborateurs GitHub officiels du depot :
+echo   ----------------------------------------------------------
+for /f "delims=" %%a in ('gh api repos/benimakiese007/NewKet/collaborators --jq ".[] | .login + \" - role: \" + .role_name" 2^>nul') do (
+    echo       * %%a
+)
 echo.
+echo   [2] Contributions effectives (commits par membre) :
+echo   ----------------------------------------------------------
 git shortlog -sn --all
 echo.
 echo --------------------------------------------------
-set /p membre_eq="   Voir les commits d'un membre ? (nom ou laisser vide = tout) : "
+echo   1. Voir les 20 derniers commits de l'equipe
+echo   2. Voir les commits d'un membre specifique
+echo   3. Ouvrir la page Collaborateurs sur GitHub
 echo.
-if "%membre_eq%"=="" (
-    echo   --- 20 derniers commits de l'equipe ---
-    echo.
-    git log --oneline --all -20
-) else (
-    echo   --- Commits de %membre_eq% ---
-    echo.
-    git log --author="%membre_eq%" --oneline -20
-)
+echo   0. Retour au menu principal
 echo.
 echo --------------------------------------------------
-echo   Appuyez sur une touche pour revenir au menu...
+set "choix_eq="
+set /p choix_eq="   Choix (0-3, Entree = 0) : "
+
+if "%choix_eq%"=="1" goto EQUIPE_COMMITS_TOUT
+if "%choix_eq%"=="2" goto EQUIPE_COMMITS_MEMBRE
+if "%choix_eq%"=="3" goto EQUIPE_OPEN_GITHUB
+if "%choix_eq%"=="0" goto MENU
+if "%choix_eq%"=="" goto MENU
+goto EQUIPE
+
+:EQUIPE_COMMITS_TOUT
+echo.
+echo   --- 20 derniers commits de l'equipe ---
+echo.
+git log --oneline --all -20
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
 pause >nul
-goto MENU
+goto EQUIPE
+
+:EQUIPE_COMMITS_MEMBRE
+echo.
+set "membre_filtre="
+set /p membre_filtre="   Pseudo ou nom du membre a inspecter : "
+echo.
+echo   --- Commits de %membre_filtre% ---
+echo.
+git log --author="%membre_filtre%" --oneline -20
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir...
+pause >nul
+goto EQUIPE
+
+:EQUIPE_OPEN_GITHUB
+echo.
+echo   Ouverture de la gestion des collaborateurs sur GitHub...
+start https://github.com/benimakiese007/NewKet/settings/access
+timeout /t 2 >nul
+goto EQUIPE
 
 REM ============================================================
 REM  OPTION 24 - MES BRANCHES : locales vs envoyees sur GitHub
@@ -1225,12 +1270,13 @@ echo   3. Voir l'historique des executions (statuts et resultats)
 echo   4. Suivre le dernier build en direct
 echo   5. Telecharger le dernier IPA sur le Bureau
 echo   6. Ouvrir GitHub Actions dans le navigateur
+echo   7. Lancer le build APK Android (Local)
 echo.
 echo   0. Retour au menu principal
 echo.
 echo --------------------------------------------------
 set "choix_act="
-set /p choix_act="   Choix (0-6) : "
+set /p choix_act="   Choix (0-7) : "
 
 if "%choix_act%"=="1" goto ACTION_BUILD_IOS
 if "%choix_act%"=="2" goto ACTION_LIST_WORKFLOWS
@@ -1238,6 +1284,7 @@ if "%choix_act%"=="3" goto ACTION_LIST_RUNS
 if "%choix_act%"=="4" goto ACTION_WATCH
 if "%choix_act%"=="5" goto ACTION_DOWNLOAD_IPA
 if "%choix_act%"=="6" goto ACTION_BROWSER
+if "%choix_act%"=="7" goto BUILD_APK
 if "%choix_act%"=="0" goto MENU
 goto GITHUB_ACTIONS
 
@@ -1508,6 +1555,43 @@ if errorlevel 1 (
 )
 echo.
 goto :eof
+
+REM ============================================================
+REM  OPTION 27 - BUILD APK : Compilation Android en local
+REM ============================================================
+:BUILD_APK
+cls
+echo ==================================================
+echo        COMPILATION APK ANDROID (LOCAL)
+echo ==================================================
+echo.
+echo   Ce script va compiler l'APK Release sur votre machine :
+echo     [1/3] Compilation Web frontend (npm run build)
+echo     [2/3] Synchronisation Capacitor (npx cap sync android)
+echo     [3/3] Compilation Gradle Release (gradlew assembleRelease)
+echo.
+echo   Le fichier final (.apk) sera automatiquement copie
+echo   sur votre Bureau Windows avec horodatage.
+echo.
+set /p confirm_apk="   Confirmer le lancement du build APK ? (O/N) : "
+if /i not "%confirm_apk%"=="O" (
+    echo.
+    echo   Compilation annulee.
+    timeout /t 2 >nul
+    goto MENU
+)
+
+echo.
+echo ==================================================
+echo   Execution de build-apk.ps1 en cours...
+echo ==================================================
+echo.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build-apk.ps1"
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
 
 :END
 exit

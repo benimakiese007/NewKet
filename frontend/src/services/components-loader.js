@@ -954,26 +954,37 @@ const ComponentLoader = {
             }
         } catch (_) {}
 
-        // Hide TabBar on minimal pages (login, choose-role, publish) & admin, matching web behavior
         const isTabBarForbidden = isMinimal || isAdmin;
-        if (isTabBarForbidden) {
-            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
-        } else {
-            window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
-        }
-
-        if (isMinimal) {
-            plugin.hide().catch(() => {});
-            return;
-        }
-
-        // Choose right-button icon based on page type
         const rightIcon = isDashboard
             ? 'rectangle.portrait.and.arrow.right'
             : 'magnifyingglass';
 
-        // Show the overlay buttons
-        plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+        if (isMinimal) {
+            plugin.hide().catch(() => {});
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        }
+
+        // 🍏 Delay native bars appearance until after the splash/launch screen has finished
+        const revealNativeBars = () => {
+            if (this._nativeBarsRevealed) return;
+            this._nativeBarsRevealed = true;
+
+            const isOverlayOpen = isAnyWebOverlayOpen();
+            if (!isMinimal && !isOverlayOpen) {
+                plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+            }
+            if (!isTabBarForbidden && !isOverlayOpen) {
+                window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+            }
+        };
+
+        if (window.newketInitialized || window.componentsLoaded || document.readyState === 'complete') {
+            setTimeout(revealNativeBars, 80);
+        } else {
+            window.addEventListener('componentsLoaded', () => setTimeout(revealNativeBars, 150), { once: true });
+            window.addEventListener('newketReady', () => setTimeout(revealNativeBars, 150), { once: true });
+            setTimeout(revealNativeBars, 1600); // Safety fallback matching splash screen duration
+        }
 
         // ------------------------------------------------------------------
         // Auto-hide / auto-show when a web overlay (sidebar, panier, drawer)
