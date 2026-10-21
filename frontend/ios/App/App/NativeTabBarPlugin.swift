@@ -240,8 +240,8 @@ public struct NativeTabRootView: View {
                 }
                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
                 .tint(Color.primary)
-            } else {
-                // Fallback for earlier iOS versions
+            } else if #available(iOS 16.0, *) {
+                // Fallback for iOS 16-17
                 TabView(selection: Binding(
                     get: { coordinator.selectedTabId },
                     set: { newId in coordinator.onTabSelected(id: newId) }
@@ -258,6 +258,22 @@ public struct NativeTabRootView: View {
                     }
                 }
                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
+                .tint(Color.primary)
+            } else {
+                // Fallback for earlier iOS versions (< iOS 16)
+                TabView(selection: Binding(
+                    get: { coordinator.selectedTabId },
+                    set: { newId in coordinator.onTabSelected(id: newId) }
+                )) {
+                    ForEach(coordinator.tabs) { tab in
+                        CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
+                            .ignoresSafeArea()
+                            .tabItem {
+                                Label(tab.label, systemImage: tab.systemImage)
+                            }
+                            .tag(tab.id)
+                    }
+                }
                 .tint(Color.primary)
             }
         }
