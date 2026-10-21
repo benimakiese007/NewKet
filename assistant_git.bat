@@ -226,22 +226,51 @@ echo   [FICHIERS MODIFIES]
 git diff --stat HEAD..origin/main
 echo.
 set /p integrer="   Veux-tu integrer ces changements dans ta branche '%branche_courante%' ? (O/N) : "
-if /i "%integrer%"=="O" (
-    echo.
-    echo   [2/2] Integration de main dans ta branche...
-    git merge origin/main
-    echo.
-    echo ==================================================
-    echo   Ta branche est maintenant a jour avec main !
-    echo   Si des conflits apparaissent, utilise l'option 21.
-    echo ==================================================
-) else (
-    echo.
-    echo ==================================================
-    echo   D'accord ! Tu restes sur %branche_courante% sans changement.
-    echo   Tu pourras integrer main plus tard quand tu seras pret.
-    echo ==================================================
-)
+if /i not "%integrer%"=="O" goto PULL_ANNULE
+
+echo.
+echo   [2/2] Integration de main dans ta branche...
+git merge origin/main
+if errorlevel 1 goto PULL_CONFLIT
+
+echo.
+echo ==================================================
+echo   Ta branche est maintenant a jour avec main !
+echo   Aucun conflit detecte, fusion reussie avec succes !
+echo ==================================================
+goto PULL_FIN
+
+:PULL_CONFLIT
+echo.
+echo ==================================================
+echo   [!] ATTENTION : CONFLIT DETECTE LORS DU MERGE !
+echo ==================================================
+echo.
+echo   Git n'a pas pu fusionner automatiquement car vous
+echo   et un collegue avez modifie les memes lignes.
+echo.
+echo   Fichier(s) en conflit a resoudre :
+echo   --------------------------------------------------
+git diff --name-only --diff-filter=U
+echo   --------------------------------------------------
+echo.
+echo   Que faire maintenant :
+echo    1. Ouvre Antigravity IDE (le fichier affiche le conflit).
+echo    2. Choisis le bon code et efface les balises.
+echo    3. Utilise l'Option 4 [FIN] pour valider la fusion !
+echo.
+echo   (Tu peux aussi revoir le guide complet avec l'Option 21)
+echo ==================================================
+goto PULL_FIN
+
+:PULL_ANNULE
+echo.
+echo ==================================================
+echo   D'accord ! Tu restes sur %branche_courante% sans changement.
+echo   Tu pourras integrer main plus tard quand tu seras pret.
+echo ==================================================
+
+:PULL_FIN
 echo.
 echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
