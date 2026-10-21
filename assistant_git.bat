@@ -840,10 +840,7 @@ echo   22  - EQUIPE        : Voir les contributions de chaque membre.
 echo   23  - MES BRANCHES  : Branches locales vs envoyees sur GitHub.
 echo   24  - RETOUR BRANCHE: Revenir instantanement a la branche precedente.
 echo.
-echo --------------------------------------------------
-echo   Appuyez sur une touche pour la suite (PULL REQUESTS + ACTIONS)...
-pause >nul
-cls
+echo.
 echo ==================================================
 echo       SOUS-MENU 25 : PULL REQUESTS
 echo ==================================================
@@ -862,12 +859,9 @@ echo             -^> Choix du type : Standard (merge) ou Squash
 echo             -^> Confirmation de securite avant fusion
 echo             -^> Proposition de git pull apres le merge
 echo.
-echo --------------------------------------------------
-echo   Appuyez sur une touche pour la suite (ACTIONS GitHub)...
-pause >nul
-cls
+echo.
 echo ==================================================
-echo       SOUS-MENU 26 : GITHUB ACTIONS
+echo       SOUS-MENUS 26 & 27 : BUILDS & ACTIONS
 echo ==================================================
 echo.
 echo   26  - ACTIONS : Lancer et surveiller les workflows GitHub.
@@ -907,10 +901,7 @@ echo                 Depose l'APK final pret a installer sur le Bureau.
 echo.
 echo ==================================================
 echo.
-echo --------------------------------------------------
-echo   Appuyez sur une touche pour la suite (FLUX D'EQUIPE ET CONFLITS)...
-pause >nul
-cls
+echo.
 echo ==================================================
 echo        FLUX DE TRAVAIL & CONFLITS EN EQUIPE
 echo ==================================================
