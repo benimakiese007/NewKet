@@ -1,5 +1,0 @@
-Titre : Page Accueil NewKet
-Version : 1.0.0
-Bouton 1 : [Commander maintenant (Par moi)]
-Bouton 2 : [Acheter en 1 clic (Par le collegue)]
-Pied de page : NewKet 2026
