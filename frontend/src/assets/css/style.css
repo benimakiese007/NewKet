@@ -11056,6 +11056,36 @@ html.dark .liquid-glass-nav .nav-item.active span {
     opacity: 0 !important;
     pointer-events: none !important;
   }
+
+  /* -- iOS Capacitor : D�gagement Safe Area pour la TabBar native SwiftUI Liquid Glass -- */
+  /* Apple HIG : le scroll passe derri�re la barre, mais le dernier �l�ment s'arr�te au-dessus */
+  html.is-ios-capacitor main,
+  html.is-ios-capacitor #main-content,
+  html.is-ios-capacitor .main-content,
+  html.is-ios-capacitor .page-content,
+  html.is-ios-capacitor #page-content,
+  html.is-ios-capacitor #app-body,
+  html.is-ios-capacitor .customer-main-content,
+  html.is-ios-capacitor .vendor-main-content,
+  html.is-ios-capacitor .customer-dashboard-main,
+  html.is-ios-capacitor .vendor-dashboard-main,
+  html.is-ios-capacitor .dashboard-main-offset,
+  html.is-ios-capacitor #collection {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+  }
+
+  html.is-ios-capacitor .newket-footer-shell,
+  html.is-ios-capacitor #footer-placeholder {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+  }
+
+  html.is-ios-capacitor #cartSlideOver > div:last-child,
+  html.is-ios-capacitor #favoritesSlideOver > div:last-child,
+  html.is-ios-capacitor #notificationsSlideOver > div:last-child,
+  html.is-ios-capacitor .cart-drawer-footer,
+  html.is-ios-capacitor .drawer-footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+  }
 }
 
 /* Modal/Popup scrollable zone — scrollbar toujours visible */
