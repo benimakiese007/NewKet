@@ -9826,7 +9826,7 @@ html.dark .skeleton {
 @media (max-width: 640px) {
   #toast-container {
     top: auto;
-    bottom: 1.5rem;
+    bottom: calc(85px + env(safe-area-inset-bottom, 0px));
     left: 1rem;
     right: 1rem;
     width: calc(100% - 2rem);
@@ -11093,6 +11093,11 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor .cart-drawer-footer,
   html.is-ios-capacitor .drawer-footer {
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+  }
+
+  /* Toasts NewKet : s'affichent toujours au-dessus de la TabBar native Liquid Glass */
+  html.is-ios-capacitor #toast-container {
+    bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
   }
 }
 
