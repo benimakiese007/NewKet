@@ -2291,6 +2291,85 @@ body.mobile-menu-open {
   }
 }
 
+/* ==========================================================================
+   Apple Liquid Glass Currency Toggle (Exclusivement sur iOS Capacitor)
+   ========================================================================== */
+html.is-ios-capacitor .currency-switch-segmented {
+  background: transparent !important;
+}
+
+html.is-ios-capacitor .segmented-track {
+  width: 90px !important;
+  height: 32px !important;
+  padding: 2.5px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.is-ios-capacitor .segmented-handle {
+  width: 42px !important;
+  height: 25px !important;
+  top: 2.5px !important;
+  left: 2.5px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 244, 248, 0.90)) !important;
+  border: 0.5px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), inset 0 1px 1.5px #ffffff !important;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+}
+
+/* État 1 : USD (actif à gauche) */
+html.is-ios-capacitor .currency-switch-segmented[data-active="USD"] .segmented-handle {
+  transform: translateX(0) !important;
+}
+
+/* État 2 : CDF (actif à droite) */
+html.is-ios-capacitor .currency-switch-segmented[data-active="CDF"] .segmented-handle {
+  transform: translateX(43px) !important;
+}
+
+/* Labels typographie Apple */
+html.is-ios-capacitor .segmented-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  transition: color 0.3s ease !important;
+}
+
+/* Label actif au-dessus de la pastille blanche de verre */
+html.is-ios-capacitor .currency-switch-segmented[data-active="USD"] .segmented-label[data-currency="USD"],
+html.is-ios-capacitor .currency-switch-segmented[data-active="CDF"] .segmented-label[data-currency="CDF"] {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+/* Légère compression élastique au toucher */
+html.is-ios-capacitor .currency-switch-segmented:active .segmented-handle {
+  transform: scale(0.95) !important;
+}
+html.is-ios-capacitor .currency-switch-segmented[data-active="CDF"]:active .segmented-handle {
+  transform: translateX(43px) scale(0.95) !important;
+}
+
+/* Version tiroir mobile (fond clair) */
+html.is-ios-capacitor #mobileCurrencyToggle .segmented-track {
+  background: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+html.is-ios-capacitor #mobileCurrencyToggle .segmented-label {
+  color: #64748b !important;
+}
+html.is-ios-capacitor #mobileCurrencyToggle[data-active="USD"] .segmented-label[data-currency="USD"],
+html.is-ios-capacitor #mobileCurrencyToggle[data-active="CDF"] .segmented-label[data-currency="CDF"] {
+  color: #0f172a !important;
+}
+
 /* Mobile responsive */
 
 @media (max-width: 640px) {
