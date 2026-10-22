@@ -154,3 +154,20 @@ main, #main-content, .page-content, .customer-main-content, .vendor-main-content
 ### 3. Masquage au Démarrage (Launch / Splash Screen)
 - La TabBar démarre avec `isTabBarHidden = true`.
 - Les barres natives ne sont dévoilées qu'après les événements `componentsLoaded` ou `newketReady` (avec un fallback de sécurité à `1600ms` correspondant à la durée du splash natif).
+
+---
+
+## 6. Le Toggle de Devise Liquid Glass (html.is-ios-capacitor .currency-switch-segmented)
+
+Exclusif à l'application iOS Capacitor (sans impact sur le site web officiel) :
+
+| Propriété | Spécification Apple Liquid Glass |
+|---|---|
+| **Forme du réservoir (Track)** | Capsule pilule ronde (order-radius: 9999px), dimensions 90 × 32 pt |
+| **Matière du réservoir** | Verre dépoli 
+gba(255, 255, 255, 0.18) avec ackdrop-filter: blur(20px) saturate(180%) |
+| **Bordure & Biseau** | order: 1px solid rgba(255, 255, 255, 0.28), inset shadow blanc pour l'épaisseur du verre |
+| **Pastille coulissante (Handle)** | Capsule blanche nacrée bombée 42 × 25 pt avec biseau supérieur de lumière et ombre portée 3D |
+| **Physique de ressort** | Courbe Apple Spring : 	ransition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) |
+| **Compression au toucher** | Légère réduction élastique à scale(0.95) sur :active |
+| **Labels & Contraste** | Devise active en #0f172a gras sur verre blanc ; devise inactive en blanc translucide 70% |
