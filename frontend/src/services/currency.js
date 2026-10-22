@@ -65,30 +65,27 @@ const CurrencyManager = {
                 return;
             }
 
-            // Segmented toggle labels (explicit currency)
-            const segmentedLabel = target?.closest?.('.currency-switch-segmented [data-currency]');
-            const segmentedCurrency = segmentedLabel?.getAttribute?.('data-currency');
-            if (segmentedCurrency === 'USD' || segmentedCurrency === 'CDF') {
-                event.preventDefault();
-                this.setCurrency(segmentedCurrency);
-
-                const segmentedToggle = segmentedLabel.closest('.currency-switch-segmented');
-                if (segmentedToggle) {
-                    segmentedToggle.style.transform = 'scale(0.95)';
-                    setTimeout(() => segmentedToggle.style.transform = 'scale(1)', 100);
-                }
-                return;
-            }
-
-            // Segmented toggle container (toggle between currencies)
+            // Segmented toggle (Apple Liquid Glass & Web switch)
             const segmentedToggle = target?.closest?.('.currency-switch-segmented');
             if (segmentedToggle) {
                 event.preventDefault();
-                const newCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
-                this.setCurrency(newCurrency);
+                const clickedLabel = target?.closest?.('[data-currency]');
+                const clickedCurrency = clickedLabel?.getAttribute?.('data-currency');
 
-                segmentedToggle.style.transform = 'scale(0.95)';
-                setTimeout(() => segmentedToggle.style.transform = 'scale(1)', 100);
+                // If user specifically tapped the other currency, switch to it.
+                // If user tapped the currently active currency, the handle, or the track: toggle to the other!
+                let nextCurrency;
+                if (clickedCurrency && (clickedCurrency === 'USD' || clickedCurrency === 'CDF')) {
+                    if (clickedCurrency !== this.currentCurrency) {
+                        nextCurrency = clickedCurrency;
+                    } else {
+                        nextCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
+                    }
+                } else {
+                    nextCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
+                }
+
+                this.setCurrency(nextCurrency);
                 return;
             }
 

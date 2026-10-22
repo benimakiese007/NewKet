@@ -2296,6 +2296,11 @@ body.mobile-menu-open {
    ========================================================================== */
 html.is-ios-capacitor .currency-switch-segmented {
   background: transparent !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
 html.is-ios-capacitor .segmented-track {
@@ -2308,6 +2313,8 @@ html.is-ios-capacitor .segmented-track {
   backdrop-filter: blur(20px) saturate(180%) !important;
   border: 1px solid rgba(255, 255, 255, 0.28) !important;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
 }
 
 html.is-ios-capacitor .segmented-handle {
@@ -2320,6 +2327,7 @@ html.is-ios-capacitor .segmented-handle {
   border: 0.5px solid rgba(255, 255, 255, 0.9) !important;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2), inset 0 1px 1.5px #ffffff !important;
   transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+  pointer-events: none !important; /* Laisse le tap traverser directement vers les labels/track */
 }
 
 /* État 1 : USD (actif à gauche) */
