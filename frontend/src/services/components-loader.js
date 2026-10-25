@@ -1013,10 +1013,12 @@ const ComponentLoader = {
 
         const _hideButtons = () => {
             plugin.update({ showLeft: false, showRight: false }).catch(() => {});
+            plugin.showClose?.({ position: 'top-right' })?.catch?.(() => {});
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         };
 
         const _showButtons = () => {
+            plugin.hideClose?.()?.catch?.(() => {});
             setTimeout(() => {
                 if (!isAnyWebOverlayOpen()) {
                     if (!isMinimal) {
@@ -1042,6 +1044,33 @@ const ComponentLoader = {
             }
         });
         bodyOverlayObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'aria-hidden'] });
+
+        // -- Wire close tap (Native Swift Liquid Glass "X") --> close active overlay
+        plugin.addListener('closeTap', () => {
+            if (typeof window.closeMobileMenu === 'function') {
+                window.closeMobileMenu(true);
+            }
+            if (window.SidebarManager && typeof window.SidebarManager.close === 'function') {
+                window.SidebarManager.close();
+            }
+            if (window.DrawersManager && typeof window.DrawersManager.closeAll === 'function') {
+                window.DrawersManager.closeAll();
+            }
+            if (typeof window.closeZoom === 'function') {
+                window.closeZoom();
+            }
+            if (typeof window.closeImageZoom === 'function') {
+                window.closeImageZoom();
+            }
+            if (typeof window.closeOrderModal === 'function') {
+                window.closeOrderModal();
+            }
+            if (typeof window.closeDisputeModal === 'function') {
+                window.closeDisputeModal();
+            }
+            const activeModalClose = document.querySelector('.modal:not(.hidden) [data-action*="close"], #orderModal:not([style*="display: none"]) [data-action*="close"], #disputeModal:not(.hidden) [data-action*="close"], [data-close-zoom], #cropperCancelBtn');
+            activeModalClose?.click?.();
+        });
 
         // -- Wire burger tap --> open mobile menu -------------------------
         plugin.addListener('burgerTap', () => {

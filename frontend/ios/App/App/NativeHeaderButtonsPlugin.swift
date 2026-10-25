@@ -1,6 +1,15 @@
 import UIKit
 import Capacitor
 
+// MARK: - PassthroughOverlayView
+
+class PassthroughOverlayView: UIView {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hitView = super.hitTest(point, with: event)
+        return hitView === self ? nil : hitView
+    }
+}
+
 // MARK: - Plugin Declaration
 
 @objc(NativeHeaderButtonsPlugin)
@@ -9,12 +18,15 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "NativeHeaderButtonsPlugin"
     public let jsName = "NativeHeaderButtons"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "show",   returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "hide",   returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "update", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "show",      returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "hide",      returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "update",    returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "showClose", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "hideClose", returnType: CAPPluginReturnPromise),
     ]
 
     private var overlayView: UIView?
+    private var closeOverlayView: UIView?
 
     // MARK: - show
 
@@ -95,16 +107,97 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
             call.resolve()
         }
     }
+
+    // MARK: - showClose (Native Liquid Glass Close "X" Button)
+
+    @objc func showClose(_ call: CAPPluginCall) {
+        guard #available(iOS 26.0, *) else {
+            call.resolve(["shown": false])
+            return
+        }
+
+        let position = call.getString("position") ?? "top-right"
+        let topOffset = CGFloat(call.getDouble("topOffset") ?? 12.0)
+        let sideOffset = CGFloat(call.getDouble("sideOffset") ?? 16.0)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self,
+                  let vc = self.bridge?.viewController,
+                  let root = vc.view else {
+                call.reject("NativeHeaderButtonsPlugin: rootView not found")
+                return
+            }
+
+            self.closeOverlayView?.removeFromSuperview()
+            self.closeOverlayView = nil
+
+            let container = PassthroughOverlayView()
+            container.translatesAutoresizingMaskIntoConstraints = false
+            container.backgroundColor = .clear
+
+            let closeBtn = GlassCircleButton(sfSymbol: "xmark", size: 40)
+            closeBtn.translatesAutoresizingMaskIntoConstraints = false
+            closeBtn.onTap = { [weak self] in
+                self?.notifyListeners("closeTap", data: [:])
+            }
+
+            container.addSubview(closeBtn)
+            root.addSubview(container)
+
+            var constraints: [NSLayoutConstraint] = [
+                closeBtn.widthAnchor.constraint(equalToConstant: 40),
+                closeBtn.heightAnchor.constraint(equalToConstant: 40),
+                closeBtn.topAnchor.constraint(equalTo: container.safeAreaLayoutGuide.topAnchor, constant: topOffset),
+                container.topAnchor.constraint(equalTo: root.topAnchor),
+                container.bottomAnchor.constraint(equalTo: root.bottomAnchor),
+                container.leadingAnchor.constraint(equalTo: root.leadingAnchor),
+                container.trailingAnchor.constraint(equalTo: root.trailingAnchor)
+            ]
+
+            if position == "top-left" {
+                constraints.append(closeBtn.leadingAnchor.constraint(equalTo: container.safeAreaLayoutGuide.leadingAnchor, constant: sideOffset))
+            } else {
+                constraints.append(closeBtn.trailingAnchor.constraint(equalTo: container.safeAreaLayoutGuide.trailingAnchor, constant: -sideOffset))
+            }
+
+            NSLayoutConstraint.activate(constraints)
+
+            closeBtn.alpha = 0
+            closeBtn.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+            UIView.animate(withDuration: 0.28, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction]) {
+                closeBtn.alpha = 1.0
+                closeBtn.transform = .identity
+            }
+
+            self.closeOverlayView = container
+            call.resolve(["shown": true])
+        }
+    }
+
+    // MARK: - hideClose
+
+    @objc func hideClose(_ call: CAPPluginCall) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let container = self.closeOverlayView else {
+                call.resolve(["hidden": true])
+                return
+            }
+            UIView.animate(withDuration: 0.20, delay: 0, options: [.beginFromCurrentState]) {
+                container.alpha = 0
+                container.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+            } completion: { _ in
+                container.removeFromSuperview()
+                if self.closeOverlayView === container {
+                    self.closeOverlayView = nil
+                }
+            }
+            call.resolve(["hidden": true])
+        }
+    }
 }
 
 // MARK: - GlassCircleButton (iOS 26+ Interactive Liquid Glass Sphere)
 
-/// A 38x38pt perfect round circular Liquid Glass sphere conforming to Apple HIG:
-/// - Circular UIVisualEffectView container with UIGlassEffect (in: .circle)
-/// - Interactive touch & drag fluid physics: compression on touch, rubber-band fluid displacement on drag,
-///   and natural Apple spring rebound on release with haptic feedback.
-/// - 44x44pt touch hit target for 100% accessible touch responsiveness.
-/// - Inner 100% transparent (.plain) button with 16pt semibold SF Symbol.
 @available(iOS 26.0, *)
 class GlassCircleButton: UIView {
 
@@ -112,10 +205,12 @@ class GlassCircleButton: UIView {
     let button: UIButton
     var onTap: (() -> Void)?
 
+    private let buttonSize: CGFloat
     private var initialTouchPoint: CGPoint = .zero
     private var isDragging: Bool = false
 
-    init(sfSymbol: String) {
+    init(sfSymbol: String, size: CGFloat = 48) {
+        self.buttonSize = size
         let glass = UIGlassEffect()
         glass.isInteractive = true
         glassEffectView = UIVisualEffectView(effect: glass)
@@ -123,14 +218,14 @@ class GlassCircleButton: UIView {
 
         super.init(frame: .zero)
 
-        // Outer shadow for 3D depth elevation (matches system circular back button)
+        // Outer shadow for 3D depth elevation
         layer.shadowColor   = UIColor.black.cgColor
         layer.shadowOpacity = 0.22
         layer.shadowRadius  = 5
         layer.shadowOffset  = CGSize(width: 0, height: 2)
 
-        // Perfect circular glass sphere: cornerRadius = width / 2 (48 / 2 = 24)
-        glassEffectView.layer.cornerRadius = 24
+        // Perfect circular glass sphere: cornerRadius = size / 2
+        glassEffectView.layer.cornerRadius = size / 2
         glassEffectView.layer.cornerCurve  = .circular
         glassEffectView.clipsToBounds      = true
         glassEffectView.translatesAutoresizingMaskIntoConstraints = false
@@ -181,10 +276,10 @@ class GlassCircleButton: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Expands touch target to 44x44pt as recommended by Apple HIG
+    /// Expands touch target to at least 44x44pt as recommended by Apple HIG
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        let dx = max(0, (48 - bounds.width) / 2)
-        let dy = max(0, (48 - bounds.height) / 2)
+        let dx = max(0, (44 - bounds.width) / 2)
+        let dy = max(0, (44 - bounds.height) / 2)
         let expanded = bounds.insetBy(dx: -dx, dy: -dy)
         return expanded.contains(point)
     }
@@ -257,7 +352,8 @@ class GlassCircleButton: UIView {
     }
 
     func updateSymbol(_ sfSymbol: String) {
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
+        let ptSize: CGFloat = buttonSize < 44 ? 17 : 20
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: ptSize, weight: .semibold)
         let image = UIImage(systemName: sfSymbol, withConfiguration: symbolConfig)
 
         var config = UIButton.Configuration.plain()
