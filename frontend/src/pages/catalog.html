@@ -1168,6 +1168,8 @@
             const grid = document.getElementById('catalog-grid');
 
             if (!append) {
+                window._isFetchingCatalog = true;
+                removeLoadMoreButton();
                 // ✅ Optimistic local-first: si on a un query texte et un cache local,
                 // on affiche les résultats locaux IMMÉDIATEMENT sans skeleton,
                 // Supabase remplace ensuite avec les vrais résultats en arrière-plan.
@@ -1230,8 +1232,9 @@
                         opts.or = `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`;
                     }
 
-                    // ✅ Toujours masquer les produits archivés côté public
+                    // ✅ Toujours masquer les produits archivés et épuisés côté public
                     opts.eq = [['is_archived', false]];
+                    opts.gt = [['stock', 0]];
 
                     // Category filter
                     if (activeCategories.length > 0) {
@@ -1285,6 +1288,7 @@
                     const opts = buildQueryOptions(selectClause);
                     let q = window.supabaseClient.from('products').select(opts.select);
                     if (opts.eq) for (const [col, val] of opts.eq) q = q.eq(col, val);
+                    if (opts.gt) for (const [col, val] of opts.gt) q = q.gt(col, val);
                     if (opts.in) for (const [col, vals] of opts.in) q = q.in(col, vals);
                     if (opts.or) {
                         if (Array.isArray(opts.or)) {
@@ -1323,9 +1327,13 @@
                     }
                 }
 
-                if (mySeq !== catalogRenderSeq) return;
+                if (mySeq !== catalogRenderSeq) {
+                    if (!append) window._isFetchingCatalog = false;
+                    return;
+                }
 
                 if (products && products.length > 0) {
+                    const rawBatchCount = products.length;
                     // Filter out zero-stock items in memory if stock is present
                     products = products.filter(p => {
                         const s = p.stock ?? p.stock_quantity ?? p.quantity;
@@ -1336,7 +1344,7 @@
                     if (typeof ProductManager?._mapProduct === 'function') {
                         products = products.map(p => ProductManager._mapProduct(p));
                     }
-                    catalogHasMore = products.length === CATALOG_PAGE_SIZE;
+                    catalogHasMore = rawBatchCount === CATALOG_PAGE_SIZE;
                 } else if (products !== null && products.length === 0 && !query && activeCategories.length === 0) {
                     // Si la requête retourne 0 mais qu'on n'a pas de filtre spécifique, tenter via ProductManager
                     console.warn('[CATALOG DEBUG] Supabase returned 0 products, trying ProductManager.fetchFreshData()');
@@ -1507,6 +1515,7 @@
                     `;
                 }
                 removeLoadMoreButton();
+                if (!append) window._isFetchingCatalog = false;
                 return;
             }
 
@@ -1535,12 +1544,19 @@
             } else {
                 removeLoadMoreButton();
             }
+
+            if (!append) {
+                window._isFetchingCatalog = false;
+            }
         }
 
         let catalogObserver = null;
 
         function showLoadMoreButton() {
             let sentinel = document.getElementById('loadMoreSentinel');
+            const grid = document.getElementById('catalog-grid');
+            if (!grid) return;
+
             if (!sentinel) {
                 sentinel = document.createElement('div');
                 sentinel.id = 'loadMoreSentinel';
@@ -1548,22 +1564,24 @@
                 sentinel.innerHTML = `
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
                 `;
-                const grid = document.getElementById('catalog-grid');
                 grid.parentNode.insertBefore(sentinel, grid.nextSibling);
-                
-                if (!catalogObserver) {
-                    catalogObserver = new IntersectionObserver((entries) => {
-                        if (entries[0].isIntersecting && !window._isFetchingCatalog) {
-                            window._isFetchingCatalog = true;
-                            catalogPage++;
-                            renderCatalog(true).finally(() => {
-                                window._isFetchingCatalog = false;
-                            });
-                        }
-                    }, { rootMargin: '300px' });
-                }
-                catalogObserver.observe(sentinel);
+            } else if (sentinel.previousElementSibling !== grid) {
+                grid.parentNode.insertBefore(sentinel, grid.nextSibling);
             }
+
+            if (!catalogObserver) {
+                catalogObserver = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting && !window._isFetchingCatalog) {
+                        window._isFetchingCatalog = true;
+                        catalogPage++;
+                        renderCatalog(true).finally(() => {
+                            window._isFetchingCatalog = false;
+                        });
+                    }
+                }, { rootMargin: '300px' });
+            }
+            catalogObserver.unobserve(sentinel);
+            catalogObserver.observe(sentinel);
         }
 
         function removeLoadMoreButton() {
