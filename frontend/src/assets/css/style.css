@@ -11435,12 +11435,12 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor .vendor-dashboard-main,
   html.is-ios-capacitor .dashboard-main-offset,
   html.is-ios-capacitor #collection {
-    padding-bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 20px)) !important;
   }
 
   html.is-ios-capacitor .newket-footer-shell,
   html.is-ios-capacitor #footer-placeholder {
-    padding-bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 20px)) !important;
   }
 
   html.is-ios-capacitor #cartSlideOver > div:last-child,
@@ -11448,12 +11448,12 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #notificationsSlideOver > div:last-child,
   html.is-ios-capacitor .cart-drawer-footer,
   html.is-ios-capacitor .drawer-footer {
-    padding-bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 20px)) !important;
   }
 
   /* Toasts NewKet : s'affichent toujours au-dessus de la TabBar native Liquid Glass */
   html.is-ios-capacitor #toast-container {
-    bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
+    bottom: calc(32px + env(safe-area-inset-bottom, 20px)) !important;
   }
 }
 

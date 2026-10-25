@@ -1031,37 +1031,44 @@ const ComponentLoader = {
             return false;
         };
 
+        let _isOverlayActive = false;
+        let _overlayDebounceTimer = null;
+
         const _hideButtons = () => {
+            if (_isOverlayActive) return;
+            _isOverlayActive = true;
             plugin.update({ showLeft: false, showRight: false }).catch(() => {});
             plugin.showClose?.({ position: 'top-right' })?.catch?.(() => {});
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         };
 
         const _showButtons = () => {
+            if (!_isOverlayActive) return;
+            _isOverlayActive = false;
             plugin.hideClose?.()?.catch?.(() => {});
-            setTimeout(() => {
-                if (!isAnyWebOverlayOpen()) {
-                    if (!isMinimal) {
-                        plugin.update({ showLeft: true, showRight: true }).catch(() => {});
-                    }
-                    if (!isTabBarForbidden) {
-                        window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
-                    }
-                }
-            }, 120);
+            if (!isMinimal) {
+                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+            }
+            if (!isTabBarForbidden) {
+                window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+            }
         };
 
         // Global events that web layers dispatch when they open/close
         window.addEventListener('nativeOverlayOpen',  _hideButtons);
         window.addEventListener('nativeOverlayClose', _showButtons);
 
-        // Also observe DOM mutations on body for modals & drawer class changes
+        // Debounced observer: only react when overlay state actually flips
         const bodyOverlayObserver = new MutationObserver(() => {
-            if (isAnyWebOverlayOpen()) {
-                _hideButtons();
-            } else {
-                _showButtons();
-            }
+            if (_overlayDebounceTimer) clearTimeout(_overlayDebounceTimer);
+            _overlayDebounceTimer = setTimeout(() => {
+                const isOpen = isAnyWebOverlayOpen();
+                if (isOpen && !_isOverlayActive) {
+                    _hideButtons();
+                } else if (!isOpen && _isOverlayActive) {
+                    _showButtons();
+                }
+            }, 50);
         });
         bodyOverlayObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'aria-hidden'] });
 
