@@ -1,4 +1,4 @@
-if (!window.ComponentLoader) {
+﻿if (!window.ComponentLoader) {
 
 /* NewKet EMarket Component Loader */
 
@@ -323,7 +323,7 @@ const HEADER_HTML = `
 </div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="bg-newket-footer newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-gray-800" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + 80px + env(safe-area-inset-bottom));">
+<footer class="bg-newket-footer newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-gray-800" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
             <div class="lg:col-span-4 space-y-4">
@@ -413,6 +413,18 @@ const isIOSCapacitor = () => {
                 ? window.Capacitor.isNativePlatform()
                 : window.Capacitor.isNative
         ) && window.Capacitor.getPlatform?.() === 'ios');
+    } catch (e) {
+        return false;
+    }
+};
+
+const isAndroidCapacitor = () => {
+    try {
+        return !!(window.Capacitor && (
+            typeof window.Capacitor.isNativePlatform === 'function'
+                ? window.Capacitor.isNativePlatform()
+                : window.Capacitor.isNative
+        ) && window.Capacitor.getPlatform?.() === 'android');
     } catch (e) {
         return false;
     }

@@ -32,7 +32,7 @@ echo.
 
 echo [3/3] Demarrage des tests utilisateurs Bout-en-Bout (Playwright)...
 cd ..
-call npx playwright test
+call npx playwright test --config=tests/playwright.config.js
 if %errorlevel% neq 0 (
     echo.
     echo [ERREUR] : Une cassure a ete trouvee dans les tests utilisateurs (Playwright) !

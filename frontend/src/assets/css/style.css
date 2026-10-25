@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
 /* PREMIUM AUTH SHIELD */
 
@@ -3556,7 +3556,7 @@ html.is-ios-capacitor.dark button[data-action="close-dispute-modal"]:not(:has(sp
   /* Footer */
 
   .main-footer {
-    padding: 2rem 0 calc(1.5rem + 80px + env(safe-area-inset-bottom));
+    padding: 2rem 0 calc(70px + env(safe-area-inset-bottom, 0px));
     margin-top: 2rem;
   }
 
@@ -11187,18 +11187,18 @@ html.dark .liquid-glass-nav .nav-item.active span {
   .page-content, #page-content, #app-body,
   .customer-main-content, .vendor-main-content,
   .newket-footer-shell {
-    padding-bottom: calc(116px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   body.home-page main,
   body.home-page #main-content {
-    /* Liquid Glass nav flottante : laisser le contenu passer librement derrière */
-    padding-bottom: calc(116px + env(safe-area-inset-bottom, 34px)) !important;
+    /* Home page: main ends at footer — no extra nav clearance needed */
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   body.home-page .newket-footer-shell {
     margin-top: 1.5rem !important;
-    padding-bottom: calc(116px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Footer already has its own padding, remove any body-level shift */
@@ -11213,7 +11213,41 @@ html.dark .liquid-glass-nav .nav-item.active span {
   #notificationsSlideOver > div:last-child,
   .cart-drawer-footer,
   .drawer-footer {
-    padding-bottom: calc(100px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+
+  /* ── Android Capacitor : footer masqué, dégagement nav correct (62px + 8px buffer) ── */
+  html.is-android-capacitor .newket-footer-shell,
+  html.is-android-capacitor #footer-placeholder {
+    display: none !important;
+  }
+
+  html.is-android-capacitor main,
+  html.is-android-capacitor #main-content,
+  html.is-android-capacitor .main-content,
+  html.is-android-capacitor .page-content,
+  html.is-android-capacitor #page-content,
+  html.is-android-capacitor #app-body,
+  html.is-android-capacitor .customer-main-content,
+  html.is-android-capacitor .vendor-main-content,
+  html.is-android-capacitor .customer-dashboard-main,
+  html.is-android-capacitor .vendor-dashboard-main,
+  html.is-android-capacitor .dashboard-main-offset,
+  html.is-android-capacitor #collection {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html.is-android-capacitor #cartSlideOver > div:last-child,
+  html.is-android-capacitor #favoritesSlideOver > div:last-child,
+  html.is-android-capacitor #notificationsSlideOver > div:last-child,
+  html.is-android-capacitor .cart-drawer-footer,
+  html.is-android-capacitor .drawer-footer {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html.is-android-capacitor #toast-container {
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Masquer complètement l'ancienne navbar HTML quand l'application native iOS Capacitor est active */
@@ -11249,12 +11283,12 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor .vendor-dashboard-main,
   html.is-ios-capacitor .dashboard-main-offset,
   html.is-ios-capacitor #collection {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
   }
 
   html.is-ios-capacitor .newket-footer-shell,
   html.is-ios-capacitor #footer-placeholder {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
   }
 
   html.is-ios-capacitor #cartSlideOver > div:last-child,
@@ -11262,12 +11296,12 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #notificationsSlideOver > div:last-child,
   html.is-ios-capacitor .cart-drawer-footer,
   html.is-ios-capacitor .drawer-footer {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+    padding-bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
   }
 
   /* Toasts NewKet : s'affichent toujours au-dessus de la TabBar native Liquid Glass */
   html.is-ios-capacitor #toast-container {
-    bottom: calc(96px + env(safe-area-inset-bottom, 34px)) !important;
+    bottom: calc(57px + env(safe-area-inset-bottom, 34px)) !important;
   }
 }
 

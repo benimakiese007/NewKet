@@ -9,7 +9,8 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "build:frontend": "cd frontend && npm run build",
-    "install:all": "cd frontend && npm install --legacy-peer-deps && cd ../backend && npm install --legacy-peer-deps"
+    "install:all": "cd frontend && npm install --legacy-peer-deps && cd ../backend && npm install --legacy-peer-deps",
+    "test:e2e": "playwright test --config=tests/playwright.config.js"
   },
   "repository": {
     "type": "git",
