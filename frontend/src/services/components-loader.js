@@ -556,6 +556,10 @@ const ComponentLoader = {
             this.initNativeHeaderButtons();
         }
 
+        if (isAndroidCapacitor()) {
+            document.documentElement.classList.add('is-android-capacitor');
+        }
+
         const componentsToLoad = [];
 
         if (isAdminPage) {
