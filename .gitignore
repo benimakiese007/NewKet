@@ -41,3 +41,12 @@ scripts/bat/.secrets
 scripts/bat/_secrets.bat
 
 google-credentials.json
+
+# Tests & Rapports générés
+test-results/
+playwright-report/
+
+# Fichiers temporaires Office
+~$*
+.tmp_pdf/
+
