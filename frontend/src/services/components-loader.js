@@ -696,7 +696,9 @@ const ComponentLoader = {
         this.initNetworkStatus();
         this.initMobileSearchToggle();
 
-        setTimeout(() => this.setupHeaderSpacing(), 50);
+        // setupHeaderSpacing is now called immediately after header injection (in loadComponent).
+        // This second pass catches any late-loading assets (fonts, logo) that change the header height.
+        setTimeout(() => this.setupHeaderSpacing(), 0);
     },
 
     ensurePlaceholder(elementId, position = 'end') {
@@ -1009,9 +1011,9 @@ const ComponentLoader = {
         // ------------------------------------------------------------------
         const isAnyWebOverlayOpen = () => {
             const menu = document.getElementById('mobileMenu');
-            if (menu && (menu.getAttribute('aria-hidden') === 'false' || menu.style.visibility === 'visible' || menu.style.opacity === '1')) return true;
+            if (menu && (menu.classList.contains('active') || document.body.classList.contains('mobile-menu-open') || document.documentElement.classList.contains('mobile-menu-open') || menu.getAttribute('aria-hidden') === 'false' || menu.style.visibility === 'visible' || menu.style.opacity === '1')) return true;
             const cart = document.getElementById('cartSlideOver');
-            if (cart && !cart.classList.contains('translate-x-full')) return true;
+            if (cart && (!cart.classList.contains('translate-x-full') || (cart.parentElement && !cart.parentElement.classList.contains('hidden') && !cart.classList.contains('translate-x-full')))) return true;
             const fav = document.getElementById('favoritesSlideOver');
             if (fav && !fav.classList.contains('translate-x-full')) return true;
             const notif = document.getElementById('notificationsSlideOver');
@@ -1022,7 +1024,9 @@ const ComponentLoader = {
             if (vendorSb && vendorSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
             const searchContainer = document.getElementById('mobileSearchContainer');
             if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
-            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal');
+            const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
+            if (zoom && (!zoom.classList.contains('hidden') && zoom.style.display !== 'none')) return true;
+            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal, .modal:not(.hidden), [data-modal]:not(.hidden), #orderModal:not([style*="display: none"])');
             if (modal) return true;
             return false;
         };
@@ -1066,12 +1070,20 @@ const ComponentLoader = {
             if (typeof window.closeMobileMenu === 'function') {
                 window.closeMobileMenu(true);
             }
+            document.getElementById('closeMobileMenu')?.click?.();
             if (window.SidebarManager && typeof window.SidebarManager.close === 'function') {
                 window.SidebarManager.close();
             }
+            if (window.CartManager && typeof window.CartManager._hideSlideOver === 'function') {
+                window.CartManager._hideSlideOver();
+            }
+            document.getElementById('cartCloseBtn')?.click?.();
+            document.getElementById('closeCartBtn')?.click?.();
             if (window.DrawersManager && typeof window.DrawersManager.closeAll === 'function') {
                 window.DrawersManager.closeAll();
             }
+            document.getElementById('favoritesCloseBtn')?.click?.();
+            document.getElementById('notificationsCloseBtn')?.click?.();
             if (typeof window.closeZoom === 'function') {
                 window.closeZoom();
             }
@@ -1084,7 +1096,13 @@ const ComponentLoader = {
             if (typeof window.closeDisputeModal === 'function') {
                 window.closeDisputeModal();
             }
-            const activeModalClose = document.querySelector('.modal:not(.hidden) [data-action*="close"], #orderModal:not([style*="display: none"]) [data-action*="close"], #disputeModal:not(.hidden) [data-action*="close"], [data-close-zoom], #cropperCancelBtn');
+            const searchContainer = document.getElementById('mobileSearchContainer');
+            if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile')) {
+                const searchClose = document.getElementById('closeSearchBtn') || document.querySelector('[data-close-search]');
+                if (searchClose) searchClose.click();
+                else searchContainer.classList.add('user-hidden-on-mobile');
+            }
+            const activeModalClose = document.querySelector('.modal:not(.hidden) [data-action*="close"], .modal:not(.hidden) .modal-close-btn, #orderModal:not([style*="display: none"]) [data-action*="close"], #disputeModal:not(.hidden) [data-action*="close"], [data-close-zoom], #cropperCancelBtn, .nk-modal-close');
             activeModalClose?.click?.();
         });
 
@@ -1267,12 +1285,14 @@ const ComponentLoader = {
         // This avoids FOUC: the nav is visible instantly without waiting for JS.
         if (element.children.length > 0) {
             this.injectHTML(element, element.innerHTML);
+                if (elementId === 'header-placeholder') this.setupHeaderSpacing();
             return;
         }
 
         // Use inline HTML directly to avoid 404 errors and speed up loading
         if (fallbackHTML) {
             this.injectHTML(element, fallbackHTML);
+                if (elementId === 'header-placeholder') this.setupHeaderSpacing();
             return;
         }
 
@@ -1291,6 +1311,7 @@ const ComponentLoader = {
             }
             
             this.injectHTML(element, html);
+            if (elementId === 'header-placeholder') this.setupHeaderSpacing();
         } catch (error) {
             console.error(`[NewKet] Failed to load component ${path}:`, error);
         }

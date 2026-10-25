@@ -31,7 +31,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - show
 
     @objc func show(_ call: CAPPluginCall) {
-        guard #available(iOS 26.0, *) else {
+        guard #available(iOS 16.0, *) else {
             call.resolve(["shown": false])
             return
         }
@@ -92,7 +92,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - update
 
     @objc func update(_ call: CAPPluginCall) {
-        guard #available(iOS 26.0, *) else {
+        guard #available(iOS 16.0, *) else {
             call.resolve()
             return
         }
@@ -111,7 +111,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - showClose (Native Liquid Glass Close "X" Button)
 
     @objc func showClose(_ call: CAPPluginCall) {
-        guard #available(iOS 26.0, *) else {
+        guard #available(iOS 16.0, *) else {
             call.resolve(["shown": false])
             return
         }
@@ -198,7 +198,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
 
 // MARK: - GlassCircleButton (iOS 26+ Interactive Liquid Glass Sphere)
 
-@available(iOS 26.0, *)
+@available(iOS 16.0, *)
 class GlassCircleButton: UIView {
 
     let glassEffectView: UIVisualEffectView
@@ -206,14 +206,21 @@ class GlassCircleButton: UIView {
     var onTap: (() -> Void)?
 
     private let buttonSize: CGFloat
+    private let tintLayer = UIView()
     private var initialTouchPoint: CGPoint = .zero
     private var isDragging: Bool = false
 
     init(sfSymbol: String, size: CGFloat = 48) {
         self.buttonSize = size
-        let glass = UIGlassEffect()
-        glass.isInteractive = true
-        glassEffectView = UIVisualEffectView(effect: glass)
+        let effect: UIVisualEffect
+        if #available(iOS 26.0, *) {
+            let glass = UIGlassEffect()
+            glass.isInteractive = true
+            effect = glass
+        } else {
+            effect = UIBlurEffect(style: .systemUltraThinMaterial)
+        }
+        glassEffectView = UIVisualEffectView(effect: effect)
         button = UIButton(type: .system)
 
         super.init(frame: .zero)
@@ -238,13 +245,8 @@ class GlassCircleButton: UIView {
             glassEffectView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
-        // Subtle dark translucent tint inside contentView for crisp contrast
-        let tintLayer = UIView()
-        tintLayer.backgroundColor = UIColor { trait in
-            trait.userInterfaceStyle == .dark
-                ? UIColor.white.withAlphaComponent(0.12)
-                : UIColor.black.withAlphaComponent(0.18)
-        }
+        // Translucent tint layer inside contentView for crisp contrast
+        tintLayer.backgroundColor = UIColor.clear
         tintLayer.isUserInteractionEnabled = false
         tintLayer.translatesAutoresizingMaskIntoConstraints = false
         glassEffectView.contentView.addSubview(tintLayer)
@@ -362,12 +364,35 @@ class GlassCircleButton: UIView {
         config.contentInsets = .zero
         button.configuration = config
         button.tintColor = .white
+
+        let isDestructive = sfSymbol.contains("arrow.right")
+        if isDestructive {
+            tintLayer.backgroundColor = UIColor { trait in
+                trait.userInterfaceStyle == .dark
+                    ? UIColor(red: 255/255, green: 69/255, blue: 58/255, alpha: 0.40)
+                    : UIColor(red: 255/255, green: 59/255, blue: 48/255, alpha: 0.35)
+            }
+            layer.shadowColor   = UIColor(red: 255/255, green: 59/255, blue: 48/255, alpha: 0.45).cgColor
+            layer.shadowOpacity = 0.35
+            layer.shadowRadius  = 6
+            layer.shadowOffset  = CGSize(width: 0, height: 2)
+        } else {
+            tintLayer.backgroundColor = UIColor { trait in
+                trait.userInterfaceStyle == .dark
+                    ? UIColor.white.withAlphaComponent(0.12)
+                    : UIColor.black.withAlphaComponent(0.18)
+            }
+            layer.shadowColor   = UIColor.black.cgColor
+            layer.shadowOpacity = 0.22
+            layer.shadowRadius  = 5
+            layer.shadowOffset  = CGSize(width: 0, height: 2)
+        }
     }
 }
 
 // MARK: - NativeHeaderButtonsView (iOS 26+)
 
-@available(iOS 26.0, *)
+@available(iOS 16.0, *)
 class NativeHeaderButtonsView: UIView {
 
     var onLeftTap:  (() -> Void)?

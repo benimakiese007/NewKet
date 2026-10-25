@@ -343,9 +343,9 @@ button {
 
 #header-placeholder {
   width: 100%;
-  /* Fallback for desktop: use the CSS var (set by JS) when available to prevent extra gap. */
-  min-height: var(--header-height, 112px);
-  transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Fallback for desktop: matches :root --header-height (80px) so gap is correct even before JS runs. */
+  min-height: var(--header-height, 80px);
+  transition: min-height 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 }
 
@@ -364,12 +364,12 @@ button {
 }
 
 .header-retracted + #header-placeholder {
-  min-height: calc(112px - var(--header-retracted-offset, 4.75rem)) !important;
+  min-height: calc(80px - var(--header-retracted-offset, 4.75rem)) !important;
 }
 
 @media (max-width: 1024px) {
   .header-retracted + #header-placeholder {
-    min-height: calc(115px - var(--header-retracted-offset, 4.75rem)) !important;
+    min-height: calc(90px - var(--header-retracted-offset, 4.75rem)) !important;
   }
 }
 
@@ -2379,37 +2379,59 @@ html.is-ios-capacitor #mobileCurrencyToggle[data-active="CDF"] .segmented-label[
 }
 
 /* ==========================================================================
-   Apple Liquid Glass Close Buttons (Exclusivement sur iOS Capacitor)
-   Conforme LIQUID_GLASS_REFERENCE.md :
-   - Capsule circulaire 36x36pt avec hit-target tactile de 44x44pt
-   - Matériau verre dépoli (flou optique 20px, biseau supérieur blanc)
-   - Symbole Apple SF Symbol xmark épuré (masque vectoriel SVG)
-   - Compression élastique scale(0.92) au contact + rebond Apple Spring
-   - ZÉRO translation physique (ancrage stable)
+   Apple Liquid Glass Close Buttons & Dashboard Logout (iOS Capacitor)
+   Conforme LIQUID_GLASS_REFERENCE.md et règles officielles Burger/Loupe/Sortie :
+   - Capsule circulaire 38x38pt avec hit-target tactile 44x44pt
+   - Fond verre fumé translucide (rgba(15, 23, 42, 0.48) / rgba(255, 255, 255, 0.18))
+   - Biseau spéculaire supérieur blanc (border: 1px solid rgba(255, 255, 255, 0.32))
+   - Ombre Apple 3D profonde qui décolle le bouton (box-shadow 0 4px 14px rgba(0,0,0,0.25))
+   - Symbole SF Symbol xmark épuré en BLANC PUR (#FFFFFF)
+   - Compression élastique scale(0.94) au contact + rebond Apple Spring
+   - ZÉRO translation physique (ancrage stable dans le tiroir / modale)
    - 0ms délai tactile via touch-action: manipulation
    ========================================================================== */
 
-/* 1. Base universelle des boutons de fermeture (Modales claires & Drawers) */
+/* 1. Base universelle des boutons de fermeture (Modales, Tiroirs, Drawers, Lightbox) */
 html.is-ios-capacitor button[onclick*="SidebarManager.close"],
 html.is-ios-capacitor [data-close-sidebar],
 html.is-ios-capacitor #closeMobileMenu,
 html.is-ios-capacitor #closeLiveChatBtn,
 html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
 html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
+html.is-ios-capacitor button[onclick*="window.closeZoom"],
 html.is-ios-capacitor .modal-close-btn,
 html.is-ios-capacitor .nk-modal-close,
 html.is-ios-capacitor [data-modal-close],
 html.is-ios-capacitor [data-close-modal],
 html.is-ios-capacitor [data-close-dialog],
-html.is-ios-capacitor button[data-action="close-order-modal"]:not(:has(span:not(.sr-only))),
-html.is-ios-capacitor button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only))) {
+html.is-ios-capacitor button[onclick*="closeModal"],
+html.is-ios-capacitor button[onclick*="closeConfirmModal"],
+html.is-ios-capacitor button[onclick*="closeDisputeModal"],
+html.is-ios-capacitor button[onclick*="closeAdminDisputeModal"],
+html.is-ios-capacitor button[onclick*="closeUserDetailsModal"],
+html.is-ios-capacitor button[onclick*="closeLightbox"],
+html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"],
+html.is-ios-capacitor #drilldownCloseBtn,
+html.is-ios-capacitor button[data-action="close-order-modal"],
+html.is-ios-capacitor button[data-action="close-dispute-modal"],
+html.is-ios-capacitor button[aria-label*="Fermer" i],
+html.is-ios-capacitor button[aria-label*="close" i],
+html.is-ios-capacitor button[title*="Fermer" i],
+html.is-ios-capacitor button[title*="close" i],
+html.is-ios-capacitor #cartCloseBtn,
+html.is-ios-capacitor #favoritesCloseBtn,
+html.is-ios-capacitor #notificationsCloseBtn,
+html.is-ios-capacitor #closeCartBtn,
+html.is-ios-capacitor .cart-close-btn,
+html.is-ios-capacitor .drawer-close-btn,
+html.is-ios-capacitor .slide-over-close {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
   border-radius: 9999px !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -2421,15 +2443,18 @@ html.is-ios-capacitor button[data-action="close-dispute-modal"]:not(:has(span:no
   -webkit-user-select: none !important;
   position: relative !important;
 
-  /* Verre dépoli Liquid Glass Light */
-  background: rgba(0, 0, 0, 0.06) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.75), 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-  color: #0f172a !important;
+  /* Matériau Verre Fumé Apple Liquid Glass (Exactement comme Burger / Loupe) */
+  background: rgba(15, 23, 42, 0.48) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+  backdrop-filter: blur(25px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.60),
+    0 4px 14px rgba(0, 0, 0, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  color: #ffffff !important;
 
-  /* Règle N°5 : Rebond élastique Apple Spring */
+  /* Rebond élastique Apple Spring */
   transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
@@ -2440,112 +2465,228 @@ html.is-ios-capacitor #closeMobileMenu::before,
 html.is-ios-capacitor #closeLiveChatBtn::before,
 html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"]::before,
 html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"]::before,
+html.is-ios-capacitor button[onclick*="window.closeZoom"]::before,
 html.is-ios-capacitor .modal-close-btn::before,
 html.is-ios-capacitor .nk-modal-close::before,
 html.is-ios-capacitor [data-modal-close]::before,
 html.is-ios-capacitor [data-close-modal]::before,
 html.is-ios-capacitor [data-close-dialog]::before,
-html.is-ios-capacitor button[data-action="close-order-modal"]:not(:has(span:not(.sr-only)))::before,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only)))::before {
+html.is-ios-capacitor button[onclick*="closeModal"]::before,
+html.is-ios-capacitor button[onclick*="closeConfirmModal"]::before,
+html.is-ios-capacitor button[onclick*="closeDisputeModal"]::before,
+html.is-ios-capacitor button[onclick*="closeAdminDisputeModal"]::before,
+html.is-ios-capacitor button[onclick*="closeUserDetailsModal"]::before,
+html.is-ios-capacitor button[onclick*="closeLightbox"]::before,
+html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]::before,
+html.is-ios-capacitor #drilldownCloseBtn::before,
+html.is-ios-capacitor button[data-action="close-order-modal"]::before,
+html.is-ios-capacitor button[data-action="close-dispute-modal"]::before,
+html.is-ios-capacitor button[aria-label*="Fermer" i]::before,
+html.is-ios-capacitor button[aria-label*="close" i]::before,
+html.is-ios-capacitor button[title*="Fermer" i]::before,
+html.is-ios-capacitor button[title*="close" i]::before,
+html.is-ios-capacitor #cartCloseBtn::before,
+html.is-ios-capacitor #favoritesCloseBtn::before,
+html.is-ios-capacitor #notificationsCloseBtn::before,
+html.is-ios-capacitor #closeCartBtn::before,
+html.is-ios-capacitor .cart-close-btn::before,
+html.is-ios-capacitor .drawer-close-btn::before,
+html.is-ios-capacitor .slide-over-close::before {
   content: "" !important;
   position: absolute !important;
-  top: -4px !important;
-  bottom: -4px !important;
-  left: -4px !important;
-  right: -4px !important;
+  top: -5px !important;
+  bottom: -5px !important;
+  left: -5px !important;
+  right: -5px !important;
   border-radius: 9999px !important;
 }
 
-/* 3. Masquer l'ancienne icône lourde Iconify pour laisser place au SF Symbol épuré */
+/* 3. Masquer l'ancienne icône pour afficher le SF Symbol xmark épuré */
 html.is-ios-capacitor button[onclick*="SidebarManager.close"] > iconify-icon,
 html.is-ios-capacitor [data-close-sidebar] > iconify-icon,
 html.is-ios-capacitor #closeMobileMenu > iconify-icon,
 html.is-ios-capacitor #closeLiveChatBtn > iconify-icon,
 html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"] > iconify-icon,
 html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="window.closeZoom"] > iconify-icon,
 html.is-ios-capacitor .modal-close-btn > iconify-icon,
 html.is-ios-capacitor .nk-modal-close > iconify-icon,
 html.is-ios-capacitor [data-modal-close] > iconify-icon,
 html.is-ios-capacitor [data-close-modal] > iconify-icon,
 html.is-ios-capacitor [data-close-dialog] > iconify-icon,
-html.is-ios-capacitor button[data-action="close-order-modal"]:not(:has(span:not(.sr-only))) > iconify-icon,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only))) > iconify-icon {
+html.is-ios-capacitor button[onclick*="closeModal"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="closeConfirmModal"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="closeDisputeModal"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="closeAdminDisputeModal"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="closeUserDetailsModal"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="closeLightbox"] > iconify-icon,
+html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"] > iconify-icon,
+html.is-ios-capacitor #drilldownCloseBtn > iconify-icon,
+html.is-ios-capacitor button[data-action="close-order-modal"] > iconify-icon,
+html.is-ios-capacitor button[data-action="close-dispute-modal"] > iconify-icon,
+html.is-ios-capacitor button[aria-label*="Fermer" i] > iconify-icon,
+html.is-ios-capacitor button[aria-label*="close" i] > iconify-icon,
+html.is-ios-capacitor button[title*="Fermer" i] > iconify-icon,
+html.is-ios-capacitor button[title*="close" i] > iconify-icon,
+html.is-ios-capacitor #cartCloseBtn > iconify-icon,
+html.is-ios-capacitor #favoritesCloseBtn > iconify-icon,
+html.is-ios-capacitor #notificationsCloseBtn > iconify-icon,
+html.is-ios-capacitor #closeCartBtn > iconify-icon,
+html.is-ios-capacitor .cart-close-btn > iconify-icon,
+html.is-ios-capacitor .drawer-close-btn > iconify-icon,
+html.is-ios-capacitor .slide-over-close > iconify-icon {
   display: none !important;
 }
 
-/* 4. Rendu de la croix épurée SF Symbol xmark via masque vectoriel */
+/* 4. Rendu de la croix épurée Apple SF Symbol xmark en BLANC PUR (#FFFFFF) */
 html.is-ios-capacitor button[onclick*="SidebarManager.close"]::after,
 html.is-ios-capacitor [data-close-sidebar]::after,
 html.is-ios-capacitor #closeMobileMenu::after,
 html.is-ios-capacitor #closeLiveChatBtn::after,
 html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"]::after,
 html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"]::after,
+html.is-ios-capacitor button[onclick*="window.closeZoom"]::after,
 html.is-ios-capacitor .modal-close-btn::after,
 html.is-ios-capacitor .nk-modal-close::after,
 html.is-ios-capacitor [data-modal-close]::after,
 html.is-ios-capacitor [data-close-modal]::after,
 html.is-ios-capacitor [data-close-dialog]::after,
-html.is-ios-capacitor button[data-action="close-order-modal"]:not(:has(span:not(.sr-only)))::after,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only)))::after {
+html.is-ios-capacitor button[onclick*="closeModal"]::after,
+html.is-ios-capacitor button[onclick*="closeConfirmModal"]::after,
+html.is-ios-capacitor button[onclick*="closeDisputeModal"]::after,
+html.is-ios-capacitor button[onclick*="closeAdminDisputeModal"]::after,
+html.is-ios-capacitor button[onclick*="closeUserDetailsModal"]::after,
+html.is-ios-capacitor button[onclick*="closeLightbox"]::after,
+html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]::after,
+html.is-ios-capacitor #drilldownCloseBtn::after,
+html.is-ios-capacitor button[data-action="close-order-modal"]::after,
+html.is-ios-capacitor button[data-action="close-dispute-modal"]::after,
+html.is-ios-capacitor button[aria-label*="Fermer" i]::after,
+html.is-ios-capacitor button[aria-label*="close" i]::after,
+html.is-ios-capacitor button[title*="Fermer" i]::after,
+html.is-ios-capacitor button[title*="close" i]::after,
+html.is-ios-capacitor #cartCloseBtn::after,
+html.is-ios-capacitor #favoritesCloseBtn::after,
+html.is-ios-capacitor #notificationsCloseBtn::after,
+html.is-ios-capacitor #closeCartBtn::after,
+html.is-ios-capacitor .cart-close-btn::after,
+html.is-ios-capacitor .drawer-close-btn::after,
+html.is-ios-capacitor .slide-over-close::after {
   content: "" !important;
   display: block !important;
   width: 14px !important;
   height: 14px !important;
-  background-color: currentColor !important;
+  background-color: #ffffff !important;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E") no-repeat center / contain !important;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E") no-repeat center / contain !important;
 }
 
-/* 5. Règle N°3 : Compression élastique au contact */
+/* 5. Compression élastique au contact (:active) */
 html.is-ios-capacitor button[onclick*="SidebarManager.close"]:active,
 html.is-ios-capacitor [data-close-sidebar]:active,
 html.is-ios-capacitor #closeMobileMenu:active,
 html.is-ios-capacitor #closeLiveChatBtn:active,
 html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"]:active,
 html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"]:active,
+html.is-ios-capacitor button[onclick*="window.closeZoom"]:active,
 html.is-ios-capacitor .modal-close-btn:active,
 html.is-ios-capacitor .nk-modal-close:active,
 html.is-ios-capacitor [data-modal-close]:active,
 html.is-ios-capacitor [data-close-modal]:active,
 html.is-ios-capacitor [data-close-dialog]:active,
-html.is-ios-capacitor button[data-action="close-order-modal"]:not(:has(span:not(.sr-only))):active,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only))):active {
-  transform: scale(0.92) !important;
-  background: rgba(0, 0, 0, 0.12) !important;
+html.is-ios-capacitor button[onclick*="closeModal"]:active,
+html.is-ios-capacitor button[onclick*="closeConfirmModal"]:active,
+html.is-ios-capacitor button[onclick*="closeDisputeModal"]:active,
+html.is-ios-capacitor button[onclick*="closeAdminDisputeModal"]:active,
+html.is-ios-capacitor button[onclick*="closeUserDetailsModal"]:active,
+html.is-ios-capacitor button[onclick*="closeLightbox"]:active,
+html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]:active,
+html.is-ios-capacitor #drilldownCloseBtn:active,
+html.is-ios-capacitor button[data-action="close-order-modal"]:active,
+html.is-ios-capacitor button[data-action="close-dispute-modal"]:active,
+html.is-ios-capacitor button[aria-label*="Fermer" i]:active,
+html.is-ios-capacitor button[aria-label*="close" i]:active,
+html.is-ios-capacitor button[title*="Fermer" i]:active,
+html.is-ios-capacitor button[title*="close" i]:active,
+html.is-ios-capacitor #cartCloseBtn:active,
+html.is-ios-capacitor #favoritesCloseBtn:active,
+html.is-ios-capacitor #notificationsCloseBtn:active,
+html.is-ios-capacitor #closeCartBtn:active,
+html.is-ios-capacitor .cart-close-btn:active,
+html.is-ios-capacitor .drawer-close-btn:active,
+html.is-ios-capacitor .slide-over-close:active {
+  transform: scale(0.94) !important;
+  background: rgba(15, 23, 42, 0.65) !important;
 }
 
-/* 6. Variante Dark / Lightbox (Sur fond sombre : Zoom photo, Menu burger sombre, Dark Mode) */
-html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
-html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
-html.is-ios-capacitor #closeMobileMenu,
+/* 6. Variante Dark Mode / Lightbox fond sombre */
 html.is-ios-capacitor.dark button[onclick*="SidebarManager.close"],
 html.is-ios-capacitor.dark [data-close-sidebar],
+html.is-ios-capacitor.dark #closeMobileMenu,
 html.is-ios-capacitor.dark .modal-close-btn,
 html.is-ios-capacitor.dark .nk-modal-close,
 html.is-ios-capacitor.dark [data-modal-close],
 html.is-ios-capacitor.dark [data-close-modal],
 html.is-ios-capacitor.dark [data-close-dialog],
-html.is-ios-capacitor.dark button[data-action="close-order-modal"]:not(:has(span:not(.sr-only))),
-html.is-ios-capacitor.dark button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only))) {
-  background: rgba(255, 255, 255, 0.18) !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.5), 0 4px 14px rgba(0, 0, 0, 0.3) !important;
-  color: #ffffff !important;
+html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
+html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
+html.is-ios-capacitor button[onclick*="window.closeZoom"] {
+  background: rgba(255, 255, 255, 0.20) !important;
+  border: 1px solid rgba(255, 255, 255, 0.40) !important;
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+    0 4px 14px rgba(0, 0, 0, 0.35) !important;
 }
 
-html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"]:active,
-html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"]:active,
-html.is-ios-capacitor #closeMobileMenu:active,
 html.is-ios-capacitor.dark button[onclick*="SidebarManager.close"]:active,
 html.is-ios-capacitor.dark [data-close-sidebar]:active,
+html.is-ios-capacitor.dark #closeMobileMenu:active,
 html.is-ios-capacitor.dark .modal-close-btn:active,
 html.is-ios-capacitor.dark .nk-modal-close:active,
 html.is-ios-capacitor.dark [data-modal-close]:active,
 html.is-ios-capacitor.dark [data-close-modal]:active,
 html.is-ios-capacitor.dark [data-close-dialog]:active,
-html.is-ios-capacitor.dark button[data-action="close-order-modal"]:not(:has(span:not(.sr-only))):active,
-html.is-ios-capacitor.dark button[data-action="close-dispute-modal"]:not(:has(span:not(.sr-only))):active {
-  background: rgba(255, 255, 255, 0.30) !important;
+html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"]:active,
+html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"]:active,
+html.is-ios-capacitor button[onclick*="window.closeZoom"]:active {
+  background: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* 7. Bouton Déconnexion Dashboard en Rouge Apple Liquid Glass */
+html.is-ios-capacitor button[data-logout-safe],
+html.is-ios-capacitor button[data-action="logout"],
+html.is-ios-capacitor #mobileMenu [data-action="logout"],
+html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
+  background: rgba(239, 68, 68, 0.22) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+  backdrop-filter: blur(25px) saturate(180%) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.35),
+    0 4px 14px rgba(239, 68, 68, 0.25) !important;
+  color: #ef4444 !important;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, color 0.2s ease !important;
+}
+
+html.is-ios-capacitor button[data-logout-safe] iconify-icon,
+html.is-ios-capacitor button[data-action="logout"] iconify-icon,
+html.is-ios-capacitor #mobileMenu [data-action="logout"] iconify-icon {
+  color: #ef4444 !important;
+}
+
+html.is-ios-capacitor button[data-logout-safe]:active,
+html.is-ios-capacitor button[data-action="logout"]:active,
+html.is-ios-capacitor #mobileMenu [data-action="logout"]:active,
+html.is-ios-capacitor .dashboard-topbar button[data-logout-safe]:active {
+  transform: scale(0.94) !important;
+  background: rgba(239, 68, 68, 0.45) !important;
+  color: #ffffff !important;
+}
+
+html.is-ios-capacitor button[data-logout-safe]:active iconify-icon,
+html.is-ios-capacitor button[data-action="logout"]:active iconify-icon,
+html.is-ios-capacitor #mobileMenu [data-action="logout"]:active iconify-icon {
+  color: #ffffff !important;
 }
 
 /* Mobile responsive */
@@ -11258,13 +11399,24 @@ html.dark .liquid-glass-nav .nav-item.active span {
     display: none !important;
   }
 
-  /* Sur iOS Capacitor, les boutons headers sont 100% natifs UIKit Liquid Glass */
+  /* Sur iOS Capacitor, les boutons headers et fermetures de tiroirs sont 100% natifs UIKit Liquid Glass */
   html.is-ios-capacitor #mobileMenuBtn,
   html.is-ios-capacitor #mobileHeaderSearchBtn,
   html.is-ios-capacitor #customerMobileBtn,
   html.is-ios-capacitor #vendorMobileBtn,
   html.is-ios-capacitor #adminMobileMenuBtn,
-  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
+  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe],
+  html.is-ios-capacitor #closeMobileMenu,
+  html.is-ios-capacitor #cartCloseBtn,
+  html.is-ios-capacitor #favoritesCloseBtn,
+  html.is-ios-capacitor #notificationsCloseBtn,
+  html.is-ios-capacitor #closeCartBtn,
+  html.is-ios-capacitor .cart-close-btn,
+  html.is-ios-capacitor .drawer-close-btn,
+  html.is-ios-capacitor .slide-over-close,
+  html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
+  html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
+  html.is-ios-capacitor button[onclick*="window.closeZoom"] {
     opacity: 0 !important;
     pointer-events: none !important;
   }
