@@ -11377,13 +11377,13 @@ html.dark .liquid-glass-nav .nav-item.active span {
     padding-bottom: 0 !important;
   }
 
-  /* Modals / Drawers footer clearance for native mobile bottom bar */
+  /* Modals / Drawers footer clearance */
   #cartSlideOver > div:last-child,
   #favoritesSlideOver > div:last-child,
   #notificationsSlideOver > div:last-child,
   .cart-drawer-footer,
   .drawer-footer {
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 
 
@@ -11413,7 +11413,7 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-android-capacitor #notificationsSlideOver > div:last-child,
   html.is-android-capacitor .cart-drawer-footer,
   html.is-android-capacitor .drawer-footer {
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   html.is-android-capacitor #toast-container {
@@ -11473,7 +11473,7 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #notificationsSlideOver > div:last-child,
   html.is-ios-capacitor .cart-drawer-footer,
   html.is-ios-capacitor .drawer-footer {
-    padding-bottom: calc(32px + env(safe-area-inset-bottom, 20px)) !important;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Toasts NewKet : s'affichent toujours au-dessus de la TabBar native Liquid Glass */
