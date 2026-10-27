@@ -136,27 +136,37 @@ window.addEventListener('error', function(e) {
 import './lens.js';
 
 // Global Deep Link Handler for iOS / Android Widgets & Shortcuts (newket://)
+const handleDeepLinkRoute = (rawUrl) => {
+    if (!rawUrl || !rawUrl.startsWith('newket://')) return;
+    console.info('[NewKet] Deep link reçu :', rawUrl);
+    const route = rawUrl.replace('newket://', '').toLowerCase().split('?')[0].split('#')[0].replace(/^\/+/, '');
+    if (route === 'shops' || route === 'shop' || route === 'boutique' || route === 'boutiques') {
+        window.location.href = '/src/pages/shops.html';
+    } else if (route === 'notifications' || route === 'notif' || route === 'notifs') {
+        window.location.href = '/src/pages/notifications.html';
+    } else if (route === 'favorites' || route === 'fav' || route === 'favoris') {
+        window.location.href = '/src/pages/favorites.html';
+    } else if (route === 'achat' || route === 'cart' || route === 'panier') {
+        window.location.href = '/src/pages/achat.html';
+    }
+};
+
 const setupDeepLinkRouter = async () => {
     try {
         const CapApp = window.Capacitor?.Plugins?.App;
         if (!CapApp) return;
 
+        // Cas 1 : app déjà ouverte → reçoit le lien via appUrlOpen
         CapApp.addListener('appUrlOpen', (data) => {
-            const rawUrl = data?.url || '';
-            console.info('[NewKet] Deep link reçu :', rawUrl);
-            if (!rawUrl.startsWith('newket://')) return;
-
-            const route = rawUrl.replace('newket://', '').toLowerCase().split('?')[0].split('#')[0].replace(/^\/+/, '');
-            if (route === 'shops' || route === 'shop' || route === 'boutique' || route === 'boutiques') {
-                window.location.href = '/src/pages/shops.html';
-            } else if (route === 'notifications' || route === 'notif' || route === 'notifs') {
-                window.location.href = '/src/pages/notifications.html';
-            } else if (route === 'favorites' || route === 'fav' || route === 'favoris') {
-                window.location.href = '/src/pages/favorites.html';
-            } else if (route === 'achat' || route === 'cart' || route === 'panier') {
-                window.location.href = '/src/pages/achat.html';
-            }
+            handleDeepLinkRoute(data?.url || '');
         });
+
+        // Cas 2 : app fermée → le lien est dans getLaunchUrl() au démarrage
+        // C'est ce chemin qui est emprunté quand on tape sur le widget
+        const launchData = await CapApp.getLaunchUrl();
+        if (launchData?.url) {
+            handleDeepLinkRoute(launchData.url);
+        }
     } catch (_) {}
 };
 setupDeepLinkRouter();

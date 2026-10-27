@@ -441,6 +441,42 @@
                             <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 55%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                             <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 60%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 30%; height: 12px; margin-bottom: 0;"></div></div>
                         </div>
+
+                        <!-- 🚀 NewKet Live Activity & Native Widget Diagnostics / Test Card -->
+                        <div id="nk-live-activity-test-panel" class="mt-4 p-4 rounded-2xl border border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Live Activity (Test & Logs)</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">iOS 16.1+ / Android</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 mb-3">
+                                Déclenchez une commande test en direct sur votre <strong>Dynamic Island</strong> et votre <strong>Écran Verrouillé</strong>.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" id="btn-test-live-activity-start"
+                                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+                                    <span>▶</span> Lancer #NK-DEMO
+                                </button>
+                                <button type="button" id="btn-test-live-activity-step"
+                                    class="px-3 py-1.5 bg-gray-800 hover:bg-gray-900 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                                    <span>⏩</span> Étape suivante
+                                </button>
+                                <button type="button" id="btn-test-live-activity-end"
+                                    class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                                    <span>⏹</span> Terminer
+                                </button>
+                            </div>
+                            <!-- Console Logs -->
+                            <div class="mt-3">
+                                <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                                    <span>Journal d'exécution natif :</span>
+                                    <button type="button" id="btn-test-live-activity-clear" class="hover:underline">Effacer</button>
+                                </div>
+                                <pre id="nk-live-activity-logs" class="p-2.5 bg-gray-900 text-emerald-400 text-[11px] font-mono rounded-xl max-h-36 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">En attente d'interaction...</pre>
+                            </div>
+                        </div>
                     </div>
                     <div class="bg-white rounded-3xl border border-gray-100 p-8">
                         <div class="flex items-center justify-between mb-6">
@@ -5061,6 +5097,131 @@
                     }
                 }, 200);
             } catch (_) {}
+        })();
+
+        // ── NewKet Live Activity & Native Diagnostics Controller ─────────────
+        (function setupLiveActivityTesting() {
+            const logsEl = document.getElementById('nk-live-activity-logs');
+            const startBtn = document.getElementById('btn-test-live-activity-start');
+            const stepBtn = document.getElementById('btn-test-live-activity-step');
+            const endBtn = document.getElementById('btn-test-live-activity-end');
+            const clearBtn = document.getElementById('btn-test-live-activity-clear');
+
+            if (!logsEl) return;
+
+            let currentStepIndex = 1;
+            const demoOrderId = 'NK-DEMO-TEST';
+
+            const appendLog = (msg, isError = false) => {
+                const time = new Date().toLocaleTimeString();
+                const prefix = isError ? '❌' : '⚡';
+                const formatted = `[${time}] ${prefix} ${msg}\n`;
+                if (logsEl.textContent === "En attente d'interaction...") {
+                    logsEl.textContent = formatted;
+                } else {
+                    logsEl.textContent += formatted;
+                }
+                logsEl.scrollTop = logsEl.scrollHeight;
+            };
+
+            const getPlugin = () => {
+                return window.Capacitor?.Plugins?.LiveActivityPlugin || null;
+            };
+
+            // Vérification initiale automatique au chargement
+            setTimeout(async () => {
+                const plugin = getPlugin();
+                if (!plugin) {
+                    appendLog("Capacitor LiveActivityPlugin non détecté (Mode Navigateur Web)");
+                    return;
+                }
+                try {
+                    const status = await plugin.isAvailable();
+                    appendLog(`Plugin disponible ! Auth: ${status.enabled}, iOS: ${status.iosVersion || 'Android'}`);
+                } catch (e) {
+                    appendLog(`Erreur isAvailable(): ${e?.message || e}`, true);
+                }
+            }, 1000);
+
+            startBtn?.addEventListener('click', async () => {
+                const plugin = getPlugin();
+                if (!plugin) {
+                    appendLog("Plugin indisponible hors application mobile native.", true);
+                    return;
+                }
+                currentStepIndex = 1;
+                appendLog("Lancement Live Activity #NK-DEMO...");
+                try {
+                    const res = await plugin.startActivity({
+                        orderId: demoOrderId,
+                        orderNumber: "#NK-DEMO",
+                        shopName: "Boutique Officielle",
+                        itemCount: 2,
+                        status: "PROCESSING",
+                        statusTitle: "Commande confirmée",
+                        statusDescription: "Votre colis est en cours de préparation.",
+                        progress: 0.25,
+                        currentStep: 1,
+                        totalSteps: 4,
+                        etaText: "15 min",
+                        isCancelled: false
+                    });
+                    appendLog(`Live Activity lancée ! ID: ${res.activityId || 'OK'}`);
+                    appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
+                } catch (err) {
+                    appendLog(`Échec startActivity: ${err?.message || JSON.stringify(err)}`, true);
+                }
+            });
+
+            stepBtn?.addEventListener('click', async () => {
+                const plugin = getPlugin();
+                if (!plugin) return;
+                currentStepIndex = (currentStepIndex % 4) + 1;
+                
+                const stepsConfig = {
+                    1: { title: "Commande confirmée", desc: "En préparation en boutique", prog: 0.25, eta: "15 min" },
+                    2: { title: "Colis prêt", desc: "Le livreur a récupéré votre commande", prog: 0.50, eta: "10 min" },
+                    3: { title: "En cours de livraison", desc: "Le coursier se dirige vers votre adresse", prog: 0.75, eta: "4 min" },
+                    4: { title: "Commande livrée !", desc: "Colis remis en main propre. Bon appétit !", prog: 1.0, eta: "Livré" }
+                };
+                const current = stepsConfig[currentStepIndex];
+
+                appendLog(`Mise à jour -> Étape ${currentStepIndex}/4 : ${current.title}`);
+                try {
+                    await plugin.updateActivity({
+                        orderId: demoOrderId,
+                        orderNumber: "#NK-DEMO",
+                        shopName: "Boutique Officielle",
+                        status: currentStepIndex === 4 ? "DELIVERED" : "IN_TRANSIT",
+                        statusTitle: current.title,
+                        statusDescription: current.desc,
+                        progress: current.prog,
+                        currentStep: currentStepIndex,
+                        totalSteps: 4,
+                        etaText: current.eta,
+                        isCancelled: false
+                    });
+                    appendLog(`Étape ${currentStepIndex} synchronisée avec succès.`);
+                } catch (err) {
+                    appendLog(`Erreur updateActivity: ${err?.message || err}`, true);
+                }
+            });
+
+            endBtn?.addEventListener('click', async () => {
+                const plugin = getPlugin();
+                if (!plugin) return;
+                appendLog("Fermeture de la Live Activity...");
+                try {
+                    await plugin.endActivity({ orderId: demoOrderId });
+                    appendLog("Live Activity terminée.");
+                } catch (err) {
+                    appendLog(`Erreur endActivity: ${err?.message || err}`, true);
+                }
+            });
+
+            clearBtn?.addEventListener('click', () => {
+                logsEl.textContent = "Journal réinitialisé.\n";
+            });
         })();
     </script>
 </body>

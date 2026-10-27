@@ -28,10 +28,11 @@ struct NewKetQuickActionsEntry: TimelineEntry {
 // MARK: - Brand Colors
 private struct NewKetTheme {
     static let primaryGreen = Color(red: 0.04, green: 0.29, blue: 0.18)   // #0A4A2E
-    static let accentMint   = Color(red: 0.20, green: 0.83, blue: 0.60)   // #34D399
-    static let cardDark     = Color(red: 0.07, green: 0.10, blue: 0.15)   // #121A26
-    static let cardGlass    = Color.white.opacity(0.08)
-    static let textMuted    = Color.white.opacity(0.70)
+    static let accentMint   = Color(red: 0.04, green: 0.55, blue: 0.35)   // Vert émeraude lisible sur fond blanc
+    static let cardBackground = Color.white                               // #FFFFFF Fond Blanc Pur
+    static let cardGlass    = Color.black.opacity(0.04)                   // Léger fond contrasté pour les tuiles
+    static let textPrimary  = Color(red: 0.07, green: 0.10, blue: 0.15)   // Texte sombre principal #121A26
+    static let textMuted    = Color(red: 0.40, green: 0.45, blue: 0.52)   // Texte secondaire / estompé
 }
 
 // MARK: - Quick Actions Widget Definition
@@ -82,8 +83,8 @@ private struct MediumQuickActionsView: View {
                         .frame(width: 8, height: 8)
                     Text("NewKet")
                         .font(.system(size: 14, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                    Text("Kinshasa")
+                        .foregroundColor(NewKetTheme.textPrimary)
+                    Text("Market")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundColor(NewKetTheme.accentMint)
                         .padding(.horizontal, 6)
@@ -146,7 +147,7 @@ private struct SmallQuickActionsView: View {
             HStack {
                 Text("NewKet")
                     .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(NewKetTheme.textPrimary)
                 Spacer()
                 Image(systemName: "sparkles")
                     .font(.system(size: 11, weight: .bold))
@@ -181,10 +182,10 @@ private struct LargeQuickActionsView: View {
                         .frame(width: 9, height: 9)
                     Text("NewKet")
                         .font(.system(size: 16, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(NewKetTheme.textPrimary)
                 }
                 Spacer()
-                Text("Kinshasa Marketplace")
+                Text("Market")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(NewKetTheme.accentMint)
             }
@@ -198,18 +199,18 @@ private struct LargeQuickActionsView: View {
             }
 
             Divider()
-                .background(Color.white.opacity(0.15))
+                .background(Color.black.opacity(0.10))
 
             // Information banner
             VStack(alignment: .leading, spacing: 6) {
-                Text("EXPLORER NEWKET")
+                Text("ACCÈS DIRECT")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(NewKetTheme.accentMint)
                     .tracking(0.5)
 
-                Text("Achetez et faites-vous livrer en direct à Kinshasa en toute sécurité.")
+                Text("Retrouvez vos boutiques, vos commandes et vos paniers en un geste.")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.85))
+                    .foregroundColor(NewKetTheme.textPrimary.opacity(0.85))
                     .lineLimit(2)
             }
             .padding(10)
@@ -234,7 +235,7 @@ private struct QuickActionButton: View {
             VStack(spacing: 6) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(color.opacity(0.20))
+                        .fill(color.opacity(0.15))
                         .frame(height: 44)
 
                     Image(systemName: icon)
@@ -244,13 +245,13 @@ private struct QuickActionButton: View {
 
                 Text(label)
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(NewKetTheme.textPrimary)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
             .padding(.horizontal, 4)
-            .background(NewKetTheme.cardGlass)
+            .background(Color.black.opacity(0.03))
             .cornerRadius(14)
         }
     }
@@ -268,13 +269,13 @@ private struct SmallActionTile: View {
                 .foregroundColor(color)
             Text(label)
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.white)
+                .foregroundColor(NewKetTheme.textPrimary)
                 .lineLimit(1)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 10)
-        .background(NewKetTheme.cardGlass)
+        .background(Color.black.opacity(0.04))
         .cornerRadius(10)
     }
 }
@@ -285,10 +286,10 @@ private extension View {
     func widgetBackground() -> some View {
         if #available(iOS 17.0, *) {
             self.containerBackground(for: .widget) {
-                NewKetTheme.cardDark
+                NewKetTheme.cardBackground
             }
         } else {
-            self.background(NewKetTheme.cardDark)
+            self.background(NewKetTheme.cardBackground)
         }
     }
 }
