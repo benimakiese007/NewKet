@@ -309,8 +309,9 @@ class AdminNavbarLiquidGlassView: UIView {
         config.image         = UIImage(systemName: "rectangle.portrait.and.arrow.right",
                                        withConfiguration: UIImage.SymbolConfiguration(pointSize: 13, weight: .semibold))
         config.imagePadding  = 4
-        config.baseBackgroundColor = UIColor.systemRed.withAlphaComponent(0.12)
-        config.baseForegroundColor = .systemRed
+        let trueRed          = UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0)
+        config.baseBackgroundColor = trueRed.withAlphaComponent(0.14)
+        config.baseForegroundColor = trueRed
         config.cornerStyle   = .capsule
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attrs in
             var a = attrs

@@ -2686,21 +2686,21 @@ html.is-ios-capacitor button[data-logout-safe],
 html.is-ios-capacitor button[data-action="logout"],
 html.is-ios-capacitor #mobileMenu [data-action="logout"],
 html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
-  background: rgba(239, 68, 68, 0.22) !important;
+  background: rgba(255, 10, 10, 0.22) !important;
   -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
   backdrop-filter: blur(25px) saturate(180%) !important;
-  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  border: 1px solid rgba(255, 10, 10, 0.45) !important;
   box-shadow:
     inset 0 1px 1.5px rgba(255, 255, 255, 0.35),
-    0 4px 14px rgba(239, 68, 68, 0.25) !important;
-  color: #ef4444 !important;
+    0 4px 14px rgba(255, 10, 10, 0.25) !important;
+  color: #ff0a0a !important;
   transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, color 0.2s ease !important;
 }
 
 html.is-ios-capacitor button[data-logout-safe] iconify-icon,
 html.is-ios-capacitor button[data-action="logout"] iconify-icon,
 html.is-ios-capacitor #mobileMenu [data-action="logout"] iconify-icon {
-  color: #ef4444 !important;
+  color: #ff0a0a !important;
 }
 
 html.is-ios-capacitor button[data-logout-safe]:active,
@@ -2708,7 +2708,7 @@ html.is-ios-capacitor button[data-action="logout"]:active,
 html.is-ios-capacitor #mobileMenu [data-action="logout"]:active,
 html.is-ios-capacitor .dashboard-topbar button[data-logout-safe]:active {
   transform: scale(0.94) !important;
-  background: rgba(239, 68, 68, 0.45) !important;
+  background: rgba(255, 10, 10, 0.45) !important;
   color: #ffffff !important;
 }
 

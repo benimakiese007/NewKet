@@ -362,23 +362,30 @@ class GlassCircleButton: UIView {
 
         var config = UIButton.Configuration.plain()
         config.image = image
-        config.baseForegroundColor = .white
         config.contentInsets = .zero
-        button.configuration = config
-        button.tintColor = .white
 
         let isDestructive = sfSymbol.contains("arrow.right")
         if isDestructive {
+            // Vrai rouge NewKet (#ff0a0a: 255, 10, 10)
+            let trueRed = UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0)
+            config.baseForegroundColor = trueRed
+            button.configuration = config
+            button.tintColor = trueRed
+
             tintLayer.backgroundColor = UIColor { trait in
                 trait.userInterfaceStyle == .dark
-                    ? UIColor(red: 255/255, green: 69/255, blue: 58/255, alpha: 0.40)
-                    : UIColor(red: 255/255, green: 59/255, blue: 48/255, alpha: 0.35)
+                    ? UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 0.25)
+                    : UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 0.20)
             }
-            layer.shadowColor   = UIColor(red: 255/255, green: 59/255, blue: 48/255, alpha: 0.45).cgColor
-            layer.shadowOpacity = 0.35
-            layer.shadowRadius  = 6
+            layer.shadowColor   = UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 0.50).cgColor
+            layer.shadowOpacity = 0.40
+            layer.shadowRadius  = 7
             layer.shadowOffset  = CGSize(width: 0, height: 2)
         } else {
+            config.baseForegroundColor = .white
+            button.configuration = config
+            button.tintColor = .white
+
             tintLayer.backgroundColor = UIColor { trait in
                 trait.userInterfaceStyle == .dark
                     ? UIColor.white.withAlphaComponent(0.12)
