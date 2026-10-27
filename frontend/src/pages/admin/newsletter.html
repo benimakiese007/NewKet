@@ -380,7 +380,7 @@
                 window.showToast && showToast(`Brevo synchronisé: ${response.synced || 0}/${response.total || 0}`, 'success');
             } catch (err) {
                 console.error('[Newsletter] Brevo sync failed:', err);
-                window.showToast && showToast('Ãchec de la synchronisation Brevo: ' + err.message, 'error');
+                window.showToast && showToast('Échec de la synchronisation Brevo: ' + err.message, 'error');
             } finally {
                 if (btn) {
                     btn.disabled = false;

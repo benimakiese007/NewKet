@@ -356,7 +356,7 @@
 
             </div><!-- /disputesLayout -->
         </main>
-    </div>   <©.</p>
+    </div>
             </div>
 
         </div>

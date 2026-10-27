@@ -1,6 +1,6 @@
 -- Migration: Activer Supabase Realtime pour la table support_tickets
--- et ajouter la politique RLS SELECT nécessaire pour que Realtime
--- puisse envoyer les événements aux clients authentifiés.
+-- et ajouter la politique RLS SELECT nÃ©cessaire pour que Realtime
+-- puisse envoyer les Ã©vÃ©nements aux clients authentifiÃ©s.
 
 do $$
 begin
@@ -15,7 +15,7 @@ begin
     end if;
 end $$;
 
--- Politique SELECT pour les utilisateurs authentifiés (requise pour Supabase Realtime)
+-- Politique SELECT pour les utilisateurs authentifiÃ©s (requise pour Supabase Realtime)
 DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE tablename = 'support_tickets'

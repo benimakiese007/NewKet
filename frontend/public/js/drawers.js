@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet Drawers Manager
  * Provides slide-over drawers from the right side for Favorites and Notifications,
  * matching the look and feel of CartManager.
@@ -53,9 +53,9 @@ class DrawersManager {
         }
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    /* ══════════════════════════════════════════════════════════════════════════
        FAVORITES DRAWER
-       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+       ══════════════════════════════════════════════════════════════════════════ */
 
     injectFavoritesUI() {
         if (document.getElementById('favoritesSlideOver')) return;
@@ -74,7 +74,7 @@ class DrawersManager {
                         </div>
                         <div>
                             <h2 class="text-base sm:text-lg font-black uppercase tracking-wider text-white">Mes Favoris</h2>
-                            <p id="drawerFavCount" class="text-[11px] text-white/70 font-medium">0 article enregistrÃ©</p>
+                            <p id="drawerFavCount" class="text-[11px] text-white/70 font-medium">0 article enregistré</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
@@ -96,7 +96,7 @@ class DrawersManager {
                 <div class="drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 text-center" style="padding-bottom: calc(96px + env(safe-area-inset-bottom, 34px));">
                     <a href="/catalog" onclick="window.DrawersManager.closeFavorites()" class="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors btn-active-scale">
                         <iconify-icon icon="solar:shop-2-linear" width="16"></iconify-icon>
-                        DÃ©couvrir d'autres articles
+                        Découvrir d'autres articles
                     </a>
                 </div>
             </div>
@@ -170,7 +170,7 @@ class DrawersManager {
         const count = items.length;
 
         if (countText) {
-            countText.textContent = `${count} article${count > 1 ? 's' : ''} enregistrÃ©${count > 1 ? 's' : ''}`;
+            countText.textContent = `${count} article${count > 1 ? 's' : ''} enregistré${count > 1 ? 's' : ''}`;
         }
         if (clearBtn) {
             clearBtn.style.display = count > 0 ? 'inline-flex' : 'none';
@@ -182,8 +182,8 @@ class DrawersManager {
                     <div class="w-16 h-16 rounded-full bg-red-50 text-red-400 flex items-center justify-center mb-4">
                         <iconify-icon icon="solar:heart-broken-linear" width="32"></iconify-icon>
                     </div>
-                    <p class="font-bold text-gray-800 text-base">Aucun coup de cÅ“ur</p>
-                    <p class="text-xs text-gray-500 mt-1 max-w-xs">Appuyez sur le cÅ“ur sur n'importe quel produit pour le retrouver ici.</p>
+                    <p class="font-bold text-gray-800 text-base">Aucun coup de cœur</p>
+                    <p class="text-xs text-gray-500 mt-1 max-w-xs">Appuyez sur le cœur sur n'importe quel produit pour le retrouver ici.</p>
                 </div>
             `;
             return;
@@ -249,12 +249,12 @@ class DrawersManager {
 
         window.CartManager.add(cartItem);
         if (window.showToast) {
-            window.showToast('Article ajoutÃ© au panier !', 'success');
+            window.showToast('Article ajouté au panier !', 'success');
         }
 
         if (btn) {
             const original = btn.innerHTML;
-            btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon> <span>AjoutÃ© !</span>';
+            btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon> <span>Ajouté !</span>';
             btn.classList.add('bg-emerald-600');
             setTimeout(() => {
                 btn.innerHTML = original;
@@ -287,9 +287,9 @@ class DrawersManager {
         }
     }
 
-    /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    /* ══════════════════════════════════════════════════════════════════════════
        NOTIFICATIONS DRAWER
-       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+       ══════════════════════════════════════════════════════════════════════════ */
 
     injectNotificationsUI() {
         if (document.getElementById('notificationsSlideOver')) return;
@@ -339,7 +339,7 @@ class DrawersManager {
                         Effacer l'historique
                     </button>
                     <a href="/notifications" onclick="window.DrawersManager.closeNotifications()" class="text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors inline-flex items-center gap-1">
-                        Page complÃ¨te
+                        Page complète
                         <iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon>
                     </a>
                 </div>
@@ -442,7 +442,7 @@ class DrawersManager {
                         <iconify-icon icon="solar:bell-linear" width="32"></iconify-icon>
                     </div>
                     <p class="font-bold text-gray-800 text-base">Aucune notification</p>
-                    <p class="text-xs text-gray-500 mt-1">Vous Ãªtes Ã  jour !</p>
+                    <p class="text-xs text-gray-500 mt-1">Vous êtes à jour !</p>
                 </div>
             `;
             return;

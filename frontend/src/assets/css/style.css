@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
 /* PREMIUM AUTH SHIELD */
 
@@ -11428,114 +11428,31 @@ html.dark .liquid-glass-nav .nav-item.active span {
     display: none !important;
   }
 
-  /* ==========================================================================
-     Apple Liquid Glass Buttons (100% Collés au Header et à leurs Appartenances)
-     ========================================================================== */
+  /* Sur iOS Capacitor, les boutons headers et fermetures de tiroirs sont 100% natifs UIKit Liquid Glass */
   html.is-ios-capacitor #mobileMenuBtn,
   html.is-ios-capacitor #mobileHeaderSearchBtn,
   html.is-ios-capacitor #customerMobileBtn,
   html.is-ios-capacitor #vendorMobileBtn,
-  html.is-ios-capacitor #adminMobileMenuBtn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    border-radius: 9999px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    outline: none !important;
-    cursor: pointer !important;
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent !important;
-    position: relative !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-
-    /* Matériau Gel Fumé Apple Liquid Glass */
-    background: rgba(15, 23, 42, 0.48) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.32) !important;
-    box-shadow:
-      inset 0 1px 1.5px rgba(255, 255, 255, 0.60),
-      0 4px 14px rgba(0, 0, 0, 0.22),
-      0 1px 3px rgba(0, 0, 0, 0.12) !important;
-    color: #ffffff !important;
-
-    /* Écrasement élastique et Rebond Ressort Apple */
-    transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
-  }
-
-  html.is-ios-capacitor #mobileMenuBtn iconify-icon,
-  html.is-ios-capacitor #mobileHeaderSearchBtn iconify-icon,
-  html.is-ios-capacitor #customerMobileBtn iconify-icon,
-  html.is-ios-capacitor #vendorMobileBtn iconify-icon,
-  html.is-ios-capacitor #adminMobileMenuBtn iconify-icon {
-    color: #ffffff !important;
-    font-size: 20px !important;
-  }
-
-  html.is-ios-capacitor #mobileMenuBtn:active,
-  html.is-ios-capacitor #mobileHeaderSearchBtn:active,
-  html.is-ios-capacitor #customerMobileBtn:active,
-  html.is-ios-capacitor #vendorMobileBtn:active,
-  html.is-ios-capacitor #adminMobileMenuBtn:active {
-    transform: scale(0.93) !important;
-    background: rgba(15, 23, 42, 0.65) !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
-  }
-
-  /* Bouton Déconnexion Dashboard en Gel Rouge Apple (Collé à la topbar) */
+  html.is-ios-capacitor #adminMobileMenuBtn,
   html.is-ios-capacitor .dashboard-topbar button[data-logout-safe],
-  html.is-ios-capacitor button[data-logout-safe],
-  html.is-ios-capacitor button[data-action="logout"] {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 40px !important;
-    border-radius: 9999px !important;
-    padding: 0 16px !important;
-    outline: none !important;
-    cursor: pointer !important;
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent !important;
-    position: relative !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-
-    /* Gel Rouge Apple */
-    background: rgba(239, 68, 68, 0.28) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    border: 1px solid rgba(239, 68, 68, 0.48) !important;
-    box-shadow:
-      inset 0 1px 1.5px rgba(255, 255, 255, 0.40),
-      0 4px 14px rgba(239, 68, 68, 0.32),
-      0 1px 3px rgba(239, 68, 68, 0.15) !important;
-    color: #ffffff !important;
-
-    transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
+  html.is-ios-capacitor #closeMobileMenu,
+  html.is-ios-capacitor #cartCloseBtn,
+  html.is-ios-capacitor #favoritesCloseBtn,
+  html.is-ios-capacitor #notificationsCloseBtn,
+  html.is-ios-capacitor #closeCartBtn,
+  html.is-ios-capacitor .cart-close-btn,
+  html.is-ios-capacitor .drawer-close-btn,
+  html.is-ios-capacitor .slide-over-close,
+  html.is-ios-capacitor #cartSlideOver button[onclick*="_hideSlideOver"],
+  html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
+  html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
+  html.is-ios-capacitor button[onclick*="window.closeZoom"] {
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
-  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] iconify-icon,
-  html.is-ios-capacitor button[data-logout-safe] iconify-icon,
-  html.is-ios-capacitor button[data-action="logout"] iconify-icon {
-    color: #ffffff !important;
-  }
-
-  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe]:active,
-  html.is-ios-capacitor button[data-logout-safe]:active,
-  html.is-ios-capacitor button[data-action="logout"]:active {
-    transform: scale(0.93) !important;
-    background: rgba(239, 68, 68, 0.48) !important;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45) !important;
-  }
-
-  /* -- iOS Capacitor : D�gagement Safe Area pour la TabBar native SwiftUI Liquid Glass -- */
-  /* Apple HIG : le scroll passe derri�re la barre, mais le dernier �l�ment s'arr�te au-dessus */
+  /* -- iOS Capacitor : Dégagement Safe Area pour la TabBar native SwiftUI Liquid Glass -- */
+  /* Apple HIG : le scroll passe derrière la barre, mais le dernier élément s'arrête au-dessus */
   html.is-ios-capacitor main,
   html.is-ios-capacitor #main-content,
   html.is-ios-capacitor .main-content,

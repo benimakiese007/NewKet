@@ -111,9 +111,6 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - showClose (Native Liquid Glass Close "X" Button)
 
     @objc func showClose(_ call: CAPPluginCall) {
-        // Disabled: Close buttons are 100% glued inside HTML drawer/modal headers with Liquid Glass
-        call.resolve(["shown": false])
-        return;
         guard #available(iOS 16.0, *) else {
             call.resolve(["shown": false])
             return

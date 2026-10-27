@@ -982,11 +982,11 @@ const ComponentLoader = {
             ? 'rectangle.portrait.and.arrow.right'
             : 'magnifyingglass';
 
-        // Always permanently hide the native header overlay – HTML Liquid Glass buttons are used instead
-        plugin.hide().catch(() => {});
-        plugin.hideClose?.().catch?.(() => {});
         if (isTabBarForbidden) {
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        }
+        if (isMinimal) {
+            plugin.hide().catch(() => {});
         }
 
         // 🍏 Delay native bars appearance until after the splash/launch screen has finished
@@ -995,7 +995,9 @@ const ComponentLoader = {
             this._nativeBarsRevealed = true;
 
             const isOverlayOpen = isAnyWebOverlayOpen();
-            // Native header overlay removed – buttons are now HTML Liquid Glass elements in the DOM
+            if (!isMinimal && !isOverlayOpen) {
+                plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+            }
             if (!isTabBarForbidden && !isOverlayOpen) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
             } else if (isTabBarForbidden) {
@@ -1044,18 +1046,33 @@ const ComponentLoader = {
         const _hideButtons = () => {
             if (_isOverlayActive) return;
             _isOverlayActive = true;
-            // Native header overlay removed – HTML drawer close buttons handle this
+            plugin.update({ showLeft: false, showRight: false }).catch(() => {});
+            plugin.showClose?.({ position: 'top-right' })?.catch?.(() => {});
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         };
 
         const _showButtons = () => {
             if (!_isOverlayActive) return;
             _isOverlayActive = false;
-            // Native header overlay removed – HTML buttons are always in the DOM
+            plugin.hideClose?.()?.catch?.(() => {});
+            if (!isMinimal) {
+                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+            }
             if (!isTabBarForbidden) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
             }
         };
+
+
+        // 🍏 Disparition instantanée lors d'un changement de page pour ne jamais laisser de bouton fantôme traîner
+        window.addEventListener('beforeunload', () => {
+            plugin.hide().catch(() => {});
+            plugin.hideClose?.().catch?.(() => {});
+        });
+        window.addEventListener('pagehide', () => {
+            plugin.hide().catch(() => {});
+            plugin.hideClose?.().catch?.(() => {});
+        });
 
         // Global events that web layers dispatch when they open/close
         window.addEventListener('nativeOverlayOpen',  _hideButtons);
