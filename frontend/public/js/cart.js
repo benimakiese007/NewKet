@@ -573,7 +573,7 @@ class CartManager {
                             <span class="text-[9px] font-black uppercase tracking-widest text-white hidden sm:inline">Hors ligne</span>
                         </div>
                     </div>
-                    <button onclick="window.CartManager._hideSlideOver()" class="p-2 rounded-xl text-white transition-colors btn-active-scale" style="hover:background:rgba(255,255,255,0.1);">
+                    <button id="cartCloseBtn" onclick="window.CartManager._hideSlideOver()" class="cart-close-btn p-2 rounded-xl text-white transition-colors btn-active-scale" aria-label="Fermer" title="Fermer" style="hover:background:rgba(255,255,255,0.1);">
                         <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
                     </button>
                 </div>

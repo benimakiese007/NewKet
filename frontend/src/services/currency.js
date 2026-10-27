@@ -39,9 +39,80 @@ const CurrencyManager = {
         return this.currentCurrency;
     },
 
+    triggerSegmentedToggle(target, event) {
+        const segmentedToggle = target?.closest?.('.currency-switch-segmented');
+        if (!segmentedToggle) return false;
+
+        const now = Date.now();
+        // Cooldown de 300ms pour éviter les doubles déclenchements (pointerup + click synthétique)
+        if (this._lastSegmentedToggleTime && (now - this._lastSegmentedToggleTime < 300)) {
+            if (event && event.cancelable) event.preventDefault();
+            return true;
+        }
+        this._lastSegmentedToggleTime = now;
+
+        if (event) {
+            try {
+                if (event.cancelable) event.preventDefault();
+                event.stopPropagation();
+            } catch (_) {}
+        }
+
+        const clickedLabel = target?.closest?.('[data-currency]');
+        const clickedCurrency = clickedLabel?.getAttribute?.('data-currency');
+
+        let nextCurrency;
+        if (clickedCurrency && (clickedCurrency === 'USD' || clickedCurrency === 'CDF')) {
+            if (clickedCurrency !== this.currentCurrency) {
+                nextCurrency = clickedCurrency;
+            } else {
+                nextCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
+            }
+        } else {
+            nextCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
+        }
+
+        this.setCurrency(nextCurrency);
+        try { window.NewKetHaptics?.trigger?.('light'); } catch (_) {}
+        return true;
+    },
+
     bindEvents() {
         if (this._delegatedBound) return;
         this._delegatedBound = true;
+
+        // 🍏 Réactivité tactile ultra-rapide (iOS & Android) : capture le tap à 0ms dès pointerup
+        let pStartX = 0;
+        let pStartY = 0;
+        let pStartTime = 0;
+        let pTarget = null;
+
+        document.addEventListener('pointerdown', (e) => {
+            const toggle = e.target?.closest?.('.currency-switch-segmented');
+            if (toggle) {
+                pStartX = e.clientX;
+                pStartY = e.clientY;
+                pStartTime = Date.now();
+                pTarget = e.target;
+            } else {
+                pTarget = null;
+            }
+        }, { passive: true });
+
+        document.addEventListener('pointerup', (e) => {
+            if (!pTarget) return;
+            const toggle = e.target?.closest?.('.currency-switch-segmented');
+            if (toggle && toggle === pTarget.closest('.currency-switch-segmented')) {
+                const dx = Math.abs(e.clientX - pStartX);
+                const dy = Math.abs(e.clientY - pStartY);
+                const dt = Date.now() - pStartTime;
+                // Tap valide si déplacement < 14px et durée < 900ms (accepte aussi les taps lents)
+                if (dx < 14 && dy < 14 && dt < 900) {
+                    this.triggerSegmentedToggle(e.target, e);
+                }
+            }
+            pTarget = null;
+        }, true); // Phase de capture : prioritaire sur le scroll
 
         document.addEventListener('click', (event) => {
             const target = event.target;
@@ -65,27 +136,9 @@ const CurrencyManager = {
                 return;
             }
 
-            // Segmented toggle (Apple Liquid Glass & Web switch)
-            const segmentedToggle = target?.closest?.('.currency-switch-segmented');
-            if (segmentedToggle) {
-                event.preventDefault();
-                const clickedLabel = target?.closest?.('[data-currency]');
-                const clickedCurrency = clickedLabel?.getAttribute?.('data-currency');
-
-                // If user specifically tapped the other currency, switch to it.
-                // If user tapped the currently active currency, the handle, or the track: toggle to the other!
-                let nextCurrency;
-                if (clickedCurrency && (clickedCurrency === 'USD' || clickedCurrency === 'CDF')) {
-                    if (clickedCurrency !== this.currentCurrency) {
-                        nextCurrency = clickedCurrency;
-                    } else {
-                        nextCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
-                    }
-                } else {
-                    nextCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
-                }
-
-                this.setCurrency(nextCurrency);
+            // Segmented toggle (fallback souris desktop et standard click)
+            if (target?.closest?.('.currency-switch-segmented')) {
+                this.triggerSegmentedToggle(target, event);
                 return;
             }
 

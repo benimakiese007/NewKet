@@ -304,7 +304,7 @@ const HEADER_HTML = `
             <div class="px-4 mt-auto border-t border-gray-50 pt-5 pb-6">
                 <div class="p-4 bg-gray-50 rounded-2xl mb-4">
                     <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
-                <div class="currency-switch-segmented scale-90 origin-left" id="mobileCurrencyToggle" data-active="CDF">
+                <div class="currency-switch-segmented origin-left" id="mobileCurrencyToggle" data-active="CDF" role="group" aria-label="Choix de la devise">
                     <div class="segmented-track">
                         <div class="segmented-handle"></div>
                         <span class="segmented-label" data-currency="USD">USD</span>
@@ -979,6 +979,7 @@ const ComponentLoader = {
 
         // Always permanently hide the native header overlay – HTML Liquid Glass buttons are used instead
         plugin.hide().catch(() => {});
+        plugin.hideClose?.().catch?.(() => {});
         if (isMinimal) {
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         }

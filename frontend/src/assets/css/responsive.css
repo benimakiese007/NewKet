@@ -1,4 +1,4 @@
-/*
+﻿/*
  * =====================================================
  * NewKet — Responsive Global Override
  * =====================================================
@@ -1983,7 +1983,9 @@ html.capacitor-native #mobileMenu {
 }
 
 html.capacitor-native body {
-    padding-top: env(safe-area-inset-top, 0px);
+    /* Sur iOS/Android Capacitor, le header fixe gère déjà le safe-area-inset-top et le placeholder pousse le contenu.
+       Mettre un padding-top sur le body provoquait un double comptage (47px+ d'espace vide). */
+    padding-top: 0 !important;
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
