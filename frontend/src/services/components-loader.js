@@ -977,8 +977,9 @@ const ComponentLoader = {
             ? 'rectangle.portrait.and.arrow.right'
             : 'magnifyingglass';
 
+        // Always permanently hide the native header overlay – HTML Liquid Glass buttons are used instead
+        plugin.hide().catch(() => {});
         if (isMinimal) {
-            plugin.hide().catch(() => {});
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         }
 
@@ -988,9 +989,7 @@ const ComponentLoader = {
             this._nativeBarsRevealed = true;
 
             const isOverlayOpen = isAnyWebOverlayOpen();
-            if (!isMinimal && !isOverlayOpen) {
-                plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
-            }
+            // Native header overlay removed – buttons are now HTML Liquid Glass elements in the DOM
             if (!isTabBarForbidden && !isOverlayOpen) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
             }
@@ -1037,18 +1036,14 @@ const ComponentLoader = {
         const _hideButtons = () => {
             if (_isOverlayActive) return;
             _isOverlayActive = true;
-            plugin.update({ showLeft: false, showRight: false }).catch(() => {});
-            plugin.showClose?.({ position: 'top-right' })?.catch?.(() => {});
+            // Native header overlay removed – HTML drawer close buttons handle this
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         };
 
         const _showButtons = () => {
             if (!_isOverlayActive) return;
             _isOverlayActive = false;
-            plugin.hideClose?.()?.catch?.(() => {});
-            if (!isMinimal) {
-                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
-            }
+            // Native header overlay removed – HTML buttons are always in the DOM
             if (!isTabBarForbidden) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
             }

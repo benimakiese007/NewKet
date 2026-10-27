@@ -128,8 +128,10 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 return
             }
 
-            self.closeOverlayView?.removeFromSuperview()
-            self.closeOverlayView = nil
+            if self.closeOverlayView != nil {
+                call.resolve(["shown": true])
+                return
+            }
 
             let container = PassthroughOverlayView()
             container.translatesAutoresizingMaskIntoConstraints = false
@@ -478,8 +480,12 @@ class NativeHeaderButtonsView: UIView {
     }
 
     func update(showLeft: Bool?, showRight: Bool?, rightIcon: String?) {
-        if let showLeft  { leftCircle.isHidden  = !showLeft  }
-        if let showRight { rightCircle.isHidden = !showRight }
+        if let showLeft, leftCircle.isHidden != !showLeft {
+            leftCircle.isHidden = !showLeft
+        }
+        if let showRight, rightCircle.isHidden != !showRight {
+            rightCircle.isHidden = !showRight
+        }
         if let icon = rightIcon, icon != rightIconName {
             rightIconName = icon
             rightCircle.updateSymbol(icon)
