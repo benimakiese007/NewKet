@@ -993,6 +993,34 @@ const ComponentLoader = {
         }
     },
 
+    /**
+     * Re-shows the native Liquid Glass header buttons after a bfcache restore
+     * (iOS swipe-back). Does NOT re-bind any listeners — only updates visibility.
+     * Safe to call multiple times.
+     */
+    syncNativeHeaderButtonsVisibility() {
+        const plugin = window.Capacitor?.Plugins?.NativeHeaderButtons;
+        if (!plugin) return;
+
+        const path = window.location.pathname;
+        const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
+        const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish');
+
+        if (isMinimal) {
+            // Minimal pages (login, etc.) don't have header buttons
+            plugin.hide().catch(() => {});
+            return;
+        }
+
+        const rightIcon = isDashboard
+            ? 'rectangle.portrait.and.arrow.right'
+            : 'magnifyingglass';
+
+        // Re-show buttons — pagehide/beforeunload had hidden them
+        plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+    },
+
     initNativeHeaderButtons() {
         if (this._nativeHeaderButtonsInitialized) return;
         this._nativeHeaderButtonsInitialized = true;
@@ -1053,6 +1081,8 @@ const ComponentLoader = {
             // persisted = true means the page was restored from bfcache (swipe-back)
             if (e.persisted) {
                 this.syncNativeTabBarVisibility();
+                // Re-show Liquid Glass header buttons hidden by beforeunload/pagehide
+                this.syncNativeHeaderButtonsVisibility();
             }
         });
 
