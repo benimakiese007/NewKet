@@ -1,4 +1,4 @@
-﻿if (!window.ComponentLoader) {
+if (!window.ComponentLoader) {
 
 /* NewKet EMarket Component Loader */
 
@@ -952,6 +952,25 @@ const ComponentLoader = {
      * floating above the WebView on iOS 26+.
      * Called once per page load when running in iOS Capacitor.
      */
+    /**
+     * Calculates whether the NativeTabBar should be visible on the current page
+     * and applies the correct show/hide state. Safe to call multiple times
+     * (e.g. on bfcache pageshow after swipe-back).
+     */
+    syncNativeTabBarVisibility() {
+        const path = window.location.pathname;
+        const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
+        const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish');
+        const isTabBarForbidden = isMinimal || isDashboard;
+
+        if (isTabBarForbidden) {
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        } else {
+            window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+        }
+    },
+
     initNativeHeaderButtons() {
         if (this._nativeHeaderButtonsInitialized) return;
         this._nativeHeaderButtonsInitialized = true;
@@ -1005,6 +1024,16 @@ const ComponentLoader = {
             }
         };
 
+        // 🍏 iOS bfcache swipe-back: re-evaluate TabBar visibility on every pageshow
+        // because _nativeHeaderButtonsInitialized blocks re-init, but the page
+        // that hid the TabBar (e.g. /product) may have left it hidden.
+        window.addEventListener('pageshow', (e) => {
+            // persisted = true means the page was restored from bfcache (swipe-back)
+            if (e.persisted) {
+                this.syncNativeTabBarVisibility();
+            }
+        });
+
         if (window.newketInitialized || window.componentsLoaded || document.readyState === 'complete') {
             setTimeout(revealNativeBars, 80);
         } else {
@@ -1031,6 +1060,8 @@ const ComponentLoader = {
             if (adminSb && adminSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
             const vendorSb = document.getElementById('vendorSidebar');
             if (vendorSb && vendorSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
+            const customerSb = document.getElementById('customerSidebar');
+            if (customerSb && customerSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
             const searchContainer = document.getElementById('mobileSearchContainer');
             if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
             const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
