@@ -46,6 +46,7 @@ public class NativeTabBarPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "clearBadge",    returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "show",          returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "hide",          returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setProfile",    returnType: CAPPluginReturnPromise),
     ]
 
     public weak var coordinator: NativeTabCoordinator?
@@ -107,6 +108,18 @@ public class NativeTabBarPlugin: CAPPlugin, CAPBridgedPlugin {
         call.resolve()
     }
 
+    @objc func setProfile(_ call: CAPPluginCall) {
+        let isLoggedIn = call.getBool("isLoggedIn") ?? false
+        let avatarUrl = call.getString("avatarUrl")
+        let initials = call.getString("initials")
+        let role = call.getString("role")
+
+        DispatchQueue.main.async {
+            self.coordinator?.updateProfile(isLoggedIn: isLoggedIn, avatarUrl: avatarUrl, initials: initials, role: role)
+        }
+        call.resolve()
+    }
+
     func notifyTabChanged(tabId: String) {
         notifyListeners("tabChanged", data: ["tabId": tabId])
     }
@@ -121,6 +134,12 @@ public final class NativeTabCoordinator: ObservableObject {
     @Published public var selectedTabId: String = "home"
     @Published public var badges: [String: Int] = [:]
     @Published public var isTabBarHidden: Bool = true
+
+    // User profile avatar & initials (Instagram / Apple HIG style)
+    @Published public var isLoggedIn: Bool = false
+    @Published public var avatarImage: UIImage? = nil
+    @Published public var initialsImage: UIImage? = nil
+    private var lastLoadedAvatarUrl: String? = nil
 
     public weak var plugin: NativeTabBarPlugin?
     public weak var bridgeVC: NewKetBridgeViewController?
@@ -207,6 +226,115 @@ public final class NativeTabCoordinator: ObservableObject {
             }
         }
     }
+
+    // MARK: - Avatar & Initials Support (Apple HIG / Liquid Glass)
+
+    public func updateProfile(isLoggedIn: Bool, avatarUrl: String?, initials: String?, role: String?) {
+        self.isLoggedIn = isLoggedIn
+
+        if let role = role {
+            applyRole(role)
+        }
+
+        guard isLoggedIn else {
+            self.avatarImage = nil
+            self.initialsImage = nil
+            self.lastLoadedAvatarUrl = nil
+            return
+        }
+
+        let cleanInitials = (initials?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "").prefix(2).uppercased()
+        let displayInitials = cleanInitials.isEmpty ? "U" : String(cleanInitials)
+        self.initialsImage = NativeTabCoordinator.generateInitialsImage(initials: displayInitials)
+
+        guard let urlStr = avatarUrl, !urlStr.isEmpty, let url = URL(string: urlStr) else {
+            self.avatarImage = nil
+            self.lastLoadedAvatarUrl = nil
+            return
+        }
+
+        if urlStr == lastLoadedAvatarUrl && self.avatarImage != nil {
+            return
+        }
+
+        self.lastLoadedAvatarUrl = urlStr
+        Task { [weak self] in
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if let rawImage = UIImage(data: data),
+                   let circular = NativeTabCoordinator.generateCircularAvatar(from: rawImage) {
+                    await MainActor.run {
+                        if self?.lastLoadedAvatarUrl == urlStr {
+                            self?.avatarImage = circular
+                        }
+                    }
+                }
+            } catch {
+                // Keep initials on failure
+            }
+        }
+    }
+
+    public static func generateCircularAvatar(from image: UIImage, size: CGFloat = 26.0) -> UIImage? {
+        let rect = CGRect(x: 0, y: 0, width: size, height: size)
+        let format = UIGraphicsImageRendererFormat()
+        let renderer = UIGraphicsImageRenderer(size: rect.size, format: format)
+
+        let circular = renderer.image { _ in
+            let path = UIBezierPath(ovalIn: rect)
+            path.addClip()
+
+            let aspectWidth = size / image.size.width
+            let aspectHeight = size / image.size.height
+            let scale = max(aspectWidth, aspectHeight)
+            let scaledWidth = image.size.width * scale
+            let scaledHeight = image.size.height * scale
+            let originX = (size - scaledWidth) / 2.0
+            let originY = (size - scaledHeight) / 2.0
+
+            image.draw(in: CGRect(x: originX, y: originY, width: scaledWidth, height: scaledHeight))
+
+            UIColor.white.withAlphaComponent(0.6).setStroke()
+            let borderPath = UIBezierPath(ovalIn: rect.insetBy(dx: 0.5, dy: 0.5))
+            borderPath.lineWidth = 1.0
+            borderPath.stroke()
+        }
+
+        return circular.withRenderingMode(.alwaysOriginal)
+    }
+
+    public static func generateInitialsImage(initials: String, size: CGFloat = 26.0) -> UIImage? {
+        let rect = CGRect(x: 0, y: 0, width: size, height: size)
+        let format = UIGraphicsImageRendererFormat()
+        let renderer = UIGraphicsImageRenderer(size: rect.size, format: format)
+
+        let img = renderer.image { _ in
+            let path = UIBezierPath(ovalIn: rect)
+            UIColor(red: 0.18, green: 0.22, blue: 0.32, alpha: 1.0).setFill()
+            path.fill()
+
+            UIColor.white.withAlphaComponent(0.5).setStroke()
+            let borderPath = UIBezierPath(ovalIn: rect.insetBy(dx: 0.5, dy: 0.5))
+            borderPath.lineWidth = 1.0
+            borderPath.stroke()
+
+            let font = UIFont.systemFont(ofSize: 10, weight: .bold)
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: UIColor.white
+            ]
+            let textSize = initials.size(withAttributes: attributes)
+            let textRect = CGRect(
+                x: (size - textSize.width) / 2.0,
+                y: (size - textSize.height) / 2.0,
+                width: textSize.width,
+                height: textSize.height
+            )
+            initials.draw(in: textRect, withAttributes: attributes)
+        }
+
+        return img.withRenderingMode(.alwaysOriginal)
+    }
 }
 
 // MARK: - Full Native SwiftUI TabView (Liquid Glass on iOS 26)
@@ -221,6 +349,24 @@ public struct NativeTabRootView: View {
         self.coordinator = coordinator
     }
 
+    @ViewBuilder
+    private func tabLabel(for tab: TabItem) -> some View {
+        if tab.id == "account" && coordinator.isLoggedIn {
+            if let avatar = coordinator.avatarImage {
+                Image(uiImage: avatar)
+                    .renderingMode(.original)
+            } else if let initials = coordinator.initialsImage {
+                Image(uiImage: initials)
+                    .renderingMode(.original)
+            } else {
+                Image(systemName: "person.crop.circle.fill")
+            }
+            Text(tab.label)
+        } else {
+            Label(tab.label, systemImage: tab.systemImage)
+        }
+    }
+
     public var body: some View {
         Group {
             if #available(iOS 18.0, *) {
@@ -230,10 +376,12 @@ public struct NativeTabRootView: View {
                     set: { newId in coordinator.onTabSelected(id: newId) }
                 )) {
                     ForEach(coordinator.tabs) { tab in
-                        Tab(tab.label, systemImage: tab.systemImage, value: tab.id) {
+                        Tab(value: tab.id) {
                             CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
                                 .ignoresSafeArea()
                                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
+                        } label: {
+                            tabLabel(for: tab)
                         }
                         .badge(coordinator.badges[tab.id] ?? 0)
                     }
@@ -251,7 +399,7 @@ public struct NativeTabRootView: View {
                             .ignoresSafeArea()
                             .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
                             .tabItem {
-                                Label(tab.label, systemImage: tab.systemImage)
+                                tabLabel(for: tab)
                             }
                             .tag(tab.id)
                             .badge(coordinator.badges[tab.id] ?? 0)
@@ -269,7 +417,7 @@ public struct NativeTabRootView: View {
                         CapacitorWebViewRepresentable(bridgeVC: bridgeVC)
                             .ignoresSafeArea()
                             .tabItem {
-                                Label(tab.label, systemImage: tab.systemImage)
+                                tabLabel(for: tab)
                             }
                             .tag(tab.id)
                     }

@@ -552,7 +552,19 @@ const ComponentLoader = {
             document.getElementById('mobileBottomNav')?.remove();
             let earlyRole = 'buyer';
             try { earlyRole = localStorage.getItem('newketRole') || 'buyer'; } catch (e) {}
-            try { window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: earlyRole }); } catch (_) {}
+            try {
+                window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: earlyRole });
+                const hasUser = !!localStorage.getItem('newketUserId');
+                const avatar = hasUser ? localStorage.getItem('newketUserAvatar') : null;
+                const rawName = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '';
+                const init = rawName.trim() ? rawName.trim().charAt(0).toUpperCase() : 'C';
+                window.Capacitor?.Plugins?.NativeTabBar?.setProfile?.({
+                    isLoggedIn: hasUser,
+                    avatarUrl: avatar,
+                    initials: init,
+                    role: earlyRole
+                });
+            } catch (_) {}
             // Sur iOS Capacitor, les dashboards (client, vendeur, admin) n'ont pas de TabBar, comme sur Web et Android
             if (isDashboardPage || isAdminPage) {
                 try { window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {}); } catch (_) {}
@@ -608,6 +620,16 @@ const ComponentLoader = {
                 if (existingMobileNav) existingMobileNav.remove();
                 try {
                     window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: userRole });
+                    const hasUser = !isGuest;
+                    const avatar = hasUser ? localStorage.getItem('newketUserAvatar') : null;
+                    const rawName = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '';
+                    const init = rawName.trim() ? rawName.trim().charAt(0).toUpperCase() : 'C';
+                    window.Capacitor?.Plugins?.NativeTabBar?.setProfile?.({
+                        isLoggedIn: hasUser,
+                        avatarUrl: avatar,
+                        initials: init,
+                        role: userRole
+                    });
                 } catch (_) {}
                 // Inject native header buttons (burger + search/logout) on all pages
                 this.initNativeHeaderButtons();

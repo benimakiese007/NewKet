@@ -1429,14 +1429,26 @@ const AuthManager = {
     },
 
     updateAccountLink() {
-        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkTablet, #accountLinkFooter, #accountLinkMobileBottom');
-        if (accountLinks.length === 0) return;
-
         const avatarUrl = localStorage.getItem('newketUserAvatar');
         const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
         const compactUsername = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, '');
         const displayName = compactUsername(profile.username || localStorage.getItem('newketUserUsername')) || profile.name || localStorage.getItem('newketUserName') || 'Mon Compte';
         const initials = typeof window.getInitials === 'function' ? window.getInitials(displayName) : (displayName?.trim()?.charAt(0)?.toUpperCase() || '?');
+
+        // ?? Synchroniser l'avatar / profil sur la TabBar native SwiftUI iOS Capacitor (Liquid Glass)
+        try {
+            if (window.Capacitor?.Plugins?.NativeTabBar?.setProfile) {
+                const isLoggedIn = !this._logoutInProgress && !!(this.user || localStorage.getItem('newketUserId'));
+                window.Capacitor.Plugins.NativeTabBar.setProfile({
+                    isLoggedIn: isLoggedIn,
+                    avatarUrl: (isLoggedIn && avatarUrl) ? avatarUrl : null,
+                    initials: isLoggedIn ? initials : null,
+                    role: this.role || 'customer'
+                }).catch(() => {});
+            }
+        } catch (_) {}
+        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkTablet, #accountLinkFooter, #accountLinkMobileBottom');
+        if (accountLinks.length === 0) return;
         const hideAccountIcon = (icon) => {
             if (!icon) return;
             icon.style.display = 'none';
