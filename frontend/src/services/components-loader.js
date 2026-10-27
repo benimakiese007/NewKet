@@ -553,6 +553,10 @@ const ComponentLoader = {
             let earlyRole = 'buyer';
             try { earlyRole = localStorage.getItem('newketRole') || 'buyer'; } catch (e) {}
             try { window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: earlyRole }); } catch (_) {}
+            // Sur iOS Capacitor, les dashboards (client, vendeur, admin) n'ont pas de TabBar, comme sur Web et Android
+            if (isDashboardPage || isAdminPage) {
+                try { window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {}); } catch (_) {}
+            }
             this.initNativeHeaderButtons();
         }
 
@@ -972,7 +976,8 @@ const ComponentLoader = {
             }
         } catch (_) {}
 
-        const isTabBarForbidden = isMinimal || isAdmin;
+        // TabBar interdite sur les dashboards, l'admin et les pages minimales (exactement comme tous les autres supports)
+        const isTabBarForbidden = isMinimal || isDashboard;
         const rightIcon = isDashboard
             ? 'rectangle.portrait.and.arrow.right'
             : 'magnifyingglass';
@@ -980,7 +985,7 @@ const ComponentLoader = {
         // Always permanently hide the native header overlay – HTML Liquid Glass buttons are used instead
         plugin.hide().catch(() => {});
         plugin.hideClose?.().catch?.(() => {});
-        if (isMinimal) {
+        if (isTabBarForbidden) {
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         }
 
@@ -993,6 +998,8 @@ const ComponentLoader = {
             // Native header overlay removed – buttons are now HTML Liquid Glass elements in the DOM
             if (!isTabBarForbidden && !isOverlayOpen) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+            } else if (isTabBarForbidden) {
+                window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
             }
         };
 

@@ -11542,11 +11542,6 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor .page-content,
   html.is-ios-capacitor #page-content,
   html.is-ios-capacitor #app-body,
-  html.is-ios-capacitor .customer-main-content,
-  html.is-ios-capacitor .vendor-main-content,
-  html.is-ios-capacitor .customer-dashboard-main,
-  html.is-ios-capacitor .vendor-dashboard-main,
-  html.is-ios-capacitor .dashboard-main-offset,
   html.is-ios-capacitor #collection {
     padding-bottom: calc(32px + env(safe-area-inset-bottom, 20px)) !important;
   }
