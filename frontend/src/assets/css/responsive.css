@@ -1967,30 +1967,28 @@ html.dark .glass-panel {
  * We enforce scrollability here as a CSS safety net on top of the JS fix.
  */
 
-html.capacitor-native,
+html.capacitor-native {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    background-color: #1f2937;
+}
+
 html.capacitor-native body {
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y pinch-zoom !important;
-    height: auto !important;
-    min-height: 100% !important;
+    overscroll-behavior-y: contain;
+    padding-top: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 html.capacitor-native .main-header,
 html.capacitor-native #mobileMenu {
     touch-action: none;
-}
-
-html.capacitor-native body {
-    /* Sur iOS/Android Capacitor, le header fixe gère déjà le safe-area-inset-top et le placeholder pousse le contenu.
-       Mettre un padding-top sur le body provoquait un double comptage (47px+ d'espace vide). */
-    padding-top: 0 !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-html.capacitor-native {
-    background-color: #1f2937;
-    overscroll-behavior: none;
 }
 

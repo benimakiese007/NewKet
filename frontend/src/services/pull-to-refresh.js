@@ -16,9 +16,23 @@ const PullToRefresh = {
         spinner: null
     },
 
+    isNativeApp() {
+        return typeof window !== 'undefined' && (
+            (window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : window.Capacitor.isNative)) ||
+            window.location?.protocol === 'capacitor:' ||
+            document.documentElement.classList.contains('capacitor-native') ||
+            document.documentElement.classList.contains('is-android-capacitor') ||
+            document.documentElement.classList.contains('is-ios-capacitor')
+        );
+    },
+
     init() {
         if (document.body?.dataset.ptrInitialized === '1') return;
         document.body.dataset.ptrInitialized = '1';
+
+        // Sur Capacitor natif (Android / iOS), désactiver le pull-to-refresh web simulé
+        // pour préserver à 100% la fluidité du thread de défilement natif.
+        if (this.isNativeApp()) return;
 
         this.injectStyles();
         this.createIndicator();
@@ -37,8 +51,9 @@ const PullToRefresh = {
         const style = document.createElement('style');
         style.id = 'nk-ptr-styles';
         style.textContent = `
-            /* Prevent the page itself from being pulled beyond its scroll bounds. */
-            html, body {
+            /* Prevent the page itself from being pulled beyond its scroll bounds on PWA/desktop. */
+            html:not(.capacitor-native):not(.is-android-capacitor),
+            body:not(.capacitor-native):not(.is-android-capacitor) {
                 overscroll-behavior-y: none;
             }
 
@@ -176,7 +191,7 @@ const PullToRefresh = {
     },
 
     isEligibleTouch(event) {
-
+        if (this.isNativeApp()) return false;
         if (typeof window.NewKetPageRefresh !== 'function' || this.state.refreshing) return false;
         if (window.innerWidth > PTR_MIN_TOUCH_WIDTH) return false;
         if (!event.touches || event.touches.length !== 1) return false;

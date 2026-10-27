@@ -30,52 +30,38 @@
     const bodyEl = document.body;
 
     if (htmlEl) {
-      htmlEl.style.setProperty('overflow-y', 'auto', 'important');
-      htmlEl.style.setProperty('overflow-x', 'hidden', 'important');
-      htmlEl.style.setProperty('height', 'auto', 'important');
-      htmlEl.style.setProperty('min-height', '100%', 'important');
-      // Critical for Android WebView: allow native vertical panning
-      htmlEl.style.setProperty('touch-action', 'pan-y pinch-zoom', 'important');
-      // Android WebView specific: enable momentum scrolling
-      htmlEl.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+      htmlEl.style.setProperty('width', '100%', 'important');
+      htmlEl.style.setProperty('height', '100%', 'important');
+      htmlEl.style.setProperty('overflow', 'hidden', 'important');
     }
 
     if (bodyEl) {
+      // Body acts as the bounded scroll container (same mechanism as the working mobile menus)
+      bodyEl.style.setProperty('width', '100%', 'important');
+      bodyEl.style.setProperty('height', '100%', 'important');
+      bodyEl.style.setProperty('height', '100dvh', 'important');
       bodyEl.style.setProperty('overflow-y', 'auto', 'important');
       bodyEl.style.setProperty('overflow-x', 'hidden', 'important');
-      bodyEl.style.setProperty('height', 'auto', 'important');
-      bodyEl.style.setProperty('min-height', '100%', 'important');
       bodyEl.style.setProperty('touch-action', 'pan-y pinch-zoom', 'important');
       bodyEl.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+      bodyEl.style.setProperty('overscroll-behavior-y', 'contain', 'important');
     }
 
-    // Fix any inner wrappers that might restrict scroll
+    // Fix any inner wrappers that might restrict scroll with 100vh / overflow:hidden
     SCROLL_TARGETS.forEach(selector => {
       const el = document.querySelector(selector);
       if (!el || el === htmlEl || el === bodyEl) return;
+      if (el.closest?.('[role="dialog"], dialog[open], .modal.active, .drawer.active')) return;
       const computed = window.getComputedStyle(el);
       if (
-        computed.overflow === 'hidden' ||
-        computed.overflowY === 'hidden' ||
-        computed.height === '100vh' ||
-        computed.maxHeight === '100vh'
+        (computed.overflow === 'hidden' || computed.overflowY === 'hidden') &&
+        (computed.height === '100vh' || computed.maxHeight === '100vh')
       ) {
-        el.style.setProperty('overflow-y', 'auto', 'important');
+        el.style.setProperty('overflow-y', 'visible', 'important');
         el.style.setProperty('height', 'auto', 'important');
         el.style.setProperty('max-height', 'none', 'important');
       }
     });
-
-    // Android WebView: remove any lingering non-passive touchmove listeners
-    // that might have been added before Capacitor was detected.
-    // We do this by injecting a capturing listener that re-enables scroll.
-    if (!document._capacitorScrollFixed) {
-      document._capacitorScrollFixed = true;
-      document.addEventListener('touchmove', function(e) {
-        // Only intervene if the default page scroll is somehow prevented by another handler.
-        // We intentionally do NOT call e.preventDefault() here.
-      }, { passive: true, capture: false });
-    }
   };
 
   document.addEventListener('DOMContentLoaded', () => {
