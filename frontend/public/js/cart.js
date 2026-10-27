@@ -519,7 +519,7 @@ class CartManager {
                             <div class="font-black text-slate-900 text-sm">${priceFormatted}</div>
                             <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-100">
                                 <button onclick="window.CartManager.updateQuantity('${item.cartItemId || item.id}', ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
-                                    âˆ’
+                                    -
                                 </button>
                                 <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
                                 <button onclick="window.CartManager.updateQuantity('${item.cartItemId || item.id}', ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
