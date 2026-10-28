@@ -18,6 +18,7 @@ import rateLimit from 'express-rate-limit';
 
 import { optionalAuth } from './middlewares/auth.js';
 import { maintenanceMiddleware } from './middlewares/maintenance.js';
+import { supabase, supabaseAdmin, hasServiceRoleKey } from './config/supabase.js';
 
 import productRoutes from './routes/product.routes.js';
 import orderRoutes from './routes/order.routes.js';
@@ -143,11 +144,11 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   permissionsPolicy: {
     features: {
-      accelerometer: [],
-      camera: [],
+      accelerometer: ["'self'"],
+      camera: ["'self'"],
       geolocation: [],
-      gyroscope: [],
-      magnetometer: [],
+      gyroscope: ["'self'"],
+      magnetometer: ["'self'"],
       microphone: [],
       payment: [],
       usb: []
@@ -184,11 +185,44 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  let supabaseAnonOk = false;
+  let supabaseAnonError = null;
+  try {
+    const { error } = await supabase.from('settings').select('id').limit(1);
+    supabaseAnonOk = !error;
+    if (error) supabaseAnonError = error.message;
+  } catch (e) {
+    supabaseAnonError = e.message;
+  }
+
+  let supabaseAdminOk = false;
+  let supabaseAdminError = null;
+  try {
+    const { error } = await supabaseAdmin.from('settings').select('id').limit(1);
+    supabaseAdminOk = !error;
+    if (error) supabaseAdminError = error.message;
+  } catch (e) {
+    supabaseAdminError = e.message;
+  }
+
   res.json({
     status: 'ok',
     message: 'NewKet Backend API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    env: {
+      NODE_ENV: process.env.NODE_ENV || 'undefined',
+      hasSupabaseUrl: Boolean(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL),
+      hasSupabaseAnonKey: Boolean(process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY),
+      hasSupabaseSecretKey: Boolean(process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY),
+      hasServiceRoleKey,
+    },
+    diagnostics: {
+      supabaseAnonOk,
+      supabaseAnonError,
+      supabaseAdminOk,
+      supabaseAdminError,
+    }
   });
 });
 
