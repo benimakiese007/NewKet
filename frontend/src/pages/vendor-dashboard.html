@@ -4923,7 +4923,7 @@
                                             </div>
                                         </div>
                                         <div class="text-right shrink-0">
-                                            <p class="font-black text-lg text-gray-900 leading-none">${CurrencyManager.formatPrice(o.total)}</p>
+                                            <p class="font-black text-lg text-gray-900 leading-none">${CurrencyManager.formatPrice(o.client_total_paid > 0 ? o.client_total_paid : (o.total ?? o.final_total_amount ?? 0))}</p>
                                             <span class="inline-block mt-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getStatusColor(o.status)}">
                                                 ${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}
                                             </span>
