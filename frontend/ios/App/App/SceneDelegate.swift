@@ -31,6 +31,7 @@ open class NewKetBridgeViewController: CAPBridgeViewController {
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
+    private var coordinator: NativeTabCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
@@ -50,10 +51,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = hostingVC
         window?.makeKeyAndVisible()
 
+        // Store coordinator reference for deep link forwarding
+        self.coordinator = coordinator
+
+        // Cold-start deep link (app was closed, widget button tapped)
+        if let launchUrl = connectionOptions.urlContexts.first?.url {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.coordinator?.handleDeepLink(url: launchUrl)
+            }
+        }
+
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // Warm-resume deep link (app already running, widget button tapped)
+        for context in URLContexts {
+            coordinator?.handleDeepLink(url: context.url)
+        }
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
     }
 

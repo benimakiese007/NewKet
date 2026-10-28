@@ -139,6 +139,17 @@ import './lens.js';
 const handleDeepLinkRoute = (rawUrl) => {
     if (!rawUrl || !rawUrl.startsWith('newket://')) return;
     console.info('[NewKet] Deep link reçu :', rawUrl);
+
+    // On iOS/Android native (Capacitor), the Swift/Kotlin coordinator handles
+    // deep link navigation directly via handleDeepLink(url:). The JS handler
+    // would create a race condition (JS fires → overwrites native tab selection).
+    // We keep the JS handler active only for web/PWA fallback.
+    const isNativeCapacitor = window.Capacitor?.isNativePlatform?.() ?? false;
+    if (isNativeCapacitor) {
+        console.info('[NewKet] Deep link géré nativement par Swift — JS ignoré.');
+        return;
+    }
+
     const route = rawUrl.replace('newket://', '').toLowerCase().split('?')[0].split('#')[0].replace(/^\/+/, '');
     if (route === 'shops' || route === 'shop' || route === 'boutique' || route === 'boutiques') {
         window.location.href = '/src/pages/shops.html';

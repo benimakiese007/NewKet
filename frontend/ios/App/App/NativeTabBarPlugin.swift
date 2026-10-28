@@ -193,6 +193,60 @@ public final class NativeTabCoordinator: ObservableObject {
         selectedTabId = id
     }
 
+    /// Handles deep links from iOS Home Screen Widgets & Live Activities directly in native Swift.
+    /// Synchronizes both the SwiftUI TabView state and the WKWebView navigation cleanly.
+    public func handleDeepLink(url: URL) {
+        let urlStr = url.absoluteString.lowercased()
+        guard urlStr.starts(with: "newket://") else { return }
+
+        let route = urlStr.replacingOccurrences(of: "newket://", with: "")
+            .components(separatedBy: "?")[0]
+            .components(separatedBy: "#")[0]
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            switch route {
+            case "shops", "shop", "boutique", "boutiques":
+                self.onTabSelected(id: "shops")
+
+            case "cart", "panier", "achat":
+                self.onTabSelected(id: "cart")
+
+            case "notifications", "notif", "notifs":
+                let js = """
+                (function() {
+                    if (window.Drawers && typeof window.Drawers.openNotifications === 'function') {
+                        window.Drawers.openNotifications();
+                    } else {
+                        window.location.href = '/src/pages/notifications.html';
+                    }
+                })();
+                """
+                self.bridgeVC?.bridge?.webView?.evaluateJavaScript(js, completionHandler: nil)
+
+            case "favorites", "fav", "favoris":
+                let js = """
+                (function() {
+                    if (window.Drawers && typeof window.Drawers.openFavorites === 'function') {
+                        window.Drawers.openFavorites();
+                    } else {
+                        window.location.href = '/src/pages/favorites.html';
+                    }
+                })();
+                """
+                self.bridgeVC?.bridge?.webView?.evaluateJavaScript(js, completionHandler: nil)
+
+            case "account", "compte", "dashboard":
+                self.onTabSelected(id: "account")
+
+            default:
+                self.onTabSelected(id: "home")
+            }
+        }
+    }
+
     public func applyRole(_ role: String) {
         let isSeller = role == "seller" || role == "supplier"
         tabs = isSeller ? TabItem.sellerTabs : TabItem.defaultTabs
