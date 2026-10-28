@@ -5,7 +5,13 @@
 
 const AdminLayout = {
     navigationLoadingKey: 'newket_admin_navigation_loading',
-    shellIndexPath: '/admin/index',
+    get shellIndexPath() {
+        if ((window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) ||
+            (window.location.pathname && window.location.pathname.includes('/src/pages/'))) {
+            return '/src/pages/admin/index.html';
+        }
+        return '/admin/index';
+    },
     shellViewMap: {
         index: 'overview',
         user: 'user',
@@ -414,12 +420,15 @@ const AdminLayout = {
                     document.getElementById('adminOverviewPanel')?.offsetHeight || 0
                 ) + 40; // add a little padding buffer
 
+                const targetOrigin = (window.location.origin && window.location.origin !== 'null')
+                    ? window.location.origin
+                    : '*';
                 window.parent?.postMessage({
                     type: 'newket-admin-embed-metrics',
                     view: this.getCurrentShellView(),
                     height,
                     title: document.title
-                }, window.location.origin);
+                }, targetOrigin);
             } catch (_) {}
         };
 
@@ -450,10 +459,13 @@ const AdminLayout = {
             if (!url.pathname.includes('/admin/')) return;
 
             event.preventDefault();
+            const targetOrigin = (window.location.origin && window.location.origin !== 'null')
+                ? window.location.origin
+                : '*';
             window.parent?.postMessage({
                 type: 'newket-admin-embed-navigate',
                 view: this.shellViewMap[this.getCurrentAdminFile(url.pathname)] || 'overview'
-            }, window.location.origin);
+            }, targetOrigin);
         }, true);
     },
 

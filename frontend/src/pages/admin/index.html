@@ -458,6 +458,7 @@
             window.addEventListener('currencyChanged', refreshDashboardData);
             window.addEventListener('ordersUpdated', refreshDashboardData);
             window.addEventListener('productsUpdated', refreshDashboardData);
+            window.addEventListener('usersUpdated', refreshDashboardData);
 
             // Real-time presence updates
             window.addEventListener('presenceUpdated', (e) => {
@@ -480,7 +481,7 @@
 
             // Safety net: retry refreshDashboardData after short delays.
             // This handles the case where events fired before listeners were registered.
-            const retryDelays = [300, 800, 1500, 3000];
+            const retryDelays = [300, 800, 1500, 3000, 5000, 8000];
             retryDelays.forEach(delay => {
                 window.setTimeout(() => {
                     if (isOverviewViewActive()) refreshDashboardData();
@@ -610,18 +611,22 @@
                 initCategoryChart({ categorySales: catStats });
 
                 // Users Stat
-                if (window.UserManager && UserManager._initialized) {
-                    const allUsers = UserManager.getUsers();
-                    setTextIfPresent('statsTotalUsers', allUsers.length);
-                    
-                    const newUsers = allUsers.filter(u => {
-                        // date_joined is the column in public.users; created_at is only in auth.users
-                        const joinedAt = u.date_joined || u.created_at;
-                        if (!joinedAt) return false;
-                        const d = new Date(joinedAt);
-                        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                    }).length;
-                    setTextIfPresent('statsNewUsers', `+${newUsers}`);
+                if (window.UserManager) {
+                    if (UserManager._initialized) {
+                        const allUsers = UserManager.getUsers() || [];
+                        setTextIfPresent('statsTotalUsers', allUsers.length);
+                        
+                        const newUsers = allUsers.filter(u => {
+                            // date_joined is the column in public.users; created_at is only in auth.users
+                            const joinedAt = u.date_joined || u.created_at;
+                            if (!joinedAt) return false;
+                            const d = new Date(joinedAt);
+                            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                        }).length;
+                        setTextIfPresent('statsNewUsers', `+${newUsers}`);
+                    } else if (!UserManager._initPromise) {
+                        UserManager.init().catch(() => {});
+                    }
                 }
 
             } catch (err) {
@@ -1207,8 +1212,16 @@
                 return (params.get('id') || '').trim();
             }
 
+            function isCapacitorApp() {
+                return Boolean(
+                    (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) ||
+                    (window.location.pathname && window.location.pathname.includes('/src/pages/'))
+                );
+            }
+
             function buildUrl(view, options = {}) {
-                const url = new URL('/admin/index', window.location.origin);
+                const basePath = isCapacitorApp() ? '/src/pages/admin/index.html' : '/admin/index';
+                const url = new URL(basePath, window.location.origin);
                 if (view !== 'overview') {
                     url.searchParams.set('view', view);
                 }
@@ -1230,7 +1243,11 @@
                 const base = shellViewSources[view];
                 if (!base) return null;
 
-                const url = new URL(base, window.location.origin);
+                const resolvedBase = (isCapacitorApp() && !base.startsWith('/src/pages/'))
+                    ? `/src/pages${base}`
+                    : base;
+
+                const url = new URL(resolvedBase, window.location.origin);
                 const email = typeof options.email === 'string' ? options.email.trim() : getRequestedEmail();
                 if (view === 'user-details' && email) {
                     url.searchParams.set('email', email);
