@@ -1100,6 +1100,7 @@ const ComponentLoader = {
         // it must be hidden while any web panel is visible.
         // ------------------------------------------------------------------
         const isAnyWebOverlayOpen = () => {
+            if (window.SidebarManager?.state?.isDrawerOpen) return true;
             const menu = document.getElementById('mobileMenu');
             if (menu && (menu.classList.contains('active') || document.body.classList.contains('mobile-menu-open') || document.documentElement.classList.contains('mobile-menu-open') || menu.getAttribute('aria-hidden') === 'false' || menu.style.visibility === 'visible' || menu.style.opacity === '1')) return true;
             const cart = document.getElementById('cartSlideOver');
@@ -1218,18 +1219,28 @@ const ComponentLoader = {
 
         // -- Wire burger tap --> open mobile menu -------------------------
         plugin.addListener('burgerTap', () => {
-            if (document.getElementById('adminMobileMenuBtn')) {
-                document.getElementById('adminMobileMenuBtn').click();
-            } else if (typeof window.openMobileMenu === 'function') {
-                window.openMobileMenu();
-            } else if (document.getElementById('mobileMenuBtn')) {
-                document.getElementById('mobileMenuBtn').click();
-            } else if (document.getElementById('customerMobileBtn')) {
-                document.getElementById('customerMobileBtn').click();
-            } else if (document.getElementById('vendorMobileBtn')) {
-                document.getElementById('vendorMobileBtn').click();
-            } else if (typeof window.SidebarManager?.toggle === 'function') {
-                window.SidebarManager.toggle();
+            const currentPath = window.location.pathname;
+            const isDash = isDashboard || currentPath.includes('-dashboard') || currentPath.includes('dashboard') || currentPath.includes('/admin') ||
+                           !!document.getElementById('vendorSidebar') || !!document.getElementById('customerSidebar') || !!document.getElementById('adminSidebar');
+
+            if (isDash) {
+                if (document.getElementById('vendorMobileBtn')) {
+                    document.getElementById('vendorMobileBtn').click();
+                } else if (document.getElementById('customerMobileBtn')) {
+                    document.getElementById('customerMobileBtn').click();
+                } else if (document.getElementById('adminMobileMenuBtn')) {
+                    document.getElementById('adminMobileMenuBtn').click();
+                } else if (typeof window.SidebarManager?.toggle === 'function') {
+                    window.SidebarManager.toggle();
+                }
+            } else {
+                if (typeof window.openMobileMenu === 'function') {
+                    window.openMobileMenu();
+                } else if (document.getElementById('mobileMenuBtn')) {
+                    document.getElementById('mobileMenuBtn').click();
+                } else if (typeof window.SidebarManager?.toggle === 'function') {
+                    window.SidebarManager.toggle();
+                }
             }
         });
 
