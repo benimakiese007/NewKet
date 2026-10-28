@@ -349,7 +349,7 @@ const OrderManager = {
             o.customer_id === userId ||
             o.customer_id === fallbackUserId
         );
-        const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        const totalSpent = customerOrders.reduce((sum, o) => sum + Number(o.client_total_paid > 0 ? o.client_total_paid : (o.total || 0)), 0);
 
         return {
             totalOrders: customerOrders.length,
