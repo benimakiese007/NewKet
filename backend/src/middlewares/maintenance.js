@@ -1,30 +1,68 @@
 import { hasServiceRoleKey, supabase, supabaseAdmin } from '../config/supabase.js';
 
-async function readMaintenanceFlag() {
-  // En prod, on veut pouvoir lire le flag même si la table est protégée par RLS.
-  // Donc on privilégie le service-role quand il est présent.
-  const client = hasServiceRoleKey ? supabaseAdmin : supabase;
+let cachedMaintenanceMode = false;
+let lastMaintenanceFetch = 0;
+const MAINTENANCE_CACHE_TTL_MS = 15000; // 15 secondes de cache
 
-  const query = async (columns) => {
+async function fetchFromClient(client, columns) {
+  try {
     const { data, error } = await client
       .from('settings')
       .select(columns)
       .eq('id', 'global-settings')
       .maybeSingle();
     return { data, error };
-  };
+  } catch (err) {
+    return { data: null, error: err };
+  }
+}
 
-  // Schéma actuel côté production: camelCase. Support legacy snake_case.
-  const camel = await query('maintenanceMode');
-  if (!camel.error) return { value: !!camel.data?.maintenanceMode, error: null };
-
-  if (camel.error?.code === '42703') {
-    const snake = await query('maintenance_mode');
-    if (!snake.error) return { value: !!snake.data?.maintenance_mode, error: null };
-    return { value: false, error: snake.error };
+async function readMaintenanceFlag() {
+  const now = Date.now();
+  if (now - lastMaintenanceFetch < MAINTENANCE_CACHE_TTL_MS) {
+    return { value: cachedMaintenanceMode, error: null };
   }
 
-  return { value: false, error: camel.error };
+  // La table settings est publique en SELECT grâce aux RLS.
+  // On essaye avec le client anon ou supabaseAdmin avec fallback immédiat.
+  const clients = [supabase];
+  if (hasServiceRoleKey && supabaseAdmin !== supabase) {
+    clients.push(supabaseAdmin);
+  }
+
+  let lastError = null;
+
+  for (const client of clients) {
+    // 1) Essai camelCase
+    let res = await fetchFromClient(client, 'maintenanceMode');
+    if (!res.error && res.data) {
+      cachedMaintenanceMode = !!res.data.maintenanceMode;
+      lastMaintenanceFetch = now;
+      return { value: cachedMaintenanceMode, error: null };
+    }
+
+    // 2) Essai snake_case si erreur 42703 (colonne non trouvée)
+    if (res.error?.code === '42703') {
+      res = await fetchFromClient(client, 'maintenance_mode');
+      if (!res.error && res.data) {
+        cachedMaintenanceMode = !!res.data.maintenance_mode;
+        lastMaintenanceFetch = now;
+        return { value: cachedMaintenanceMode, error: null };
+      }
+    }
+
+    if (res.error) {
+      lastError = res.error;
+    }
+  }
+
+  // Si échec de lecture (ex: réseau/clé), on utilise la dernière valeur en cache ou false (fail-open)
+  // pour ne jamais bloquer le site complet avec une fausse 503 Maintenance.
+  if (lastError) {
+    console.warn('⚠️ Impossible de vérifier le mode maintenance, maintien de la dernière valeur connue:', lastError?.message || lastError);
+  }
+
+  return { value: cachedMaintenanceMode, error: null };
 }
 
 /**
