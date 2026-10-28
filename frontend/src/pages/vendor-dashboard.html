@@ -1213,6 +1213,10 @@
                                     <span class="text-emerald-600 font-bold">Réduction promo</span>
                                     <span id="vModalOrderDiscount" class="font-bold text-emerald-600">0 FC</span>
                                 </div>
+                                <div id="vModalOrderPayinRow" class="flex justify-between text-sm hidden">
+                                    <span class="text-gray-500 font-medium">Frais de protection</span>
+                                    <span id="vModalOrderPayin" class="font-medium text-gray-900"></span>
+                                </div>
                                 <div class="flex justify-between items-end pt-3 border-t border-gray-200">
                                     <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Commande</span>
                                     <span id="vModalOrderTotal" class="text-2xl font-black text-gray-900">0 FC</span>
@@ -5012,11 +5016,17 @@
                     const subtotal = Number(order?.merchandise_amount ?? itemsSubtotal ?? 0);
                     let deliveryFee = Number(order?.delivery_fee_amount ?? 0);
                     let discount = Number(order?.promo_discount_amount ?? 0);
-                    let total = Number(order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee - discount));
+                    let payinFee = Number(order?.payin_fee_amount ?? 0);
+                    let total = Number(order?.client_total_paid ?? order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee - discount));
+
+                    // If payin_fee is missing from DB, infer it from the gap between client total and merchandise total
+                    if (!(payinFee > 0) && total > subtotal + deliveryFee - discount + 0.01) {
+                        payinFee = total - subtotal - deliveryFee + discount;
+                    }
 
                     if (order?.status === 'QUOTE' && order?.latest_delivery_quote) {
                         deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount || 0);
-                        total = Math.max(0, subtotal + deliveryFee - discount);
+                        total = Math.max(0, subtotal + deliveryFee - discount + payinFee);
                     }
 
                     document.getElementById('vModalOrderSubtotal').textContent = CurrencyManager.formatPrice(subtotal);
@@ -5030,6 +5040,18 @@
                         document.getElementById('vModalOrderDiscount').textContent = "-" + CurrencyManager.formatPrice(discount);
                     } else {
                         if (discountRow) discountRow.classList.add('hidden');
+                    }
+
+                    const payinRow = document.getElementById('vModalOrderPayinRow');
+                    const payinEl = document.getElementById('vModalOrderPayin');
+                    if (payinRow && payinEl) {
+                        if (payinFee > 0) {
+                            payinRow.classList.remove('hidden');
+                            payinEl.textContent = CurrencyManager.formatPrice(payinFee);
+                        } else {
+                            payinRow.classList.add('hidden');
+                            payinEl.textContent = '';
+                        }
                     }
                     
                     document.getElementById('vModalOrderTotal').textContent = CurrencyManager.formatPrice(total);
