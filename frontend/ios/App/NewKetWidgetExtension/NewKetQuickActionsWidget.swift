@@ -269,35 +269,35 @@ private struct LargeSponsoredShowcaseView: View {
     let entry: NewKetQuickActionsEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             // Header Bar (No Emojis - Pure SF Symbol & Typography)
             HStack(alignment: .center) {
                 HStack(spacing: 6) {
                     Circle()
                         .fill(NewKetTheme.accentMint)
-                        .frame(width: 8, height: 8)
+                        .frame(width: 7, height: 7)
                     Text("NewKet")
-                        .font(.system(size: 15, weight: .black, design: .rounded))
+                        .font(.system(size: 14, weight: .black, design: .rounded))
                         .foregroundColor(NewKetTheme.textPrimary)
                 }
 
                 Text("SPONSORISÉ")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.system(size: 8.5, weight: .bold))
                     .tracking(0.6)
                     .foregroundColor(NewKetTheme.accentMint)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2.5)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
                     .background(NewKetTheme.accentMint.opacity(0.12))
-                    .cornerRadius(5)
+                    .cornerRadius(4)
 
                 Spacer()
 
                 Link(destination: URL(string: "newket://shops")!) {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 3) {
                         Text("Boutiques")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.system(size: 10.5, weight: .semibold))
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 8.5, weight: .bold))
                     }
                     .foregroundColor(NewKetTheme.textMuted)
                 }
@@ -308,14 +308,14 @@ private struct LargeSponsoredShowcaseView: View {
             let firstRow = Array(products.prefix(2))
             let secondRow = products.count > 2 ? Array(products.dropFirst(2).prefix(2)) : []
 
-            VStack(spacing: 8) {
-                HStack(spacing: 8) {
+            VStack(spacing: 7) {
+                HStack(spacing: 7) {
                     ForEach(firstRow) { item in
                         SponsoredProductTile(product: item)
                     }
                 }
                 if !secondRow.isEmpty {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 7) {
                         ForEach(secondRow) { item in
                             SponsoredProductTile(product: item)
                         }
@@ -323,17 +323,19 @@ private struct LargeSponsoredShowcaseView: View {
                 }
             }
 
-            Spacer(minLength: 0)
+            Spacer(minLength: 2)
 
             // Bottom Quick Actions Bar (Compact & Minimalist)
-            HStack(spacing: 6) {
-                BottomQuickActionPill(icon: "bag", label: "Boutiques", url: "newket://shops")
+            HStack(spacing: 5) {
+                BottomQuickActionPill(icon: "bag", label: "Boutique", url: "newket://shops")
                 BottomQuickActionPill(icon: "bell", label: "Notifs", url: "newket://notifications")
                 BottomQuickActionPill(icon: "heart", label: "Favoris", url: "newket://favorites")
                 BottomQuickActionPill(icon: "cart", label: "Panier", url: "newket://achat")
             }
         }
-        .padding(14)
+        .padding(.horizontal, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 10)
     }
 }
 
@@ -344,44 +346,47 @@ private struct SponsoredProductTile: View {
     var body: some View {
         Link(destination: URL(string: "newket://product?id=\(product.id)") ?? URL(string: "newket://shops")!) {
             VStack(alignment: .leading, spacing: 4) {
-                // Product Image Container
+                // Product Image Container (Strictly Clipped)
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(NewKetTheme.cardGlass)
 
                     if let data = product.imageData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
+                            .scaledToFill()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .clipped()
-                            .cornerRadius(10)
                     } else {
                         Image(systemName: "bag")
-                            .font(.system(size: 20, weight: .light))
+                            .font(.system(size: 18, weight: .light))
                             .foregroundColor(NewKetTheme.textMuted.opacity(0.6))
                     }
                 }
-                .frame(height: 72)
+                .frame(height: 74)
+                .clipped()
+                .cornerRadius(8)
 
-                // Product Title
-                Text(product.name)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(NewKetTheme.textPrimary)
-                    .lineLimit(1)
+                // Product Details (Separated below image)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(product.name)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(NewKetTheme.textPrimary)
+                        .lineLimit(1)
 
-                // Price (FC Emerald)
-                Text(product.formattedPrice)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(NewKetTheme.accentMint)
-                    .lineLimit(1)
+                    Text(product.formattedPrice)
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(NewKetTheme.accentMint)
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 2)
+                .padding(.bottom, 2)
             }
-            .padding(6)
+            .padding(5)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white)
-            .cornerRadius(12)
+            .cornerRadius(11)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 11)
                     .stroke(NewKetTheme.cardBorder, lineWidth: 0.8)
             )
         }
@@ -396,11 +401,13 @@ private struct BottomQuickActionPill: View {
 
     var body: some View {
         Link(destination: URL(string: url) ?? URL(string: "newket://")!) {
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .medium))
-                Text(label)
                     .font(.system(size: 10, weight: .semibold))
+                Text(label)
+                    .font(.system(size: 9.5, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
             .foregroundColor(NewKetTheme.textPrimary)
             .frame(maxWidth: .infinity)
