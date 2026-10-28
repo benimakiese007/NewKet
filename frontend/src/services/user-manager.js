@@ -8,9 +8,10 @@ const UserManager = {
     _initPromise: null,
 
     async init() {
-        if (!window.ApiClient) {
-            console.error('[UserManager] ApiClient not found.');
-            return;
+        if (!window.ApiClient && !window.SupabaseAdapter && !window.supabaseClient) {
+            console.error('[UserManager] No ApiClient or SupabaseClient available.');
+            this._initialized = true;
+            return [];
         }
 
         if (this._initialized && Array.isArray(this.data) && this.data.length) {
@@ -23,9 +24,32 @@ const UserManager = {
 
         this._initPromise = (async () => {
             try {
-                // Fetch all users from the Express Backend
-                const users = await ApiClient.get('/users');
-                this.data = users || [];
+                let users = null;
+
+                // 1. Essai via l'API Backend Express si disponible
+                if (window.ApiClient) {
+                    try {
+                        users = await ApiClient.get('/users', { suppressNetworkError: true, suppressErrorLogging: true });
+                    } catch (e) {
+                        // En cas de refus (401/403 rôle non-admin) ou cold-start Vercel, on bascule sur Supabase
+                    }
+                }
+
+                // 2. Fallback direct Supabase si l'API backend n'a pas retourné de données
+                if (!Array.isArray(users) || users.length === 0) {
+                    const client = window.SupabaseAdapter?.getClient?.() || window.supabaseClient;
+                    if (client) {
+                        const { data, error } = await client
+                            .from('users')
+                            .select('*')
+                            .order('date_joined', { ascending: false });
+                        if (!error && Array.isArray(data)) {
+                            users = data;
+                        }
+                    }
+                }
+
+                this.data = Array.isArray(users) ? users : [];
                 this._initialized = true;
                 return this.data;
             } catch (error) {
