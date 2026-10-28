@@ -204,10 +204,25 @@ public final class NativeTabCoordinator: ObservableObject {
             .components(separatedBy: "#")[0]
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
+        let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let productId = urlComponents?.queryItems?.first(where: { $0.name.lowercased() == "id" })?.value
+
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
             switch route {
+            case "product", "produit":
+                if let id = productId, !id.isEmpty {
+                    let js = """
+                    (function() {
+                        window.location.href = '/src/pages/product.html?id=\(id)';
+                    })();
+                    """
+                    self.bridgeVC?.bridge?.webView?.evaluateJavaScript(js, completionHandler: nil)
+                } else {
+                    self.onTabSelected(id: "catalog")
+                }
+
             case "shops", "shop", "boutique", "boutiques":
                 self.onTabSelected(id: "shops")
 

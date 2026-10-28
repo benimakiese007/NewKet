@@ -159,6 +159,18 @@ const handleDeepLinkRoute = (rawUrl) => {
         window.location.href = '/src/pages/favorites.html';
     } else if (route === 'achat' || route === 'cart' || route === 'panier') {
         window.location.href = '/src/pages/achat.html';
+    } else if (route === 'product' || route === 'produit') {
+        try {
+            const parsedUrl = new URL(rawUrl.replace('newket://', 'http://localhost/'));
+            const id = parsedUrl.searchParams.get('id');
+            if (id) {
+                window.location.href = `/src/pages/product.html?id=${encodeURIComponent(id)}`;
+            } else {
+                window.location.href = '/src/pages/catalog.html';
+            }
+        } catch (_) {
+            window.location.href = '/src/pages/catalog.html';
+        }
     }
 };
 
