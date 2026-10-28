@@ -4923,7 +4923,25 @@
                                             </div>
                                         </div>
                                         <div class="text-right shrink-0">
-                                            <p class="font-black text-lg text-gray-900 leading-none">${CurrencyManager.formatPrice(o.client_total_paid > 0 ? o.client_total_paid : (o.total ?? o.final_total_amount ?? 0))}</p>
+                                            <p class="font-black text-lg text-gray-900 leading-none">${(() => {
+                                                const oSubtotal = Number(o.merchandise_amount ?? o.subtotal_amount ?? 0);
+                                                const oDiscount = Number(o.promo_discount_amount ?? 0);
+                                                let oDelivery = Number(o.delivery_fee_amount ?? 0);
+                                                let oPayin = Number(o.payin_fee_amount ?? 0);
+                                                // Si statut QUOTE et devis en cours, utiliser le montant du devis le plus récent
+                                                if (o.status === 'QUOTE' && o.latest_delivery_quote?.delivery_fee_amount != null) {
+                                                    oDelivery = Number(o.latest_delivery_quote.delivery_fee_amount);
+                                                }
+                                                let oTotal = Number(o.client_total_paid > 0 ? o.client_total_paid : (o.final_total_amount ?? o.total ?? 0));
+                                                // Recalcul live si QUOTE (client_total_paid pas encore mis à jour en DB)
+                                                if (o.status === 'QUOTE') {
+                                                    const base = Math.max(0, oSubtotal + oDelivery - oDiscount);
+                                                    // Infer payin fee si absent
+                                                    if (!(oPayin > 0) && oTotal > base + 0.01) oPayin = oTotal - oSubtotal - Number(o.delivery_fee_amount ?? 0) + oDiscount;
+                                                    oTotal = Math.max(0, base + oPayin);
+                                                }
+                                                return CurrencyManager.formatPrice(oTotal);
+                                            })()}</p>
                                             <span class="inline-block mt-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getStatusColor(o.status)}">
                                                 ${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}
                                             </span>
