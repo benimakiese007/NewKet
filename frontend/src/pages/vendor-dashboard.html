@@ -2722,14 +2722,21 @@
                     // Sorting Logic
                     if (window.vendorOrderState.sortColumn) {
                         recentOrders = [...recentOrders].sort((a, b) => {
+                            // Special case: le tri par ID correspond au tri chronologique (date / created_at)
+                            if (window.vendorOrderState.sortColumn === 'id') {
+                                const timeA = new Date(a.created_at || a.date || a.timestamp || 0).getTime() || 0;
+                                const timeB = new Date(b.created_at || b.date || b.timestamp || 0).getTime() || 0;
+                                return window.vendorOrderState.sortDirection === 'asc' ? timeA - timeB : timeB - timeA;
+                            }
+
+                            if (window.vendorOrderState.sortColumn === 'total') {
+                                const totA = Number(a.client_total_paid > 0 ? a.client_total_paid : (a.total ?? a.final_total_amount ?? 0));
+                                const totB = Number(b.client_total_paid > 0 ? b.client_total_paid : (b.total ?? b.final_total_amount ?? 0));
+                                return window.vendorOrderState.sortDirection === 'asc' ? totA - totB : totB - totA;
+                            }
+
                             let valA = a[window.vendorOrderState.sortColumn];
                             let valB = b[window.vendorOrderState.sortColumn];
-                            
-                            // Special cases
-                            if (window.vendorOrderState.sortColumn === 'id') {
-                                valA = a.created_at || a.id;
-                                valB = b.created_at || b.id;
-                            }
                             
                             if (valA < valB) return window.vendorOrderState.sortDirection === 'asc' ? -1 : 1;
                             if (valA > valB) return window.vendorOrderState.sortDirection === 'asc' ? 1 : -1;
@@ -2803,7 +2810,7 @@
                                     </div>
                                 ` : '<span class="text-gray-300">-</span>'}
                             </td>
-                            <td class="py-4 font-black text-right text-sm admin-table-truncate">${CurrencyManager.formatPrice(o.total)}</td>
+                            <td class="py-4 font-black text-right text-sm admin-table-truncate">${CurrencyManager.formatPrice(o.client_total_paid > 0 ? o.client_total_paid : (o.total ?? o.final_total_amount ?? 0))}</td>
                             <td class="py-4 text-center">
                                 <div class="flex flex-col items-center gap-1 admin-table-cell-meta">
                                     <span class="badge-premium px-2 py-0.5 rounded-full text-[9px] font-bold ${getPaymentStatusStyle(o.payment_status)}">${o.payment_status || 'N/A'}</span>

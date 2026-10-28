@@ -195,6 +195,8 @@ const OrderManager = {
             customer_city: order.customer_city || '',
             customer_lat: order.customer_lat || null,
             customer_lng: order.customer_lng || null,
+            created_at: order.created_at || null,
+            timestamp: new Date(order.created_at || Date.now()).getTime(),
             date: order.created_at || new Date().toISOString(),
             total: order.final_total_amount || order.total_amount || product?.price || product?.priceCDF || 0,
             status: order.status || 'PENDING',
