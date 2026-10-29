@@ -85,7 +85,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        SceneDelegateProxy.shared.sceneDidBecomeActive(scene)
         reloadWidgetsIfNeeded()
     }
 
