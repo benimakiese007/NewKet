@@ -722,10 +722,11 @@ const ComponentLoader = {
         this.initNetworkStatus();
         this.initMobileSearchToggle();
 
-        // Auto-open notifications drawer if redirected
+        // Auto-open notifications or favorites drawer if redirected
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const openNotifs = urlParams.get('open') === 'notifications' || sessionStorage.getItem('nk_open_notifications_drawer') === 'true';
+            const openFavs = urlParams.get('open') === 'favorites' || sessionStorage.getItem('nk_open_favorites_drawer') === 'true';
             if (openNotifs) {
                 sessionStorage.removeItem('nk_open_notifications_drawer');
                 if (urlParams.get('open') === 'notifications') {
@@ -737,6 +738,19 @@ const ComponentLoader = {
                         window.DrawersManager.openNotifications();
                     } else if (window.NotificationManager?.openUI) {
                         window.NotificationManager.openUI();
+                    }
+                }, 400);
+            } else if (openFavs) {
+                sessionStorage.removeItem('nk_open_favorites_drawer');
+                if (urlParams.get('open') === 'favorites') {
+                    const cleanUrl = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, '', cleanUrl);
+                }
+                setTimeout(() => {
+                    if (window.DrawersManager?.openFavorites) {
+                        window.DrawersManager.openFavorites();
+                    } else if (window.FavoritesManager?.openUI) {
+                        window.FavoritesManager.openUI();
                     }
                 }, 400);
             }
