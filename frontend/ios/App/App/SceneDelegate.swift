@@ -73,6 +73,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
         }
 
+        // Cold-start Quick Action (app was closed, icon long-pressed)
+        if let shortcutItem = connectionOptions.shortcutItem {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                self?.handleShortcutItem(shortcutItem)
+            }
+        }
+
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
         reloadWidgetsIfNeeded()
     }
@@ -92,5 +99,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         SceneDelegateProxy.shared.scene(scene, continue: userActivity)
+    }
+
+    func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        handleShortcutItem(shortcutItem)
+        completionHandler(true)
+    }
+
+    private func handleShortcutItem(_ item: UIApplicationShortcutItem) {
+        switch item.type {
+        case "cd.newket.app.home":
+            coordinator?.handleDeepLink(url: URL(string: "newket://home")!)
+        case "cd.newket.app.search":
+            coordinator?.handleDeepLink(url: URL(string: "newket://search")!)
+        case "cd.newket.app.shops":
+            coordinator?.handleDeepLink(url: URL(string: "newket://shops")!)
+        case "cd.newket.app.account":
+            coordinator?.handleDeepLink(url: URL(string: "newket://account")!)
+        default:
+            break
+        }
     }
 }

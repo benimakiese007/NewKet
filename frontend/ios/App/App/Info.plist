@@ -79,5 +79,48 @@
 	<true/>
 	<key>UIDesignRequiresCompatibility</key>
 	<false/>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>cd.newket.app.home</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Accueil</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Nouveautés &amp; promotions</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>house</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>cd.newket.app.search</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Recherche</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Trouver un produit</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>magnifyingglass</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>cd.newket.app.shops</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Boutiques</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Explorer les vendeurs</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>bag</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>cd.newket.app.account</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Mon Compte</string>
+			<key>UIApplicationShortcutItemSubtitle</key>
+			<string>Commandes &amp; profil</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>person.crop.circle</string>
+		</dict>
+	</array>
 </dict>
 </plist>

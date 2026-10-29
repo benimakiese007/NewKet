@@ -226,6 +226,21 @@ public final class NativeTabCoordinator: ObservableObject {
             case "shops", "shop", "boutique", "boutiques":
                 self.onTabSelected(id: "shops")
 
+            case "search", "recherche":
+                self.onTabSelected(id: "catalog")
+                let js = """
+                (function() {
+                    var el = document.querySelector('input[type="search"], input[placeholder*="Recherch"], #searchInput, #search-input');
+                    if (el) {
+                        setTimeout(function() { el.focus(); }, 350);
+                    }
+                })();
+                """
+                self.bridgeVC?.bridge?.webView?.evaluateJavaScript(js, completionHandler: nil)
+
+            case "home", "accueil":
+                self.onTabSelected(id: "home")
+
             case "cart", "panier", "achat":
                 self.onTabSelected(id: "cart")
 
