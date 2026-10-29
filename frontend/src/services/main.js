@@ -382,7 +382,7 @@ const App = {
                     activeItem = items.find((item) => {
                         const navKey = item.dataset.bottomNavItem;
                         if (navKey === parentKey) return true;
-                        if ((parentKey === 'shops' || parentKey === 'sell') && (navKey === 'shops' || navKey === 'sell')) return true;
+                        // Option A: match strict, les boutiques ne surbrillent pas l'onglet vendre d'un vendeur
                         if (parentKey === 'notifications' && navKey === 'cart') return true;
                         return false;
                     });
@@ -420,7 +420,7 @@ const App = {
             // Synchronise avec la TabBar 100% native SwiftUI (iOS 26 Liquid Glass)
             try {
                 if (window.Capacitor?.Plugins?.NativeTabBar) {
-                    const activeTabId = activeItem?.dataset?.bottomNavItem || ROUTE_PARENT_MAP[currentPath] || (currentPath === '/' || currentPath === '' ? 'home' : null);
+                    const activeTabId = activeItem ? (activeItem.dataset?.bottomNavItem || 'home') : '';
                     if (activeTabId) {
                         window.Capacitor.Plugins.NativeTabBar.setActiveTab({ tabId: activeTabId }).catch(() => {});
                     }

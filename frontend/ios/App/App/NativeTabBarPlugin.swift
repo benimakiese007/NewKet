@@ -189,7 +189,10 @@ public final class NativeTabCoordinator: ObservableObject {
     }
 
     public func selectTab(id: String) {
-        guard tabs.contains(where: { $0.id == id }) else { return }
+        if id.isEmpty || !tabs.contains(where: { $0.id == id }) {
+            selectedTabId = ""
+            return
+        }
         selectedTabId = id
     }
 
@@ -468,10 +471,7 @@ public struct NativeTabRootView: View {
             }
             Text(tab.label)
         } else {
-            let isSelected = coordinator.selectedTabId == tab.id
-            let iconName = isSelected ? tab.systemImage + ".fill" : tab.systemImage
-            Label(tab.label, systemImage: iconName)
-                .id("\(tab.id)-\(isSelected)")
+            Label(tab.label, systemImage: tab.systemImage)
         }
     }
 
@@ -495,7 +495,7 @@ public struct NativeTabRootView: View {
                     }
                 }
                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
-                .tint(Color.primary)
+                .tint(Color(red: 0.12, green: 0.16, blue: 0.22)) // Anthracite NewKet Header
             } else if #available(iOS 16.0, *) {
                 // Fallback for iOS 16-17
                 TabView(selection: Binding(
@@ -514,7 +514,7 @@ public struct NativeTabRootView: View {
                     }
                 }
                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
-                .tint(Color.primary)
+                .tint(Color(red: 0.12, green: 0.16, blue: 0.22)) // Anthracite NewKet Header
             } else {
                 // Fallback for earlier iOS versions (< iOS 16)
                 TabView(selection: Binding(
@@ -530,7 +530,7 @@ public struct NativeTabRootView: View {
                             .tag(tab.id)
                     }
                 }
-                .tint(Color.primary)
+                .tint(Color(red: 0.12, green: 0.16, blue: 0.22)) // Anthracite NewKet Header
             }
         }
         .animation(.easeInOut(duration: 0.25), value: coordinator.isTabBarHidden)

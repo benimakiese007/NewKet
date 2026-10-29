@@ -11145,18 +11145,18 @@ html.dark .liquid-sliding-lens {
 
 /* Active Tab: icône bold (filled) + noir absolu Apple (#000000) */
 .liquid-glass-nav .nav-item.active {
-  color: #000000 !important;
+  color: var(--newket-header-bg, #1f2937) !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
 .liquid-glass-nav .nav-item.active iconify-icon {
-  color: #000000 !important;
+  color: var(--newket-header-bg, #1f2937) !important;
   transform: none !important;
 }
 
 .liquid-glass-nav .nav-item.active span {
-  color: #000000 !important;
+  color: var(--newket-header-bg, #1f2937) !important;
   font-weight: 700 !important;
 }
 

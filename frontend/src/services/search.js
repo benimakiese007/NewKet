@@ -341,6 +341,11 @@ const SearchManager = {
             overlay.classList.remove('active');
             document.body.classList.remove('search-focused');
         }
+        const container = document.getElementById('searchSuggestions');
+        if (container) {
+            container.classList.remove('active');
+            container.innerHTML = '';
+        }
     },
 
     getRecentSearches() {

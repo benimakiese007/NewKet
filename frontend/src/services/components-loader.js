@@ -44,7 +44,13 @@ const HEADER_HTML = `
                     <button id="mobileHeaderSearchBtn"
                         class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Rechercher" aria-label="Rechercher"
-                        onclick="const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput')?.focus(), 50);">
+                        onclick="const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile');
+                    if (sc.classList.contains('user-hidden-on-mobile')) {
+                        // On ferme la recherche : nettoyer immediatement les suggestions
+                        window.SearchManager?.closeSearchOverlay?.();
+                        const ss = document.getElementById('searchSuggestions');
+                        if (ss) { ss.classList.remove('active'); ss.innerHTML = ''; }
+                    } if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput')?.focus(), 50);">
                         <iconify-icon icon="solar:magnifer-linear" width="22" class="text-white"></iconify-icon>
                     </button>
                 </div>
@@ -1260,11 +1266,18 @@ const ComponentLoader = {
             if (typeof window.closeDisputeModal === 'function') {
                 window.closeDisputeModal();
             }
+            // Nettoie la recherche et ses suggestions teleportees
+            window.SearchManager?.closeSearchOverlay?.();
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            if (searchSuggestions) {
+                searchSuggestions.classList.remove('active');
+                searchSuggestions.innerHTML = '';
+            }
             const searchContainer = document.getElementById('mobileSearchContainer');
-            if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile')) {
+            if (searchContainer) {
+                searchContainer.classList.add('user-hidden-on-mobile');
                 const searchClose = document.getElementById('closeSearchBtn') || document.querySelector('[data-close-search]');
-                if (searchClose) searchClose.click();
-                else searchContainer.classList.add('user-hidden-on-mobile');
+                searchClose?.click?.();
             }
             const activeModalClose = document.querySelector('.modal:not(.hidden) [data-action*="close"], .modal:not(.hidden) .modal-close-btn, #orderModal:not([style*="display: none"]) [data-action*="close"], #disputeModal:not(.hidden) [data-action*="close"], [data-close-zoom], #cropperCancelBtn, .nk-modal-close');
             activeModalClose?.click?.();
