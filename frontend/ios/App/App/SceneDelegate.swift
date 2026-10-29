@@ -68,14 +68,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Cold-start deep link (app was closed, widget button tapped)
         if let launchUrl = connectionOptions.urlContexts.first?.url {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
                 self?.coordinator?.handleDeepLink(url: launchUrl)
             }
         }
 
         // Cold-start Quick Action (app was closed, icon long-pressed)
         if let shortcutItem = connectionOptions.shortcutItem {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
                 self?.handleShortcutItem(shortcutItem)
             }
         }

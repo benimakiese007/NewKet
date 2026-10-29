@@ -16,7 +16,7 @@ extension TabItem {
     /// Default consumer tabs (Capacitor physical file paths)
     public static let defaultTabs: [TabItem] = [
         TabItem(id: "home",    label: "Accueil",   systemImage: "house",          path: "/index.html"),
-        TabItem(id: "catalog", label: "Catalogue", systemImage: "storefront",     path: "/src/pages/catalog.html"),
+        TabItem(id: "catalog", label: "Catalogue", systemImage: "square.grid.2x2", path: "/src/pages/catalog.html"),
         TabItem(id: "shops",   label: "Boutiques", systemImage: "bag",            path: "/src/pages/shops.html"),
         TabItem(id: "cart",    label: "Panier",    systemImage: "cart",           path: "##cart"),
         TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/src/pages/customer-dashboard.html"),
@@ -25,7 +25,7 @@ extension TabItem {
     /// Seller tabs (replaces Boutiques with Vendre)
     public static let sellerTabs: [TabItem] = [
         TabItem(id: "home",    label: "Accueil",   systemImage: "house",          path: "/index.html"),
-        TabItem(id: "catalog", label: "Catalogue", systemImage: "storefront",     path: "/src/pages/catalog.html"),
+        TabItem(id: "catalog", label: "Catalogue", systemImage: "square.grid.2x2", path: "/src/pages/catalog.html"),
         TabItem(id: "sell",    label: "Vendre",    systemImage: "plus.circle",    path: "/src/pages/publish.html"),
         TabItem(id: "cart",    label: "Panier",    systemImage: "cart",           path: "##cart"),
         TabItem(id: "account", label: "Compte",    systemImage: "person",         path: "/src/pages/vendor-dashboard.html"),
@@ -224,15 +224,36 @@ public final class NativeTabCoordinator: ObservableObject {
                 }
 
             case "shops", "shop", "boutique", "boutiques":
-                self.onTabSelected(id: "shops")
-
-            case "search", "recherche":
-                self.onTabSelected(id: "catalog")
+                if self.tabs.contains(where: { $0.id == "shops" }) {
+                    self.selectedTabId = "shops"
+                    self.plugin?.notifyTabChanged(tabId: "shops")
+                }
                 let js = """
                 (function() {
-                    var el = document.querySelector('input[type="search"], input[placeholder*="Recherch"], #searchInput, #search-input');
-                    if (el) {
-                        setTimeout(function() { el.focus(); }, 350);
+                    if (!window.location.pathname.includes('shops.html')) {
+                        window.location.href = '/src/pages/shops.html';
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                })();
+                """
+                self.bridgeVC?.bridge?.webView?.evaluateJavaScript(js, completionHandler: nil)
+
+            case "search", "recherche":
+                self.selectedTabId = "catalog"
+                self.plugin?.notifyTabChanged(tabId: "catalog")
+                let js = """
+                (function() {
+                    var sc = document.getElementById('mobileSearchContainer');
+                    if (sc) {
+                        sc.classList.remove('user-hidden-on-mobile');
+                        setTimeout(function() {
+                            var input = document.getElementById('searchInput');
+                            if (input) { input.focus(); }
+                        }, 100);
+                    }
+                    if (!window.location.pathname.includes('catalog.html')) {
+                        window.location.href = '/src/pages/catalog.html?open=search';
                     }
                 })();
                 """
@@ -447,7 +468,10 @@ public struct NativeTabRootView: View {
             }
             Text(tab.label)
         } else {
-            Label(tab.label, systemImage: tab.systemImage)
+            let isSelected = coordinator.selectedTabId == tab.id
+            let iconName = isSelected ? tab.systemImage + ".fill" : tab.systemImage
+            Label(tab.label, systemImage: iconName)
+                .id("\(tab.id)-\(isSelected)")
         }
     }
 

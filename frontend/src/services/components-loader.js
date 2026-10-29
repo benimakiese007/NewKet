@@ -727,6 +727,7 @@ const ComponentLoader = {
             const urlParams = new URLSearchParams(window.location.search);
             const openNotifs = urlParams.get('open') === 'notifications' || sessionStorage.getItem('nk_open_notifications_drawer') === 'true';
             const openFavs = urlParams.get('open') === 'favorites' || sessionStorage.getItem('nk_open_favorites_drawer') === 'true';
+            const openSearch = urlParams.get('open') === 'search' || sessionStorage.getItem('nk_open_search') === 'true';
             if (openNotifs) {
                 sessionStorage.removeItem('nk_open_notifications_drawer');
                 if (urlParams.get('open') === 'notifications') {
@@ -753,6 +754,24 @@ const ComponentLoader = {
                         window.FavoritesManager.openUI();
                     }
                 }, 400);
+            } else if (openSearch) {
+                sessionStorage.removeItem('nk_open_search');
+                if (urlParams.get('open') === 'search') {
+                    const cleanUrl = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, '', cleanUrl);
+                }
+                setTimeout(() => {
+                    const sc = document.getElementById('mobileSearchContainer');
+                    if (sc) {
+                        sc.classList.remove('user-hidden-on-mobile');
+                        setTimeout(() => {
+                            const input = document.getElementById('searchInput');
+                            if (input) {
+                                input.focus();
+                            }
+                        }, 100);
+                    }
+                }, 350);
             }
         } catch (_) {}
 
