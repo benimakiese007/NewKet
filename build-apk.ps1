@@ -1,8 +1,6 @@
-# NewKet — Script de build APK Android
-$ErrorActionPreference = "Stop"
-
+﻿$ErrorActionPreference = "Stop"
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "   BUILD APK ANDROID — NEWKET EMARKET" -ForegroundColor Cyan
+Write-Host "   BUILD APK ANDROID -- NEWKET EMARKET" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 $frontendDir = Join-Path $PSScriptRoot "frontend"
@@ -28,7 +26,7 @@ try {
 }
 
 if (-not $isRelease) {
-    Write-Host "⚠️  assembleRelease n'a pas abouti, compilation assembleDebug..." -ForegroundColor Magenta
+    Write-Host "Fallback vers assembleDebug..." -ForegroundColor Magenta
     .\gradlew.bat assembleDebug
     if ($LASTEXITCODE -ne 0) { throw "Erreur lors de assembleDebug" }
 }
@@ -48,9 +46,9 @@ if ($apkFile) {
     $dest = Join-Path $desktop "NewKet-$mode-$timestamp.apk"
     Copy-Item $apkFile.FullName $dest -Force
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "🎉 SUCCES ! APK copie sur votre Bureau :" -ForegroundColor Green
+    Write-Host "SUCCES ! APK copie sur votre Bureau :" -ForegroundColor Green
     Write-Host "   $dest" -ForegroundColor White
     Write-Host "==================================================" -ForegroundColor Green
 } else {
-    Write-Host "⚠️  Fichier APK non trouve dans $apkDir" -ForegroundColor Red
+    Write-Host "Fichier APK non trouve dans le dossier de build." -ForegroundColor Red
 }

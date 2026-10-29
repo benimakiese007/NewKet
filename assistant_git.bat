@@ -104,11 +104,11 @@ echo   26. [ACTIONS]         GitHub Actions (Build iOS, etc.) (gh workflow)
 echo.
 echo   27. [BUILD APK]       Compiler l'APK Android (local)   (build-apk.ps1)
 echo.
+echo   28. [OTA]             Publier une MAJ mobile sans Store   (npm run ota:publish)
+echo.
 echo   --------------------------------------------------
 echo.
-echo   28. [AIDE]            Comprendre chaque option
-echo.
-echo   29. [OTA]             Publier une MAJ mobile sans Store   (npm run ota:publish)
+echo   29. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
@@ -141,8 +141,8 @@ if "%choix%"=="24" goto RETOUR_BRANCHE
 if "%choix%"=="25" goto PULL_REQUESTS
 if "%choix%"=="26" goto GITHUB_ACTIONS
 if "%choix%"=="27" goto BUILD_APK
-if "%choix%"=="28" goto HELP
-if "%choix%"=="29" goto OTA_PUBLISH
+if "%choix%"=="28" goto OTA_PUBLISH
+if "%choix%"=="29" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -902,6 +902,9 @@ echo.
 echo   27  - BUILD APK : Compiler l'APK Android en local via build-apk.ps1.
 echo                 Depose l'APK final pret a installer sur le Bureau.
 echo.
+echo   28  - OTA       : Publier une MAJ mobile instantanee sans passer par le Store.
+echo                 (Vite build + archive ZIP + upload Supabase OTA).
+echo.
 echo ==================================================
 echo.
 echo.
@@ -1652,7 +1655,7 @@ goto MENU
 
 
 REM ============================================================
-REM  OPTION 29 - OTA : Publier une MAJ mobile sans passer par le Store
+REM  OPTION 28 - OTA : Publier une MAJ mobile sans passer par le Store
 REM ============================================================
 :OTA_PUBLISH
 cls
