@@ -57,8 +57,8 @@ struct NewKetQuickActionsProvider: TimelineProvider {
             let products = await fetchPinnedProducts()
             let list = products.isEmpty ? Self.placeholderProducts : products
             let entry = NewKetQuickActionsEntry(date: Date(), products: list)
-            // Refresh every 30 minutes
-            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date()
+            // Refresh every 2 hours in background
+            let nextUpdate = Calendar.current.date(byAdding: .hour, value: 2, to: Date()) ?? Date()
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
             completion(timeline)
         }

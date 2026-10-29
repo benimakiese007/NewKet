@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 import Capacitor
+import WidgetKit
 
 open class NewKetBridgeViewController: CAPBridgeViewController {
     public weak var nativeTabCoordinator: NativeTabCoordinator?
@@ -32,6 +33,17 @@ open class NewKetBridgeViewController: CAPBridgeViewController {
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     private var coordinator: NativeTabCoordinator?
+    private static var lastWidgetReloadDate: Date?
+
+    /// Throttled widget refresh: reloads at most once every 15 minutes when app is opened
+    private func reloadWidgetsIfNeeded() {
+        let now = Date()
+        if let last = Self.lastWidgetReloadDate, now.timeIntervalSince(last) < 15 * 60 {
+            return
+        }
+        Self.lastWidgetReloadDate = now
+        WidgetCenter.shared.reloadAllTimelines()
+    }
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
@@ -62,6 +74,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
+        reloadWidgetsIfNeeded()
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        SceneDelegateProxy.shared.sceneDidBecomeActive(scene)
+        reloadWidgetsIfNeeded()
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
