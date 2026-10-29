@@ -18,8 +18,8 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Se placer a la racine du projet
-cd /d "%~dp0"
+:: Se placer a la racine du projet depuis scripts\bat\
+cd /d "%~dp0..\.."
 
 echo Mode : AUDIT (lecture seule)
 echo Racine : %CD%
