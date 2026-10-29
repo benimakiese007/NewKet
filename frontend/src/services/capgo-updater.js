@@ -94,9 +94,9 @@ export async function initCapgoUpdater() {
                     });
 
                     if (bundle?.id) {
-                        await CapacitorUpdater.next({ id: bundle.id });
+                        await CapacitorUpdater.set({ id: bundle.id });
                         localStorage.setItem('newket_ota_pending_version', latestRelease.version);
-                        console.log(`[NewKet OTA] ✅ Version ${latestRelease.version} prête ! Active au prochain lancement.`);
+                        console.log(`[NewKet OTA] ✅ Version ${latestRelease.version} activée en direct !`);
                     }
                 } else {
                     console.log(`[NewKet OTA] Déjà à jour (${currentVersion}).`);
