@@ -668,9 +668,6 @@ const AdminLayout = {
                                     Système Actif
                                 </span>
                             </div>
-                            <button onclick="SidebarManager.close()" class="lg:hidden p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100/50 flex-shrink-0">
-                                <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
-                            </button>
                         </div>
                     </div>
 

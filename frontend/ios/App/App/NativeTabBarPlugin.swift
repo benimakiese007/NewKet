@@ -247,10 +247,10 @@ public final class NativeTabCoordinator: ObservableObject {
             case "notifications", "notif", "notifs":
                 let js = """
                 (function() {
-                    if (window.Drawers && typeof window.Drawers.openNotifications === 'function') {
-                        window.Drawers.openNotifications();
-                    } else {
-                        window.location.href = '/src/pages/notifications.html';
+                    if (window.DrawersManager && typeof window.DrawersManager.openNotifications === 'function') {
+                        window.DrawersManager.openNotifications();
+                    } else if (window.NotificationManager && typeof window.NotificationManager.openUI === 'function') {
+                        window.NotificationManager.openUI();
                     }
                 })();
                 """
@@ -259,10 +259,10 @@ public final class NativeTabCoordinator: ObservableObject {
             case "favorites", "fav", "favoris":
                 let js = """
                 (function() {
-                    if (window.Drawers && typeof window.Drawers.openFavorites === 'function') {
-                        window.Drawers.openFavorites();
-                    } else {
-                        window.location.href = '/src/pages/favorites.html';
+                    if (window.DrawersManager && typeof window.DrawersManager.openFavorites === 'function') {
+                        window.DrawersManager.openFavorites();
+                    } else if (window.FavoritesManager && typeof window.FavoritesManager.openUI === 'function') {
+                        window.FavoritesManager.openUI();
                     }
                 })();
                 """

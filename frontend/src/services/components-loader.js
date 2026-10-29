@@ -722,6 +722,26 @@ const ComponentLoader = {
         this.initNetworkStatus();
         this.initMobileSearchToggle();
 
+        // Auto-open notifications drawer if redirected
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const openNotifs = urlParams.get('open') === 'notifications' || sessionStorage.getItem('nk_open_notifications_drawer') === 'true';
+            if (openNotifs) {
+                sessionStorage.removeItem('nk_open_notifications_drawer');
+                if (urlParams.get('open') === 'notifications') {
+                    const cleanUrl = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, '', cleanUrl);
+                }
+                setTimeout(() => {
+                    if (window.DrawersManager?.openNotifications) {
+                        window.DrawersManager.openNotifications();
+                    } else if (window.NotificationManager?.openUI) {
+                        window.NotificationManager.openUI();
+                    }
+                }, 400);
+            }
+        } catch (_) {}
+
         // setupHeaderSpacing is now called immediately after header injection (in loadComponent).
         // This second pass catches any late-loading assets (fonts, logo) that change the header height.
         setTimeout(() => this.setupHeaderSpacing(), 0);

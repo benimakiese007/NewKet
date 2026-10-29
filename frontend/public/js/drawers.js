@@ -81,7 +81,7 @@ class DrawersManager {
                         <button id="drawerClearFavBtn" onclick="window.DrawersManager.clearAllFavorites()" class="p-2 text-white/80 hover:text-red-400 hover:bg-white/10 rounded-xl transition-colors btn-active-scale" title="Tout effacer" aria-label="Tout effacer">
                             <iconify-icon icon="solar:trash-bin-trash-linear" width="20"></iconify-icon>
                         </button>
-                        <button onclick="window.DrawersManager.closeFavorites()" class="p-2 rounded-xl text-white hover:bg-white/10 transition-colors btn-active-scale" aria-label="Fermer">
+                        <button id="favoritesCloseBtn" onclick="window.DrawersManager.closeFavorites()" class="drawer-close-btn p-2 rounded-xl text-white hover:bg-white/10 transition-colors btn-active-scale" aria-label="Fermer" title="Fermer">
                             <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
                         </button>
                     </div>
@@ -315,7 +315,7 @@ class DrawersManager {
                         <button onclick="window.DrawersManager.markAllNotificationsRead()" class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors btn-active-scale" title="Tout marquer comme lu" aria-label="Tout lire">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
                         </button>
-                        <button onclick="window.DrawersManager.closeNotifications()" class="p-2 rounded-xl text-white hover:bg-white/10 transition-colors btn-active-scale" aria-label="Fermer">
+                        <button id="notificationsCloseBtn" onclick="window.DrawersManager.closeNotifications()" class="drawer-close-btn p-2 rounded-xl text-white hover:bg-white/10 transition-colors btn-active-scale" aria-label="Fermer" title="Fermer">
                             <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
                         </button>
                     </div>

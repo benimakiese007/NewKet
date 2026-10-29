@@ -154,9 +154,11 @@ const handleDeepLinkRoute = (rawUrl) => {
     if (route === 'shops' || route === 'shop' || route === 'boutique' || route === 'boutiques') {
         window.location.href = '/src/pages/shops.html';
     } else if (route === 'notifications' || route === 'notif' || route === 'notifs') {
-        window.location.href = '/src/pages/notifications.html';
+        if (window.DrawersManager?.openNotifications) window.DrawersManager.openNotifications();
+        else if (window.NotificationManager?.openUI) window.NotificationManager.openUI();
     } else if (route === 'favorites' || route === 'fav' || route === 'favoris') {
-        window.location.href = '/src/pages/favorites.html';
+        if (window.DrawersManager?.openFavorites) window.DrawersManager.openFavorites();
+        else if (window.FavoritesManager?.openUI) window.FavoritesManager.openUI();
     } else if (route === 'achat' || route === 'cart' || route === 'panier') {
         window.location.href = '/src/pages/achat.html';
     } else if (route === 'product' || route === 'produit') {
