@@ -1,9 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const supabase = createClient(
-  'https://kuygjocnnlvjtoaquicq.supabase.co',
-  'sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM'
-);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+const supabaseUrl = process.env.SUPABASE_URL || 'https://kuygjocnnlvjtoaquicq.supabase.co';
+const supabaseKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseKey) {
+  console.error('SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is required in backend/.env');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const FRENCH_NAMES = [
   "Jean Dupont", "Marie Martin", "Pierre Bernard", "Sophie Petit", "Nicolas Robert",

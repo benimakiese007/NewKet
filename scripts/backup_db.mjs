@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const SUPABASE_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = 'sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM';
+const SUPABASE_SERVICE_ROLE_KEY = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '');
 
 // Tables critiques a sauvegarder
 const TABLES = [

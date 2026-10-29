@@ -1,9 +1,10 @@
+import os
 import requests
 
 url = 'https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/users?role=eq.supplier&select=id,email,company_name,status,identity_document_urls'
 headers = {
-    'apikey': 'sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM',
-    'Authorization': 'Bearer sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM',
+    'apikey': os.getenv('SUPABASE_KEY', ''),
+    'Authorization': f"Bearer {os.getenv('SUPABASE_KEY', '')}",
     'Content-Type': 'application/json'
 }
 

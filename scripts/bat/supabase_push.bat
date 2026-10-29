@@ -55,8 +55,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Authentification automatique
-set "SUPABASE_ACCESS_TOKEN=sbp_05d955336b3574faa84806ebad299758efffb32d"
+:: Authentification automatique (charge depuis _secrets.bat si present)
+if exist "%~dp0_secrets.bat" (
+    call "%~dp0_secrets.bat"
+)
 
 echo.
 

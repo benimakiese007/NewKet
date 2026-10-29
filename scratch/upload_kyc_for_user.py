@@ -4,7 +4,7 @@ import os
 import json
 
 SUPABASE_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co'
-SUPABASE_KEY = 'sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM'
+SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
 
 email_target = 'benimakiese123@gmail.com'
 

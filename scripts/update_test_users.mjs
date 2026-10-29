@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = 'sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM';
+const SUPABASE_SERVICE_ROLE_KEY = (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '');
 
 const emails = ['benimakiese1234567@gmail.com', 'benimakiese123@gmail.com'];
 const newPassword = 'Phoenix_2026!';

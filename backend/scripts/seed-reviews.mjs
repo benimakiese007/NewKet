@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 
 const supabase = createClient(
   'https://kuygjocnnlvjtoaquicq.supabase.co',
-  'sb_secret_7PIbS1VoWnNzufQmZ7U7zg_h7TkPNeM'
+  (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '')
 );
 
 const log = (msg) => console.log(msg);

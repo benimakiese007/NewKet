@@ -32,6 +32,8 @@ const REAL_SECRET_PATTERNS = [
   { name: 'URL avec mot de passe', regex: /:\/\/[^:/"'\s]+:[^@/"'\s]{4,}@/ },
   { name: 'Mot de passe en dur', regex: /(?:password|passwd|pwd)\s*[=:]\s*["'][^"']{6,}["']/ },
   { name: 'Clé Supabase service_role', regex: /service_role.*eyJ[A-Za-z0-9+/=]{50,}/ },
+  { name: 'Clé Supabase secret',       regex: /sb_secret_[A-Za-z0-9_-]{20,}/ },
+  { name: 'Token Supabase personal',   regex: /sbp_[A-Za-z0-9_-]{20,}/ },
 ];
 
 // ─── PATTERNS : FAUX POSITIFS (exclure automatiquement) ─────────────────────
