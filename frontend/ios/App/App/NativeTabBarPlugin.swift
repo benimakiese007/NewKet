@@ -447,7 +447,10 @@ public struct NativeTabRootView: View {
             }
             Text(tab.label)
         } else {
-            Label(tab.label, systemImage: tab.systemImage)
+            // Outline quand inactif -> Fill quand actif (miroir solar:-linear -> -bold web)
+            let isSelected = coordinator.selectedTabId == tab.id
+            let iconName = isSelected ? tab.systemImage + ".fill" : tab.systemImage
+            Label(tab.label, systemImage: iconName)
         }
     }
 
