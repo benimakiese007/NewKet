@@ -9,6 +9,7 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "build:frontend": "cd frontend && npm run build",
+    "ota:publish": "cd frontend && npm run ota:publish",
     "install:all": "cd frontend && npm install --legacy-peer-deps && cd ../backend && npm install --legacy-peer-deps",
     "test:e2e": "playwright test --config=tests/playwright.config.js",
     "check:encoding": "python tools/encoding-check/mojibake_tool.py",

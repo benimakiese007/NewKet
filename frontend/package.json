@@ -1,6 +1,6 @@
 {
   "name": "newket",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "api": "node api/index.js",
     "prebuild": "node scripts/sync-backend-for-vercel.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ota:publish": "node scripts/publish-ota.mjs"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   "dependencies": {
     "@capacitor/android": "^8.5.2",
     "@capacitor/app": "^8.0.0",
+    "@capgo/capacitor-updater": "^8.54.0",
     "@capacitor/browser": "^8.0.5",
     "@capacitor/cli": "^8.5.2",
     "@capacitor/core": "^8.5.2",

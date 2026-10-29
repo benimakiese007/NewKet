@@ -32,9 +32,29 @@ import './main.js';
 
 // Initialize Vercel Analytics only in production contexts.
 // This avoids local 403/noise when debug script is blocked by browser policies/ad blockers.
-const isLocalHost =
+const isNativeCapacitor = () => {
+    try {
+        return (
+            window.location?.protocol === 'capacitor:' ||
+            !!(window.Capacitor && (
+                (typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ||
+                window.Capacitor.isNative ||
+                window.Capacitor.getPlatform?.() === 'ios' ||
+                window.Capacitor.getPlatform?.() === 'android'
+            )) ||
+            document.documentElement?.classList?.contains('capacitor-native') ||
+            document.documentElement?.classList?.contains('is-ios-capacitor') ||
+            document.documentElement?.classList?.contains('is-android-capacitor')
+        );
+    } catch {
+        return false;
+    }
+};
+
+const isLocalHost = !isNativeCapacitor() && (
     window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
+    window.location.hostname === '127.0.0.1'
+);
 
 if (!isLocalHost) {
     const startVercelAnalytics = (choices) => {

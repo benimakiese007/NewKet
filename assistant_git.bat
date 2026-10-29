@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001 >nul
 title Assistant Git - NewKet
 color 0B
@@ -108,9 +108,11 @@ echo   --------------------------------------------------
 echo.
 echo   28. [AIDE]            Comprendre chaque option
 echo.
+echo   29. [OTA]             Publier une MAJ mobile sans Store   (npm run ota:publish)
+echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-28) : "
+set /p choix="   Choix (0-29) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -140,6 +142,7 @@ if "%choix%"=="25" goto PULL_REQUESTS
 if "%choix%"=="26" goto GITHUB_ACTIONS
 if "%choix%"=="27" goto BUILD_APK
 if "%choix%"=="28" goto HELP
+if "%choix%"=="29" goto OTA_PUBLISH
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -1647,6 +1650,63 @@ echo   Appuyez sur une touche pour revenir au menu...
 pause >nul
 goto MENU
 
+
+REM ============================================================
+REM  OPTION 29 - OTA : Publier une MAJ mobile sans passer par le Store
+REM ============================================================
+:OTA_PUBLISH
+cls
+echo ==================================================
+echo       PUBLICATION OTA - MISE A JOUR MOBILE INSTANT
+echo ==================================================
+echo.
+echo   Ce script va :
+echo     [1/3] Compiler le frontend (Vite build)
+echo     [2/3] Creer une archive ZIP du dossier dist/
+echo     [3/3] Uploader sur Supabase Storage + enregistrer la version
+echo.
+echo   Les apps Android et iOS installee par les utilisateurs
+echo   vont recevoir la mise a jour automatiquement au prochain lancement.
+echo.
+echo   LIMITE SUPABASE GRATUIT : ~416 telechargements / MAJ
+echo   (5 GB bande passante gratuit / ~12 MB par bundle)
+echo.
+set /p ota_version="   Version a publier (ex: 1.0.2, laisser vide = auto) : "
+set /p ota_notes="   Notes de version (ex: Correction bug panier) : "
+echo.
+set /p confirm_ota="   Confirmer la publication OTA ? (O/N) : "
+if /i not "%confirm_ota%"=="O" (\r
+echo.\r
+echo   Publication annulee.\r
+timeout /t 2 >nul\r
+goto MENU\r
+)\r
+
+echo.
+echo ==================================================
+echo   Lancement de npm run ota:publish ...\r
+echo ==================================================
+echo.
+cd /d "%~dp0frontend"
+if "%ota_version%"==" (\r
+    if "%ota_notes%"==" (\r
+        npm run ota:publish\r
+    ) else (\r
+        npm run ota:publish -- --notes "%ota_notes%"
+    )\r
+) else (\r
+    if "%ota_notes%"==" (\r
+        npm run ota:publish -- --version %ota_version%\r
+    ) else (\r
+        npm run ota:publish -- --version %ota_version% --notes "%ota_notes%"
+    )\r
+)\r
+cd /d "%~dp0"
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...\r
+pause >nul\r
+goto MENU
 :END
 exit
 

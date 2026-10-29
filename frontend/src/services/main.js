@@ -1,4 +1,5 @@
 /* NewKet EMarket - Main Orchestrator */
+import { initCapgoUpdater } from './capgo-updater.js';
 import { initSentry, setSentryUser } from './sentry.js';
 import { initCapacitorPlugins } from './capacitor-plugins.js';
 
@@ -28,6 +29,9 @@ const resolveLocalBackendReady = async () => {
 
 const App = {
     async init() {
+        // --- OTA LIVE UPDATES (Capgo) ---
+        initCapgoUpdater().catch(e => console.warn('[App] Capgo OTA init:', e?.message));
+
         // --- INITIALISATION SENTRY (Monitoring) ---
         initSentry();
 

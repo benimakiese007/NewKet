@@ -5,13 +5,19 @@
   "server": {
     "allowNavigation": [
       "*.supabase.co",
-      "*.supabase.in"
+      "*.supabase.in",
+      "newket.vercel.app",
+      "*.vercel.app"
     ]
   },
   "android": {
     "webContentsDebuggingEnabled": true
   },
   "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "statsUrl": ""
+    },
     "CapacitorHttp": {
       "enabled": true
     },
@@ -29,4 +35,3 @@
     }
   }
 }
-

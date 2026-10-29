@@ -1990,6 +1990,7 @@
                             try { rerenderVisible(); } catch (e) {}
                         });
                     };
+                    window.scheduleVendorRerender = scheduleRerender;
 
                     window.addEventListener('currencyChanged', () => {
                         scheduleRerender();
@@ -2049,10 +2050,10 @@
                                 // can display the precise count without re-filtering the full cache.
                                 window.__vendorOwnProducts = Array.isArray(vendorProducts) ? vendorProducts : [];
                                 window.__newketVendorProductsReady = true;
-                                if (typeof scheduleRerender === 'function') scheduleRerender();
+                                (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                             }).catch(() => {
                                 window.__newketVendorProductsReady = true;
-                                if (typeof scheduleRerender === 'function') scheduleRerender();
+                                (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                             });
                         } else {
                             // ProductManager pas encore chargé — réessayer dans 500ms (max 10 fois)
@@ -2063,7 +2064,7 @@
                             } else {
                                 // Après 10 tentatives, forcer l'arrêt du skeleton pour ne pas bloquer l'UI
                                 window.__newketVendorProductsReady = true;
-                                if (typeof scheduleRerender === 'function') scheduleRerender();
+                                (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                             }
                         }
                     };
@@ -2079,11 +2080,11 @@
                             OrderManager.init({ force: true })
                                 .then(() => {
                                     window.__newketVendorOrdersReady = true;
-                                    if (typeof scheduleRerender === 'function') scheduleRerender();
+                                    (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                                 })
                                 .catch(() => {
                                     window.__newketVendorOrdersReady = true;
-                                    if (typeof scheduleRerender === 'function') scheduleRerender();
+                                    (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                                 });
                             return;
                         }
@@ -2094,7 +2095,7 @@
                             setTimeout(_fetchVendorOrdersSafe, 500);
                         } else {
                             window.__newketVendorOrdersReady = true;
-                            if (typeof scheduleRerender === 'function') scheduleRerender();
+                            (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                         }
                     };
                     setTimeout(_fetchVendorOrdersSafe, 50);
