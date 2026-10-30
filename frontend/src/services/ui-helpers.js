@@ -1924,24 +1924,13 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             });
 
             // ===== GEOLOCATION: "Me localiser" button logic =====
-            window._locateMe = (id) => {
+            window._locateMe = async (id) => {
                 if (id !== modalId) return;
                 
                 const locateBtn = document.getElementById(`${id}-locate-btn`);
                 const mapLocateBtn = document.getElementById(`${id}-map-locate-btn`);
                 const statusEl = document.getElementById(`${id}-loc-status`);
                 const badgeEl = document.getElementById(`${id}-loc-badge`);
-
-                // Check browser support
-                if (!navigator.geolocation) {
-                    if (statusEl) {
-                        statusEl.innerHTML = `
-                            <iconify-icon icon="solar:danger-triangle-bold" width="14" class="text-red-500"></iconify-icon>
-                            <span class="text-red-600 font-medium">Géolocalisation non supportée par votre navigateur</span>
-                        `;
-                    }
-                    return;
-                }
 
                 // Helper to update status UI
                 const updateStatusUI = (msg, isError = false) => {
@@ -1963,55 +1952,88 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                 }
                 if (badgeEl) badgeEl.classList.add('hidden');
 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude, accuracy } = position.coords;
-                        selectedLat = latitude;
-                        selectedLng = longitude;
+                const applyPosition = (lat, lng, accuracy = 10) => {
+                    selectedLat = lat;
+                    selectedLng = lng;
 
-                        // Move map & marker
-                        if (window._checkoutMapRef && window._checkoutMarkerRef) {
-                            const newPos = [latitude, longitude];
-                            window._checkoutMarkerRef.setLatLng(newPos);
-                            window._checkoutMapRef.setView(newPos, 16, { animate: true });
-                            window._checkoutMapRef.invalidateSize();
-                        }
-
-                        // Success UI feedback
-                        updateStatusUI(`Position détectée (Précision: ±${Math.round(accuracy)}m).`);
-                        if (badgeEl) badgeEl.classList.remove('hidden');
-
-                        if (locateBtn) {
-                            locateBtn.disabled = false;
-                            locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position trouvée !</span>`;
-                            locateBtn.classList.replace('from-indigo-600', 'from-green-600');
-                            
-                            setTimeout(() => {
-                                locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Mettre à jour la position</span>`;
-                                locateBtn.classList.replace('from-green-600', 'from-indigo-600');
-                            }, 3000);
-                        }
-
-                    },
-                    (error) => {
-                        console.error("Geolocation error:", error);
-                        let errorMsg = 'Impossible de vous localiser.';
-                        if (error.code === 1) errorMsg = 'Permission refusée. Veuillez activer le GPS.';
-                        else if (error.code === 2) errorMsg = 'Position non disponible.';
-                        
-                        updateStatusUI(errorMsg, true);
-                        
-                        if (locateBtn) {
-                            locateBtn.disabled = false;
-                            locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Réessayer</span>`;
-                        }
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        // No timeout per user request
-                        maximumAge: 10000
+                    // Move map & marker
+                    if (window._checkoutMapRef && window._checkoutMarkerRef) {
+                        const newPos = [lat, lng];
+                        window._checkoutMarkerRef.setLatLng(newPos);
+                        window._checkoutMapRef.setView(newPos, 16, { animate: true });
+                        window._checkoutMapRef.invalidateSize();
                     }
-                );
+
+                    // Success UI feedback
+                    updateStatusUI(`Position détectée (Précision: ±${Math.round(accuracy)}m).`);
+                    if (badgeEl) badgeEl.classList.remove('hidden');
+
+                    if (locateBtn) {
+                        locateBtn.disabled = false;
+                        locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position trouvée !</span>`;
+                        locateBtn.classList.replace('from-indigo-600', 'from-green-600');
+                        
+                        setTimeout(() => {
+                            locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Mettre à jour la position</span>`;
+                            locateBtn.classList.replace('from-green-600', 'from-indigo-600');
+                        }, 3000);
+                    }
+                };
+
+                const handleError = (error) => {
+                    console.error("[NewKet Geo Checkout] Erreur:", error);
+                    let errorMsg = 'Impossible de vous localiser.';
+                    const errStr = (error?.message || '').toLowerCase();
+                    if (error?.code === 1 || errStr.includes('denied') || errStr.includes('refusée') || errStr.includes('permission')) {
+                        errorMsg = 'GPS non autorisé. Activez la localisation dans Réglages ou pointez votre adresse sur la carte.';
+                    } else if (error?.code === 2 || error?.code === 3 || errStr.includes('timeout') || errStr.includes('unavailable')) {
+                        errorMsg = 'Signal GPS introuvable. Pointez directement votre adresse sur la carte.';
+                    } else {
+                        errorMsg = error?.message || 'Position non disponible. Déplacez le marqueur sur la carte.';
+                    }
+                    
+                    updateStatusUI(errorMsg, true);
+                    
+                    if (locateBtn) {
+                        locateBtn.disabled = false;
+                        locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Réessayer</span>`;
+                    }
+                };
+
+                try {
+                    // 1. Tenter via le bridge Capacitor natif (iOS / Android)
+                    if (window.NewKetGeo?.getCurrentPosition) {
+                        const pos = await window.NewKetGeo.getCurrentPosition({
+                            enableHighAccuracy: true,
+                            timeout: 8000
+                        });
+                        if (pos && typeof pos.latitude === 'number') {
+                            applyPosition(pos.latitude, pos.longitude, pos.accuracy);
+                            return;
+                        }
+                    }
+
+                    // 2. Fallback direct sur l'API navigateur standard
+                    if (!navigator.geolocation) {
+                        updateStatusUI("Géolocalisation indisponible. Pointez votre adresse sur la carte.", true);
+                        if (locateBtn) locateBtn.disabled = false;
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            applyPosition(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
+                        },
+                        (err) => handleError(err),
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 8000,
+                            maximumAge: 10000
+                        }
+                    );
+                } catch (err) {
+                    handleError(err);
+                }
             };
         });
 

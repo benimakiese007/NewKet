@@ -122,5 +122,9 @@
 			<string>person.crop.circle</string>
 		</dict>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>NewKet a besoin de votre localisation pour calculer les frais de livraison et localiser votre adresse de livraison exacte à Kinshasa.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>NewKet utilise votre position pour assurer le suivi en direct de vos commandes et livraisons.</string>
 </dict>
 </plist>
