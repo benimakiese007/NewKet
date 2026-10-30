@@ -3,7 +3,7 @@ import { initGoogleAnalytics } from './google-analytics.js';
 import './HeroSlider.js';
 import './supabase-client.js';
 import './supabase-adapter.js';
-import './api-client.js';
+import { isNativeCapacitor } from './api-client.js';
 import './sanitize.js';
 
 import './config-manager.js';
@@ -24,9 +24,10 @@ import './components-loader.js';
 import './main.js';
 import './call-notifier.js';
 
-const isLocalHost =
+const isLocalHost = !isNativeCapacitor() && (
     window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
+    window.location.hostname === '127.0.0.1'
+);
 
 if (!isLocalHost) {
     const startVercelAnalytics = (choices) => {

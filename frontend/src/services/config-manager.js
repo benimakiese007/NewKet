@@ -348,7 +348,8 @@ const ConfigManager = {
         const now = Date.now();
         const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
         const MAINTENANCE_CHECK_DURATION = 1000 * 60; // 60 seconds
-        const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
+        const isCapacitor = window.location.protocol === 'capacitor:' || !!(window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.isNative || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android')) || (window.ApiClient && typeof window.ApiClient.isNativeCapacitor === 'function' && window.ApiClient.isNativeCapacitor());
+        const isLocalHost = !isCapacitor && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
 
         if (saved) {
             try {

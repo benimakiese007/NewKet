@@ -148,11 +148,16 @@
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Device</div>
                         <select id="filterDevice" data-track-action="admin_analytics:filter_device_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
-                            <option value="all">Tous</option>
-                            <option value="mobile">Mobile</option>
-                            <option value="tablet">Tablette</option>
-                            <option value="desktop">Desktop</option>
-                            <option value="unknown">Inconnu</option>
+                            <option value="all">Tous les types</option>
+                            <option value="pwa_android">📱 PWA Android (Accueil)</option>
+                            <option value="pwa_ios">📲 PWA iOS (Accueil)</option>
+                            <option value="pwa_desktop">💻 PWA Desktop (PC/Mac)</option>
+                            <option value="app_android">🤖 App Native Android</option>
+                            <option value="app_ios">🍏 App Native iOS</option>
+                            <option value="web_mobile">🌐 Web Mobile</option>
+                            <option value="web_desktop">🖥️ Web Desktop</option>
+                            <option value="mobile">Mobile (générique)</option>
+                            <option value="desktop">Desktop (générique)</option>
                         </select>
                     </div>
 
@@ -261,29 +266,50 @@
                 <article class="glass-panel p-6 lg:col-span-1"><h2 class="font-bold text-gray-900 mb-4">Actions les plus cliquees</h2><div class="space-y-3" id="topTargetsList"></div></article>
             </section>
 
-            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <article class="glass-panel p-6">
-                    <h2 class="font-bold text-gray-900 mb-4">Répartition</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div><div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Rôles</div><div class="space-y-3" id="roleBreakdownList"></div></div>
-                        <div><div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Devices</div><div class="space-y-3" id="deviceBreakdownList"></div></div>
-                    </div>
-                    <div class="mt-4">
-                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Auth</div>
-                        <div class="space-y-3" id="authBreakdownList"></div>
-                    </div>
-                </article>
-                <article class="glass-panel p-6">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <h2 class="font-bold text-gray-900">Activité journalière</h2>
-                            <p class="text-sm text-gray-500">Pages, clics et temps actif.</p>
+            <!-- Section Répartition en pleine largeur avec disposition horizontale 3 colonnes -->
+            <article class="glass-panel p-6">
+                <h2 class="font-bold text-gray-900 mb-4 text-base">Répartition globale</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    <!-- Supports & Appareils (PWA, Mobile, Desktop) -->
+                    <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
+                        <div class="text-[11px] font-black uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
+                            <span>Supports & Appareils</span>
+                            <span class="text-[10px] text-gray-400 font-semibold">Canaux</span>
                         </div>
-                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="timeseriesMeta">—</div>
+                        <div class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1" id="deviceBreakdownList"></div>
                     </div>
-                    <div class="mt-4 space-y-3" id="dailyViewsList"></div>
-                </article>
-            </section>
+
+                    <!-- Rôles utilisateurs (Vendeur, Acheteur, Invité) -->
+                    <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
+                        <div class="text-[11px] font-black uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
+                            <span>Rôles & Profils</span>
+                            <span class="text-[10px] text-gray-400 font-semibold">Comptes</span>
+                        </div>
+                        <div class="space-y-2.5" id="roleBreakdownList"></div>
+                    </div>
+
+                    <!-- Statut d'authentification -->
+                    <div class="bg-gray-50/70 p-4 rounded-2xl border border-gray-100">
+                        <div class="text-[11px] font-black uppercase tracking-wider text-gray-500 mb-3 flex items-center justify-between">
+                            <span>Authentification</span>
+                            <span class="text-[10px] text-gray-400 font-semibold">Connexion</span>
+                        </div>
+                        <div class="space-y-2.5" id="authBreakdownList"></div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Activité journalière en pleine largeur avec cartes horizontales -->
+            <article class="glass-panel p-6">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="font-bold text-gray-900 text-base">Activité journalière</h2>
+                        <p class="text-sm text-gray-500">Pages, clics et temps actif par date.</p>
+                    </div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="timeseriesMeta">—</div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="dailyViewsList"></div>
+            </article>
 
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <article class="glass-panel p-6 lg:col-span-2">
@@ -605,6 +631,24 @@
             return v;
         }
 
+        function normalizeDeviceLabel(device) {
+            const d = String(device || '').trim();
+            const map = {
+                'pwa_android': '📱 PWA Android (Écran d\'accueil)',
+                'pwa_ios': '📲 PWA iOS (Écran d\'accueil)',
+                'pwa_desktop': '💻 PWA Desktop (PC/Mac)',
+                'app_android': '🤖 App Native Android',
+                'app_ios': '🍏 App Native iOS',
+                'web_mobile': '🌐 Web Mobile (Navigateur)',
+                'web_desktop': '🖥️ Web Desktop (Navigateur)',
+                'mobile': '📱 Mobile',
+                'tablet': '📱 Tablette',
+                'desktop': '🖥️ Ordinateur',
+                'unknown': 'Inconnu'
+            };
+            return map[d] || d || 'Inconnu';
+        }
+
         function normalizeRoleLabel(role) {
             const r = String(role || '').trim();
             if (!r) return 'Invité';
@@ -773,7 +817,7 @@
                 const rawKey = row[keyField] || '-';
                 const label = options.prettifyRole
                     ? normalizeRoleLabel(rawKey)
-                    : (options.prettify ? normalizeLabel(rawKey) : rawKey);
+                    : (options.prettifyDevice ? normalizeDeviceLabel(rawKey) : (options.prettify ? normalizeLabel(rawKey) : rawKey));
                 const title = row.title ? `<div class="text-[11px] text-gray-500 truncate">${row.title}</div>` : '';
 
                 const safeValue = String(rawKey)
@@ -872,8 +916,35 @@
 
             renderKeyValueList('topPagesList', data.top_pages, 'Aucune page suivie.', 'path', 'count', { clickable: true, kind: 'page', prettify: true });
             renderKeyValueList('topTargetsList', data.top_targets, 'Aucune action suivie.', 'target', 'count', { clickable: true, kind: 'target', prettify: false });
-            renderKeyValueList('roleBreakdownList', data.role_breakdown, 'Aucun rôle tracé.', 'role', 'count', { prettifyRole: true });
-            renderKeyValueList('deviceBreakdownList', data.device_breakdown, 'Aucun device trace.', 'device', 'count');
+            // Assurer que tous les rôles apparaissent toujours (même à 0)
+            const standardRoles = ['supplier', 'customer', 'guest'];
+            const roleMap = new Map((data.role_breakdown || []).map(r => [r.role, Number(r.count || 0)]));
+            standardRoles.forEach(r => {
+                if (!roleMap.has(r)) roleMap.set(r, 0);
+            });
+            const enrichedRoles = Array.from(roleMap.entries()).map(([role, count]) => ({ role, count }));
+
+            // Assurer que tous les supports / devices apparaissent distinctement (même à 0)
+            const standardDevices = [
+                'pwa_android',
+                'pwa_ios',
+                'pwa_desktop',
+                'app_android',
+                'app_ios',
+                'web_mobile',
+                'web_desktop'
+            ];
+            const deviceMap = new Map((data.device_breakdown || []).map(d => [d.device, Number(d.count || 0)]));
+            standardDevices.forEach(d => {
+                if (!deviceMap.has(d)) deviceMap.set(d, 0);
+            });
+            // Trier avec les éléments ayant des événements d'abord, tout en conservant les clés attendues
+            const enrichedDevices = Array.from(deviceMap.entries())
+                .map(([device, count]) => ({ device, count }))
+                .sort((a, b) => b.count - a.count);
+
+            renderKeyValueList('roleBreakdownList', enrichedRoles, 'Aucun rôle tracé.', 'role', 'count', { prettifyRole: true });
+            renderKeyValueList('deviceBreakdownList', enrichedDevices, 'Aucun appareil tracé.', 'device', 'count', { prettifyDevice: true });
             renderKeyValueList('authBreakdownList', data.auth_breakdown, 'Aucun segment.', 'auth', 'count');
             const dailyEl = document.getElementById('dailyViewsList');
             if (!series.length) {

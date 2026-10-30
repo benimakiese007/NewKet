@@ -45,7 +45,12 @@ export function getApiBaseUrl() {
             return configured.replace(/\/$/, '') + '/api';
         }
     }
-    if (isNativeCapacitor()) {
+    // En dev local (localhost / 127.0.0.1 sur navigateur), toujours passer par le proxy local /api
+    const isLocalBrowser = typeof window !== 'undefined' && 
+        window.location.protocol !== 'capacitor:' &&
+        /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
+
+    if (!isLocalBrowser && isNativeCapacitor()) {
         return 'https://newket.vercel.app/api';
     }
     return '/api';
@@ -427,5 +432,10 @@ export const ApiClient = {
         return this.fetch(endpoint, { ...options, method: 'DELETE', body: body ? JSON.stringify(body) : undefined });
     }
 };
+
+ApiClient.isNativeCapacitor = isNativeCapacitor;
+if (typeof window !== 'undefined') {
+    window.isNativeCapacitor = isNativeCapacitor;
+}
 
 window.ApiClient = ApiClient;

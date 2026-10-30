@@ -2,15 +2,17 @@
 import { initCapgoUpdater } from './capgo-updater.js';
 import { initSentry, setSentryUser } from './sentry.js';
 import { initCapacitorPlugins } from './capacitor-plugins.js';
+import { isNativeCapacitor } from './api-client.js';
 
 
 window.newketConfig = {
     exchangeRate: 2500
 };
 
-const isLocalHost =
+const isLocalHost = !isNativeCapacitor() && (
     window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
+    window.location.hostname === '127.0.0.1'
+);
 
 const resolveLocalBackendReady = async () => {
     if (!isLocalHost) return true;
