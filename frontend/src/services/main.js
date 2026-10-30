@@ -212,7 +212,7 @@ const App = {
             }
 
             const initPromises = [];
-            if (window.ProductManager && backendReady) initPromises.push(ProductManager.init());
+            if (window.ProductManager && (backendReady || window.supabaseClient)) initPromises.push(ProductManager.init());
 
             // Orders are needed for customer + vendor dashboards too.
             if (window.OrderManager && isLoggedIn && backendReady) initPromises.push(OrderManager.init());

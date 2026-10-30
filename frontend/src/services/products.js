@@ -293,13 +293,26 @@ const ProductManager = {
 
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
-                    const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    let fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type, shop_slug)',
                         eq: [['is_archived', false]],
                         order: ['created_at', { ascending: false }],
                         limit: PRODUCTS_PAGE_SIZE,
-                        suppressToast: true
+                        suppressToast: true,
+                        timeout: 4000
                     });
+
+                    // Si la jointure échoue ou timeout, fallback immédiat sans jointure
+                    if (!fetchedProducts || fetchedProducts.length === 0) {
+                        console.warn('[ProductManager] Join query returned empty or timed out, retrying simple select(*)');
+                        fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*',
+                            eq: [['is_archived', false]],
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_PAGE_SIZE,
+                            suppressToast: true
+                        });
+                    }
                     products = fetchedProducts || [];
                     this._totalCount = products.length;
                     this._totalCountKnown = false;
