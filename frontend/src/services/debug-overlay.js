@@ -112,6 +112,10 @@ function updatePanel() {
 export function initDebugOverlay() {
     if (typeof document === 'undefined') return;
 
+    // Show debug pill only if explicitly requested (?debug=1 or localStorage.nk_debug = '1')
+    const isDebugRequested = window.location.search.includes('debug=1') || localStorage.getItem('nk_debug') === '1';
+    if (!isDebugRequested) return;
+
     // Create floating pill
     pill = document.createElement('div');
     pill.id = 'nk-debug-pill';
