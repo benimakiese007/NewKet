@@ -89,10 +89,29 @@ export async function initCapgoUpdater() {
                 if (compareVersions(latestRelease.version, currentVersion) > 0) {
                     showToast(`🔄 Mise à jour v${latestRelease.version} en cours...`, '#0284c7');
 
-                    const bundle = await CapacitorUpdater.download({
+                    let checksum = latestRelease.checksum;
+                    if (!checksum) {
+                        try {
+                            console.log('[NewKet OTA] Calculating remote checksum fallback...');
+                            const resp = await fetch(latestRelease.bundle_url);
+                            const buf = await resp.arrayBuffer();
+                            const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+                            checksum = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+                            console.log('[NewKet OTA] Computed fallback checksum:', checksum);
+                        } catch (e) {
+                            console.warn('[NewKet OTA] Checksum calculation error:', e?.message);
+                        }
+                    }
+
+                    const downloadOptions = {
                         url: latestRelease.bundle_url,
                         version: latestRelease.version
-                    });
+                    };
+                    if (checksum) {
+                        downloadOptions.checksum = checksum;
+                    }
+
+                    const bundle = await CapacitorUpdater.download(downloadOptions);
 
                     if (bundle?.id) {
                         showToast(`✅ v${latestRelease.version} prête, application...`, '#16a34a');

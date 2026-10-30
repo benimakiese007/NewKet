@@ -93,9 +93,9 @@ export function initDebugOverlay() {
     pill.id = 'nk-debug-pill';
     pill.style.cssText = `
         position: fixed;
-        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(96px + env(safe-area-inset-bottom, 12px));
         left: calc(12px + env(safe-area-inset-left, 0px));
-        z-index: 999999;
+        z-index: 9999999;
         background: rgba(15, 23, 42, 0.94);
         color: #fff;
         padding: 6px 12px;
@@ -111,9 +111,48 @@ export function initDebugOverlay() {
         -webkit-backdrop-filter: blur(10px);
         user-select: none;
         -webkit-tap-highlight-color: transparent;
+        touch-action: none;
     `;
 
-    pill.addEventListener('click', toggleDebugPanel);
+    // Make pill draggable on touch
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let pillStartX = 0;
+    let pillStartY = 0;
+
+    pill.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        isDragging = false;
+        dragStartX = touch.clientX;
+        dragStartY = touch.clientY;
+        const rect = pill.getBoundingClientRect();
+        pillStartX = rect.left;
+        pillStartY = rect.top;
+    }, { passive: true });
+
+    pill.addEventListener('touchmove', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - dragStartX;
+        const dy = touch.clientY - dragStartY;
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            isDragging = true;
+            pill.style.bottom = 'auto';
+            pill.style.left = `${Math.max(8, Math.min(window.innerWidth - 120, pillStartX + dx))}px`;
+            pill.style.top = `${Math.max(40, Math.min(window.innerHeight - 60, pillStartY + dy))}px`;
+        }
+    }, { passive: true });
+
+    pill.addEventListener('touchend', () => {
+        // slight delay to prevent click trigger when dragging
+        setTimeout(() => { isDragging = false; }, 100);
+    });
+
+    pill.addEventListener('click', () => {
+        if (!isDragging) toggleDebugPanel();
+    });
     document.body.appendChild(pill);
 
     // Create modal panel
@@ -122,31 +161,73 @@ export function initDebugOverlay() {
     panel.style.cssText = `
         position: fixed;
         inset: 0;
-        z-index: 1000000;
-        background: rgba(0, 0, 0, 0.7);
+        z-index: 10000000;
+        background: rgba(0, 0, 0, 0.75);
         display: none;
         flex-direction: column;
         justify-content: flex-end;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
     `;
 
     panel.innerHTML = `
-        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:20px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.5);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-                <h3 style="margin:0; font-size:14px; font-weight:800; color:#38bdf8;">🛠️ NewKet Live Diagnostic</h3>
-                <div style="display:flex; gap:8px;">
-                    <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:11px; font-weight:bold; cursor:pointer;">Forcer Fetch</button>
-                    <button id="nk-dbg-close" style="background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px; padding:4px 10px; font-size:11px; cursor:pointer;">Fermer</button>
+        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:20px 20px calc(24px + env(safe-area-inset-bottom, 20px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:8px;">
+                <h3 style="margin:0; font-size:14px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diagnostic</h3>
+                <div style="display:flex; gap:6px; flex-wrap:nowrap;">
+                    <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Tout copier</button>
+                    <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
+                    <button id="nk-dbg-close" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer;">✕</button>
                 </div>
             </div>
-            <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:12px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px;"></div>
+            <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
             <div style="font-size:11px; font-weight:bold; color:#94a3b8; margin-bottom:6px;">Console Logs (temps réel) :</div>
             <div id="nk-debug-logs" style="flex:1; overflow-y:auto; background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); max-height:350px;"></div>
         </div>
     `;
 
     panel.querySelector('#nk-dbg-close').addEventListener('click', () => toggleDebugPanel(false));
+
+    panel.querySelector('#nk-dbg-copy-all').addEventListener('click', async () => {
+        const s = getDiagnosticState();
+        const fullText = [
+            `=== NewKet Diagnostic (v${s.pkgVer}) ===`,
+            `Date: ${new Date().toISOString()}`,
+            `Capacitor: ${s.isCap ? 'OUI' : 'NON'} (${window.location.protocol}//${window.location.hostname})`,
+            `BackendReady: ${s.bReady}`,
+            `Supabase Client: ${s.sbOk ? 'OK' : 'NULL'}`,
+            `Produits chargés: ${s.prodCount} (Publics: ${s.pubCount})`,
+            `Rôle Auth: ${s.authRole}`,
+            `\n=== Console Logs (${logs.length}) ===`,
+            ...logs.slice().reverse().map(l => `[${l.time}] [${l.level.toUpperCase()}] ${l.text}`)
+        ].join('\n');
+
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(fullText);
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = fullText;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            const copyBtn = panel.querySelector('#nk-dbg-copy-all');
+            const origText = copyBtn.textContent;
+            copyBtn.textContent = '✅ Copié !';
+            copyBtn.style.background = '#10b981';
+            setTimeout(() => {
+                copyBtn.textContent = origText;
+                copyBtn.style.background = '#059669';
+            }, 2000);
+        } catch (err) {
+            alert('Erreur copie : ' + err.message);
+        }
+    });
+
     panel.querySelector('#nk-dbg-force-fetch').addEventListener('click', async () => {
         console.log('[Debug] Forcing ProductManager.fetchFreshData()...');
         if (window.ProductManager) {
@@ -177,6 +258,11 @@ function toggleDebugPanel(force) {
     isOpen = typeof force === 'boolean' ? force : !isOpen;
     if (panel) {
         panel.style.display = isOpen ? 'flex' : 'none';
+        // Hide mobile bottom nav to prevent overlap
+        const bottomNav = document.getElementById('mobileBottomNav');
+        if (bottomNav) {
+            bottomNav.style.display = isOpen ? 'none' : '';
+        }
         updatePanel();
     }
 }

@@ -15,6 +15,7 @@ import { execSync } from 'child_process';
 import { createWriteStream, readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createHash } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import { createRequire } from 'module';
@@ -124,6 +125,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function uploadAndPublish() {
     console.log('\n[3/3] Upload vers Supabase Storage (bucket app-releases)...');
     const fileBuffer = readFileSync(zipPath);
+    const checksum = createHash('sha256').update(fileBuffer).digest('hex');
+    console.log(`[OK] Checksum SHA-256 calcule : ${checksum}`);
 
     const { error: uploadError } = await supabase.storage
         .from('app-releases')
@@ -148,6 +151,7 @@ async function uploadAndPublish() {
         .upsert({
             version: targetVersion,
             bundle_url: bundleUrl,
+            checksum: checksum,
             channel: 'production',
             is_active: true,
             min_native_version: '1.0.0',
