@@ -1,3 +1,4 @@
+import './debug-overlay.js';
 import { inject } from '@vercel/analytics';
 import { initGoogleAnalytics } from './google-analytics.js';
 import './HeroSlider.js';
