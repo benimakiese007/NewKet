@@ -1,6 +1,6 @@
 {
   "name": "newket",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/benimakiese007/NOVA-V2#readme",
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
+    "archiver": "^8.0.0",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.8",
     "tailwindcss": "^3.4.19",
@@ -35,7 +36,6 @@
   "dependencies": {
     "@capacitor/android": "^8.5.2",
     "@capacitor/app": "^8.0.0",
-    "@capgo/capacitor-updater": "^8.54.0",
     "@capacitor/browser": "^8.0.5",
     "@capacitor/cli": "^8.5.2",
     "@capacitor/core": "^8.5.2",
@@ -44,6 +44,7 @@
     "@capacitor/push-notifications": "^8.1.2",
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.3",
+    "@capgo/capacitor-updater": "^8.54.0",
     "@iconify-json/line-md": "^1.2.16",
     "@iconify-json/logos": "^1.2.11",
     "@iconify-json/solar": "^1.2.5",
