@@ -11143,20 +11143,17 @@ html.dark .liquid-sliding-lens {
   transition: color 0.2s ease, font-weight 0.2s ease !important;
 }
 
-/* Active Tab: icône bold (filled) + noir absolu Apple (#000000) */
+/* Active Tab: icône bold (filled) neutre standard Apple */
 .liquid-glass-nav .nav-item.active {
-  color: var(--newket-header-bg, #1f2937) !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
 .liquid-glass-nav .nav-item.active iconify-icon {
-  color: var(--newket-header-bg, #1f2937) !important;
   transform: none !important;
 }
 
 .liquid-glass-nav .nav-item.active span {
-  color: var(--newket-header-bg, #1f2937) !important;
   font-weight: 700 !important;
 }
 
@@ -11413,36 +11410,6 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.capacitor-ios #mobileBottomNav,
   body.is-ios-capacitor #mobileBottomNav,
   html.is-ios-capacitor #mobileBottomNav {
-    display: none !important;
-  }
-
-  /* Sur iOS Capacitor, les boutons headers et fermetures de tiroirs sont 100% natifs UIKit Liquid Glass */
-  html.is-ios-capacitor #mobileMenuBtn,
-  html.is-ios-capacitor #mobileHeaderSearchBtn,
-  html.is-ios-capacitor #customerMobileBtn,
-  html.is-ios-capacitor #vendorMobileBtn,
-  html.is-ios-capacitor #adminMobileMenuBtn,
-  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe],
-  html.is-ios-capacitor #closeMobileMenu,
-  html.is-ios-capacitor #cartCloseBtn,
-  html.is-ios-capacitor #favoritesCloseBtn,
-  html.is-ios-capacitor #notificationsCloseBtn,
-  html.is-ios-capacitor #closeCartBtn,
-  html.is-ios-capacitor .cart-close-btn,
-  html.is-ios-capacitor .drawer-close-btn,
-  html.is-ios-capacitor .slide-over-close,
-  html.is-ios-capacitor #cartSlideOver button[onclick*="_hideSlideOver"],
-  html.is-ios-capacitor #favoritesSlideOver button[onclick*="closeFavorites"],
-  html.is-ios-capacitor #notificationsSlideOver button[onclick*="closeNotifications"],
-  html.is-ios-capacitor #favoritesSlideOver .drawer-close-btn,
-  html.is-ios-capacitor #notificationsSlideOver .drawer-close-btn,
-  html.is-ios-capacitor #cartSlideOver .cart-close-btn,
-  html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
-  html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
-  html.is-ios-capacitor button[onclick*="window.closeZoom"] {
-    opacity: 0 !important;
-    pointer-events: none !important;
-    visibility: hidden !important;
     display: none !important;
   }
 

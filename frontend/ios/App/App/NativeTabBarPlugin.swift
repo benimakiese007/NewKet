@@ -495,7 +495,6 @@ public struct NativeTabRootView: View {
                     }
                 }
                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
-                .tint(Color(red: 0.12, green: 0.16, blue: 0.22)) // Anthracite NewKet Header
             } else if #available(iOS 16.0, *) {
                 // Fallback for iOS 16-17
                 TabView(selection: Binding(
@@ -514,7 +513,6 @@ public struct NativeTabRootView: View {
                     }
                 }
                 .toolbar(coordinator.isTabBarHidden ? .hidden : .visible, for: .tabBar)
-                .tint(Color(red: 0.12, green: 0.16, blue: 0.22)) // Anthracite NewKet Header
             } else {
                 // Fallback for earlier iOS versions (< iOS 16)
                 TabView(selection: Binding(
@@ -530,7 +528,6 @@ public struct NativeTabRootView: View {
                             .tag(tab.id)
                     }
                 }
-                .tint(Color(red: 0.12, green: 0.16, blue: 0.22)) // Anthracite NewKet Header
             }
         }
         .animation(.easeInOut(duration: 0.25), value: coordinator.isTabBarHidden)
