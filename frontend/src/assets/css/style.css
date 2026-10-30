@@ -11413,6 +11413,36 @@ html.dark .liquid-glass-nav .nav-item.active span {
     display: none !important;
   }
 
+  /* Sur iOS Capacitor, les boutons headers et fermetures de tiroirs sont 100% natifs UIKit Liquid Glass */
+  html.is-ios-capacitor #mobileMenuBtn,
+  html.is-ios-capacitor #mobileHeaderSearchBtn,
+  html.is-ios-capacitor #customerMobileBtn,
+  html.is-ios-capacitor #vendorMobileBtn,
+  html.is-ios-capacitor #adminMobileMenuBtn,
+  html.is-ios-capacitor .dashboard-topbar button[data-logout-safe],
+  html.is-ios-capacitor #closeMobileMenu,
+  html.is-ios-capacitor #cartCloseBtn,
+  html.is-ios-capacitor #favoritesCloseBtn,
+  html.is-ios-capacitor #notificationsCloseBtn,
+  html.is-ios-capacitor #closeCartBtn,
+  html.is-ios-capacitor .cart-close-btn,
+  html.is-ios-capacitor .drawer-close-btn,
+  html.is-ios-capacitor .slide-over-close,
+  html.is-ios-capacitor #cartSlideOver button[onclick*="_hideSlideOver"],
+  html.is-ios-capacitor #favoritesSlideOver button[onclick*="closeFavorites"],
+  html.is-ios-capacitor #notificationsSlideOver button[onclick*="closeNotifications"],
+  html.is-ios-capacitor #favoritesSlideOver .drawer-close-btn,
+  html.is-ios-capacitor #notificationsSlideOver .drawer-close-btn,
+  html.is-ios-capacitor #cartSlideOver .cart-close-btn,
+  html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
+  html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
+  html.is-ios-capacitor button[onclick*="window.closeZoom"] {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    display: none !important;
+  }
+
   /* -- iOS Capacitor : Dégagement Safe Area pour la TabBar native SwiftUI Liquid Glass -- */
   /* Apple HIG : le scroll passe derrière la barre, mais le dernier élément s'arrête au-dessus */
   html.is-ios-capacitor main,
