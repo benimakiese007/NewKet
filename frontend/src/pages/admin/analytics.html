@@ -1012,12 +1012,19 @@
             if (funnel && Array.isArray(funnel.steps)) {
                 funnelMeta.textContent = `${formatCount(funnel.sessions)} sessions analysées`;
                 funnelSteps.innerHTML = funnel.steps.map((step, idx) => {
-                    const dropInfo = idx > 0 && step.drop_rate > 0
-                        ? `<div class="mt-2 text-[10px] font-bold text-red-500 flex items-center gap-1">
-                                <span class="text-red-500 font-semibold">&darr; ${step.drop_rate}% d'abandon</span>
-                                <span class="text-gray-400 font-normal">(-${step.drop_count})</span>
-                           </div>`
-                        : (idx > 0 ? `<div class="mt-2 text-[10px] font-semibold text-emerald-600">100% conservé</div>` : '<div class="mt-2 text-[10px] text-gray-400">Point de départ</div>');
+                    let dropInfo;
+                    if (idx === 0) {
+                        dropInfo = '<div class="mt-2 text-[10px] text-gray-400">Point de départ</div>';
+                    } else if (step.sessions === 0 && (step.drop_rate === 0 || step.drop_count === 0)) {
+                        dropInfo = '<div class="mt-2 text-[10px] text-gray-400 italic">— Aucun flux</div>';
+                    } else if (step.drop_rate > 0) {
+                        dropInfo = `<div class="mt-2 text-[10px] font-bold text-red-500 flex items-center gap-1">
+                                        <span class="text-red-500 font-semibold">&darr; ${step.drop_rate}% d'abandon</span>
+                                        <span class="text-gray-400 font-normal">(-${step.drop_count})</span>
+                                   </div>`;
+                    } else {
+                        dropInfo = '<div class="mt-2 text-[10px] font-semibold text-emerald-600">100% conservé</div>';
+                    }
 
                     const pct = Math.min(100, Math.max(0, Math.round(Number(step.rate) || 0)));
 
