@@ -9,33 +9,8 @@ import { Capacitor } from '@capacitor/core';
 const SUPABASE_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY';
 
-function showToast(msg, bg = '#1e293b') {
-    try {
-        let el = document.getElementById('ota-toast-indicator');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'ota-toast-indicator';
-            el.style.position = 'fixed';
-            el.style.bottom = '80px';
-            el.style.left = '50%';
-            el.style.transform = 'translateX(-50%)';
-            el.style.zIndex = '999999';
-            el.style.padding = '8px 16px';
-            el.style.borderRadius = '9999px';
-            el.style.color = '#ffffff';
-            el.style.fontSize = '12px';
-            el.style.fontWeight = 'bold';
-            el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
-            el.style.pointerEvents = 'none';
-            el.style.transition = 'opacity 0.3s ease';
-            document.body.appendChild(el);
-        }
-        el.style.background = bg;
-        el.textContent = msg;
-        el.style.opacity = '1';
-        setTimeout(() => { if (el) el.style.opacity = '0'; }, 5000);
-    } catch (_) {}
-}
+// Mode silencieux : aucune notification visuelle intrusive n'est affichée à l'utilisateur.
+function showToast() {}
 
 function compareVersions(v1, v2) {
     if (!v1 || !v2) return 0;
