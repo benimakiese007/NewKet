@@ -42,8 +42,8 @@ let panel = null;
 let isOpen = false;
 
 function getDiagnosticState() {
-    const version = document.querySelector('meta[name="newket-version"]')?.content || 'unknown';
-    const pkgVer = window.newketVersion || '1.0.9';
+    const metaVer = document.querySelector('meta[name="newket-version"]')?.content || '';
+    const pkgVer = metaVer ? metaVer.split('-')[0] : (window.newketVersion || '1.0.11');
     const isCap = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
     const bReady = window.newketBackendReady;
     const prodCount = window.ProductManager?.products?.length ?? 'N/A';
@@ -93,10 +93,10 @@ export function initDebugOverlay() {
     pill.id = 'nk-debug-pill';
     pill.style.cssText = `
         position: fixed;
-        bottom: 84px;
-        left: 12px;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+        left: calc(12px + env(safe-area-inset-left, 0px));
         z-index: 999999;
-        background: rgba(15, 23, 42, 0.92);
+        background: rgba(15, 23, 42, 0.94);
         color: #fff;
         padding: 6px 12px;
         border-radius: 999px;
@@ -109,6 +109,8 @@ export function initDebugOverlay() {
         cursor: pointer;
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
     `;
 
     pill.addEventListener('click', toggleDebugPanel);
