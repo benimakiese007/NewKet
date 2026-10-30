@@ -25,6 +25,7 @@ const BehaviorTracking = {
         this.bindClicks();
         this.bindVisibility();
         this.startHeartbeat();
+        this.bindAppInstalled();
     },
 
     async _maybeDisableInDevIfApiDown() {
@@ -132,6 +133,21 @@ const BehaviorTracking = {
         window.addEventListener('beforeunload', () => this.flushVisibilityDuration());
     },
 
+    bindAppInstalled() {
+        window.addEventListener('appinstalled', () => {
+            const pd = this._getPlatformAndDevice();
+            this.track('click', {
+                target: 'PWA Installed (' + pd.os + ')',
+                metadata: {
+                    action: 'appinstalled',
+                    device: pd.device,
+                    device_os: pd.os,
+                    is_pwa: true
+                }
+            });
+        });
+    },
+
     startHeartbeat() {
         this._heartbeatTimer = window.setInterval(() => {
             if (document.visibilityState !== 'visible') return;
@@ -159,16 +175,67 @@ const BehaviorTracking = {
         });
     },
 
-    _getDeviceLabel() {
+    _getPlatformAndDevice() {
         try {
+            const ua = String(navigator.userAgent || '').toLowerCase();
+            const isIos = /iphone|ipad|ipod/i.test(ua);
+            const isAndroid = /android/i.test(ua);
+            const isWindows = /windows/i.test(ua);
+            const isMac = /macintosh|mac os x/i.test(ua) && !isIos;
+            const isLinux = /linux/i.test(ua) && !isAndroid;
+
+            // 1. Detection Capacitor Natif (APK ou IPA)
+            if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) {
+                const capPlatform = (window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : '').toLowerCase();
+                if (capPlatform === 'android' || isAndroid) {
+                    return { device: 'app_android', os: 'Android (App Native)', is_pwa: false, is_native: true };
+                }
+                if (capPlatform === 'ios' || isIos) {
+                    return { device: 'app_ios', os: 'iOS (App Native)', is_pwa: false, is_native: true };
+                }
+            }
+
+            // 2. Detection PWA (Standalone sur ecran d accueil)
+            const isStandalone = (
+                (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                window.navigator.standalone === true ||
+                (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://'))
+            );
+
+            if (isStandalone) {
+                if (isIos) {
+                    return { device: 'pwa_ios', os: 'iOS (PWA)', is_pwa: true, is_native: false };
+                }
+                if (isAndroid) {
+                    return { device: 'pwa_android', os: 'Android (PWA)', is_pwa: true, is_native: false };
+                }
+                let osName = 'Desktop (PWA)';
+                if (isWindows) osName = 'Windows (PWA)';
+                else if (isMac) osName = 'macOS (PWA)';
+                else if (isLinux) osName = 'Linux (PWA)';
+                return { device: 'pwa_desktop', os: osName, is_pwa: true, is_native: false };
+            }
+
+            // 3. Navigation Web classique
             const w = Number(window.innerWidth || 0);
-            if (!w) return 'unknown';
-            if (w < 768) return 'mobile';
-            if (w < 1024) return 'tablet';
-            return 'desktop';
+            const isMobileWidth = w > 0 && w < 1024;
+            if (isIos || isAndroid || isMobileWidth) {
+                const osName = isIos ? 'iOS (Web)' : (isAndroid ? 'Android (Web)' : 'Mobile (Web)');
+                return { device: 'web_mobile', os: osName, is_pwa: false, is_native: false };
+            }
+
+            let osName = 'Web (Desktop)';
+            if (isWindows) osName = 'Windows (Web)';
+            else if (isMac) osName = 'macOS (Web)';
+            else if (isLinux) osName = 'Linux (Web)';
+            return { device: 'web_desktop', os: osName, is_pwa: false, is_native: false };
         } catch (_) {
-            return 'unknown';
+            return { device: 'unknown', os: 'Inconnu', is_pwa: false, is_native: false };
         }
+    },
+
+    _getDeviceLabel() {
+        return this._getPlatformAndDevice().device;
     },
 
     _getUtmParams() {
@@ -206,15 +273,18 @@ const BehaviorTracking = {
             pwa = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
         } catch (_) {}
 
+        const pd = this._getPlatformAndDevice();
         const meta = {
-            device: this._getDeviceLabel(),
+            device: pd.device,
+            device_os: pd.os,
+            is_native: pd.is_native,
             viewport_w: Number(window.innerWidth || 0) || null,
             viewport_h: Number(window.innerHeight || 0) || null,
             screen_w: Number(window.screen?.width || 0) || null,
             screen_h: Number(window.screen?.height || 0) || null,
             tz,
             lang,
-            pwa: Boolean(pwa),
+            pwa: pd.is_pwa || Boolean(pwa),
             is_authenticated: Boolean(window.AuthManager?.user?.id),
             ...this._getUtmParams(),
         };

@@ -31,7 +31,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://kuygjocnnlvjtoaquicq.s
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
 
 if (!SUPABASE_KEY) {
-    console.error('❌ ERREUR : SUPABASE_SERVICE_ROLE_KEY introuvable dans backend/.env');
+    console.error('[ERREUR] ERREUR : SUPABASE_SERVICE_ROLE_KEY introuvable dans backend/.env');
     process.exit(1);
 }
 
@@ -65,22 +65,22 @@ if (!targetVersion) {
 
 releaseNotes = releaseNotes || `Mise à jour OTA v${targetVersion} (${new Date().toLocaleDateString('fr-FR')})`;
 
-console.log(`\n========================================`);
-console.log(`🚀 NewKet OTA — Publication Version ${targetVersion}`);
-console.log(`========================================\n`);
+console.log('\n========================================');
+console.log('[OTA] NewKet - Publication Version ' + targetVersion);
+console.log('========================================\n');
 
 // Mettre à jour package.json avec la nouvelle version
 pkg.version = targetVersion;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
-console.log(`✅ package.json mis à jour -> ${targetVersion}`);
+console.log('[OK] package.json mis a jour -> ' + targetVersion);
 
 // 3. Build Frontend avec Vite
-console.log(`\n📦 Compilation du frontend (Vite)...`);
+console.log('\n[1/3] Compilation du frontend (Vite)...');
 try {
     execSync('npm run build', { cwd: frontendDir, stdio: 'inherit' });
-    console.log(`✅ Build terminé dans frontend/dist`);
+    console.log('[OK] Build termine dans frontend/dist');
 } catch (e) {
-    console.error(`❌ Échec du build Vite :`, e.message);
+    console.error(`[ERREUR] Echec du build Vite :`, e.message);
     process.exit(1);
 }
 
@@ -88,14 +88,14 @@ try {
 const zipName = `bundle-v${targetVersion}.zip`;
 const zipPath = resolve(frontendDir, zipName);
 
-console.log(`\n🗜️  Création de l'archive ${zipName}...`);
+console.log('\n[2/3] Creation de l archive standard ' + zipName + '...');
 try {
     if (existsSync(zipPath)) unlinkSync(zipPath);
-    // Utiliser tar.exe présent nativement sur Windows 10/11
-    execSync(`tar.exe -a -c -f "${zipPath}" -C dist .`, { cwd: frontendDir });
-    console.log(`✅ Archive créée avec succès`);
+    // Utiliser Compress-Archive pour un zip 100% standard compatible Capgo
+    execSync(`powershell.exe -NoProfile -Command "Compress-Archive -Path 'dist\\*' -DestinationPath '${zipName}' -Force"`, { cwd: frontendDir });
+    console.log('[OK] Archive creee avec succes');
 } catch (e) {
-    console.error(`❌ Échec de la compression :`, e.message);
+    console.error(`[ERREUR] Echec de la compression :`, e.message);
     process.exit(1);
 }
 
@@ -103,7 +103,7 @@ try {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function uploadAndPublish() {
-    console.log(`\n☁️  Upload vers Supabase Storage (bucket app-releases)...`);
+    console.log('\n[3/3] Upload vers Supabase Storage (bucket app-releases)...');
     const fileBuffer = readFileSync(zipPath);
 
     const { error: uploadError } = await supabase.storage
@@ -114,16 +114,16 @@ async function uploadAndPublish() {
         });
 
     if (uploadError) {
-        console.error(`❌ Échec de l'upload vers Supabase Storage :`, uploadError.message);
+        console.error(`[ERREUR] Echec de l'upload vers Supabase Storage :`, uploadError.message);
         try { unlinkSync(zipPath); } catch (_) {}
         process.exit(1);
     }
 
     const bundleUrl = `${SUPABASE_URL}/storage/v1/object/public/app-releases/${zipName}`;
-    console.log(`✅ Upload réussi : ${bundleUrl}`);
+    console.log('[OK] Upload reussi : ' + bundleUrl);
 
     // 6. Enregistrement dans la table app_versions
-    console.log(`\n📝 Enregistrement dans la table app_versions...`);
+    console.log('\n[OK] Enregistrement dans la table app_versions...');
     const { error: dbError } = await supabase
         .from('app_versions')
         .upsert({
@@ -137,7 +137,7 @@ async function uploadAndPublish() {
         }, { onConflict: 'version' });
 
     if (dbError) {
-        console.error(`❌ Erreur enregistrement table app_versions :`, dbError.message);
+        console.error(`[ERREUR] Erreur enregistrement table app_versions :`, dbError.message);
         try { unlinkSync(zipPath); } catch (_) {}
         process.exit(1);
     }
@@ -145,13 +145,13 @@ async function uploadAndPublish() {
     // 7. Nettoyage du zip local
     try { unlinkSync(zipPath); } catch (_) {}
 
-    console.log(`\n🎉 PUBLICATION OTA RÉUSSIE !`);
-    console.log(`────────────────────────────────────────`);
-    console.log(`• Version       : ${targetVersion}`);
-    console.log(`• Canal         : production`);
-    console.log(`• Notes         : ${releaseNotes}`);
-    console.log(`• URL Bundle    : ${bundleUrl}`);
-    console.log(`────────────────────────────────────────`);
+    console.log('\n========================================\n[SUCCES] PUBLICATION OTA REUSSIE !\n========================================');
+    console.log(`----------------------------------------`);
+    console.log(`- Version       : ${targetVersion}`);
+    console.log(`- Canal         : production`);
+    console.log(`- Notes         : ${releaseNotes}`);
+    console.log(`- URL Bundle    : ${bundleUrl}`);
+    console.log(`----------------------------------------`);
     console.log(`📱 Tous les appareils mobiles (iOS & Android) vont récupérer`);
     console.log(`   cette version automatiquement au prochain mouvement.\n`);
 }

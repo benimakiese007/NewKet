@@ -1696,15 +1696,15 @@ echo.
 cd /d "%~dp0frontend"
 if "%ota_version%"=="" (
     if "%ota_notes%"=="" (
-        npm run ota:publish
+        call npm run ota:publish
     ) else (
-        npm run ota:publish -- --notes "%ota_notes%"
+        call npm run ota:publish -- --notes "%ota_notes%"
     )
 ) else (
     if "%ota_notes%"=="" (
-        npm run ota:publish -- --version "%ota_version%"
+        call npm run ota:publish -- --version "%ota_version%"
     ) else (
-        npm run ota:publish -- --version "%ota_version%" --notes "%ota_notes%"
+        call npm run ota:publish -- --version "%ota_version%" --notes "%ota_notes%"
     )
 )
 cd /d "%~dp0"
