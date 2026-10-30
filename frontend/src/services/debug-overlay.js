@@ -50,28 +50,52 @@ function getDiagnosticState() {
     const pubCount = window.ProductManager?.getPublicProducts?.()?.length ?? 'N/A';
     const sbOk = !!window.supabaseClient;
     const authRole = window.AuthManager?.role || 'visiteur';
+    const ota = window._otaState || {};
 
-    return { version, pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole };
+    return { pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole, ota };
+}
+
+function getOtaColor(status) {
+    const map = { 'up-to-date': '#10b981', 'downloading': '#0284c7', 'applying': '#7c3aed', 'error': '#ef4444', 'checking': '#f59e0b', 'idle': '#6b7280', 'non-natif': '#6b7280' };
+    return map[status] || '#6b7280';
 }
 
 function updatePanel() {
     if (!pill) return;
     const s = getDiagnosticState();
+    const otaOk = s.ota.status === 'up-to-date' || s.ota.status === 'applying';
+    const hasProducts = s.pubCount > 0;
+    const pillColor = hasProducts && (otaOk || !s.isCap) ? '#10b981' : s.ota.status === 'error' ? '#ef4444' : '#f59e0b';
+
     pill.innerHTML = `
-        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${s.bReady && s.pubCount > 0 ? '#10b981' : '#ef4444'}; margin-right:6px;"></span>
-        <b>v${s.pkgVer}</b> | Prd: ${s.pubCount}/${s.prodCount} | Rdy: ${s.bReady ? 'OUI' : 'NON'}
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${pillColor}; margin-right:6px;"></span>
+        <b>v${s.pkgVer}</b> | Prd: ${s.pubCount}/${s.prodCount} | OTA: ${s.ota.status || '?'}
     `;
 
     if (panel && isOpen) {
         const infoEl = panel.querySelector('#nk-debug-info');
         const logsEl = panel.querySelector('#nk-debug-logs');
         if (infoEl) {
+            const otaStatusColor = getOtaColor(s.ota.status);
             infoEl.innerHTML = `
-                <div><b>Capacitor :</b> ${s.isCap ? '✅ OUI' : '❌ NON'} (${window.location.protocol}//${window.location.hostname})</div>
-                <div><b>BackendReady :</b> ${s.bReady ? '✅ true' : '❌ false'}</div>
-                <div><b>Supabase Client :</b> ${s.sbOk ? '✅ OK' : '❌ NULL'}</div>
-                <div><b>Produits chargés :</b> ${s.prodCount} (Publics: ${s.pubCount})</div>
-                <div><b>Rôle Auth :</b> ${s.authRole}</div>
+                <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">📱 APP</div>
+                    <div><b>Version bundle :</b> ${s.pkgVer}</div>
+                    <div><b>Capacitor :</b> ${s.isCap ? '✅ OUI' : '❌ NON'} (${window.location.protocol}//${window.location.hostname})</div>
+                    <div><b>Supabase Client :</b> ${s.sbOk ? '✅ OK' : '❌ NULL'}</div>
+                    <div><b>BackendReady :</b> ${s.bReady ? '✅ true' : '❌ false'}</div>
+                    <div><b>Produits :</b> ${s.prodCount} total (${s.pubCount} publics)</div>
+                    <div><b>Rôle Auth :</b> ${s.authRole}</div>
+                </div>
+                <div>
+                    <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">🔄 OTA</div>
+                    <div><b>Statut :</b> <span style="color:${otaStatusColor}; font-weight:bold;">${s.ota.status || 'idle'}</span></div>
+                    <div><b>Version locale :</b> ${s.ota.localVersion || '—'}</div>
+                    <div><b>Version distante :</b> ${s.ota.remoteVersion || '—'}</div>
+                    <div><b>Checksum DB :</b> ${s.ota.checksumExpected ? s.ota.checksumExpected.slice(0,20)+'...' : '⚠️ ABSENT'}</div>
+                    ${s.ota.error ? `<div style="color:#f87171; font-weight:bold;">❌ Erreur : ${s.ota.error}</div>` : ''}
+                    ${s.ota.lastChecked ? `<div style="opacity:0.5; font-size:10px;">Vérifié : ${new Date(s.ota.lastChecked).toLocaleTimeString()}</div>` : ''}
+                </div>
             `;
         }
         if (logsEl) {
@@ -193,14 +217,25 @@ export function initDebugOverlay() {
         const fullText = [
             `=== NewKet Diagnostic (v${s.pkgVer}) ===`,
             `Date: ${new Date().toISOString()}`,
+            ``,
+            `--- APP ---`,
             `Capacitor: ${s.isCap ? 'OUI' : 'NON'} (${window.location.protocol}//${window.location.hostname})`,
             `BackendReady: ${s.bReady}`,
             `Supabase Client: ${s.sbOk ? 'OK' : 'NULL'}`,
-            `Produits chargés: ${s.prodCount} (Publics: ${s.pubCount})`,
+            `Produits: ${s.prodCount} total (${s.pubCount} publics)`,
             `Rôle Auth: ${s.authRole}`,
-            `\n=== Console Logs (${logs.length}) ===`,
+            ``,
+            `--- OTA ---`,
+            `Statut: ${s.ota.status || 'idle'}`,
+            `Version locale: ${s.ota.localVersion || '—'}`,
+            `Version distante: ${s.ota.remoteVersion || '—'}`,
+            `Checksum DB: ${s.ota.checksumExpected || 'ABSENT ⚠️'}`,
+            s.ota.error ? `Erreur OTA: ${s.ota.error}` : null,
+            s.ota.lastChecked ? `Vérifié le: ${s.ota.lastChecked}` : null,
+            ``,
+            `--- Console Logs (${logs.length}) ---`,
             ...logs.slice().reverse().map(l => `[${l.time}] [${l.level.toUpperCase()}] ${l.text}`)
-        ].join('\n');
+        ].filter(l => l !== null).join('\n');
 
         try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -249,6 +284,7 @@ export function initDebugOverlay() {
     window.addEventListener('productsUpdated', updatePanel);
     window.addEventListener('productsError', updatePanel);
     window.addEventListener('newketInitialized', updatePanel);
+    window.addEventListener('otaStateChanged', updatePanel);
 
     setInterval(updatePanel, 1500);
     updatePanel();

@@ -51,8 +51,25 @@ function compareVersions(v1, v2) {
     return 0;
 }
 
+// ── OTA State (exposé globalement pour le debug overlay) ─────────────────────
+window._otaState = {
+    status: 'idle',       // idle | checking | up-to-date | downloading | applying | error
+    localVersion: null,
+    remoteVersion: null,
+    checksumExpected: null,
+    error: null,
+    lastChecked: null,
+};
+
+function otaLog(level, ...args) {
+    const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+    console[level](...args);
+    window._otaState.lastLog = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    window.dispatchEvent(new CustomEvent('otaStateChanged'));
+}
+
 async function fetchLatestVersion() {
-    const url = `${SUPABASE_URL}/rest/v1/app_versions?is_active=eq.true&channel=eq.production&order=created_at.desc&limit=1&select=version,bundle_url,min_native_version`;
+    const url = `${SUPABASE_URL}/rest/v1/app_versions?is_active=eq.true&channel=eq.production&order=created_at.desc&limit=1&select=version,bundle_url,checksum,min_native_version`;
     const res = await fetch(url, {
         headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -67,7 +84,11 @@ async function fetchLatestVersion() {
 
 export async function initCapgoUpdater() {
     const isNative = Capacitor.isNativePlatform();
-    if (!isNative) return;
+    window._otaState.status = isNative ? 'checking' : 'non-natif';
+    if (!isNative) {
+        otaLog('log', '[NewKet OTA] Non-natif (web/localhost) — OTA désactivé.');
+        return;
+    }
 
     try {
         const { CapacitorUpdater } = await import('@capgo/capacitor-updater');
@@ -75,57 +96,87 @@ export async function initCapgoUpdater() {
         // 1. Confirmer au moteur natif que le JS actuel est vivant (anti-rollback)
         const currentInfo = await CapacitorUpdater.notifyAppReady();
         const currentVersion = currentInfo?.bundle?.version || '1.0.0';
-
-        console.log(`[NewKet OTA] Version active : ${currentVersion}`);
+        window._otaState.localVersion = currentVersion;
+        otaLog('log', `[NewKet OTA] ✅ notifyAppReady() OK — Version active : ${currentVersion}`);
 
         // 2. Vérification silencieuse 3s après démarrage
         setTimeout(async () => {
             try {
+                window._otaState.status = 'checking';
+                window._otaState.lastChecked = new Date().toISOString();
+                window.dispatchEvent(new CustomEvent('otaStateChanged'));
+
                 const latestRelease = await fetchLatestVersion();
-                if (!latestRelease?.bundle_url) return;
+                if (!latestRelease?.bundle_url) {
+                    window._otaState.status = 'error';
+                    window._otaState.error = 'Pas de bundle actif en DB';
+                    otaLog('warn', '[NewKet OTA] ❌ Aucune version active trouvée en DB.');
+                    return;
+                }
 
-                console.log(`[NewKet OTA] Distante: ${latestRelease.version} | Locale: ${currentVersion}`);
+                window._otaState.remoteVersion = latestRelease.version;
+                window._otaState.checksumExpected = latestRelease.checksum || null;
+                otaLog('log', `[NewKet OTA] DB → Distante: ${latestRelease.version} | Locale: ${currentVersion} | Checksum DB: ${latestRelease.checksum ? latestRelease.checksum.slice(0,16)+'...' : 'ABSENT ⚠️'}`);
 
-                if (compareVersions(latestRelease.version, currentVersion) > 0) {
-                    showToast(`🔄 Mise à jour v${latestRelease.version} en cours...`, '#0284c7');
+                if (compareVersions(latestRelease.version, currentVersion) <= 0) {
+                    window._otaState.status = 'up-to-date';
+                    otaLog('log', `[NewKet OTA] ✅ Déjà à jour (v${currentVersion})`);
+                    window.dispatchEvent(new CustomEvent('otaStateChanged'));
+                    return;
+                }
 
-                    let checksum = latestRelease.checksum;
-                    if (!checksum) {
-                        try {
-                            console.log('[NewKet OTA] Calculating remote checksum fallback...');
-                            const resp = await fetch(latestRelease.bundle_url);
-                            const buf = await resp.arrayBuffer();
-                            const hashBuf = await crypto.subtle.digest('SHA-256', buf);
-                            checksum = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-                            console.log('[NewKet OTA] Computed fallback checksum:', checksum);
-                        } catch (e) {
-                            console.warn('[NewKet OTA] Checksum calculation error:', e?.message);
-                        }
-                    }
+                window._otaState.status = 'downloading';
+                window.dispatchEvent(new CustomEvent('otaStateChanged'));
+                showToast(`🔄 Mise à jour v${latestRelease.version} en cours...`, '#0284c7');
 
-                    const downloadOptions = {
-                        url: latestRelease.bundle_url,
-                        version: latestRelease.version
-                    };
-                    if (checksum) {
-                        downloadOptions.checksum = checksum;
-                    }
-
-                    const bundle = await CapacitorUpdater.download(downloadOptions);
-
-                    if (bundle?.id) {
-                        showToast(`✅ v${latestRelease.version} prête, application...`, '#16a34a');
-                        // Recharge immédiatement l'application avec le nouveau bundle
-                        await CapacitorUpdater.set({ id: bundle.id });
+                let checksum = latestRelease.checksum;
+                if (!checksum) {
+                    try {
+                        otaLog('warn', '[NewKet OTA] ⚠️ Checksum absent en DB — calcul à la volée (lent)...');
+                        const resp = await fetch(latestRelease.bundle_url);
+                        const buf = await resp.arrayBuffer();
+                        const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+                        checksum = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+                        window._otaState.checksumExpected = checksum;
+                        otaLog('log', '[NewKet OTA] ✅ Checksum calculé en fallback:', checksum.slice(0,16)+'...');
+                    } catch (e) {
+                        otaLog('warn', '[NewKet OTA] ❌ Échec calcul checksum:', e?.message);
                     }
                 }
+
+                const downloadOptions = {
+                    url: latestRelease.bundle_url,
+                    version: latestRelease.version
+                };
+                if (checksum) {
+                    downloadOptions.checksum = checksum;
+                } else {
+                    otaLog('error', '[NewKet OTA] ❌ AUCUN CHECKSUM — le plugin iOS va rejeter le bundle!');
+                }
+
+                otaLog('log', `[NewKet OTA] 📥 Téléchargement → ${latestRelease.bundle_url}`);
+                const bundle = await CapacitorUpdater.download(downloadOptions);
+                otaLog('log', `[NewKet OTA] ✅ Bundle téléchargé — id: ${bundle?.id}`);
+
+                if (bundle?.id) {
+                    window._otaState.status = 'applying';
+                    window.dispatchEvent(new CustomEvent('otaStateChanged'));
+                    showToast(`✅ v${latestRelease.version} prête, application...`, '#16a34a');
+                    await CapacitorUpdater.set({ id: bundle.id });
+                }
             } catch (err) {
-                console.warn('[NewKet OTA] Erreur vérification :', err?.message);
+                window._otaState.status = 'error';
+                window._otaState.error = err?.message || 'Erreur inconnue';
+                window.dispatchEvent(new CustomEvent('otaStateChanged'));
+                otaLog('error', '[NewKet OTA] ❌ Erreur :', err?.message);
                 showToast(`⚠️ OTA: ${err?.message || 'Erreur'}`, '#dc2626');
             }
         }, 3000);
 
     } catch (e) {
-        console.warn('[NewKet OTA] Init échec :', e?.message);
+        window._otaState.status = 'error';
+        window._otaState.error = e?.message || 'Init échec';
+        window.dispatchEvent(new CustomEvent('otaStateChanged'));
+        otaLog('error', '[NewKet OTA] ❌ Init échec :', e?.message);
     }
 }
