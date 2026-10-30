@@ -1668,48 +1668,50 @@ echo     [1/3] Compiler le frontend (Vite build)
 echo     [2/3] Creer une archive ZIP du dossier dist/
 echo     [3/3] Uploader sur Supabase Storage + enregistrer la version
 echo.
-echo   Les apps Android et iOS installee par les utilisateurs
+echo   Les apps Android et iOS installees par les utilisateurs
 echo   vont recevoir la mise a jour automatiquement au prochain lancement.
 echo.
 echo   LIMITE SUPABASE GRATUIT : ~416 telechargements / MAJ
 echo   (5 GB bande passante gratuit / ~12 MB par bundle)
 echo.
+set "ota_version="
+set "ota_notes="
+set "confirm_ota="
 set /p ota_version="   Version a publier (ex: 1.0.2, laisser vide = auto) : "
 set /p ota_notes="   Notes de version (ex: Correction bug panier) : "
 echo.
 set /p confirm_ota="   Confirmer la publication OTA ? (O/N) : "
-if /i not "%confirm_ota%"=="O" (\r
-echo.\r
-echo   Publication annulee.\r
-timeout /t 2 >nul\r
-goto MENU\r
-)\r
+if /i not "%confirm_ota%"=="O" (
+    echo.
+    echo   Publication annulee.
+    timeout /t 2 >nul
+    goto MENU
+)
 
 echo.
 echo ==================================================
-echo   Lancement de npm run ota:publish ...\r
+echo   Lancement de npm run ota:publish ...
 echo ==================================================
 echo.
 cd /d "%~dp0frontend"
-if "%ota_version%"==" (\r
-    if "%ota_notes%"==" (\r
-        npm run ota:publish\r
-    ) else (\r
+if "%ota_version%"=="" (
+    if "%ota_notes%"=="" (
+        npm run ota:publish
+    ) else (
         npm run ota:publish -- --notes "%ota_notes%"
-    )\r
-) else (\r
-    if "%ota_notes%"==" (\r
-        npm run ota:publish -- --version %ota_version%\r
-    ) else (\r
-        npm run ota:publish -- --version %ota_version% --notes "%ota_notes%"
-    )\r
-)\r
+    )
+) else (
+    if "%ota_notes%"=="" (
+        npm run ota:publish -- --version "%ota_version%"
+    ) else (
+        npm run ota:publish -- --version "%ota_version%" --notes "%ota_notes%"
+    )
+)
 cd /d "%~dp0"
 echo.
 echo --------------------------------------------------
-echo   Appuyez sur une touche pour revenir au menu...\r
-pause >nul\r
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
 goto MENU
 :END
 exit
-
