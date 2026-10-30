@@ -371,59 +371,82 @@ function computeDelta(currentSummary, previousSummary) {
     return delta;
 }
 
-function computeFunnel(rows, funnelId = 'default') {
+function computeFunnel(rows, funnelId = 'guest') {
     const safeRows = Array.isArray(rows) ? rows : [];
+
+    // Définition des 3 grands entonnoirs NewKet
     const stepsById = {
-        default: [
-            { id: 'discover', label: 'Découverte', match: (p) => /\/(shop|shops|catalog)\.html\b/i.test(p || '') },
-            { id: 'product', label: 'Produit', match: (p) => /\/product\.html\b/i.test(p || '') },
-            { id: 'achat', label: 'Achat', match: (p) => /\/achat\.html\b/i.test(p || '') },
-            { id: 'success', label: 'Succès', match: (p) => /\/payment-success\.html\b/i.test(p || '') },
+        guest: [
+            { id: 'discover', label: '1. Arrivée & Découverte', test: (r) => /(?:\/|^)(?:index|catalog|shops?|boutique)?(?:\.html)?(?:$|[?#])/i.test(r.path || '') },
+            { id: 'explore_product', label: '2. Exploration Produit', test: (r) => /product/i.test(r.path || '') || /product/i.test(r.target || '') },
+            { id: 'intent_action', label: '3. Intention (Panier / Clic Achat)', test: (r) => /checkout|panier|favorite|cart|buy|achat/i.test(r.target || '') || /checkout/i.test(r.path || '') },
+            { id: 'view_auth', label: '4. Page Connexion / Inscription', test: (r) => /login|signup|auth|register/i.test(r.path || '') || /login|signup|auth/i.test(r.target || '') },
+            { id: 'converted', label: '5. Compte Créé (Converti)', test: (r) => Boolean(r.user_id) || r.user_role === 'customer' || r.user_role === 'supplier' },
         ],
-        admin: [
-            { id: 'admin_enter', label: 'Entrée admin', match: (p) => /\/src\/pages\/admin\/index\.html\b/i.test(p || '') },
-            { id: 'admin_orders', label: 'Commandes', match: (p) => /view=orders\b/i.test(p || '') || /\/src\/pages\/admin\/orders\.html\b/i.test(p || '') },
-            { id: 'admin_products', label: 'Catalogue', match: (p) => /view=products\b/i.test(p || '') || /\/src\/pages\/admin\/products\.html\b/i.test(p || '') },
-            { id: 'admin_analytics', label: 'Comportements', match: (p) => /view=analytics\b/i.test(p || '') || /\/src\/pages\/admin\/analytics\.html\b/i.test(p || '') },
+        customer: [
+            { id: 'session_active', label: '1. Session Achat (Tout utilisateur)', test: (r) => /(?:index|catalog|shop|product|search)/i.test(r.path || '') || /product/i.test(r.target || '') },
+            { id: 'view_product', label: '2. Consultation Produit', test: (r) => /product/i.test(r.path || '') || /product/i.test(r.target || '') },
+            { id: 'checkout_start', label: '3. Initiation Commande / Devis', test: (r) => /checkout.*start|achat|buy|panier|cart/i.test(r.target || '') || /achat|checkout/i.test(r.path || '') },
+            { id: 'checkout_submit', label: '4. Envoi Demande Vendeur', test: (r) => /checkout.*submit|order.*submit|demande/i.test(r.target || '') },
+            { id: 'payment_success', label: '5. Paiement Réussi (Validé)', test: (r) => /success|completed|paid|payment-success/i.test(r.path || '') || /payment.*success/i.test(r.target || '') },
         ],
+        supplier: [
+            { id: 'onboarding_start', label: '1. Inscription Vendeur', test: (r) => (r.user_role === 'supplier' || /seller|supplier|vendeur/i.test(r.path || '') || /seller.*register/i.test(r.target || '')) },
+            { id: 'kyc_submitted', label: '2. Soumission KYC', test: (r) => /kyc|verification|document|identity/i.test(r.path || '') || /kyc.*submit/i.test(r.target || '') },
+            { id: 'dashboard_vendor', label: '3. Accès Tableau Marchand', test: (r) => /vendor-dashboard/i.test(r.path || '') },
+            { id: 'product_create', label: '4. Publication Produit', test: (r) => /publish|product.*create|ajouter.*produit|add-product/i.test(r.target || '') || /product.*new/i.test(r.path || '') },
+            { id: 'order_received', label: '5. Première Commande Gérée', test: (r) => /quote.*sent|order.*fulfill|order.*shipped|devis.*envoye/i.test(r.target || '') || (/order/i.test(r.path || '') && /vendor/i.test(r.path || '')) },
+        ]
     };
 
-    const steps = stepsById[funnelId] || stepsById.default;
+    const effectiveFunnelId = (funnelId === 'default' || !stepsById[funnelId]) ? 'guest' : funnelId;
+    const steps = stepsById[effectiveFunnelId];
 
-    const sessions = new Map(); // session_id -> array of paths
+    const sessions = new Map();
     safeRows
-        .filter((row) => row.event_type === 'page_view' && row.session_id)
+        .filter((row) => row.session_id)
         .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
         .forEach((row) => {
-            const key = row.session_id;
-            const list = sessions.get(key) || [];
-            list.push(row.path || '');
-            sessions.set(key, list);
+            const list = sessions.get(row.session_id) || [];
+            list.push(row);
+            sessions.set(row.session_id, list);
         });
 
     const totals = steps.map(() => 0);
     const sessionCount = sessions.size;
 
-    for (const [, paths] of sessions.entries()) {
-        let idx = 0;
-        for (const path of paths) {
-            if (idx >= steps.length) break;
-            if (steps[idx].match(path)) {
-                totals[idx] += 1;
-                idx += 1;
+    for (const [, events] of sessions.entries()) {
+        let currentStepIndex = 0;
+        for (const ev of events) {
+            if (currentStepIndex >= steps.length) break;
+            if (steps[currentStepIndex].test(ev)) {
+                totals[currentStepIndex] += 1;
+                currentStepIndex += 1;
             }
         }
     }
 
-    return {
-        id: funnelId,
-        sessions: sessionCount,
-        steps: steps.map((s, i) => ({
+    const computedSteps = steps.map((s, i) => {
+        const currentCount = totals[i];
+        const prevCount = i > 0 ? totals[i - 1] : sessionCount;
+        const dropCount = Math.max(0, prevCount - currentCount);
+        const dropRate = prevCount > 0 ? Math.round((dropCount / prevCount) * 100) : 0;
+        const conversionFromStart = sessionCount > 0 ? Math.round((currentCount / sessionCount) * 100) : 0;
+
+        return {
             id: s.id,
             label: s.label,
-            sessions: totals[i],
-            rate: sessionCount ? (totals[i] / sessionCount) * 100 : 0,
-        })),
+            sessions: currentCount,
+            rate: conversionFromStart,
+            drop_count: dropCount,
+            drop_rate: dropRate,
+        };
+    });
+
+    return {
+        id: effectiveFunnelId,
+        sessions: sessionCount,
+        steps: computedSteps,
     };
 }
 
