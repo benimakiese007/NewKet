@@ -50,3 +50,12 @@ playwright-report/
 ~$*
 .tmp_pdf/
 
+
+# Binaires et packages mobiles locaux
+*.apk
+*.aab
+*.ipa
+
+# Archives et dossiers temporaires de test
+*.zip
+scratch/
