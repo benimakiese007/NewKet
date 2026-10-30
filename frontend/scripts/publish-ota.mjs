@@ -12,11 +12,14 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
+import { createWriteStream, readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { ZipArchive } = require('archiver');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -84,16 +87,32 @@ try {
     process.exit(1);
 }
 
-// 4. Compression du dossier dist en zip
+// 4. Compression du dossier dist en zip standard (compatible iOS/Android SSZipArchive)
 const zipName = `bundle-v${targetVersion}.zip`;
 const zipPath = resolve(frontendDir, zipName);
 
 console.log('\n[2/3] Creation de l archive standard ' + zipName + '...');
+async function createZip() {
+    return new Promise((res, rej) => {
+        if (existsSync(zipPath)) unlinkSync(zipPath);
+        const output = createWriteStream(zipPath);
+        const archive = new ZipArchive({ zlib: { level: 9 } });
+
+        output.on('close', () => {
+            console.log(`[OK] Archive creee avec succes (${(archive.pointer() / 1024 / 1024).toFixed(2)} MB)`);
+            res();
+        });
+
+        output.on('error', (err) => rej(err));
+        archive.on('error', (err) => rej(err));
+        archive.pipe(output);
+        archive.directory(resolve(frontendDir, 'dist'), false);
+        archive.finalize();
+    });
+}
+
 try {
-    if (existsSync(zipPath)) unlinkSync(zipPath);
-    // Utiliser Compress-Archive pour un zip 100% standard compatible Capgo
-    execSync(`powershell.exe -NoProfile -Command "Compress-Archive -Path 'dist\\*' -DestinationPath '${zipName}' -Force"`, { cwd: frontendDir });
-    console.log('[OK] Archive creee avec succes');
+    await createZip();
 } catch (e) {
     console.error(`[ERREUR] Echec de la compression :`, e.message);
     process.exit(1);
