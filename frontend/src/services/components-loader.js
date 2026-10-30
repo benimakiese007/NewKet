@@ -1058,13 +1058,34 @@ const ComponentLoader = {
      * Safe to call multiple times.
      */
     syncNativeHeaderButtonsVisibility() {
-        // Mode 100% web pour les boutons headers : plugin UIKit inactif
-        return;
+        const plugin = window.Capacitor?.Plugins?.NativeHeaderButtons;
+        if (!plugin) return;
+
+        const path = window.location.pathname;
+        const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
+        const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish');
+
+        if (isMinimal) {
+            // Minimal pages (login, etc.) don't have header buttons
+            plugin.hide().catch(() => {});
+            return;
+        }
+
+        const rightIcon = isDashboard
+            ? 'rectangle.portrait.and.arrow.right'
+            : 'magnifyingglass';
+
+        // Re-show buttons — pagehide/beforeunload had hidden them
+        plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
     },
 
     initNativeHeaderButtons() {
         if (this._nativeHeaderButtonsInitialized) return;
         this._nativeHeaderButtonsInitialized = true;
+
+        const plugin = window.Capacitor?.Plugins?.NativeHeaderButtons;
+        if (!plugin) return;
 
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
@@ -1085,9 +1106,15 @@ const ComponentLoader = {
 
         // TabBar interdite sur les dashboards, l'admin et les pages minimales (exactement comme tous les autres supports)
         const isTabBarForbidden = isMinimal || isDashboard;
+        const rightIcon = isDashboard
+            ? 'rectangle.portrait.and.arrow.right'
+            : 'magnifyingglass';
 
         if (isTabBarForbidden) {
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        }
+        if (isMinimal) {
+            plugin.hide().catch(() => {});
         }
 
         // 🍏 Delay native bars appearance until after the splash/launch screen has finished
@@ -1095,7 +1122,11 @@ const ComponentLoader = {
             if (this._nativeBarsRevealed) return;
             this._nativeBarsRevealed = true;
 
-            if (!isTabBarForbidden) {
+            const isOverlayOpen = isAnyWebOverlayOpen();
+            if (!isMinimal && !isOverlayOpen) {
+                plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+            }
+            if (!isTabBarForbidden && !isOverlayOpen) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
             } else if (isTabBarForbidden) {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
@@ -1103,9 +1134,14 @@ const ComponentLoader = {
         };
 
         // 🍏 iOS bfcache swipe-back: re-evaluate TabBar visibility on every pageshow
+        // because _nativeHeaderButtonsInitialized blocks re-init, but the page
+        // that hid the TabBar (e.g. /product) may have left it hidden.
         window.addEventListener('pageshow', (e) => {
+            // persisted = true means the page was restored from bfcache (swipe-back)
             if (e.persisted) {
                 this.syncNativeTabBarVisibility();
+                // Re-show Liquid Glass header buttons hidden by beforeunload/pagehide
+                this.syncNativeHeaderButtonsVisibility();
             }
         });
 
@@ -1116,6 +1152,196 @@ const ComponentLoader = {
             window.addEventListener('newketReady', () => setTimeout(revealNativeBars, 150), { once: true });
             setTimeout(revealNativeBars, 1600); // Safety fallback matching splash screen duration
         }
+
+        // ------------------------------------------------------------------
+        // Auto-hide / auto-show when a web overlay (sidebar, panier, drawer)
+        // opens or closes. Since our native overlay sits on top of WKWebView,
+        // it must be hidden while any web panel is visible.
+        // ------------------------------------------------------------------
+        const isAnyWebOverlayOpen = () => {
+            if (window.SidebarManager?.state?.isDrawerOpen) return true;
+            const menu = document.getElementById('mobileMenu');
+            if (menu && (menu.classList.contains('active') || document.body.classList.contains('mobile-menu-open') || document.documentElement.classList.contains('mobile-menu-open') || menu.getAttribute('aria-hidden') === 'false' || menu.style.visibility === 'visible' || menu.style.opacity === '1')) return true;
+            const cart = document.getElementById('cartSlideOver');
+            if (cart && (!cart.classList.contains('translate-x-full') || (cart.parentElement && !cart.parentElement.classList.contains('hidden') && !cart.classList.contains('translate-x-full')))) return true;
+            const fav = document.getElementById('favoritesSlideOver');
+            if (fav && !fav.classList.contains('translate-x-full')) return true;
+            const notif = document.getElementById('notificationsSlideOver');
+            if (notif && !notif.classList.contains('translate-x-full')) return true;
+            const adminSb = document.getElementById('adminSidebar');
+            if (adminSb && adminSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
+            const vendorSb = document.getElementById('vendorSidebar');
+            if (vendorSb && vendorSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
+            const customerSb = document.getElementById('customerSidebar');
+            if (customerSb && customerSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
+            const searchContainer = document.getElementById('mobileSearchContainer');
+            if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
+            const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
+            if (zoom && (!zoom.classList.contains('hidden') && zoom.style.display !== 'none')) return true;
+            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal, .modal:not(.hidden), [data-modal]:not(.hidden), #orderModal:not([style*="display: none"])');
+            if (modal) return true;
+            return false;
+        };
+
+        let _isOverlayActive = false;
+        let _overlayDebounceTimer = null;
+
+        const _hideButtons = () => {
+            if (_isOverlayActive) return;
+            _isOverlayActive = true;
+            plugin.update({ showLeft: false, showRight: false }).catch(() => {});
+            plugin.showClose?.({ position: 'top-right' })?.catch?.(() => {});
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        };
+
+        const _showButtons = () => {
+            if (!_isOverlayActive) return;
+            _isOverlayActive = false;
+            plugin.hideClose?.()?.catch?.(() => {});
+            if (!isMinimal) {
+                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+            }
+            if (!isTabBarForbidden) {
+                window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+            }
+        };
+
+
+        // 🍏 Disparition instantanée lors d'un changement de page pour ne jamais laisser de bouton fantôme traîner
+        window.addEventListener('beforeunload', () => {
+            plugin.hide().catch(() => {});
+            plugin.hideClose?.().catch?.(() => {});
+        });
+        window.addEventListener('pagehide', () => {
+            plugin.hide().catch(() => {});
+            plugin.hideClose?.().catch?.(() => {});
+        });
+
+        // Global events that web layers dispatch when they open/close
+        window.addEventListener('nativeOverlayOpen',  _hideButtons);
+        window.addEventListener('nativeOverlayClose', _showButtons);
+
+        // Debounced observer: only react when overlay state actually flips
+        const bodyOverlayObserver = new MutationObserver(() => {
+            if (_overlayDebounceTimer) clearTimeout(_overlayDebounceTimer);
+            _overlayDebounceTimer = setTimeout(() => {
+                const isOpen = isAnyWebOverlayOpen();
+                if (isOpen && !_isOverlayActive) {
+                    _hideButtons();
+                } else if (!isOpen && _isOverlayActive) {
+                    _showButtons();
+                }
+            }, 50);
+        });
+        bodyOverlayObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'aria-hidden'] });
+
+        // -- Wire close tap (Native Swift Liquid Glass "X") --> close active overlay
+        plugin.addListener('closeTap', () => {
+            if (typeof window.closeMobileMenu === 'function') {
+                window.closeMobileMenu(true);
+            }
+            document.getElementById('closeMobileMenu')?.click?.();
+            if (window.SidebarManager && typeof window.SidebarManager.close === 'function') {
+                window.SidebarManager.close();
+            }
+            if (window.CartManager && typeof window.CartManager._hideSlideOver === 'function') {
+                window.CartManager._hideSlideOver();
+            }
+            document.getElementById('cartCloseBtn')?.click?.();
+            document.getElementById('closeCartBtn')?.click?.();
+            if (window.DrawersManager && typeof window.DrawersManager.closeAll === 'function') {
+                window.DrawersManager.closeAll();
+            }
+            document.getElementById('favoritesCloseBtn')?.click?.();
+            document.getElementById('notificationsCloseBtn')?.click?.();
+            if (typeof window.closeZoom === 'function') {
+                window.closeZoom();
+            }
+            if (typeof window.closeImageZoom === 'function') {
+                window.closeImageZoom();
+            }
+            if (typeof window.closeOrderModal === 'function') {
+                window.closeOrderModal();
+            }
+            if (typeof window.closeDisputeModal === 'function') {
+                window.closeDisputeModal();
+            }
+            // Nettoie la recherche et ses suggestions teleportees
+            window.SearchManager?.closeSearchOverlay?.();
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            if (searchSuggestions) {
+                searchSuggestions.classList.remove('active');
+                searchSuggestions.innerHTML = '';
+            }
+            const searchContainer = document.getElementById('mobileSearchContainer');
+            if (searchContainer) {
+                searchContainer.classList.add('user-hidden-on-mobile');
+                const searchClose = document.getElementById('closeSearchBtn') || document.querySelector('[data-close-search]');
+                searchClose?.click?.();
+            }
+            const activeModalClose = document.querySelector('.modal:not(.hidden) [data-action*="close"], .modal:not(.hidden) .modal-close-btn, #orderModal:not([style*="display: none"]) [data-action*="close"], #disputeModal:not(.hidden) [data-action*="close"], [data-close-zoom], #cropperCancelBtn, .nk-modal-close');
+            activeModalClose?.click?.();
+        });
+
+        // -- Wire burger tap --> open mobile menu -------------------------
+        plugin.addListener('burgerTap', () => {
+            const currentPath = window.location.pathname;
+            const isDash = isDashboard || currentPath.includes('-dashboard') || currentPath.includes('dashboard') || currentPath.includes('/admin') ||
+                           !!document.getElementById('vendorSidebar') || !!document.getElementById('customerSidebar') || !!document.getElementById('adminSidebar');
+
+            if (isDash) {
+                if (document.getElementById('vendorMobileBtn')) {
+                    document.getElementById('vendorMobileBtn').click();
+                } else if (document.getElementById('customerMobileBtn')) {
+                    document.getElementById('customerMobileBtn').click();
+                } else if (document.getElementById('adminMobileMenuBtn')) {
+                    document.getElementById('adminMobileMenuBtn').click();
+                } else if (typeof window.SidebarManager?.toggle === 'function') {
+                    window.SidebarManager.toggle();
+                }
+            } else {
+                if (typeof window.openMobileMenu === 'function') {
+                    window.openMobileMenu();
+                } else if (document.getElementById('mobileMenuBtn')) {
+                    document.getElementById('mobileMenuBtn').click();
+                } else if (typeof window.SidebarManager?.toggle === 'function') {
+                    window.SidebarManager.toggle();
+                }
+            }
+        });
+
+        // -- Wire right tap --> search or logout --------------------------
+        plugin.addListener('rightTap', () => {
+            if (isDashboard) {
+                if (typeof window.AuthManager?.handleLogoutClick === 'function') {
+                    const logoutBtn = document.querySelector('[data-logout-safe], [data-action="logout"]');
+                    window.AuthManager.handleLogoutClick(logoutBtn || document.body);
+                } else {
+                    document.querySelector('[data-logout-safe], [data-action="logout"]')?.click();
+                }
+            } else {
+                const sc = document.getElementById('mobileSearchContainer');
+                if (sc) {
+                    const isOpening = sc.classList.contains('user-hidden-on-mobile');
+                    sc.classList.toggle('user-hidden-on-mobile');
+                    if (isOpening) {
+                        // Search panel is now visible → hide buttons
+                        _hideButtons();
+                        setTimeout(() => document.getElementById('searchInput')?.focus(), 50);
+                        // Watch for close (re-add class = close)
+                        const searchObs = new MutationObserver(() => {
+                            if (sc.classList.contains('user-hidden-on-mobile')) {
+                                _showButtons();
+                                searchObs.disconnect();
+                            }
+                        });
+                        searchObs.observe(sc, { attributes: true, attributeFilter: ['class'] });
+                    }
+                } else {
+                    document.getElementById('mobileHeaderSearchBtn')?.click();
+                }
+            }
+        });
     },
     bindGlobalActions() {
         if (this.globalActionsBound) return;

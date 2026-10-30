@@ -113,6 +113,17 @@ async function initPushNotifications() {
 // ─── GÉOLOCALISATION ─────────────────────────────────────────────────────────
 
 /**
+ * Utilitaire Promise.race avec timeout strict
+ */
+function withTimeout(promise, ms, errorMsg) {
+    let timer;
+    const timeoutPromise = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(errorMsg || `Timeout après ${ms}ms`)), ms);
+    });
+    return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
+/**
  * Retourne la position courante via le plugin Capacitor (natif) ou
  * l'API navigateur (PWA/web) selon la plateforme.
  *
@@ -121,8 +132,9 @@ async function initPushNotifications() {
  */
 async function getCurrentPosition(options = {}) {
     const defaultOptions = {
-        enableHighAccuracy: true,
-        timeout: 10000,
+        enableHighAccuracy: false, // Plus rapide et évite les blocages indoor à Kinshasa
+        timeout: 5000,
+        maximumAge: 15000,
         ...options
     };
 
@@ -132,17 +144,30 @@ async function getCurrentPosition(options = {}) {
             const { Geolocation } = await import('@capacitor/geolocation');
 
             // Vérifier les permissions
-            let permStatus = await Geolocation.checkPermissions();
+            let permStatus = await withTimeout(
+                Geolocation.checkPermissions(),
+                3000,
+                'Délai vérification permissions dépassé'
+            );
 
             if (permStatus.location === 'prompt' || permStatus.coarseLocation === 'prompt') {
-                permStatus = await Geolocation.requestPermissions();
+                permStatus = await withTimeout(
+                    Geolocation.requestPermissions(),
+                    6000,
+                    'Délai demande permission dépassé'
+                );
             }
 
             if (permStatus.location !== 'granted' && permStatus.coarseLocation !== 'granted') {
                 throw new Error('Permission de géolocalisation refusée.');
             }
 
-            const position = await Geolocation.getCurrentPosition(defaultOptions);
+            const position = await withTimeout(
+                Geolocation.getCurrentPosition(defaultOptions),
+                6000,
+                'Délai acquisition GPS dépassé (6s)'
+            );
+
             return {
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
@@ -159,25 +184,43 @@ async function getCurrentPosition(options = {}) {
         }
     }
 
-    // Sur web/PWA ou en cas d'erreur : utiliser l'API navigateur
+    // Sur web/PWA ou en cas d'erreur : utiliser l'API navigateur avec Promise timeout stricte
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
             reject(new Error('La géolocalisation n\'est pas supportée par ce navigateur.'));
             return;
         }
 
+        let isDone = false;
+        const fallbackTimer = setTimeout(() => {
+            if (!isDone) {
+                isDone = true;
+                reject(new Error('Délai GPS dépassé (6s). Veuillez pointer votre adresse sur la carte.'));
+            }
+        }, 6000);
+
         navigator.geolocation.getCurrentPosition(
-            (pos) => resolve({
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
-                accuracy: pos.coords.accuracy,
-                altitude: pos.coords.altitude,
-                altitudeAccuracy: pos.coords.altitudeAccuracy,
-                heading: pos.coords.heading,
-                speed: pos.coords.speed,
-                timestamp: pos.timestamp
-            }),
-            (err) => reject(err),
+            (pos) => {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(fallbackTimer);
+                resolve({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
+                    altitude: pos.coords.altitude,
+                    altitudeAccuracy: pos.coords.altitudeAccuracy,
+                    heading: pos.coords.heading,
+                    speed: pos.coords.speed,
+                    timestamp: pos.timestamp
+                });
+            },
+            (err) => {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(fallbackTimer);
+                reject(err);
+            },
             defaultOptions
         );
     });
