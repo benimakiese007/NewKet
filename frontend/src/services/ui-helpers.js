@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet UI Helpers
  * Common utilities for UI rendering and interactions.
  */
@@ -1819,7 +1819,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                         </button>
                                         <button type="button" onclick="const b=document.getElementById('${modalId}-geo-logbox'); if(b) navigator.clipboard?.writeText(b.innerText).then(()=>alert('Logs GPS copiés !'));" class="text-gray-500 hover:text-gray-700">Copier</button>
                                     </div>
-                                    <div id="${modalId}-geo-logbox" class="p-2.5 bg-slate-900 text-emerald-400 text-[10px] font-mono rounded-xl max-h-24 overflow-y-auto hidden border border-slate-800 leading-normal select-all">
+                                    <div id="${modalId}-geo-logbox" class="p-2.5 bg-slate-900 text-emerald-400 text-[10px] font-mono rounded-xl max-h-28 overflow-y-auto block border border-slate-800 leading-normal select-all">
                                         <div>[Système] GPS prêt.</div>
                                     </div>
                                 </div>
