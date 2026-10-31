@@ -2,9 +2,13 @@ import UIKit
 import SwiftUI
 import Capacitor
 import WidgetKit
+import WebKit
 
-open class NewKetBridgeViewController: CAPBridgeViewController {
+open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecognizerDelegate {
     public weak var nativeTabCoordinator: NativeTabCoordinator?
+    public weak var headerButtonsPlugin: NativeHeaderButtonsPlugin?
+
+    private var swipeBackGesture: UIScreenEdgePanGestureRecognizer?
 
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -15,6 +19,40 @@ open class NewKetBridgeViewController: CAPBridgeViewController {
         // Le TabView SwiftUI natif s'occupe de l'inset du bas.
         if let webView = webView {
             webView.scrollView.contentInsetAdjustmentBehavior = .never
+            setupSwipeBackObserver(for: webView)
+        }
+    }
+
+    private func setupSwipeBackObserver(for webView: WKWebView) {
+        let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleEdgePan(_:)))
+        edgePan.edges = .left
+        edgePan.delegate = self
+        edgePan.cancelsTouchesInView = false
+        webView.addGestureRecognizer(edgePan)
+        self.swipeBackGesture = edgePan
+    }
+
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Autorise la reconnaissance simultanée pour ne jamais bloquer le swipe natif de WebKit
+        return true
+    }
+
+    @objc private func handleEdgePan(_ gesture: UIScreenEdgePanGestureRecognizer) {
+        let plugin = headerButtonsPlugin ?? (bridge?.plugin(withName: "NativeHeaderButtonsPlugin") as? NativeHeaderButtonsPlugin)
+
+        switch gesture.state {
+        case .began:
+            // Dès que le pouce commence à glisser : disparition instantanée des boutons (zéro collision façon WhatsApp)
+            plugin?.setOverlayAlpha(0, animated: true, duration: 0.10)
+        case .cancelled, .failed:
+            // Swipe annulé à mi-chemin (l'utilisateur reste sur la même page) : on restaure les boutons
+            plugin?.setOverlayAlpha(1.0, animated: true, duration: 0.25)
+        case .ended:
+            // Swipe terminé et validé : on garde les boutons masqués pendant la fin de la transition
+            // La page d'arrivée réaffichera ses propres boutons propres une fois stabilisée
+            plugin?.setOverlayAlpha(0, animated: false)
+        default:
+            break
         }
     }
 
@@ -22,7 +60,9 @@ open class NewKetBridgeViewController: CAPBridgeViewController {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(LiveActivityPlugin())
         bridge?.registerPluginInstance(AdminNavbarPlugin())
-        bridge?.registerPluginInstance(NativeHeaderButtonsPlugin())
+        let headerPlugin = NativeHeaderButtonsPlugin()
+        bridge?.registerPluginInstance(headerPlugin)
+        self.headerButtonsPlugin = headerPlugin
         let tabPlugin = NativeTabBarPlugin()
         tabPlugin.coordinator = nativeTabCoordinator
         nativeTabCoordinator?.plugin = tabPlugin

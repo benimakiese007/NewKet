@@ -74,8 +74,28 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 overlay.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             ])
 
+            overlay.alpha = 0
+            UIView.animate(withDuration: 0.22, delay: 0.04, options: [.allowUserInteraction, .beginFromCurrentState]) {
+                overlay.alpha = 1.0
+            }
+
             self.overlayView = overlay
             call.resolve(["shown": true])
+        }
+    }
+
+    // MARK: - Programmatic Visibility Control (Swipe-to-Back & Transitions)
+
+    public func setOverlayAlpha(_ alpha: CGFloat, animated: Bool = false, duration: TimeInterval = 0.20) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let overlay = self.overlayView else { return }
+            if animated {
+                UIView.animate(withDuration: duration, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                    overlay.alpha = alpha
+                }
+            } else {
+                overlay.alpha = alpha
+            }
         }
     }
 
