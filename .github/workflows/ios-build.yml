@@ -6,7 +6,7 @@ on:
       xcode_version:
         description: 'Version de Xcode (ex: 26.0, 16.2, 16.1, 16.0)'
         required: true
-        default: '26.0'
+        default: 'latest-stable'
         type: choice
         options:
           - '26.0'
