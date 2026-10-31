@@ -24,9 +24,9 @@
 
     <!-- Full-screen payment success animation -->
     <div id="paymentSuccessOverlay" style="
-        position: fixed; inset: 0; z-index: 9999;
+        position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999999 !important;
         display: flex; align-items: center; justify-content: center;
-        background: #ffffff;
+        background: #ffffff !important;
         opacity: 0; transition: opacity 0.5s ease;
     ">
         <div id="paymentSuccessContent" style="
@@ -93,6 +93,21 @@
             const statusTitle = document.getElementById('statusTitle');
             const statusDescription = document.getElementById('statusDescription');
             const pageTitle = document.querySelector('title');
+
+            // Hide native and web navigation bars immediately so success screen is completely fullscreen
+            try {
+                window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+            } catch (_) {}
+            try {
+                window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
+            } catch (_) {}
+            document.getElementById('mobileBottomNav')?.style?.setProperty('display', 'none', 'important');
+            document.getElementById('nk-debug-pill')?.style?.setProperty('display', 'none', 'important');
+            document.querySelectorAll('.main-header, header, .standard-top-header, #mobileTopNav, #mobileMenuBtn, #mobileHeaderSearchBtn').forEach(el => {
+                el.style?.setProperty('display', 'none', 'important');
+            });
 
             // Launch entry animation immediately on page load
             requestAnimationFrame(() => {

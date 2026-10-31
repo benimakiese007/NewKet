@@ -3259,9 +3259,9 @@
                                 const modalId = 'payment-confirm-modal-' + Date.now();
                                 const currency = data.pricing_breakdown.currency || 'CDF';
                                 const modalHtml = `
-                                    <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-100 transition-opacity duration-300" style="z-index:20000;">
-                                        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="document.getElementById('${modalId}').remove()"></div>
-                                        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative z-10 transform transition-transform duration-300 scale-100 flex flex-col max-h-full">
+                                    <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-100 transition-opacity duration-300" style="z-index:99999999 !important;">
+                                        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:99999999 !important;" onclick="document.getElementById('${modalId}').remove()"></div>
+                                        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative z-10 transform transition-transform duration-300 scale-100 flex flex-col max-h-full" style="z-index:100000000 !important;">
                                             <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur z-20">
                                                 <h3 class="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2">
                                                     <iconify-icon icon="solar:wallet-bold" class="text-indigo-600" width="22"></iconify-icon>

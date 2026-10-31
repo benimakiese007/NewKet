@@ -1691,11 +1691,22 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             document.body.classList.add('checkout-modal-open');
         } catch (_) {}
         
+        // Hide navigation bars so checkout modal is clearly on top of everything
+        try {
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        } catch (_) {}
+        const bNav = document.getElementById('mobileBottomNav');
+        const prevBNavDisplay = bNav ? bNav.style.display : '';
+        if (bNav) bNav.style.setProperty('display', 'none', 'important');
+        const debugPill = document.getElementById('nk-debug-pill');
+        const prevPillDisplay = debugPill ? debugPill.style.display : '';
+        if (debugPill) debugPill.style.setProperty('display', 'none', 'important');
+        
         const modalHtml = `
-            <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:20000;">
-                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:20000;" onclick="closeCheckoutModal('${modalId}', null)"></div>
+            <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:99999999 !important;">
+                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:99999999 !important;" onclick="closeCheckoutModal('${modalId}', null)"></div>
                 
-                <div class="relative w-full max-w-md max-h-[65vh] max-h-[65dvh] sm:max-h-[70vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:20001; max-height: 65dvh !important;">
+                <div class="relative w-full max-w-md max-h-[65vh] max-h-[65dvh] sm:max-h-[70vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:100000000 !important; max-height: 65dvh !important;">
                     <!-- Header -->
                     <div class="px-5 py-3.5 sm:px-6 sm:py-5 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
                         <div class="pr-4">
@@ -1986,6 +1997,17 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                 delete window._checkoutMarkerRef;
                 try {
                     document.body.classList.remove('checkout-modal-open');
+                } catch (_) {}
+                if (bNav) {
+                    if (prevBNavDisplay) bNav.style.display = prevBNavDisplay;
+                    else bNav.style.removeProperty('display');
+                }
+                if (debugPill) {
+                    if (prevPillDisplay) debugPill.style.display = prevPillDisplay;
+                    else debugPill.style.removeProperty('display');
+                }
+                try {
+                    window.ComponentLoader?.syncNativeTabBarVisibility?.();
                 } catch (_) {}
                 resolve(result);
             }, 300);
