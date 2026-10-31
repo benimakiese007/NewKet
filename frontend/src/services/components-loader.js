@@ -1178,7 +1178,7 @@ const ComponentLoader = {
             if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
             const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
             if (zoom && (!zoom.classList.contains('hidden') && zoom.style.display !== 'none')) return true;
-            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal, .modal:not(.hidden), [data-modal]:not(.hidden), #orderModal:not([style*="display: none"])');
+            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal, .modal:not(.hidden), [data-modal]:not(.hidden), #orderModal:not([style*="display: none"]), #orderSuccessOverlay, #paymentSuccessOverlay');
             if (modal) return true;
             return false;
         };
@@ -1200,6 +1200,14 @@ const ComponentLoader = {
         };
 
         const _hideButtons = () => {
+            const isSuccessOverlay = document.getElementById('orderSuccessOverlay') || document.getElementById('paymentSuccessOverlay');
+            if (isSuccessOverlay) {
+                _isOverlayActive = true;
+                plugin.update({ showLeft: false, showRight: false }).catch(() => {});
+                plugin.hideClose?.().catch?.(() => {});
+                window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+                return;
+            }
             const cfg = _getOverlayCloseConfig();
             const cfgKey = `${cfg.position}_${cfg.actionIcon || ''}`;
             if (_isOverlayActive && _lastCloseConfigKey === cfgKey) return;
