@@ -151,13 +151,7 @@ public struct NewKetQuickActionsWidget: Widget {
         }
         .configurationDisplayName("NewKet")
         .description("Accédez directement à vos boutiques, panier et découvrez les produits sponsorisés.")
-        .supportedFamilies({
-            var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
-            if #available(iOS 27, *) {
-                families.append(.systemExtraLargePortrait)
-            }
-            return families
-        }())
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -175,13 +169,8 @@ struct NewKetQuickActionsWidgetView: View {
             LargeSponsoredShowcaseView(entry: entry)
                 .widgetBackground()
         default:
-            if #available(iOS 27, *), family == .systemExtraLargePortrait {
-                ExtraLargePortraitShowcaseView(entry: entry)
-                    .widgetBackground()
-            } else {
-                MediumQuickActionsView()
-                    .widgetBackground()
-            }
+            MediumQuickActionsView()
+                .widgetBackground()
         }
     }
 }
@@ -655,17 +644,12 @@ private struct ExtraLargePortraitShowcaseView: View {
 // MARK: - Xcode Previews
 
 #if DEBUG
-@available(iOS 27, *)
-#Preview("Extra Large Portrait", as: .systemExtraLargePortrait) {
+#Preview("Medium Widget", as: .systemMedium) {
     NewKetQuickActionsWidget()
 } timeline: {
     NewKetQuickActionsEntry(date: .now, products: [
         PinnedProductWidgetModel(id: "1", name: "Table basse bois flotté",   formattedPrice: "210 000 FC", imageData: nil),
         PinnedProductWidgetModel(id: "2", name: "Canapé 3 places velours",   formattedPrice: "950 000 FC", imageData: nil),
-        PinnedProductWidgetModel(id: "3", name: "Plante palmier 180cm",      formattedPrice: "75 000 FC",  imageData: nil),
-        PinnedProductWidgetModel(id: "4", name: "Vélo de route carbone",     formattedPrice: "2 500 000 FC", imageData: nil),
-        PinnedProductWidgetModel(id: "5", name: "Montre connectée GPS",      formattedPrice: "380 000 FC", imageData: nil),
-        PinnedProductWidgetModel(id: "6", name: "Sac à main cuir véritable", formattedPrice: "145 000 FC", imageData: nil),
     ])
 }
 #endif
