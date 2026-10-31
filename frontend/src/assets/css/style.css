@@ -10976,25 +10976,72 @@ html.dark .skeleton::after {
 
 
 /* ==========================================================================
-   UNIVERSAL MODAL SAFE ZONE — never go above the header on any support
-   Uses --header-height set dynamically by ComponentLoader.setupHeaderSpacing()
+   UNIVERSAL MODAL SAFE ZONE — never go above header, never swallowed at bottom
+   All modal cards on phone have uniform size, 4 visible rounded corners
    ========================================================================== */
 
-/* All modal overlays must start below the header */
+/* All modal overlays (phones & small screens) */
 .nk-modal-overlay,
 #orderDetailModal,
 #orderModal,
 #disputeModal,
 .fixed.inset-0[class*="items-center"][class*="bg-black"],
 .fixed.inset-0[class*="backdrop"] {
-  padding-top: calc(var(--header-height, 70px) + env(safe-area-inset-top, 0px) + 8px) !important;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
+  padding-top: calc(var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) + 12px) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px) !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
   box-sizing: border-box !important;
-  align-items: flex-start !important;
-  overflow-y: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
 }
 
-/* Desktop: center vertically while still clearing header */
+/* Inner modal box on mobile — Carte flottante standardisée */
+.nk-modal-overlay > *:not(.absolute),
+#orderDetailModal > *:not(.absolute),
+#orderModal > *:not(.absolute),
+#disputeModal > *:not(.absolute) {
+  width: 100% !important;
+  max-width: 440px !important;
+  max-height: calc(100dvh - var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-bottom, 0px) - 48px) !important;
+  border-radius: 28px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+  box-sizing: border-box !important;
+  margin: auto !important;
+}
+
+/* Grandes modales détaillées sur mobile : hauteur uniforme constante */
+#orderModal > *:not(.absolute),
+#orderDetailModal > *:not(.absolute),
+#disputeModal > *:not(.absolute) {
+  height: min(76dvh, calc(100dvh - var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-bottom, 0px) - 48px)) !important;
+}
+
+/* Header intérieur de la modale : reste toujours visible et fixé */
+#orderModal > *:not(.absolute) > *:first-child,
+#orderDetailModal > *:not(.absolute) > *:first-child,
+#disputeModal > *:not(.absolute) > *:first-child {
+  flex-shrink: 0 !important;
+}
+
+/* Corps intérieur défilant : seul lui défile avec espace confortable en bas */
+#orderModal > *:not(.absolute) > *:last-child,
+#orderDetailModal > *:not(.absolute) > *:last-child,
+#disputeModal > *:not(.absolute) > *:last-child {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  padding-bottom: 2.5rem !important;
+}
+
+/* Desktop & Tablettes (>= 768px) */
 @media (min-width: 768px) {
   .nk-modal-overlay,
   #orderDetailModal,
@@ -11003,42 +11050,44 @@ html.dark .skeleton::after {
   .fixed.inset-0[class*="items-center"][class*="bg-black"],
   .fixed.inset-0[class*="backdrop"] {
     align-items: center !important;
-    padding-top: calc(var(--header-height, 70px) + 16px) !important;
-    padding-bottom: 16px !important;
+    justify-content: center !important;
+    padding-top: calc(var(--header-height, 70px) + 20px) !important;
+    padding-bottom: 24px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  .nk-modal-overlay > *:not(.absolute),
+  #orderDetailModal > *:not(.absolute),
+  #orderModal > *:not(.absolute),
+  #disputeModal > *:not(.absolute) {
+    max-width: 42rem !important;
+    max-height: calc(100dvh - var(--header-height, 70px) - 48px) !important;
+    height: auto !important;
   }
 }
 
-/* Inner modal box: max-height never overflows the safe zone */
-.nk-modal-overlay > *,
-#orderDetailModal > *,
-#orderModal > *,
-#disputeModal > * {
-  max-height: calc(100dvh - var(--header-height, 70px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 34px) - 32px) !important;
-  overflow-y: auto !important;
-  overscroll-behavior: contain !important;
-}
-
-/* Admin pages: reference dashboard topbar height */
+/* Admin pages : dashboard topbar offset */
 .admin-shell .nk-modal-overlay,
 .admin-shell #orderDetailModal,
 .admin-shell #orderModal {
-  padding-top: calc(var(--dashboard-topbar-height, 64px) + 8px) !important;
+  padding-top: calc(var(--dashboard-topbar-height, 64px) + 12px) !important;
 }
 
 @media (min-width: 768px) {
   .admin-shell .nk-modal-overlay,
   .admin-shell #orderDetailModal,
   .admin-shell #orderModal {
-    align-items: center !important;
-    padding-top: calc(var(--dashboard-topbar-height, 64px) + 16px) !important;
+    padding-top: calc(var(--dashboard-topbar-height, 64px) + 20px) !important;
   }
 }
 
-/* Exception: full-screen success overlays stay full (z-index: 99999999) */
+/* Exception : full-screen success overlays */
 #orderSuccessOverlay,
 #paymentSuccessOverlay {
-  padding-top: 0 !important;
+  padding: 0 !important;
   align-items: center !important;
+  justify-content: center !important;
   overflow-y: hidden !important;
 }
 
