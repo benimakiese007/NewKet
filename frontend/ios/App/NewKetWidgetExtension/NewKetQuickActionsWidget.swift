@@ -34,6 +34,8 @@ struct NewKetQuickActionsProvider: TimelineProvider {
         PinnedProductWidgetModel(id: "2", name: "Canapé 3 places velours", formattedPrice: "950 000 FC", imageData: nil),
         PinnedProductWidgetModel(id: "3", name: "Plante palmier 180cm", formattedPrice: "75 000 FC", imageData: nil),
         PinnedProductWidgetModel(id: "4", name: "Vélo de route carbone", formattedPrice: "2 500 000 FC", imageData: nil),
+        PinnedProductWidgetModel(id: "5", name: "Montre connectée GPS", formattedPrice: "380 000 FC", imageData: nil),
+        PinnedProductWidgetModel(id: "6", name: "Sac à main cuir véritable", formattedPrice: "145 000 FC", imageData: nil),
     ]
 
     func placeholder(in context: Context) -> NewKetQuickActionsEntry {
@@ -65,8 +67,9 @@ struct NewKetQuickActionsProvider: TimelineProvider {
     }
 
     // MARK: - Supabase Fetcher
+    // limit=6 pour couvrir le widget ExtraLargePortrait (3 rangées × 2 colonnes)
     private func fetchPinnedProducts() async -> [PinnedProductWidgetModel] {
-        let endpoint = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&pinned=eq.true&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=4"
+        let endpoint = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&pinned=eq.true&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=6"
         guard let url = URL(string: endpoint) else { return [] }
 
         var request = URLRequest(url: url)
@@ -92,7 +95,7 @@ struct NewKetQuickActionsProvider: TimelineProvider {
             let items = try JSONDecoder().decode([RawItem].self, from: data)
 
             var models: [PinnedProductWidgetModel] = []
-            for item in items.prefix(4) {
+            for item in items.prefix(6) {
                 let formatted = formatPriceFC(item.price)
                 var imgData: Data? = nil
 
@@ -148,7 +151,13 @@ public struct NewKetQuickActionsWidget: Widget {
         }
         .configurationDisplayName("NewKet")
         .description("Accédez directement à vos boutiques, panier et découvrez les produits sponsorisés.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies({
+            var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
+            if #available(iOS 27, *) {
+                families.append(.systemExtraLargePortrait)
+            }
+            return families
+        }())
     }
 }
 
@@ -166,8 +175,13 @@ struct NewKetQuickActionsWidgetView: View {
             LargeSponsoredShowcaseView(entry: entry)
                 .widgetBackground()
         default:
-            MediumQuickActionsView()
-                .widgetBackground()
+            if #available(iOS 27, *), family == .systemExtraLargePortrait {
+                ExtraLargePortraitShowcaseView(entry: entry)
+                    .widgetBackground()
+            } else {
+                MediumQuickActionsView()
+                    .widgetBackground()
+            }
         }
     }
 }
@@ -488,3 +502,107 @@ private extension View {
         }
     }
 }
+
+// MARK: - Extra Large Portrait Widget (iOS 27+, ~4 col × 6 rows)
+
+/// Disponible uniquement sur iOS 27+. Layout : en-tête identique au Large + grille
+/// 3 rangées × 2 colonnes (6 produits) + barre de raccourcis en bas.
+/// Toutes les dimensions sont relatives (Spacer / maxWidth / maxHeight) pour
+/// s'adapter aux différents modèles d'appareils sans valeurs fixes en points.
+@available(iOS 27, *)
+private struct ExtraLargePortraitShowcaseView: View {
+    let entry: NewKetQuickActionsEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+
+            // ── En-tête identique au Large ──────────────────────────────
+            HStack(alignment: .center) {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(NewKetTheme.accentMint)
+                        .frame(width: 7, height: 7)
+                    Text("NewKet")
+                        .font(.system(size: 14, weight: .black, design: .rounded))
+                        .foregroundColor(NewKetTheme.textPrimary)
+                }
+
+                Text("SPONSORISÉ")
+                    .font(.system(size: 8.5, weight: .bold))
+                    .tracking(0.6)
+                    .foregroundColor(NewKetTheme.accentMint)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(NewKetTheme.accentMint.opacity(0.12))
+                    .cornerRadius(4)
+
+                Spacer()
+
+                Link(destination: URL(string: "newket://shops")!) {
+                    HStack(spacing: 3) {
+                        Text("Tout voir")
+                            .font(.system(size: 10.5, weight: .semibold))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 8.5, weight: .bold))
+                    }
+                    .foregroundColor(NewKetTheme.textMuted)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
+            .padding(.bottom, 10)
+
+            // ── Grille 3 rangées × 2 colonnes (6 produits) ─────────────
+            let products = Array(entry.products.prefix(6))
+            let rows = stride(from: 0, to: min(products.count, 6), by: 2).map { i -> [PinnedProductWidgetModel] in
+                Array(products[i..<min(i + 2, products.count)])
+            }
+
+            VStack(spacing: 7) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                    HStack(spacing: 7) {
+                        ForEach(row) { item in
+                            SponsoredProductTile(product: item)
+                        }
+                        // Remplir la 2e colonne si la rangée est incomplète
+                        if row.count < 2 {
+                            Color.clear
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+
+            Spacer(minLength: 6)
+
+            // ── Barre de raccourcis (identique au Large) ────────────────
+            HStack(spacing: 5) {
+                BottomQuickActionPill(icon: "bag",   label: "Boutique",    url: "newket://shops")
+                BottomQuickActionPill(icon: "bell",  label: "Notifs",      url: "newket://notifications")
+                BottomQuickActionPill(icon: "heart", label: "Favoris",     url: "newket://favorites")
+                BottomQuickActionPill(icon: "cart",  label: "Panier",      url: "newket://achat")
+            }
+            .padding(.horizontal, 12)
+            .padding(.bottom, 10)
+        }
+    }
+}
+
+// MARK: - Xcode Previews
+
+#if DEBUG
+@available(iOS 27, *)
+#Preview("Extra Large Portrait", as: .systemExtraLargePortrait) {
+    NewKetQuickActionsWidget()
+} timeline: {
+    NewKetQuickActionsEntry(date: .now, products: [
+        PinnedProductWidgetModel(id: "1", name: "Table basse bois flotté",   formattedPrice: "210 000 FC", imageData: nil),
+        PinnedProductWidgetModel(id: "2", name: "Canapé 3 places velours",   formattedPrice: "950 000 FC", imageData: nil),
+        PinnedProductWidgetModel(id: "3", name: "Plante palmier 180cm",      formattedPrice: "75 000 FC",  imageData: nil),
+        PinnedProductWidgetModel(id: "4", name: "Vélo de route carbone",     formattedPrice: "2 500 000 FC", imageData: nil),
+        PinnedProductWidgetModel(id: "5", name: "Montre connectée GPS",      formattedPrice: "380 000 FC", imageData: nil),
+        PinnedProductWidgetModel(id: "6", name: "Sac à main cuir véritable", formattedPrice: "145 000 FC", imageData: nil),
+    ])
+}
+#endif
