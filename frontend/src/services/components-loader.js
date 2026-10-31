@@ -1184,19 +1184,36 @@ const ComponentLoader = {
         };
 
         let _isOverlayActive = false;
+        let _lastCloseConfigKey = '';
         let _overlayDebounceTimer = null;
 
+        const _getOverlayCloseConfig = () => {
+            const fav = document.getElementById('favoritesSlideOver');
+            if (fav && !fav.classList.contains('translate-x-full')) {
+                return { position: 'top-right', actionIcon: 'trash', actionType: 'clearFavorites' };
+            }
+            const notif = document.getElementById('notificationsSlideOver');
+            if (notif && !notif.classList.contains('translate-x-full')) {
+                return { position: 'top-right', actionIcon: 'checkmark', actionType: 'markAllRead' };
+            }
+            return { position: 'top-right' };
+        };
+
         const _hideButtons = () => {
-            if (_isOverlayActive) return;
+            const cfg = _getOverlayCloseConfig();
+            const cfgKey = `${cfg.position}_${cfg.actionIcon || ''}`;
+            if (_isOverlayActive && _lastCloseConfigKey === cfgKey) return;
             _isOverlayActive = true;
+            _lastCloseConfigKey = cfgKey;
             plugin.update({ showLeft: false, showRight: false }).catch(() => {});
-            plugin.showClose?.({ position: 'top-right' })?.catch?.(() => {});
+            plugin.showClose?.(cfg)?.catch?.(() => {});
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
         };
 
         const _showButtons = () => {
             if (!_isOverlayActive) return;
             _isOverlayActive = false;
+            _lastCloseConfigKey = '';
             plugin.hideClose?.()?.catch?.(() => {});
             if (!isMinimal) {
                 plugin.update({ showLeft: true, showRight: true }).catch(() => {});
@@ -1226,7 +1243,7 @@ const ComponentLoader = {
             if (_overlayDebounceTimer) clearTimeout(_overlayDebounceTimer);
             _overlayDebounceTimer = setTimeout(() => {
                 const isOpen = isAnyWebOverlayOpen();
-                if (isOpen && !_isOverlayActive) {
+                if (isOpen) {
                     _hideButtons();
                 } else if (!isOpen && _isOverlayActive) {
                     _showButtons();
@@ -1234,6 +1251,23 @@ const ComponentLoader = {
             }, 50);
         });
         bodyOverlayObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'aria-hidden'] });
+
+        // -- Wire action tap (Native Swift Liquid Glass Trash / Checkmark) --> trigger slide-over action
+        plugin.addListener('actionTap', (data) => {
+            if (data?.action === 'clearFavorites') {
+                if (window.DrawersManager && typeof window.DrawersManager.clearAllFavorites === 'function') {
+                    window.DrawersManager.clearAllFavorites();
+                } else if (window.FavoritesManager && typeof window.FavoritesManager.clearAll === 'function') {
+                    window.FavoritesManager.clearAll();
+                }
+            } else if (data?.action === 'markAllRead') {
+                if (window.DrawersManager && typeof window.DrawersManager.markAllNotificationsRead === 'function') {
+                    window.DrawersManager.markAllNotificationsRead();
+                } else if (window.NotificationManager && typeof window.NotificationManager.markAllAsRead === 'function') {
+                    window.NotificationManager.markAllAsRead();
+                }
+            }
+        });
 
         // -- Wire close tap (Native Swift Liquid Glass "X") --> close active overlay
         plugin.addListener('closeTap', () => {

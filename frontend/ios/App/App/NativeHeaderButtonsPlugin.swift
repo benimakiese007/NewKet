@@ -108,7 +108,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    // MARK: - showClose (Native Liquid Glass Close "X" Button)
+    // MARK: - showClose (Native Liquid Glass Close "X" Button & Optional Action Button)
 
     @objc func showClose(_ call: CAPPluginCall) {
         guard #available(iOS 16.0, *) else {
@@ -119,6 +119,8 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         let position = call.getString("position") ?? "top-right"
         let topOffset = CGFloat(call.getDouble("topOffset") ?? 12.0)
         let sideOffset = CGFloat(call.getDouble("sideOffset") ?? 16.0)
+        let actionIcon = call.getString("actionIcon")
+        let actionType = call.getString("actionType") ?? ""
 
         DispatchQueue.main.async { [weak self] in
             guard let self,
@@ -128,10 +130,8 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 return
             }
 
-            if self.closeOverlayView != nil {
-                call.resolve(["shown": true])
-                return
-            }
+            self.closeOverlayView?.removeFromSuperview()
+            self.closeOverlayView = nil
 
             let container = PassthroughOverlayView()
             container.translatesAutoresizingMaskIntoConstraints = false
@@ -162,13 +162,37 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 constraints.append(closeBtn.trailingAnchor.constraint(equalTo: container.safeAreaLayoutGuide.trailingAnchor, constant: -sideOffset))
             }
 
+            var animatedButtons: [UIView] = [closeBtn]
+
+            if let actionIcon = actionIcon, !actionIcon.isEmpty {
+                let actionBtn = GlassCircleButton(sfSymbol: actionIcon, size: 40)
+                actionBtn.translatesAutoresizingMaskIntoConstraints = false
+                actionBtn.onTap = { [weak self] in
+                    self?.notifyListeners("actionTap", data: ["action": actionType])
+                }
+                container.addSubview(actionBtn)
+                animatedButtons.append(actionBtn)
+
+                constraints.append(contentsOf: [
+                    actionBtn.widthAnchor.constraint(equalToConstant: 40),
+                    actionBtn.heightAnchor.constraint(equalToConstant: 40),
+                    actionBtn.centerYAnchor.constraint(equalTo: closeBtn.centerYAnchor),
+                    actionBtn.trailingAnchor.constraint(equalTo: closeBtn.leadingAnchor, constant: -10)
+                ])
+            }
+
             NSLayoutConstraint.activate(constraints)
 
-            closeBtn.alpha = 0
-            closeBtn.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+            for btn in animatedButtons {
+                btn.alpha = 0
+                btn.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+            }
+
             UIView.animate(withDuration: 0.28, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction]) {
-                closeBtn.alpha = 1.0
-                closeBtn.transform = .identity
+                for btn in animatedButtons {
+                    btn.alpha = 1.0
+                    btn.transform = .identity
+                }
             }
 
             self.closeOverlayView = container
@@ -364,7 +388,7 @@ class GlassCircleButton: UIView {
         config.image = image
         config.contentInsets = .zero
 
-        let isDestructive = sfSymbol.contains("arrow.right")
+        let isDestructive = sfSymbol.contains("arrow.right") || sfSymbol.contains("trash")
         if isDestructive {
             // Vrai rouge NewKet (#ff0a0a: 255, 10, 10)
             let trueRed = UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0)

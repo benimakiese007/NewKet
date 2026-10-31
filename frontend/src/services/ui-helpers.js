@@ -3039,9 +3039,23 @@ window.clearInlineFeedback = clearInlineFeedback;
 
 
 window.showOrderSuccessModal = function() {
+    // Hide native and web navigation bars immediately so success screen is completely fullscreen
+    try {
+        window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+        window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+    } catch (_) {}
+    try {
+        window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
+    } catch (_) {}
+    document.getElementById('mobileBottomNav')?.style?.setProperty('display', 'none', 'important');
+    document.getElementById('nk-debug-pill')?.style?.setProperty('display', 'none', 'important');
+    document.querySelectorAll('.main-header, header, .standard-top-header, #mobileTopNav, #mobileMenuBtn, #mobileHeaderSearchBtn').forEach(el => {
+        el.style?.setProperty('display', 'none', 'important');
+    });
     // Inject the success animation container
     const modalHtml = `
-        <div id="orderSuccessOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white/90 backdrop-blur-sm transition-opacity duration-500 opacity-0">
+        <div id="orderSuccessOverlay" class="fixed inset-0 flex items-center justify-center bg-white transition-opacity duration-500 opacity-0" style="position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999999 !important; background-color: #ffffff !important;">
             <div class="flex flex-col items-center justify-center p-8 text-center transform scale-75 opacity-0" id="orderSuccessContent">
                 <div class="relative w-32 h-32 mb-6">
                     <svg class="absolute inset-0 w-full h-full text-green-500" viewBox="0 0 52 52">
@@ -3082,9 +3096,23 @@ window.showOrderSuccessModal = function() {
 };
 
 window.showPaymentSuccessModal = function() {
+    // Hide native and web navigation bars immediately so success screen is completely fullscreen
+    try {
+        window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+        window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+    } catch (_) {}
+    try {
+        window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
+    } catch (_) {}
+    document.getElementById('mobileBottomNav')?.style?.setProperty('display', 'none', 'important');
+    document.getElementById('nk-debug-pill')?.style?.setProperty('display', 'none', 'important');
+    document.querySelectorAll('.main-header, header, .standard-top-header, #mobileTopNav, #mobileMenuBtn, #mobileHeaderSearchBtn').forEach(el => {
+        el.style?.setProperty('display', 'none', 'important');
+    });
     // Inject the success animation container
     const modalHtml = `
-        <div id="paymentSuccessOverlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white/90 backdrop-blur-sm transition-opacity duration-500 opacity-0">
+        <div id="paymentSuccessOverlay" class="fixed inset-0 flex items-center justify-center bg-white transition-opacity duration-500 opacity-0" style="position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999999 !important; background-color: #ffffff !important;">
             <div class="flex flex-col items-center justify-center p-8 text-center transform scale-75 opacity-0" id="paymentSuccessContent">
                 <div class="relative w-32 h-32 mb-6">
                     <svg class="absolute inset-0 w-full h-full text-green-500" viewBox="0 0 52 52">
