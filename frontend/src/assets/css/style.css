@@ -10974,6 +10974,74 @@ html.dark .skeleton::after {
   overscroll-behavior: none;
 }
 
+
+/* ==========================================================================
+   UNIVERSAL MODAL SAFE ZONE — never go above the header on any support
+   Uses --header-height set dynamically by ComponentLoader.setupHeaderSpacing()
+   ========================================================================== */
+
+/* All modal overlays must start below the header */
+.nk-modal-overlay,
+#orderDetailModal,
+#orderModal,
+#disputeModal,
+.fixed.inset-0[class*="items-center"][class*="bg-black"],
+.fixed.inset-0[class*="backdrop"] {
+  padding-top: calc(var(--header-height, 70px) + env(safe-area-inset-top, 0px) + 8px) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
+  box-sizing: border-box !important;
+  align-items: flex-start !important;
+  overflow-y: auto !important;
+}
+
+/* Desktop: center vertically while still clearing header */
+@media (min-width: 768px) {
+  .nk-modal-overlay,
+  #orderDetailModal,
+  #orderModal,
+  #disputeModal,
+  .fixed.inset-0[class*="items-center"][class*="bg-black"],
+  .fixed.inset-0[class*="backdrop"] {
+    align-items: center !important;
+    padding-top: calc(var(--header-height, 70px) + 16px) !important;
+    padding-bottom: 16px !important;
+  }
+}
+
+/* Inner modal box: max-height never overflows the safe zone */
+.nk-modal-overlay > *,
+#orderDetailModal > *,
+#orderModal > *,
+#disputeModal > * {
+  max-height: calc(100dvh - var(--header-height, 70px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 34px) - 32px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Admin pages: reference dashboard topbar height */
+.admin-shell .nk-modal-overlay,
+.admin-shell #orderDetailModal,
+.admin-shell #orderModal {
+  padding-top: calc(var(--dashboard-topbar-height, 64px) + 8px) !important;
+}
+
+@media (min-width: 768px) {
+  .admin-shell .nk-modal-overlay,
+  .admin-shell #orderDetailModal,
+  .admin-shell #orderModal {
+    align-items: center !important;
+    padding-top: calc(var(--dashboard-topbar-height, 64px) + 16px) !important;
+  }
+}
+
+/* Exception: full-screen success overlays stay full (z-index: 99999999) */
+#orderSuccessOverlay,
+#paymentSuccessOverlay {
+  padding-top: 0 !important;
+  align-items: center !important;
+  overflow-y: hidden !important;
+}
+
 /* Scrollable content INSIDE modals — allow normal scroll but contain it */
 
 .fixed.inset-0 [class*="overflow-y-auto"],
