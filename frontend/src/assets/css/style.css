@@ -2436,8 +2436,8 @@ html.is-ios-capacitor button[onclick*="closeUserDetailsModal"],
 html.is-ios-capacitor button[onclick*="closeLightbox"],
 html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"],
 html.is-ios-capacitor #drilldownCloseBtn,
-html.is-ios-capacitor button[data-action="close-order-modal"],
-html.is-ios-capacitor button[data-action="close-dispute-modal"] {
+html.is-ios-capacitor button.rounded-full[data-action="close-order-modal"],
+html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2492,8 +2492,8 @@ html.is-ios-capacitor button[onclick*="closeUserDetailsModal"]::before,
 html.is-ios-capacitor button[onclick*="closeLightbox"]::before,
 html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]::before,
 html.is-ios-capacitor #drilldownCloseBtn::before,
-html.is-ios-capacitor button[data-action="close-order-modal"]::before,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]::before,
+html.is-ios-capacitor button.rounded-full[data-action="close-order-modal"]::before,
+html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"]::before,
 html.is-ios-capacitor button[aria-label*="Fermer" i]::before,
 html.is-ios-capacitor button[aria-label*="close" i]::before,
 html.is-ios-capacitor button[title*="Fermer" i]::before,
@@ -2536,8 +2536,8 @@ html.is-ios-capacitor button[onclick*="closeUserDetailsModal"] > iconify-icon,
 html.is-ios-capacitor button[onclick*="closeLightbox"] > iconify-icon,
 html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"] > iconify-icon,
 html.is-ios-capacitor #drilldownCloseBtn > iconify-icon,
-html.is-ios-capacitor button[data-action="close-order-modal"] > iconify-icon,
-html.is-ios-capacitor button[data-action="close-dispute-modal"] > iconify-icon,
+html.is-ios-capacitor button.rounded-full[data-action="close-order-modal"] > iconify-icon,
+html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"] > iconify-icon,
 html.is-ios-capacitor button[aria-label*="Fermer" i] > iconify-icon,
 html.is-ios-capacitor button[aria-label*="close" i] > iconify-icon,
 html.is-ios-capacitor button[title*="Fermer" i] > iconify-icon,
@@ -2574,8 +2574,8 @@ html.is-ios-capacitor button[onclick*="closeUserDetailsModal"]::after,
 html.is-ios-capacitor button[onclick*="closeLightbox"]::after,
 html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]::after,
 html.is-ios-capacitor #drilldownCloseBtn::after,
-html.is-ios-capacitor button[data-action="close-order-modal"]::after,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]::after,
+html.is-ios-capacitor button.rounded-full[data-action="close-order-modal"]::after,
+html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"]::after,
 html.is-ios-capacitor button[aria-label*="Fermer" i]::after,
 html.is-ios-capacitor button[aria-label*="close" i]::after,
 html.is-ios-capacitor button[title*="Fermer" i]::after,
@@ -2618,8 +2618,8 @@ html.is-ios-capacitor button[onclick*="closeUserDetailsModal"]:active,
 html.is-ios-capacitor button[onclick*="closeLightbox"]:active,
 html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]:active,
 html.is-ios-capacitor #drilldownCloseBtn:active,
-html.is-ios-capacitor button[data-action="close-order-modal"]:active,
-html.is-ios-capacitor button[data-action="close-dispute-modal"]:active,
+html.is-ios-capacitor button.rounded-full[data-action="close-order-modal"]:active,
+html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"]:active,
 html.is-ios-capacitor button[aria-label*="Fermer" i]:active,
 html.is-ios-capacitor button[aria-label*="close" i]:active,
 html.is-ios-capacitor button[title*="Fermer" i]:active,
@@ -10978,15 +10978,31 @@ html.dark .skeleton::after {
 /* ==========================================================================
    UNIVERSAL MODAL SAFE ZONE — never go above header, never swallowed at bottom
    All modal cards on phone have uniform size, 4 visible rounded corners
+   Modals are STRICTLY hidden when .hidden or style="display: none"
    ========================================================================== */
 
-/* All modal overlays (phones & small screens) */
-.nk-modal-overlay,
-#orderDetailModal,
-#orderModal,
-#disputeModal,
-.fixed.inset-0[class*="items-center"][class*="bg-black"],
-.fixed.inset-0[class*="backdrop"] {
+/* STRICT HIDING: Hidden modals must NEVER be displayed */
+.hidden,
+[style*="display: none"],
+[style*="display:none"],
+#orderDetailModal.hidden,
+#orderModal.hidden,
+#disputeModal.hidden,
+#orderDetailModal[style*="display: none"],
+#orderModal[style*="display: none"],
+#disputeModal[style*="display: none"],
+.nk-modal-overlay.hidden,
+.nk-modal-overlay[style*="display: none"] {
+  display: none !important;
+}
+
+/* All ACTIVE modal overlays (phones & small screens) */
+.nk-modal-overlay:not(.hidden):not([style*="display: none"]),
+#orderDetailModal:not(.hidden):not([style*="display: none"]),
+#orderModal:not(.hidden):not([style*="display: none"]),
+#disputeModal:not(.hidden):not([style*="display: none"]),
+.fixed.inset-0[class*="items-center"][class*="bg-black"]:not(.hidden):not([style*="display: none"]),
+.fixed.inset-0[class*="backdrop"]:not(.hidden):not([style*="display: none"]) {
   padding-top: calc(var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) + 12px) !important;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px) !important;
   padding-left: 16px !important;
@@ -10999,10 +11015,10 @@ html.dark .skeleton::after {
 }
 
 /* Inner modal box on mobile — Carte flottante standardisée */
-.nk-modal-overlay > *:not(.absolute),
-#orderDetailModal > *:not(.absolute),
-#orderModal > *:not(.absolute),
-#disputeModal > *:not(.absolute) {
+.nk-modal-overlay:not(.hidden) > *:not(.absolute),
+#orderDetailModal:not(.hidden) > *:not(.absolute),
+#orderModal:not(.hidden) > *:not(.absolute),
+#disputeModal:not(.hidden) > *:not(.absolute) {
   width: 100% !important;
   max-width: 440px !important;
   max-height: calc(100dvh - var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-bottom, 0px) - 48px) !important;
@@ -11016,23 +11032,35 @@ html.dark .skeleton::after {
 }
 
 /* Grandes modales détaillées sur mobile : hauteur uniforme constante */
-#orderModal > *:not(.absolute),
-#orderDetailModal > *:not(.absolute),
-#disputeModal > *:not(.absolute) {
+#orderModal:not(.hidden) > *:not(.absolute),
+#orderDetailModal:not(.hidden) > *:not(.absolute),
+#disputeModal:not(.hidden) > *:not(.absolute) {
   height: min(76dvh, calc(100dvh - var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-bottom, 0px) - 48px)) !important;
 }
 
-/* Header intérieur de la modale : reste toujours visible et fixé */
+/* Header & Footer intérieurs : restent toujours visibles sans réduction */
 #orderModal > *:not(.absolute) > *:first-child,
 #orderDetailModal > *:not(.absolute) > *:first-child,
-#disputeModal > *:not(.absolute) > *:first-child {
+#disputeModal > *:not(.absolute) > *:first-child,
+#disputeModal > *:not(.absolute) > *:last-child {
   flex-shrink: 0 !important;
 }
 
-/* Corps intérieur défilant : seul lui défile avec espace confortable en bas */
-#orderModal > *:not(.absolute) > *:last-child,
-#orderDetailModal > *:not(.absolute) > *:last-child,
-#disputeModal > *:not(.absolute) > *:last-child {
+/* Corps intérieur défilant de orderModal et orderDetailModal */
+#orderModal > *:not(.absolute) > .p-6.space-y-8,
+#orderDetailModal > *:not(.absolute) > .p-6.space-y-8,
+#orderDetailModal > *:not(.absolute) > [class*="overflow-y-auto"],
+#orderModal > *:not(.absolute) > [class*="overflow-y-auto"] {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  padding-bottom: 2.5rem !important;
+}
+
+/* Corps intérieur défilant de disputeModal (le div avec space-y-5) */
+#disputeModal > *:not(.absolute) > .p-6.overflow-y-auto {
   flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
@@ -11043,12 +11071,12 @@ html.dark .skeleton::after {
 
 /* Desktop & Tablettes (>= 768px) */
 @media (min-width: 768px) {
-  .nk-modal-overlay,
-  #orderDetailModal,
-  #orderModal,
-  #disputeModal,
-  .fixed.inset-0[class*="items-center"][class*="bg-black"],
-  .fixed.inset-0[class*="backdrop"] {
+  .nk-modal-overlay:not(.hidden):not([style*="display: none"]),
+  #orderDetailModal:not(.hidden):not([style*="display: none"]),
+  #orderModal:not(.hidden):not([style*="display: none"]),
+  #disputeModal:not(.hidden):not([style*="display: none"]),
+  .fixed.inset-0[class*="items-center"][class*="bg-black"]:not(.hidden):not([style*="display: none"]),
+  .fixed.inset-0[class*="backdrop"]:not(.hidden):not([style*="display: none"]) {
     align-items: center !important;
     justify-content: center !important;
     padding-top: calc(var(--header-height, 70px) + 20px) !important;
@@ -11057,10 +11085,10 @@ html.dark .skeleton::after {
     padding-right: 24px !important;
   }
 
-  .nk-modal-overlay > *:not(.absolute),
-  #orderDetailModal > *:not(.absolute),
-  #orderModal > *:not(.absolute),
-  #disputeModal > *:not(.absolute) {
+  .nk-modal-overlay:not(.hidden) > *:not(.absolute),
+  #orderDetailModal:not(.hidden) > *:not(.absolute),
+  #orderModal:not(.hidden) > *:not(.absolute),
+  #disputeModal:not(.hidden) > *:not(.absolute) {
     max-width: 42rem !important;
     max-height: calc(100dvh - var(--header-height, 70px) - 48px) !important;
     height: auto !important;
@@ -11068,16 +11096,16 @@ html.dark .skeleton::after {
 }
 
 /* Admin pages : dashboard topbar offset */
-.admin-shell .nk-modal-overlay,
-.admin-shell #orderDetailModal,
-.admin-shell #orderModal {
+.admin-shell .nk-modal-overlay:not(.hidden):not([style*="display: none"]),
+.admin-shell #orderDetailModal:not(.hidden):not([style*="display: none"]),
+.admin-shell #orderModal:not(.hidden):not([style*="display: none"]) {
   padding-top: calc(var(--dashboard-topbar-height, 64px) + 12px) !important;
 }
 
 @media (min-width: 768px) {
-  .admin-shell .nk-modal-overlay,
-  .admin-shell #orderDetailModal,
-  .admin-shell #orderModal {
+  .admin-shell .nk-modal-overlay:not(.hidden):not([style*="display: none"]),
+  .admin-shell #orderDetailModal:not(.hidden):not([style*="display: none"]),
+  .admin-shell #orderModal:not(.hidden):not([style*="display: none"]) {
     padding-top: calc(var(--dashboard-topbar-height, 64px) + 20px) !important;
   }
 }

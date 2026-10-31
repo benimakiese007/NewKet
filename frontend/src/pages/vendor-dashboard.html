@@ -9066,8 +9066,7 @@ async function openOrderModal(id) {
                     <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
-                <button type="button" data-action="close-order-modal"
-                    class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
             </div>
@@ -9253,8 +9252,7 @@ async function openOrderModal(id) {
                         <iconify-icon icon="solar:download-minimalistic-linear" width="20"></iconify-icon>
                         Facture PDF
                     </button>
-                    <button type="button" data-action="close-order-modal"
-                        class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors">
+                    <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors cursor-pointer">
                         Fermer
                     </button>
                 </div>

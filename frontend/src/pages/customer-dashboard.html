@@ -809,8 +809,7 @@
                     <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
-                <button type="button" data-action="close-order-modal"
-                    class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
             </div>
@@ -1016,8 +1015,7 @@
                         <iconify-icon icon="solar:download-minimalistic-linear" width="20"></iconify-icon>
                         Facture PDF
                     </button>
-                    <button type="button" data-action="close-order-modal"
-                        class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors">
+                    <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors cursor-pointer">
                         Fermer
                     </button>
                 </div>
@@ -4919,7 +4917,7 @@
                         <p class="text-sm text-gray-500 font-medium">Commande <span id="disputeOrderId" class="text-indigo-600 font-bold"></span></p>
                     </div>
                 </div>
-                <button type="button" data-action="close-dispute-modal" class="w-8 h-8 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm">
+                <button type="button" onclick="closeDisputeModal()" data-action="close-dispute-modal" class="w-8 h-8 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm" aria-label="Fermer le litige">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
             </div>
@@ -5040,7 +5038,7 @@
             <p id="open-dispute-feedback" class="text-sm font-medium px-6 hidden transition-opacity text-center"></p>
 
             <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
-                <button type="button" data-action="close-dispute-modal" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+                <button type="button" onclick="closeDisputeModal()" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors cursor-pointer">
                     Annuler
                 </button>
                 <button id="btnSubmitDispute" type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium flex items-center gap-2 transition-colors">
