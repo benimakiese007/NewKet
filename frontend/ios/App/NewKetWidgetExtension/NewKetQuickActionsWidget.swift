@@ -169,8 +169,8 @@ struct NewKetQuickActionsWidgetView: View {
     var body: some View {
         switch family {
         case .systemSmall:
-            SmallQuickActionsView()
-                .widgetBackground()
+            SmallProductShowcaseView(entry: entry)
+                .modifier(SmallProductBackgroundModifier(entry: entry))
         case .systemLarge:
             LargeSponsoredShowcaseView(entry: entry)
                 .widgetBackground()
@@ -248,33 +248,119 @@ private struct MediumQuickActionsView: View {
     }
 }
 
-// MARK: - Small Widget (Compact 2x2 Grid)
-private struct SmallQuickActionsView: View {
+// MARK: - Small Widget: Produit Sponsorisé Plein-Cadre (Option A)
+
+/// Le small widget affiche le premier produit sponsorisé en plein-cadre :
+/// image en arrière-plan + gradient sombre + nom + prix en bas.
+/// Sur iOS 17+ : l'image est le containerBackground (vrai plein-cadre système).
+/// Sur iOS 16   : ZStack avec l'image en fond + contenu par-dessus.
+private struct SmallProductShowcaseView: View {
+    let entry: NewKetQuickActionsEntry
+
+    private var product: PinnedProductWidgetModel? { entry.products.first }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("NewKet")
-                    .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundColor(NewKetTheme.textPrimary)
-                Spacer()
-                Image(systemName: "sparkles")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(NewKetTheme.accentMint)
+        ZStack(alignment: .bottom) {
+
+            // Placeholder visible seulement si pas d'imageData
+            // (sur iOS 17+ l'image est dans containerBackground, donc ce bloc
+            //  est visible uniquement quand imageData == nil)
+            if product?.imageData == nil {
+                VStack(spacing: 8) {
+                    Image(systemName: "bag.fill")
+                        .font(.system(size: 26, weight: .light))
+                        .foregroundColor(NewKetTheme.accentMint)
+                    Text("NewKet")
+                        .font(.system(size: 10, weight: .black, design: .rounded))
+                        .foregroundColor(NewKetTheme.textPrimary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
-            VStack(spacing: 6) {
-                HStack(spacing: 6) {
-                    SmallActionTile(icon: "bag.fill", label: "Boutique", color: NewKetTheme.accentMint)
-                    SmallActionTile(icon: "bell.fill", label: "Notifs", color: Color(red: 0.98, green: 0.75, blue: 0.18))
-                }
-                HStack(spacing: 6) {
-                    SmallActionTile(icon: "heart.fill", label: "Favoris", color: Color(red: 0.95, green: 0.35, blue: 0.45))
-                    SmallActionTile(icon: "cart.fill", label: "Panier", color: Color(red: 0.30, green: 0.65, blue: 1.00))
+            // Gradient bas → haut pour lisibilité du texte
+            LinearGradient(
+                gradient: Gradient(stops: [
+                    .init(color: .clear,               location: 0.25),
+                    .init(color: .black.opacity(0.72), location: 1.00),
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            // Infos produit
+            VStack(alignment: .leading, spacing: 2) {
+                Text(product?.name ?? "Produits sponsorisés")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 1)
+
+                if let price = product?.formattedPrice {
+                    Text(price)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(NewKetTheme.accentMint)
+                        .lineLimit(1)
                 }
             }
+            .padding(.horizontal, 8)
+            .padding(.bottom, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(12)
-        .widgetURL(URL(string: "newket://shops"))
+        // Badge NewKet top-left
+        .overlay(alignment: .topLeading) {
+            HStack(spacing: 3) {
+                Circle()
+                    .fill(NewKetTheme.accentMint)
+                    .frame(width: 5, height: 5)
+                Text("NewKet")
+                    .font(.system(size: 8, weight: .black, design: .rounded))
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(.ultraThinMaterial)
+            .cornerRadius(6)
+            .padding(8)
+        }
+        // Tap → page produit ou boutiques si aucun produit
+        .widgetURL(URL(string: product.map { "newket://product?id=\($0.id)" } ?? "newket://shops"))
+    }
+}
+
+// MARK: - Background Modifier pour le Small (image plein-cadre)
+
+private struct SmallProductBackgroundModifier: ViewModifier {
+    let entry: NewKetQuickActionsEntry
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            // iOS 17+ : containerBackground = vrai plein-cadre avec coin system
+            content
+                .containerBackground(for: .widget) {
+                    if let data = entry.products.first?.imageData,
+                       let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        NewKetTheme.cardBackground
+                    }
+                }
+        } else {
+            // iOS 16 : ZStack manuel
+            ZStack {
+                if let data = entry.products.first?.imageData,
+                   let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .clipped()
+                } else {
+                    NewKetTheme.cardBackground
+                }
+                content
+            }
+        }
     }
 }
 
@@ -463,29 +549,6 @@ private struct QuickActionButton: View {
             .background(Color.black.opacity(0.03))
             .cornerRadius(14)
         }
-    }
-}
-
-private struct SmallActionTile: View {
-    let icon: String
-    let label: String
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 13, weight: .bold))
-                .foregroundColor(color)
-            Text(label)
-                .font(.system(size: 10, weight: .bold))
-                .foregroundColor(NewKetTheme.textPrimary)
-                .lineLimit(1)
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 10)
-        .background(Color.black.opacity(0.04))
-        .cornerRadius(10)
     }
 }
 
