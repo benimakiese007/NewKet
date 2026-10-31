@@ -573,7 +573,7 @@ const ComponentLoader = {
                 });
             } catch (_) {}
             // Sur iOS Capacitor, les dashboards (client, vendeur, admin) n'ont pas de TabBar, comme sur Web et Android
-            if (isDashboardPage || isAdminPage) {
+            if (isDashboardPage || isAdminPage || isAchatPage || isMinimalPage) {
                 try { window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {}); } catch (_) {}
             }
             this.initNativeHeaderButtons();
@@ -1091,7 +1091,7 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel') || path.includes('/achat');
 
         // Initial badge sync for cart on iOS native TabView
         try {

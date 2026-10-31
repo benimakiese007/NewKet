@@ -229,6 +229,23 @@
     </main>
 
     <script>
+        // Masquage strict des barres natives sur la page Achat (seul le bouton Back Web Liquid Glass s'affiche)
+        (function enforceAchatHeaderLayout() {
+            const hideNativeBars = () => {
+                try {
+                    window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+                    window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+                } catch (_) {}
+            };
+            hideNativeBars();
+            window.addEventListener('pageshow', hideNativeBars);
+            window.addEventListener('DOMContentLoaded', hideNativeBars);
+            setTimeout(hideNativeBars, 50);
+            setTimeout(hideNativeBars, 300);
+            setTimeout(hideNativeBars, 800);
+        })();
+    </script>
+    <script>
         function getQueryParam(name) {
             try {
                 const url = new URL(window.location.href);
