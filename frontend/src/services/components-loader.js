@@ -532,7 +532,7 @@ const ComponentLoader = {
         // Determine current page status
         const currentPath = window.location.pathname;
         const isRoleChoicePage = currentPath.includes('/choose-role');
-        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish') || currentPath.includes('/payment-success') || currentPath.includes('/payment-cancel') || currentPath.includes('/achat');
+        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish') || currentPath.includes('/payment-success') || currentPath.includes('/payment-cancel');
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
         const isDashboardPage = currentPath.includes('-dashboard');
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
@@ -1043,8 +1043,9 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel') || path.includes('/achat');
-        const isTabBarForbidden = isMinimal || isDashboard;
+        const isAchat     = path.includes('/achat');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isTabBarForbidden = isMinimal || isDashboard || isAchat;
 
         if (isTabBarForbidden) {
             window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
@@ -1065,11 +1066,18 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel') || path.includes('/achat');
+        const isAchat     = path.includes('/achat');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
 
         if (isMinimal) {
             // Minimal pages (login, etc.) don't have header buttons
             plugin.hide().catch(() => {});
+            return;
+        }
+
+        if (isAchat) {
+            // Page achat: vrai Liquid Glass natif iOS bouton retour (chevron.backward) uniquement
+            plugin.show({ showLeft: true, showRight: false, leftIcon: 'chevron.backward' }).catch(() => {});
             return;
         }
 
@@ -1091,7 +1099,8 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel') || path.includes('/achat');
+        const isAchat     = path.includes('/achat');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
 
         // Initial badge sync for cart on iOS native TabView
         try {
@@ -1106,7 +1115,7 @@ const ComponentLoader = {
         } catch (_) {}
 
         // TabBar interdite sur les dashboards, l'admin et les pages minimales (exactement comme tous les autres supports)
-        const isTabBarForbidden = isMinimal || isDashboard;
+        const isTabBarForbidden = isMinimal || isDashboard || isAchat;
         const rightIcon = isDashboard
             ? 'rectangle.portrait.and.arrow.right'
             : 'magnifyingglass';
@@ -1124,8 +1133,10 @@ const ComponentLoader = {
             this._nativeBarsRevealed = true;
 
             const isOverlayOpen = isAnyWebOverlayOpen();
-            if (!isMinimal && !isOverlayOpen) {
-                plugin.show({ showLeft: true, showRight: true, rightIcon }).catch(() => {});
+            if (isAchat && !isOverlayOpen) {
+                plugin.show({ showLeft: true, showRight: false, leftIcon: 'chevron.backward' }).catch(() => {});
+            } else if (!isMinimal && !isOverlayOpen) {
+                plugin.show({ showLeft: true, showRight: true, leftIcon: 'line.3.horizontal', rightIcon }).catch(() => {});
             }
             if (!isTabBarForbidden && !isOverlayOpen) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
@@ -1224,8 +1235,11 @@ const ComponentLoader = {
             _isOverlayActive = false;
             _lastCloseConfigKey = '';
             plugin.hideClose?.()?.catch?.(() => {});
-            if (!isMinimal) {
-                plugin.update({ showLeft: true, showRight: true }).catch(() => {});
+            const currentIsAchat = window.location.pathname.includes('/achat');
+            if (currentIsAchat) {
+                plugin.update({ showLeft: true, showRight: false, leftIcon: 'chevron.backward' }).catch(() => {});
+            } else if (!isMinimal) {
+                plugin.update({ showLeft: true, showRight: true, leftIcon: 'line.3.horizontal' }).catch(() => {});
             }
             if (!isTabBarForbidden) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
@@ -1327,8 +1341,23 @@ const ComponentLoader = {
         });
 
         // -- Wire burger tap --> open mobile menu -------------------------
-        plugin.addListener('burgerTap', () => {
+        const handleBackAction = () => {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                const dest = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/customer-dashboard';
+                window.location.href = dest;
+            }
+        };
+        plugin.addListener('backTap', handleBackAction);
+
+        plugin.addListener('burgerTap', (data) => {
             const currentPath = window.location.pathname;
+            const isAchat = currentPath.includes('/achat');
+            if (isAchat || data?.icon?.includes('chevron') || data?.icon?.includes('arrow')) {
+                handleBackAction();
+                return;
+            }
             const isDash = isDashboard || currentPath.includes('-dashboard') || currentPath.includes('dashboard') || currentPath.includes('/admin') ||
                            !!document.getElementById('vendorSidebar') || !!document.getElementById('customerSidebar') || !!document.getElementById('adminSidebar');
 

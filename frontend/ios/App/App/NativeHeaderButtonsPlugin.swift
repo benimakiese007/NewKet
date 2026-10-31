@@ -38,6 +38,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
 
         let showLeft  = call.getBool("showLeft")  ?? true
         let showRight = call.getBool("showRight") ?? true
+        let leftIcon  = call.getString("leftIcon")  ?? "line.3.horizontal"
         let rightIcon = call.getString("rightIcon") ?? "magnifyingglass"
 
         DispatchQueue.main.async { [weak self] in
@@ -56,11 +57,15 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 return
             }
 
-            let overlay = NativeHeaderButtonsView(showLeft: showLeft, showRight: showRight, rightIcon: rightIcon)
+            let overlay = NativeHeaderButtonsView(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
             overlay.translatesAutoresizingMaskIntoConstraints = false
 
             overlay.onLeftTap = { [weak self] in
-                self?.notifyListeners("burgerTap", data: [:])
+                let icon = overlay.leftIconName
+                self?.notifyListeners("burgerTap", data: ["icon": icon])
+                if icon.contains("chevron") || icon.contains("arrow") {
+                    self?.notifyListeners("backTap", data: ["icon": icon])
+                }
             }
             overlay.onRightTap = { [weak self] in
                 self?.notifyListeners("rightTap", data: [:])
@@ -118,11 +123,12 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         }
         let showLeft  = call.getBool("showLeft")
         let showRight = call.getBool("showRight")
+        let leftIcon  = call.getString("leftIcon")
         let rightIcon = call.getString("rightIcon")
 
         DispatchQueue.main.async { [weak self] in
             if let overlay = self?.overlayView as? NativeHeaderButtonsView {
-                overlay.update(showLeft: showLeft, showRight: showRight, rightIcon: rightIcon)
+                overlay.update(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
             }
             call.resolve()
         }
@@ -454,12 +460,14 @@ class NativeHeaderButtonsView: UIView {
     private let leftCircle:  GlassCircleButton
     private let rightCircle: GlassCircleButton
 
-    private var rightIconName: String
+    var leftIconName:  String
+    var rightIconName: String
     private var heightConstraint: NSLayoutConstraint?
 
-    init(showLeft: Bool, showRight: Bool, rightIcon: String) {
+    init(showLeft: Bool, showRight: Bool, leftIcon: String = "line.3.horizontal", rightIcon: String = "magnifyingglass") {
+        self.leftIconName  = leftIcon
         self.rightIconName = rightIcon
-        self.leftCircle    = GlassCircleButton(sfSymbol: "line.3.horizontal")
+        self.leftCircle    = GlassCircleButton(sfSymbol: leftIcon)
         self.rightCircle   = GlassCircleButton(sfSymbol: rightIcon)
         super.init(frame: .zero)
         setupUI(showLeft: showLeft, showRight: showRight)
@@ -530,12 +538,16 @@ class NativeHeaderButtonsView: UIView {
         ])
     }
 
-    func update(showLeft: Bool?, showRight: Bool?, rightIcon: String?) {
+    func update(showLeft: Bool?, showRight: Bool?, leftIcon: String? = nil, rightIcon: String? = nil) {
         if let showLeft, leftCircle.isHidden != !showLeft {
             leftCircle.isHidden = !showLeft
         }
         if let showRight, rightCircle.isHidden != !showRight {
             rightCircle.isHidden = !showRight
+        }
+        if let icon = leftIcon, icon != leftIconName {
+            leftIconName = icon
+            leftCircle.updateSymbol(icon)
         }
         if let icon = rightIcon, icon != rightIconName {
             rightIconName = icon
