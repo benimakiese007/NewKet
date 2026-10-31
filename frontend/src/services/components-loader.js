@@ -532,7 +532,7 @@ const ComponentLoader = {
         // Determine current page status
         const currentPath = window.location.pathname;
         const isRoleChoicePage = currentPath.includes('/choose-role');
-        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish') || currentPath.includes('/payment-success') || currentPath.includes('/payment-cancel');
+        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish') || currentPath.includes('/payment-success') || currentPath.includes('/payment-cancel') || currentPath.includes('/achat');
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
         const isDashboardPage = currentPath.includes('-dashboard');
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
@@ -1043,7 +1043,7 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel') || path.includes('/achat');
         const isTabBarForbidden = isMinimal || isDashboard;
 
         if (isTabBarForbidden) {
@@ -1065,7 +1065,7 @@ const ComponentLoader = {
         const path = window.location.pathname;
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel') || path.includes('/achat');
 
         if (isMinimal) {
             // Minimal pages (login, etc.) don't have header buttons
