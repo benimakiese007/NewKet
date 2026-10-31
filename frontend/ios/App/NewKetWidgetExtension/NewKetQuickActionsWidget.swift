@@ -151,13 +151,7 @@ public struct NewKetQuickActionsWidget: Widget {
         }
         .configurationDisplayName("NewKet")
         .description("Accédez directement à vos boutiques, panier et découvrez les produits sponsorisés.")
-        .supportedFamilies({
-            var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
-            if #available(iOS 27, *) {
-                families.append(.systemExtraLargePortrait)
-            }
-            return families
-        }())
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -175,13 +169,8 @@ struct NewKetQuickActionsWidgetView: View {
             LargeSponsoredShowcaseView(entry: entry)
                 .widgetBackground()
         default:
-            if #available(iOS 27, *), family == .systemExtraLargePortrait {
-                ExtraLargePortraitShowcaseView(entry: entry)
-                    .widgetBackground()
-            } else {
-                MediumQuickActionsView()
-                    .widgetBackground()
-            }
+            MediumQuickActionsView()
+                .widgetBackground()
         }
     }
 }
