@@ -1802,7 +1802,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                     <span>${savedHomeLocation ? 'Residence enregistree chargee dans la commande.' : 'Aucune residence enregistree. Localisez-vous ou deplacez le repere pour cette commande.'}</span>
                                 </div>
                             </div>
-                                </div>
                         </div>
                     </div>
 
