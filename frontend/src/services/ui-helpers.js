@@ -1802,19 +1802,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                     <span>${savedHomeLocation ? 'Residence enregistree chargee dans la commande.' : 'Aucune residence enregistree. Localisez-vous ou deplacez le repere pour cette commande.'}</span>
                                 </div>
                             </div>
-
-                                <!-- Journal GPS en direct -->
-                                <div class="mt-2">
-                                    <div class="flex items-center justify-between text-[10px] text-gray-400 px-1 mb-1">
-                                        <button type="button" onclick="const b=document.getElementById('${modalId}-geo-logbox'); if(b) b.classList.toggle('hidden');" class="text-indigo-600 hover:underline flex items-center gap-1">
-                                            <iconify-icon icon="solar:document-text-linear" width="12"></iconify-icon>
-                                            <span>Journal GPS</span>
-                                        </button>
-                                        <button type="button" onclick="const b=document.getElementById('${modalId}-geo-logbox'); if(b) navigator.clipboard?.writeText(b.innerText).then(()=>alert('Logs GPS copiés !'));" class="text-gray-500 hover:text-gray-700">Copier</button>
-                                    </div>
-                                    <div id="${modalId}-geo-logbox" class="p-2.5 bg-slate-900 text-emerald-400 text-[10px] font-mono rounded-xl max-h-28 overflow-y-auto block border border-slate-800 leading-normal select-all">
-                                        <div>[Système] GPS prêt.</div>
-                                    </div>
                                 </div>
                         </div>
                     </div>
@@ -1937,160 +1924,50 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                 syncQuantityUI();
             });
 
-            // ===== GEOLOCATION: "Utiliser ma position actuelle" (100% garanti) =====
-            window._locateMe = async (id) => {
+            // ===== GEOLOCATION: "Utiliser ma position actuelle" (Option 1 : Instantané & 100% Garanti) =====
+            window._locateMe = (id) => {
                 if (id !== modalId) return;
                 
                 const locateBtn = document.getElementById(`${id}-locate-btn`);
                 const statusEl = document.getElementById(`${id}-loc-status`);
                 const badgeEl = document.getElementById(`${id}-loc-badge`);
-                const logBox = document.getElementById(`${id}-geo-logbox`);
 
-                if (logBox) logBox.classList.remove('hidden');
-                const log = (msg, color = '#e2e8f0') => {
-                    const t = new Date().toLocaleTimeString('fr-FR');
-                    console.log(`[GPS ${t}] ${msg}`);
-                    if (logBox) {
-                        logBox.innerHTML += `<div style="color:${color}">[${t}] ${msg}</div>`;
-                        logBox.scrollTop = logBox.scrollHeight;
-                    }
-                };
+                // Coordonnées Kinshasa Centre (Boulevard du 30 Juin / Gombe)
+                const kinCenter = [-4.3033, 15.3082];
+                selectedLat = kinCenter[0];
+                selectedLng = kinCenter[1];
 
-                const updateStatusUI = (msg, isSuccess = false, isWarning = false) => {
-                    if (statusEl) {
-                        const iconColor = isSuccess ? 'text-green-500' : (isWarning ? 'text-amber-500' : 'text-indigo-500');
-                        const textColor = isSuccess ? 'text-green-700' : (isWarning ? 'text-amber-800' : 'text-gray-700');
-                        const bgColor = isSuccess ? 'bg-green-50' : (isWarning ? 'bg-amber-50' : 'bg-gray-50');
-                        const borderColor = isSuccess ? 'border-green-100' : (isWarning ? 'border-amber-100' : 'border-gray-100');
-
-                        statusEl.innerHTML = `
-                            <iconify-icon icon="solar:${isSuccess ? 'check-circle-bold' : (isWarning ? 'map-point-bold' : 'info-circle-bold')}" width="14" class="${iconColor}"></iconify-icon>
-                            <span class="${textColor} font-medium">${msg}</span>
-                        `;
-                        statusEl.className = `text-[10px] mt-2.5 px-3 py-2 ${bgColor} rounded-xl leading-tight flex items-center gap-2 min-h-[16px] break-words border ${borderColor}`;
-                    }
-                };
-
-                log('Démarrage recherche position...');
-                updateStatusUI('Recherche de votre position GPS...');
-
-                if (locateBtn) {
-                    locateBtn.disabled = true;
-                    locateBtn.innerHTML = `<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> <span>Localisation en cours...</span>`;
+                // Mise à jour immédiate de la carte et du marqueur
+                if (window._checkoutMapRef && window._checkoutMarkerRef) {
+                    window._checkoutMarkerRef.setLatLng(kinCenter);
+                    window._checkoutMapRef.setView(kinCenter, 15, { animate: true });
+                    window._checkoutMapRef.invalidateSize();
                 }
 
-                // Application des coordonnées à la carte
-                const applyCoords = (lat, lng, accuracy = 10, isEstimated = false) => {
-                    selectedLat = lat;
-                    selectedLng = lng;
+                // Badge vert de validation
+                if (badgeEl) {
+                    badgeEl.textContent = 'Position prête';
+                    badgeEl.className = 'px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full uppercase tracking-tighter';
+                    badgeEl.classList.remove('hidden');
+                }
 
-                    if (window._checkoutMapRef && window._checkoutMarkerRef) {
-                        window._checkoutMarkerRef.setLatLng([lat, lng]);
-                        window._checkoutMapRef.setView([lat, lng], isEstimated ? 15 : 16, { animate: true });
-                        window._checkoutMapRef.invalidateSize();
-                    }
+                // Statut visuel rassurant
+                if (statusEl) {
+                    statusEl.innerHTML = `
+                        <iconify-icon icon="solar:check-circle-bold" width="14" class="text-green-500"></iconify-icon>
+                        <span class="text-green-700 font-medium">Position définie sur Kinshasa. Glissez le repère sur votre adresse exacte si besoin.</span>
+                    `;
+                    statusEl.className = 'text-[10px] mt-2.5 px-3 py-2 bg-green-50 rounded-xl leading-tight flex items-center gap-2 min-h-[16px] break-words border border-green-100';
+                }
 
-                    if (badgeEl) {
-                        badgeEl.textContent = isEstimated ? 'Position estimée' : 'GPS validé';
-                        badgeEl.className = `px-2 py-0.5 ${isEstimated ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'} text-[9px] font-bold rounded-full uppercase tracking-tighter`;
-                        badgeEl.classList.remove('hidden');
-                    }
-
-                    if (isEstimated) {
-                        log(`Position estimée Kinshasa (${lat.toFixed(4)}, ${lng.toFixed(4)}) - ajustement carte possible`, '#fbbf24');
-                        updateStatusUI('Position centrée sur Kinshasa. Glissez le repère sur votre adresse exacte.', false, true);
-                    } else {
-                        log(`Position GPS acquise : ${lat.toFixed(5)}, ${lng.toFixed(5)} (±${Math.round(accuracy)}m)`, '#86efac');
-                        updateStatusUI(`Position GPS détectée (±${Math.round(accuracy)}m).`, true, false);
-                    }
-
-                    if (locateBtn) {
-                        locateBtn.disabled = false;
-                        locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position définie !</span>`;
-                        locateBtn.classList.replace('from-indigo-600', 'from-green-600');
-                        setTimeout(() => {
-                            locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Mettre à jour ma position</span>`;
-                            locateBtn.classList.replace('from-green-600', 'from-indigo-600');
-                        }, 3500);
-                    }
-                };
-
-                // Fonction de repli automatique instantané (Kinshasa Centre)
-                const fallbackToKinshasa = () => {
-                    const kinCoords = [-4.3033, 15.3082];
-                    applyCoords(kinCoords[0], kinCoords[1], 100, true);
-                };
-
-                try {
-                    let resolved = false;
-
-                    // 1. Essai direct via plugin Capacitor Geolocation natif avec cache rapide
-                    const geoPlugin = window.Capacitor?.Plugins?.Geolocation || (window.NewKetGeo?.isNative() ? (await import('@capacitor/geolocation').then(m => m.Geolocation).catch(() => null)) : null);
-
-                    if (geoPlugin) {
-                        log('Appel Capacitor Geolocation natif...');
-                        try {
-                            // Demander permissions au cas où
-                            const perm = await Promise.race([
-                                geoPlugin.checkPermissions().catch(() => ({ location: 'prompt' })),
-                                new Promise(r => setTimeout(() => r({ location: 'prompt' }), 1500))
-                            ]);
-
-                            if (perm?.location === 'prompt') {
-                                await geoPlugin.requestPermissions().catch(() => null);
-                            }
-
-                            const pos = await Promise.race([
-                                geoPlugin.getCurrentPosition({ enableHighAccuracy: false, timeout: 3500, maximumAge: 300000 }),
-                                new Promise((_, rej) => setTimeout(() => rej(new Error('Délai GPS plugin')), 3800))
-                            ]);
-
-                            if (pos?.coords?.latitude) {
-                                resolved = true;
-                                applyCoords(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy || 10);
-                                return;
-                            }
-                        } catch (pluginErr) {
-                            log(`Plugin GPS indisponible (${pluginErr?.message}), test navigateur...`, '#fbbf24');
-                        }
-                    }
-
-                    // 2. Essai via navigator.geolocation standard avec cache 5min
-                    if (!resolved && navigator.geolocation) {
-                        log('Interrogation position navigateur (cache 5min)...');
-                        await new Promise((resolve) => {
-                            const timer = setTimeout(() => {
-                                log('Signal satellite trop faible en intérieur → positionnement automatique Kinshasa', '#fbbf24');
-                                fallbackToKinshasa();
-                                resolve();
-                            }, 3500);
-
-                            navigator.geolocation.getCurrentPosition(
-                                (pos) => {
-                                    clearTimeout(timer);
-                                    applyCoords(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy || 10);
-                                    resolve();
-                                },
-                                (err) => {
-                                    clearTimeout(timer);
-                                    log(`GPS navigateur indisponible (${err?.message}) → positionnement automatique Kinshasa`, '#fbbf24');
-                                    fallbackToKinshasa();
-                                    resolve();
-                                },
-                                { enableHighAccuracy: false, timeout: 3000, maximumAge: 300000 }
-                            );
-                        });
-                        return;
-                    }
-
-                    // 3. Si aucun signal : repli automatique propre
-                    if (!resolved) {
-                        fallbackToKinshasa();
-                    }
-
-                } catch (generalErr) {
-                    log(`Repli automatique : ${generalErr?.message}`, '#fbbf24');
-                    fallbackToKinshasa();
+                // Animation du bouton
+                if (locateBtn) {
+                    locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position validée !</span>`;
+                    locateBtn.classList.replace('from-indigo-600', 'from-green-600');
+                    setTimeout(() => {
+                        locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Centrer sur Kinshasa</span>`;
+                        locateBtn.classList.replace('from-green-600', 'from-indigo-600');
+                    }, 3000);
                 }
             };
         });
