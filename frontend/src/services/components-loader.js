@@ -536,10 +536,11 @@ const ComponentLoader = {
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
         const isDashboardPage = currentPath.includes('-dashboard');
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
+        const isAchatPage = currentPath.includes('/achat');
 
         // The role-choice flow is intentionally isolated: while a role is
         // pending, no navigation must give access to the rest of the app.
-        if (!isAdminPage && !isRoleChoicePage) {
+        if (!isAdminPage && !isRoleChoicePage && !isAchatPage) {
             this.ensurePlaceholder('header-placeholder', 'start');
         }
 
@@ -584,9 +585,9 @@ const ComponentLoader = {
 
         const componentsToLoad = [];
 
-        if (isAdminPage) {
-            // Admin pages are handled entirely by admin-layout.js
-            // Do not inject consumer header, footer, or mobile nav.
+        if (isAdminPage || isAchatPage) {
+            // Admin pages handled by admin-layout; achat.html has its dedicated header nav
+            // Do not inject duplicate standard header.
         } else if (isRoleChoicePage) {
             // No header or footer on this blocking decision screen.
         } else if (isMinimalPage) {
