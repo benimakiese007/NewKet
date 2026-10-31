@@ -42,15 +42,16 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
 
         switch gesture.state {
         case .began:
-            // Dès que le pouce commence à glisser : disparition instantanée des boutons (zéro collision façon WhatsApp)
-            plugin?.setOverlayAlpha(0, animated: true, duration: 0.10)
+            // Page X est encore visible → on ne touche pas aux boutons
+            // Ils doivent rester affichés tant que Page X n'est pas fermée à 100%
+            break
         case .cancelled, .failed:
-            // Swipe annulé à mi-chemin (l'utilisateur reste sur la même page) : on restaure les boutons
-            plugin?.setOverlayAlpha(1.0, animated: true, duration: 0.25)
+            // Feinte : l'utilisateur revient sur Page X → les boutons n'ont jamais bougé, rien à faire
+            break
         case .ended:
-            // Swipe terminé et validé : on garde les boutons masqués pendant la fin de la transition
-            // La page d'arrivée réaffichera ses propres boutons propres une fois stabilisée
-            plugin?.setOverlayAlpha(0, animated: false)
+            // Page X est fermée à 100% → on cache ses boutons
+            // Page Y affichera ses propres boutons une fois chargée
+            plugin?.setOverlayAlpha(0, animated: true, duration: 0.15)
         default:
             break
         }
