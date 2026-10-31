@@ -109,45 +109,87 @@
         }
         .sidebar-logout:hover { background: #fef2f2; }
     
-        /* Apple Liquid Glass Back Button */
-        .liquid-glass-back-btn {
-            width: 40px !important;
-            height: 40px !important;
-            min-width: 40px !important;
-            min-height: 40px !important;
-            border-radius: 9999px !important;
-            background: rgba(255, 255, 255, 0.18) !important;
-            -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-            backdrop-filter: blur(25px) saturate(180%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.35) !important;
-            box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.5), 0 4px 14px rgba(0, 0, 0, 0.22) !important;
-            color: #ffffff !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            touch-action: manipulation !important;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease !important;
-        }
-        .liquid-glass-back-btn:active {
-            transform: scale(0.92) !important;
-            background: rgba(255, 255, 255, 0.28) !important;
-        }
+        /* ==========================================================================
+   AUTHENTIC APPLE LIQUID GLASS BACK BUTTON (Sphère 48pt Verre Fumé)
+   Conforme aux spécifications Apple HIG & NativeHeaderButtons NewKet
+   ========================================================================== */
+.liquid-glass-back-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  border-radius: 9999px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  position: relative !important;
+
+  /* Matériau Verre Fumé Apple Liquid Glass (Exactement comme Burger / Loupe) */
+  background: rgba(15, 23, 42, 0.48) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+  backdrop-filter: blur(25px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.60),
+    0 4px 14px rgba(0, 0, 0, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  color: #ffffff !important;
+
+  /* Rebond élastique Apple Spring */
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Extension tactile Apple HIG 44x44pt */
+.liquid-glass-back-btn::before {
+  content: "" !important;
+  position: absolute !important;
+  top: -4px !important;
+  bottom: -4px !important;
+  left: -4px !important;
+  right: -4px !important;
+  border-radius: 9999px !important;
+}
+
+/* Compression élastique Apple au toucher */
+.liquid-glass-back-btn:active {
+  transform: scale(0.94) !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.40),
+    0 2px 8px rgba(0, 0, 0, 0.30) !important;
+}
+
+.liquid-glass-back-btn > iconify-icon {
+  font-size: 24px !important;
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+}
 </style>
 </head>
 
 <body>
 <nav class="bg-newket-header bg-[#111827] fixed top-0 w-full z-[100] transition-all duration-300" style="padding-top: env(safe-area-inset-top, 0px);">
         <div class="max-w-4xl mx-auto px-4 sm:px-8 py-2 grid grid-cols-3 items-center min-h-[56px] sm:min-h-[64px]">
-            <button onclick="if(window.history.length>1){window.history.back()}else{window.location.href=(typeof window.resolvePath==='function')?window.resolvePath('customer-dashboard'):'/customer-dashboard'}" class="liquid-glass-back-btn justify-self-start cursor-pointer" aria-label="Retour">
-                <iconify-icon icon="solar:alt-arrow-left-linear" width="22" class="text-white"></iconify-icon>
+            <button onclick="if(window.history.length>1){window.history.back()}else{window.location.href=(typeof window.resolvePath==='function')?window.resolvePath('customer-dashboard'):'/customer-dashboard'}" 
+                    class="liquid-glass-back-btn justify-self-start cursor-pointer" 
+                    aria-label="Retour">
+                <iconify-icon icon="solar:alt-arrow-left-linear" width="24" class="text-white"></iconify-icon>
             </button>
             
             <a href="/" class="justify-self-center flex items-center justify-center">
                 <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-8 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
             </a>
 
-            <!-- Espace équilibré sans menu ni recherche pour garder le logo parfaitement centré -->
-            <div class="justify-self-end w-10 flex items-center justify-end"></div>
+            <!-- Colonne droite invisible de 48px pour équilibre parfait du Logo -->
+            <div class="justify-self-end w-12 h-12 flex items-center justify-end"></div>
         </div>
     </nav>
 

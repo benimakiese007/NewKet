@@ -2471,6 +2471,71 @@ html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"] {
   transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
+
+/* ==========================================================================
+   AUTHENTIC APPLE LIQUID GLASS BACK BUTTON (Sphère 48pt Verre Fumé)
+   Conforme aux spécifications Apple HIG & NativeHeaderButtons NewKet
+   ========================================================================== */
+.liquid-glass-back-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  border-radius: 9999px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  position: relative !important;
+
+  /* Matériau Verre Fumé Apple Liquid Glass (Exactement comme Burger / Loupe) */
+  background: rgba(15, 23, 42, 0.48) !important;
+  -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+  backdrop-filter: blur(25px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.60),
+    0 4px 14px rgba(0, 0, 0, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  color: #ffffff !important;
+
+  /* Rebond élastique Apple Spring */
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Extension tactile Apple HIG 44x44pt */
+.liquid-glass-back-btn::before {
+  content: "" !important;
+  position: absolute !important;
+  top: -4px !important;
+  bottom: -4px !important;
+  left: -4px !important;
+  right: -4px !important;
+  border-radius: 9999px !important;
+}
+
+/* Compression élastique Apple au toucher */
+.liquid-glass-back-btn:active {
+  transform: scale(0.94) !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.40),
+    0 2px 8px rgba(0, 0, 0, 0.30) !important;
+}
+
+.liquid-glass-back-btn > iconify-icon {
+  font-size: 24px !important;
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+}
+
 /* 2. Hit-target tactile Apple HIG : extension invisible de 44x44pt */
 html.is-ios-capacitor button[onclick*="SidebarManager.close"]::before,
 html.is-ios-capacitor [data-close-sidebar]::before,
