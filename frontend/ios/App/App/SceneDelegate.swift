@@ -41,17 +41,24 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
         let plugin = headerButtonsPlugin ?? (bridge?.plugin(withName: "NativeHeaderButtonsPlugin") as? NativeHeaderButtonsPlugin)
 
         switch gesture.state {
-        case .began:
-            // Page X est encore visible → on ne touche pas aux boutons
-            // Ils doivent rester affichés tant que Page X n'est pas fermée à 100%
-            break
-        case .cancelled, .failed:
-            // Feinte : l'utilisateur revient sur Page X → les boutons n'ont jamais bougé, rien à faire
+        case .began, .cancelled, .failed:
+            // Page X encore visible (ou feinte) → on ne touche pas aux boutons
             break
         case .ended:
-            // Page X est fermée à 100% → on cache ses boutons
-            // Page Y affichera ses propres boutons une fois chargée
+            // Le doigt a lâché — on ne sait pas encore si c'est une vraie navigation ou une feinte.
+            // On mémorise l'URL courante et on attend 0.5s.
+            let urlBefore = webView?.url
+            // On cache immédiatement (cas nominal : vraie navigation)
             plugin?.setOverlayAlpha(0, animated: true, duration: 0.15)
+            // Si après 0.5s l'URL n'a pas changé → c'était une feinte → on restaure les boutons
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, weak plugin] in
+                guard let self = self else { return }
+                if self.webView?.url == urlBefore {
+                    // Feinte confirmée : même page → boutons de retour
+                    plugin?.setOverlayAlpha(1.0, animated: true, duration: 0.25)
+                }
+                // Si l'URL a changé → vraie navigation → boutons restent cachés (Page Y prend le relais)
+            }
         default:
             break
         }
