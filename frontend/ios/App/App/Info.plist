@@ -132,5 +132,7 @@
 	<string>NewKet utilise la caméra pour vous permettre de publier vos produits en prenant une photo directement.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>NewKet accède à vos photos pour vous permettre d'ajouter des images à vos produits et commandes.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>NewKet utilise Face ID pour sécuriser l'accès à vos coordonnées de paiement et de retrait.</string>
 </dict>
 </plist>

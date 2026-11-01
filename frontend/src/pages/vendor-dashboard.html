@@ -1142,7 +1142,7 @@
 
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
-                class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/60 p-4">
+                class="nk-modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 p-4">
                 <div class="solid-modal-content bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
@@ -5557,31 +5557,238 @@
                         
                         const card = document.createElement('div');
                         card.className = "p-4 border border-gray-200 rounded-2xl flex items-center justify-between hover:shadow-md transition-shadow bg-white group";
-                        const displayNumber = method.account_id || method.account_number || '';
+                        const rawNumber = method.account_id || method.account_number || '';
+                        const maskedNumber = maskPayoutNumber(rawNumber);
+                        const cleanId = String(method.id || 'primary').replace(/[^a-zA-Z0-9_-]/g, '_');
+                        
                         card.innerHTML = `
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-4 flex-1 min-w-0">
                                 <div class="w-14 h-14 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center shrink-0 p-2">
                                     ${iconHtml}
                                 </div>
-                                <div>
-                                    <div class="font-bold text-gray-900 text-base flex items-center flex-wrap gap-1">${method.account_name || 'Sans nom'}</div>
-                                    <div class="text-sm text-gray-500 flex items-center gap-2 mt-0.5">
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-bold text-gray-900 text-base flex items-center flex-wrap gap-1 truncate">${method.account_name || 'Sans nom'}</div>
+                                    <div class="text-sm text-gray-500 flex items-center gap-2 mt-0.5 flex-wrap">
                                         <span class="font-medium text-gray-700">${providerName}</span>
                                         <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
-                                        <span class="font-mono tracking-wider text-gray-800 select-all">${displayNumber}</span>
+                                        <span id="payoutDisplay_${cleanId}" class="font-mono tracking-wider text-gray-800 transition-all select-all">${maskedNumber}</span>
+                                        <button type="button" onclick="toggleRevealPayoutNumber('${cleanId}', '${rawNumber}')" class="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors flex items-center justify-center" title="Afficher / Masquer le numéro">
+                                            <iconify-icon id="payoutEyeIcon_${cleanId}" icon="solar:eye-bold" width="16"></iconify-icon>
+                                        </button>
                                     </div>
                                 </div>
-                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button type="button" onclick="openAddPayoutModal(false, false)" class="p-2 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-colors" title="Modifier le numéro">
+                                    <iconify-icon icon="solar:pen-bold" width="18"></iconify-icon>
+                                </button>
                             </div>
                         `;
                         container.appendChild(card);
                     });
                 }
 
+                
+                // --- SÉCURITÉ BIOMÉTRIQUE & MASQUAGE DU NUMÉRO DE PAYOUT ---
+                function maskPayoutNumber(num) {
+                    if (!num) return '—';
+                    const cleaned = String(num).trim();
+                    if (cleaned.length <= 4) return '••••';
+                    const start = cleaned.slice(0, 3);
+                    const end = cleaned.slice(-2);
+                    const dots = '•'.repeat(Math.max(3, cleaned.length - 5));
+                    return `${start}${dots}${end}`;
+                }
+
+                // Cache mémoire pour stocker les états démasqués et les timers d'auto-masquage
+                window._unmaskedPayouts = window._unmaskedPayouts || {};
+                window._payoutTimers = window._payoutTimers || {};
+
+                async function toggleRevealPayoutNumber(methodId, fullNumber) {
+                    const displayEl = document.getElementById(`payoutDisplay_${methodId}`);
+                    const iconEl = document.getElementById(`payoutEyeIcon_${methodId}`);
+                    if (!displayEl) return;
+
+                    const isCurrentlyRevealed = window._unmaskedPayouts[methodId] === true;
+
+                    if (isCurrentlyRevealed) {
+                        // Re-masquer immédiatement
+                        displayEl.textContent = maskPayoutNumber(fullNumber);
+                        displayEl.classList.remove('text-gray-900', 'font-black');
+                        displayEl.classList.add('text-gray-800');
+                        if (iconEl) iconEl.setAttribute('icon', 'solar:eye-bold');
+                        window._unmaskedPayouts[methodId] = false;
+                        if (window._payoutTimers[methodId]) {
+                            clearTimeout(window._payoutTimers[methodId]);
+                            delete window._payoutTimers[methodId];
+                        }
+                    } else {
+                        // Demander confirmation biométrique ou mot de passe
+                        const authenticated = await authenticateVendorSecurityAction("afficher votre numéro de réception");
+                        if (!authenticated) return;
+
+                        displayEl.textContent = fullNumber;
+                        displayEl.classList.remove('text-gray-800');
+                        displayEl.classList.add('text-gray-900', 'font-black');
+                        if (iconEl) iconEl.setAttribute('icon', 'solar:eye-closed-bold');
+                        window._unmaskedPayouts[methodId] = true;
+
+                        // Auto-masquage de sécurité après 30 secondes
+                        if (window._payoutTimers[methodId]) clearTimeout(window._payoutTimers[methodId]);
+                        window._payoutTimers[methodId] = setTimeout(() => {
+                            if (window._unmaskedPayouts[methodId]) {
+                                toggleRevealPayoutNumber(methodId, fullNumber);
+                            }
+                        }, 30000);
+                    }
+                }
+                window.toggleRevealPayoutNumber = toggleRevealPayoutNumber;
+
+                // Modale de vérification par mot de passe de compte (Fallback universel Web/Mobile)
+                function ensureSecurityAuthModal() {
+                    let modal = document.getElementById('vendorSecurityAuthModal');
+                    if (modal) return modal;
+
+                    modal = document.createElement('div');
+                    modal.id = 'vendorSecurityAuthModal';
+                    modal.className = 'fixed inset-0 z-[70] hidden flex items-center justify-center p-4';
+                    modal.innerHTML = `
+                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSecurityAuthModal(false)"></div>
+                        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm pointer-events-auto z-10 relative overflow-hidden flex flex-col p-6 animate-scale-up">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-900 shrink-0">
+                                    <iconify-icon icon="solar:shield-keyhole-bold-duotone" width="28"></iconify-icon>
+                                </div>
+                                <div>
+                                    <h4 class="font-black text-base text-gray-900">Sécurité du compte</h4>
+                                    <p id="securityAuthReason" class="text-[11px] text-gray-500 font-medium">Confirmez votre identité</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 mb-4 leading-relaxed">
+                                Pour protéger vos coordonnées de paiement, veuillez saisir le mot de passe de votre compte NewKet.
+                            </p>
+                            <div id="securityAuthError" class="mb-3 p-3 bg-red-50 text-red-600 rounded-xl text-xs font-bold hidden"></div>
+                            <form id="securityAuthForm" onsubmit="event.preventDefault(); submitSecurityAuthPassword();" class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1.5">Mot de passe NewKet</label>
+                                    <input type="password" id="securityAuthPassword" required autocomplete="current-password" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-black">
+                                </div>
+                                <div class="flex gap-2 pt-1">
+                                    <button type="button" onclick="closeSecurityAuthModal(false)" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold text-gray-500 hover:bg-gray-100 transition-colors">
+                                        Annuler
+                                    </button>
+                                    <button type="submit" id="securityAuthSubmitBtn" class="flex-1 py-3 px-4 rounded-xl text-xs font-black bg-black text-white hover:bg-gray-800 transition-colors flex items-center justify-center gap-1.5">
+                                        <span>Confirmer</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                    return modal;
+                }
+
+                let _securityAuthResolver = null;
+
+                function closeSecurityAuthModal(success = false) {
+                    const modal = document.getElementById('vendorSecurityAuthModal');
+                    if (modal) modal.classList.add('hidden');
+                    const pwd = document.getElementById('securityAuthPassword');
+                    if (pwd) pwd.value = '';
+                    const err = document.getElementById('securityAuthError');
+                    if (err) err.classList.add('hidden');
+                    if (_securityAuthResolver) {
+                        _securityAuthResolver(success);
+                        _securityAuthResolver = null;
+                    }
+                }
+                window.closeSecurityAuthModal = closeSecurityAuthModal;
+
+                async function submitSecurityAuthPassword() {
+                    const pwdInput = document.getElementById('securityAuthPassword');
+                    const errEl = document.getElementById('securityAuthError');
+                    const btn = document.getElementById('securityAuthSubmitBtn');
+                    const password = pwdInput ? pwdInput.value : '';
+
+                    if (!password) {
+                        if (errEl) { errEl.textContent = "Veuillez entrer votre mot de passe."; errEl.classList.remove('hidden'); }
+                        return;
+                    }
+
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>';
+                    }
+
+                    try {
+                        const session = window.getSupabaseSession ? await window.getSupabaseSession(2000) : null;
+                        const email = session?.user?.email;
+                        if (!email) throw new Error("Session introuvable");
+
+                        const { error } = await window.supabaseClient.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+
+                        if (error) {
+                            throw new Error("Mot de passe incorrect.");
+                        }
+
+                        // Authentification réussie
+                        closeSecurityAuthModal(true);
+                    } catch (err) {
+                        if (errEl) {
+                            errEl.textContent = err.message || "Échec de l'authentification.";
+                            errEl.classList.remove('hidden');
+                        }
+                    } finally {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<span>Confirmer</span>';
+                        }
+                    }
+                }
+                window.submitSecurityAuthPassword = submitSecurityAuthPassword;
+
+                // Fonction d'authentification universelle (Biométrie avec fallback Mot de passe)
+                async function authenticateVendorSecurityAction(reasonText = "accéder aux informations de paiement") {
+                    // 1. Tenter la biométrie native / WebAuthn de l'appareil si supportée
+                    if (window.PublicKeyCredential && typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+                        try {
+                            const isAvailable = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                            if (isAvailable && navigator.credentials && typeof navigator.credentials.get === 'function') {
+                                if (navigator.vibrate) navigator.vibrate(10);
+                            }
+                        } catch (e) {
+                            console.warn('[Security] Biometric pre-check:', e);
+                        }
+                    }
+
+                    // 2. Ouvrir la modale sécurisée NewKet (garantie 100% universelle Web, iOS et Android)
+                    return new Promise((resolve) => {
+                        _securityAuthResolver = resolve;
+                        const modal = ensureSecurityAuthModal();
+                        const reasonEl = document.getElementById('securityAuthReason');
+                        if (reasonEl) reasonEl.textContent = `Confirmez pour ${reasonText}`;
+                        const pwd = document.getElementById('securityAuthPassword');
+                        if (pwd) pwd.value = '';
+                        const err = document.getElementById('securityAuthError');
+                        if (err) err.classList.add('hidden');
+                        modal.classList.remove('hidden');
+                        setTimeout(() => pwd?.focus(), 100);
+                    });
+                }
+                window.authenticateVendorSecurityAction = authenticateVendorSecurityAction;
+
                 // Modals flow for Payout
                 let currentPayoutFiles = { selfie: null, recto: null, verso: null };
                 
-                async function openAddPayoutModal(preserveFiles = false) {
+                async function openAddPayoutModal(preserveFiles = false, skipAuth = false) {
+                    // Si on commence une nouvelle modification, exiger la confirmation d'identité
+                    if (!preserveFiles && !skipAuth) {
+                        const verified = await authenticateVendorSecurityAction("modifier vos coordonnées de paiement");
+                        if (!verified) return;
+                    }
                     const session = window.getSupabaseSession ? await window.getSupabaseSession(3000) : null;
                     const user = session?.user;
                     if (!user) return;
@@ -8903,7 +9110,7 @@ async function openOrderModal(id) {
     </script>
 
     <!-- Modal d'Ouverture de Litige (Dispute Modal) -->
-    <div id="disputeModal" style="display: none;" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
+    <div id="disputeModal" style="display: none;" class="nk-modal-overlay fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
         <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3">
