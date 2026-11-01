@@ -68,6 +68,20 @@
     <!-- Biometric Authentication (Empreinte digitale / Reconnaissance faciale) -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
-    <!-- Feature requirements -->
+    <!-- Caméra (Capture directe photos de produits & documents KYC) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Microphone (Messages vocaux dans le flux & appels audio) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Galerie Photos & Médias (Android 13+ et versions antérieures) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
+    <!-- Feature requirements (Optionnels pour ne bloquer aucun appareil sans capteur spécifique) -->
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
 </manifest>
