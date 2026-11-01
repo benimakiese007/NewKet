@@ -1,7 +1,7 @@
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, copyFileSync, cpSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, copyFileSync, cpSync, mkdirSync } from 'fs';
 import { createHash } from 'crypto';
 
 function getHtmlPages(dir, baseDir = '') {
@@ -191,6 +191,7 @@ export default defineConfig({
         const adminSrc = resolve(__dirname, 'dist/src/pages/admin');
         const adminDest = resolve(__dirname, 'dist/admin');
         if (existsSync(adminSrc)) {
+          mkdirSync(adminDest, { recursive: true });
           cpSync(adminSrc, adminDest, { recursive: true });
           console.log('[NewKet] Admin pages copied to dist/admin for Capacitor / local scheme fallbacks.');
         }

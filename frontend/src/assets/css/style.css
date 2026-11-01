@@ -11075,8 +11075,9 @@ html.dark .skeleton::after {
 #disputeModal:not(.hidden):not([style*="display: none"]),
 .fixed.inset-0[class*="items-center"][class*="bg-black"]:not(.hidden):not([style*="display: none"]),
 .fixed.inset-0[class*="backdrop"]:not(.hidden):not([style*="display: none"]) {
-  padding-top: calc(var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) + 12px) !important;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px) !important;
+  padding: 16px !important;
+  padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) !important;
+  padding-bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 12px)) !important;
   padding-left: 16px !important;
   padding-right: 16px !important;
   box-sizing: border-box !important;
@@ -11086,14 +11087,17 @@ html.dark .skeleton::after {
   overflow: hidden !important;
 }
 
-/* Inner modal box on mobile — Carte flottante standardisée */
+/* Inner modal box on mobile — Carte flottante standardisée (Capture 2 spec) */
 .nk-modal-overlay:not(.hidden) > *:not(.absolute),
 #orderDetailModal:not(.hidden) > *:not(.absolute),
 #orderModal:not(.hidden) > *:not(.absolute),
-#disputeModal:not(.hidden) > *:not(.absolute) {
+#disputeModal:not(.hidden) > *:not(.absolute),
+.fixed.inset-0[class*="items-center"][class*="bg-black"]:not(.hidden) > *:not(.absolute),
+.fixed.inset-0[class*="backdrop"]:not(.hidden) > *:not(.absolute) {
   width: 100% !important;
   max-width: 440px !important;
-  max-height: calc(100dvh - var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-bottom, 0px) - 48px) !important;
+  max-height: 65dvh !important;
+  height: min(65dvh, 100%) !important;
   border-radius: 28px !important;
   display: flex !important;
   flex-direction: column !important;
@@ -11107,14 +11111,17 @@ html.dark .skeleton::after {
 #orderModal:not(.hidden) > *:not(.absolute),
 #orderDetailModal:not(.hidden) > *:not(.absolute),
 #disputeModal:not(.hidden) > *:not(.absolute) {
-  height: min(76dvh, calc(100dvh - var(--header-height, calc(56px + env(safe-area-inset-top, 0px))) - env(safe-area-inset-bottom, 0px) - 48px)) !important;
+  height: min(65dvh, 100%) !important;
+  max-height: 65dvh !important;
 }
 
 /* Header & Footer intérieurs : restent toujours visibles sans réduction */
 #orderModal > *:not(.absolute) > *:first-child,
 #orderDetailModal > *:not(.absolute) > *:first-child,
 #disputeModal > *:not(.absolute) > *:first-child,
-#disputeModal > *:not(.absolute) > *:last-child {
+#disputeModal > *:not(.absolute) > *:last-child,
+.nk-modal-overlay > *:not(.absolute) > *:first-child,
+.nk-modal-overlay > *:not(.absolute) > *:last-child {
   flex-shrink: 0 !important;
 }
 
@@ -11122,7 +11129,9 @@ html.dark .skeleton::after {
 #orderModal > *:not(.absolute) > .p-6.space-y-8,
 #orderDetailModal > *:not(.absolute) > .p-6.space-y-8,
 #orderDetailModal > *:not(.absolute) > [class*="overflow-y-auto"],
-#orderModal > *:not(.absolute) > [class*="overflow-y-auto"] {
+#orderModal > *:not(.absolute) > [class*="overflow-y-auto"],
+.nk-modal-overlay > *:not(.absolute) > [class*="overflow-y-auto"],
+#disputeModal > *:not(.absolute) > .p-6.overflow-y-auto {
   flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
@@ -11171,7 +11180,7 @@ html.dark .skeleton::after {
 .admin-shell .nk-modal-overlay:not(.hidden):not([style*="display: none"]),
 .admin-shell #orderDetailModal:not(.hidden):not([style*="display: none"]),
 .admin-shell #orderModal:not(.hidden):not([style*="display: none"]) {
-  padding-top: calc(var(--dashboard-topbar-height, 64px) + 12px) !important;
+  padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) !important;
 }
 
 @media (min-width: 768px) {
