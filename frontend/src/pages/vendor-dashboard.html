@@ -1143,8 +1143,8 @@
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
                 class="nk-modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 p-4">
-                <div class="solid-modal-content bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll animate-in fade-in zoom-in duration-300">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                <div class="solid-modal-content relative w-full max-w-md max-h-[65dvh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300" style="max-height: 65dvh !important; height: min(65dvh, 100%) !important;">
+                    <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0">
                         <div>
                             <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest" id="vModalOrderDate"></p>
@@ -1156,7 +1156,7 @@
                         </button>
                     </div>
 
-                    <div class="p-6 space-y-8">
+                    <div class="p-5 space-y-6 overflow-y-auto overscroll-contain flex-1">
                         <!-- Client Info -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-6 rounded-2xl">
                             <div class="flex items-center gap-3">

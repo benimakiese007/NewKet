@@ -1,4 +1,4 @@
-﻿/*
+/*
  * =====================================================
  * NewKet — Responsive Global Override
  * =====================================================
@@ -1090,8 +1090,8 @@ canvas {
 
 @media (max-width: 639px) {
     #orderModal .max-w-2xl {
-        max-width: calc(100vw - 1rem) !important;
-        margin: 0 0.5rem !important;
+        max-width: 440px !important;
+        margin: auto !important;
     }
 
     #orderModal .p-6 {

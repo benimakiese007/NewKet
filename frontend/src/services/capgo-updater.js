@@ -138,6 +138,10 @@ export async function initCapgoUpdater() {
                     window.dispatchEvent(new CustomEvent('otaStateChanged'));
                     showToast(`✅ v${latestRelease.version} prête, application...`, '#16a34a');
                     await CapacitorUpdater.set({ id: bundle.id });
+                    if (typeof CapacitorUpdater.reload === 'function') {
+                        otaLog('log', '[NewKet OTA] 🔄 Application immédiate : rechargement vers la nouvelle version...');
+                        await CapacitorUpdater.reload();
+                    }
                 }
             } catch (err) {
                 window._otaState.status = 'error';
