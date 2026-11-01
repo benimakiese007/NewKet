@@ -126,5 +126,11 @@
 	<string>NewKet a besoin de votre localisation pour calculer les frais de livraison et localiser votre adresse de livraison exacte à Kinshasa.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>NewKet utilise votre position pour assurer le suivi en direct de vos commandes et livraisons.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>NewKet utilise le microphone pour les appels audio et les messages vocaux dans le flux.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>NewKet utilise la caméra pour vous permettre de publier vos produits en prenant une photo directement.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>NewKet accède à vos photos pour vous permettre d'ajouter des images à vos produits et commandes.</string>
 </dict>
 </plist>
