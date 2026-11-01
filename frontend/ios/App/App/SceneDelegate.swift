@@ -38,30 +38,10 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
     }
 
     @objc private func handleEdgePan(_ gesture: UIScreenEdgePanGestureRecognizer) {
-        let plugin = headerButtonsPlugin ?? (bridge?.plugin(withName: "NativeHeaderButtonsPlugin") as? NativeHeaderButtonsPlugin)
-
-        switch gesture.state {
-        case .began, .cancelled, .failed:
-            // Page X encore visible (ou feinte) → on ne touche pas aux boutons
-            break
-        case .ended:
-            // Le doigt a lâché — on ne sait pas encore si c'est une vraie navigation ou une feinte.
-            // On mémorise l'URL courante et on attend 0.5s.
-            let urlBefore = webView?.url
-            // On cache immédiatement (cas nominal : vraie navigation)
-            plugin?.setOverlayAlpha(0, animated: true, duration: 0.15)
-            // Si après 0.5s l'URL n'a pas changé → c'était une feinte → on restaure les boutons
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, weak plugin] in
-                guard let self = self else { return }
-                if self.webView?.url == urlBefore {
-                    // Feinte confirmée : même page → boutons de retour
-                    plugin?.setOverlayAlpha(1.0, animated: true, duration: 0.25)
-                }
-                // Si l'URL a changé → vraie navigation → boutons restent cachés (Page Y prend le relais)
-            }
-        default:
-            break
-        }
+        // Les boutons Liquid Glass sont gérés exclusivement par le JavaScript de chaque page
+        // via showClose() / hideButtons(). Le gesture recognizer ne touche jamais aux boutons :
+        // - Feinte → Page X reste → boutons de X jamais cachés → zéro flash ✅
+        // - Vraie navigation → Page Y se charge → JS de Y met à jour les boutons ✅
     }
 
     override open func capacitorDidLoad() {
