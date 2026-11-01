@@ -1342,6 +1342,32 @@ const ComponentLoader = {
 
         // -- Wire burger tap --> open mobile menu -------------------------
         const handleBackAction = () => {
+            const currentPath = window.location.pathname;
+            const isAchat = currentPath.includes('/achat');
+            if (isAchat) {
+                let orderId = '';
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    orderId = params.get('order_id') || params.get('order');
+                } catch (_) {}
+                if (!orderId) {
+                    try {
+                        orderId = localStorage.getItem('last_viewed_order_id') || localStorage.getItem('newket_current_order_id') || '';
+                    } catch (_) {}
+                }
+                const dest = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/customer-dashboard';
+                if (orderId && orderId.trim()) {
+                    const cleanId = orderId.trim();
+                    try {
+                        localStorage.setItem('nk_auto_open_order_id', cleanId);
+                        localStorage.setItem('last_viewed_order_id', cleanId);
+                    } catch (_) {}
+                    window.location.href = `${dest}?order_id=${encodeURIComponent(cleanId)}`;
+                    return;
+                }
+                window.location.href = dest;
+                return;
+            }
             if (window.history.length > 1) {
                 window.history.back();
             } else {

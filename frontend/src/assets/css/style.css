@@ -2538,7 +2538,9 @@ html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"] {
 
 html.is-ios-capacitor #achatWebBackBtn,
 .is-ios-capacitor #achatWebBackBtn {
-  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* 2. Hit-target tactile Apple HIG : extension invisible de 44x44pt */

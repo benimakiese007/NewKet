@@ -4001,6 +4001,7 @@
             }
             const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/achat';
             const targetUrl = `${path}?order_id=${encodeURIComponent(currentSelectedOrder.id)}`;
+            try { localStorage.setItem('last_viewed_order_id', currentSelectedOrder.id); localStorage.setItem('nk_auto_open_order_id', currentSelectedOrder.id); } catch (_) {}
             console.log('[DEBUG handlePayOrder] Navigation vers:', targetUrl);
             window.location.href = targetUrl;
         };
@@ -5074,23 +5075,38 @@
             }
         });
 
-        // Décrocher automatique : ouvre la modale si l'utilisateur arrive depuis le toast d'appel (?order=...)
+        // Ouverture automatique de la modale de commande (via URL ?order_id=... ou retour depuis la page Achat)
         (function autoOpenOrderFromQuery() {
             try {
-                const params = new URLSearchParams(window.location.search);
-                const orderId = params.get('order') || params.get('order_id');
-                if (!orderId) return;
+                const rawSearch = window.location.search || (window.location.hash.includes('?') ? '?' + window.location.hash.split('?')[1] : '');
+                const params = new URLSearchParams(rawSearch);
+                let orderId = params.get('order') || params.get('order_id');
+                if (!orderId) {
+                    try {
+                        orderId = localStorage.getItem('nk_auto_open_order_id');
+                    } catch (_) {}
+                }
+                if (!orderId || !orderId.trim()) return;
+                orderId = orderId.trim();
 
                 let attempts = 0;
+                let modalOpened = false;
                 const checkInterval = setInterval(() => {
                     attempts++;
-                    if (typeof openOrderModal === 'function') {
+                    const hasLoadedOrders = Array.isArray(window.OrderManager?.getOrders?.()) && window.OrderManager.getOrders().length > 0;
+                    if (typeof openOrderModal === 'function' && (hasLoadedOrders || attempts >= 8)) {
                         clearInterval(checkInterval);
+                        modalOpened = true;
+                        try { localStorage.removeItem('nk_auto_open_order_id'); } catch (_) {}
                         openOrderModal(orderId);
                     } else if (attempts >= 50) {
                         clearInterval(checkInterval);
+                        if (!modalOpened && typeof openOrderModal === 'function') {
+                            try { localStorage.removeItem('nk_auto_open_order_id'); } catch (_) {}
+                            openOrderModal(orderId);
+                        }
                     }
-                }, 200);
+                }, 150);
             } catch (_) {}
         })();
 

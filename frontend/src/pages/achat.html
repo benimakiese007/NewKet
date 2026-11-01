@@ -175,7 +175,9 @@
 
 html.is-ios-capacitor #achatWebBackBtn,
 .is-ios-capacitor #achatWebBackBtn {
-  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 </style>
 </head>
@@ -183,17 +185,21 @@ html.is-ios-capacitor #achatWebBackBtn,
 <body>
 <nav class="bg-newket-header bg-[#111827] fixed top-0 w-full z-[100] transition-all duration-300" style="padding-top: env(safe-area-inset-top, 0px);">
         <div class="max-w-4xl mx-auto px-4 sm:px-8 py-2 grid grid-cols-3 items-center min-h-[56px] sm:min-h-[64px]">
-            <button onclick="if(window.history.length>1){window.history.back()}else{window.location.href=(typeof window.resolvePath==='function')?window.resolvePath('customer-dashboard'):'/customer-dashboard'}" 
-                    id="achatWebBackBtn" class="liquid-glass-back-btn justify-self-start cursor-pointer" 
-                    aria-label="Retour">
-                <iconify-icon icon="solar:alt-arrow-left-linear" width="24" class="text-white"></iconify-icon>
-            </button>
+            <!-- Colonne 1 : Emplacement bouton retour réservé 48x48pt -->
+            <div class="justify-self-start flex items-center justify-start w-12 h-12">
+                <button onclick="handleAchatBack()" 
+                        id="achatWebBackBtn" class="liquid-glass-back-btn cursor-pointer" 
+                        aria-label="Retour">
+                    <iconify-icon icon="solar:alt-arrow-left-linear" width="24" class="text-white"></iconify-icon>
+                </button>
+            </div>
             
+            <!-- Colonne 2 : Logo NewKet parfaitement centré au milieu -->
             <a href="/" class="justify-self-center flex items-center justify-center">
                 <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-8 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
             </a>
 
-            <!-- Colonne droite invisible de 48px pour équilibre parfait du Logo -->
+            <!-- Colonne 3 : Colonne droite équilibrante de 48x48pt -->
             <div class="justify-self-end w-12 h-12 flex items-center justify-end"></div>
         </div>
     </nav>
@@ -276,6 +282,35 @@ html.is-ios-capacitor #achatWebBackBtn,
     </main>
 
     <script>
+        function getAchatBackDestination() {
+            let orderId = '';
+            try {
+                const params = new URLSearchParams(window.location.search);
+                orderId = params.get('order_id') || params.get('order');
+            } catch (_) {}
+            if (!orderId) {
+                try {
+                    orderId = localStorage.getItem('last_viewed_order_id') || localStorage.getItem('newket_current_order_id') || '';
+                } catch (_) {}
+            }
+            const basePath = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/customer-dashboard';
+            if (orderId && orderId.trim()) {
+                const cleanId = orderId.trim();
+                try {
+                    localStorage.setItem('nk_auto_open_order_id', cleanId);
+                    localStorage.setItem('last_viewed_order_id', cleanId);
+                } catch (_) {}
+                return `${basePath}?order_id=${encodeURIComponent(cleanId)}`;
+            }
+            return basePath;
+        }
+
+        function handleAchatBack() {
+            const dest = getAchatBackDestination();
+            window.location.href = dest;
+        }
+    </script>
+    <script>
         // Configuration native Apple Liquid Glass pour la page Achat
         (function enforceAchatHeaderLayout() {
             const configureNativeAchatHeader = () => {
@@ -296,16 +331,11 @@ html.is-ios-capacitor #achatWebBackBtn,
             setTimeout(configureNativeAchatHeader, 800);
 
             try {
-                const handleBack = () => {
-                    if (window.history.length > 1) {
-                        window.history.back();
-                    } else {
-                        const dest = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/customer-dashboard';
-                        window.location.href = dest;
-                    }
+                const handleNativeBack = () => {
+                    handleAchatBack();
                 };
-                window.Capacitor?.Plugins?.NativeHeaderButtons?.addListener?.('backTap', handleBack);
-                window.Capacitor?.Plugins?.NativeHeaderButtons?.addListener?.('burgerTap', handleBack);
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.addListener?.('backTap', handleNativeBack);
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.addListener?.('burgerTap', handleNativeBack);
             } catch (_) {}
         })();
     </script>
@@ -871,6 +901,10 @@ html.is-ios-capacitor #achatWebBackBtn,
 
             const orderId = getQueryParam('order_id');
             if (orderId) {
+                try {
+                    localStorage.setItem('last_viewed_order_id', orderId);
+                    localStorage.setItem('nk_auto_open_order_id', orderId);
+                } catch (_) {}
                 await renderDetailMode(orderId);
                 return;
             }
