@@ -203,11 +203,15 @@ export function initDebugOverlay() {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:8px;">
                 <h3 style="margin:0; font-size:14px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diagnostic</h3>
                 <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                    <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Tout copier</button>
+                    <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
                     <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
                     <button id="nk-dbg-close" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer;">✕</button>
                 </div>
             </div>
+            <!-- Bouton pour demander toutes les autorisations natives (Localisation, Caméra, Micro, Face ID, Notifs) -->
+            <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:10px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
+                <span>🛡️ Déclencher toutes les autorisations</span>
+            </button>
             <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
             <div style="font-size:11px; font-weight:bold; color:#94a3b8; margin-bottom:6px;">Console Logs (temps réel) :</div>
             <div id="nk-debug-logs" style="flex:1; overflow-y:auto; background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); max-height:350px;"></div>
@@ -278,6 +282,96 @@ export function initDebugOverlay() {
             }
         } else {
             console.error('[Debug] ProductManager is undefined!');
+        }
+        updatePanel();
+    });
+
+    // ── Déclencheur séquentiel de toutes les permissions système iOS & Android ──
+    panel.querySelector('#nk-dbg-request-all-perms').addEventListener('click', async () => {
+        const btn = panel.querySelector('#nk-dbg-request-all-perms');
+        const origContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        const setStatus = (txt) => {
+            btn.innerHTML = `<span>⏳ ${txt}...</span>`;
+            console.log(`[Permissions] 👉 ${txt}`);
+        };
+
+        try {
+            // 1. Localisation (GPS)
+            setStatus('1/4 Localisation');
+            if (navigator.geolocation) {
+                await new Promise((resolve) => {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            console.log('[Permissions] ✅ Position GPS validée');
+                            resolve(pos);
+                        },
+                        (err) => {
+                            console.warn('[Permissions] ⚠️ Position:', err.message);
+                            resolve(null);
+                        },
+                        { timeout: 8000, enableHighAccuracy: true }
+                    );
+                });
+            }
+
+            // 2. Caméra (Photo produit & KYC)
+            setStatus('2/4 Caméra');
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    console.log('[Permissions] ✅ Caméra autorisée');
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    console.warn('[Permissions] ⚠️ Caméra refusée ou non dispo:', e.message);
+                }
+            }
+
+            // 3. Microphone (Vocal flux & Appels audio)
+            setStatus('3/4 Microphone');
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    console.log('[Permissions] ✅ Microphone autorisé');
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    console.warn('[Permissions] ⚠️ Microphone refusé ou non dispo:', e.message);
+                }
+            }
+
+            // 4. Notifications Push
+            setStatus('4/4 Notifications');
+            if (window.Notification && Notification.requestPermission) {
+                try {
+                    const perm = await Notification.requestPermission();
+                    console.log('[Permissions] Notifications statut:', perm);
+                } catch (e) {
+                    console.warn('[Permissions] ⚠️ Notifications error:', e.message);
+                }
+            }
+
+            btn.innerHTML = `<span>✅ Autorisations demandées !</span>`;
+            btn.style.background = '#10b981';
+            console.log('[Permissions] 🏁 Cycle terminé. Vérifiez Réglages > NewKet.');
+            setTimeout(() => {
+                btn.innerHTML = origContent;
+                btn.style.background = 'linear-gradient(135deg, #6366f1, #a855f7)';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }, 3500);
+
+        } catch (globalErr) {
+            console.error('[Permissions] Erreur globale:', globalErr);
+            btn.innerHTML = `<span>❌ Erreur: ${globalErr.message}</span>`;
+            btn.style.background = '#ef4444';
+            setTimeout(() => {
+                btn.innerHTML = origContent;
+                btn.style.background = 'linear-gradient(135deg, #6366f1, #a855f7)';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }, 3000);
         }
         updatePanel();
     });
