@@ -11072,9 +11072,7 @@ html.dark .skeleton::after {
 .nk-modal-overlay:not(.hidden):not([style*="display: none"]),
 #orderDetailModal:not(.hidden):not([style*="display: none"]),
 #orderModal:not(.hidden):not([style*="display: none"]),
-#disputeModal:not(.hidden):not([style*="display: none"]),
-.fixed.inset-0[class*="items-center"][class*="bg-black"]:not(.hidden):not([style*="display: none"]),
-.fixed.inset-0[class*="backdrop"]:not(.hidden):not([style*="display: none"]) {
+#disputeModal:not(.hidden):not([style*="display: none"]) {
   padding: 16px !important;
   padding-top: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) !important;
   padding-bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 12px)) !important;
@@ -11091,9 +11089,7 @@ html.dark .skeleton::after {
 .nk-modal-overlay:not(.hidden) > *:not(.absolute),
 #orderDetailModal:not(.hidden) > *:not(.absolute),
 #orderModal:not(.hidden) > *:not(.absolute),
-#disputeModal:not(.hidden) > *:not(.absolute),
-.fixed.inset-0[class*="items-center"][class*="bg-black"]:not(.hidden) > *:not(.absolute),
-.fixed.inset-0[class*="backdrop"]:not(.hidden) > *:not(.absolute) {
+#disputeModal:not(.hidden) > *:not(.absolute) {
   width: 100% !important;
   max-width: 440px !important;
   max-height: 65dvh !important;
