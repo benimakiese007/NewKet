@@ -5508,7 +5508,9 @@
                         }
                     } catch (error) {
                         console.error('Erreur chargement paiements:', error);
-                        errorEl.textContent = error.message || 'Impossible de charger vos méthodes de paiement.';
+                        // Masquer les erreurs techniques Supabase/PostgREST
+                        const isTechErr = error.message && (error.message.includes('pattern') || error.message.includes('invalid input syntax') || error.message.includes('relation') || error.message.includes('column') || error.message.includes('permission denied'));
+                        errorEl.textContent = isTechErr ? 'Impossible de charger vos méthodes de paiement. Veuillez réessayer.' : (error.message || 'Impossible de charger vos méthodes de paiement.');
                         errorEl.classList.remove('hidden');
                     } finally {
                         loader.classList.add('hidden');

@@ -300,7 +300,7 @@ export function initDebugOverlay() {
 
         try {
             // 1. Localisation (GPS)
-            setStatus('1/4 Localisation');
+            setStatus('1/6 Localisation');
             if (navigator.geolocation) {
                 await new Promise((resolve) => {
                     navigator.geolocation.getCurrentPosition(
@@ -318,7 +318,7 @@ export function initDebugOverlay() {
             }
 
             // 2. Caméra (Photo produit & KYC)
-            setStatus('2/4 Caméra');
+            setStatus('2/6 Caméra');
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -330,7 +330,7 @@ export function initDebugOverlay() {
             }
 
             // 3. Microphone (Vocal flux & Appels audio)
-            setStatus('3/4 Microphone');
+            setStatus('3/6 Microphone');
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -342,7 +342,7 @@ export function initDebugOverlay() {
             }
 
             // 4. Notifications Push
-            setStatus('4/4 Notifications');
+            setStatus('4/6 Notifications');
             if (window.Notification && Notification.requestPermission) {
                 try {
                     const perm = await Notification.requestPermission();
@@ -350,6 +350,62 @@ export function initDebugOverlay() {
                 } catch (e) {
                     console.warn('[Permissions] ⚠️ Notifications error:', e.message);
                 }
+            }
+
+            // 5. Face ID / Biométrie (WebAuthn — déclenche la popup Face ID iOS)
+            setStatus('5/6 Face ID / Biométrie');
+            if (window.PublicKeyCredential) {
+                try {
+                    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                    console.log('[Permissions] Face ID / Platform Auth disponible:', available);
+                    if (available) {
+                        // Tenter une assertion pour déclencher la popup Face ID dans Réglages iOS
+                        await navigator.credentials.get({
+                            publicKey: {
+                                challenge: crypto.getRandomValues(new Uint8Array(32)),
+                                timeout: 8000,
+                                userVerification: 'required',
+                                rpId: window.location.hostname || 'localhost',
+                                allowCredentials: []
+                            }
+                        }).catch(e => {
+                            // NotAllowedError ou NotFoundError = normal (pas encore de credential enregistré)
+                            // L'important c'est que iOS a reçu la demande → Face ID apparaît dans Réglages
+                            console.log('[Permissions] Face ID demandé (résultat attendu):', e.name || e.message);
+                        });
+                    }
+                } catch (e) {
+                    console.warn('[Permissions] ⚠️ Face ID / WebAuthn:', e.message);
+                }
+            } else {
+                console.warn('[Permissions] ⚠️ WebAuthn non supporté sur cet appareil');
+            }
+
+            // 6. Actualisation en arrière-plan (BackgroundFetch / ServiceWorker)
+            setStatus('6/6 Arrière-plan');
+            try {
+                if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.ready.catch(() => null);
+                    if (reg && 'backgroundFetch' in reg) {
+                        console.log('[Permissions] ✅ BackgroundFetch API disponible');
+                        // Déclenchement d'un fetch en arrière-plan (peut activer la permission iOS)
+                        await reg.backgroundFetch.fetch('nk-bg-check', [], {
+                            title: 'NewKet – vérification arrière-plan',
+                            icons: [],
+                            downloadTotal: 0
+                        }).catch(e => console.log('[Permissions] BackgroundFetch résultat:', e.name));
+                    } else {
+                        console.log('[Permissions] ⚠️ BackgroundFetch API non dispo (normal sur WKWebView)');
+                    }
+                }
+                // Capacitor Background Runner si dispo
+                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BackgroundRunner) {
+                    console.log('[Permissions] ✅ Capacitor BackgroundRunner détecté');
+                } else {
+                    console.log('[Permissions] ℹ️ Pour "Actualisation arrière-plan" dans Réglages, UIBackgroundModes doit être ajouté dans Info.plist (build natif requis)');
+                }
+            } catch (e) {
+                console.warn('[Permissions] ⚠️ Arrière-plan:', e.message);
             }
 
             btn.innerHTML = `<span>✅ Autorisations demandées !</span>`;
