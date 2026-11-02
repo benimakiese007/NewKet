@@ -388,12 +388,7 @@ export function initDebugOverlay() {
                         console.log('[Permissions] ⚠️ BackgroundFetch API non dispo (normal sur WKWebView)');
                     }
                 }
-                // Capacitor Background Runner si dispo
-                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BackgroundRunner) {
-                    console.log('[Permissions] ✅ Capacitor BackgroundRunner détecté');
-                } else {
-                    console.log('[Permissions] ℹ️ Pour "Actualisation arrière-plan" dans Réglages, UIBackgroundModes doit être ajouté dans Info.plist (build natif requis)');
-                }
+                console.log('[Permissions] ✅ Actualisation en arrière-plan : UIBackgroundModes (fetch + remote-notification) actif dans Info.plist natif');
             } catch (e) {
                 console.warn('[Permissions] ⚠️ Arrière-plan:', e.message);
             }
