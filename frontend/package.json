@@ -34,6 +34,7 @@
     "vite-plugin-pwa": "^2.0.0"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor/android": "^8.5.2",
     "@capacitor/app": "^8.0.0",
     "@capacitor/browser": "^8.0.5",

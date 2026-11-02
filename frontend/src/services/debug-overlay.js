@@ -352,33 +352,23 @@ export function initDebugOverlay() {
                 }
             }
 
-            // 5. Face ID / Biométrie (WebAuthn — déclenche la popup Face ID iOS)
+            // 5. Face ID / Biométrie native (Capacitor BiometricAuth -> LAContext iOS)
             setStatus('5/6 Face ID / Biométrie');
-            if (window.PublicKeyCredential) {
+            if (typeof window.authenticateDeviceOwner === 'function') {
+                try {
+                    console.log('[Permissions] Déclenchement Face ID natif iOS...');
+                    const bioOk = await window.authenticateDeviceOwner("Test des permissions Face ID NewKet");
+                    console.log('[Permissions] Résultat Face ID natif:', bioOk ? '✅ Autorisé' : 'Annulé / Rejeté');
+                } catch (e) {
+                    console.warn('[Permissions] ⚠️ Face ID natif error:', e?.message || e);
+                }
+            } else if (window.PublicKeyCredential) {
                 try {
                     const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-                    console.log('[Permissions] Face ID / Platform Auth disponible:', available);
-                    if (available) {
-                        // Tenter une assertion pour déclencher la popup Face ID dans Réglages iOS
-                        await navigator.credentials.get({
-                            publicKey: {
-                                challenge: crypto.getRandomValues(new Uint8Array(32)),
-                                timeout: 8000,
-                                userVerification: 'required',
-                                rpId: window.location.hostname || 'localhost',
-                                allowCredentials: []
-                            }
-                        }).catch(e => {
-                            // NotAllowedError ou NotFoundError = normal (pas encore de credential enregistré)
-                            // L'important c'est que iOS a reçu la demande → Face ID apparaît dans Réglages
-                            console.log('[Permissions] Face ID demandé (résultat attendu):', e.name || e.message);
-                        });
-                    }
+                    console.log('[Permissions] Face ID WebAuthn disponible:', available);
                 } catch (e) {
-                    console.warn('[Permissions] ⚠️ Face ID / WebAuthn:', e.message);
+                    console.warn('[Permissions] ⚠️ WebAuthn fallback:', e?.message);
                 }
-            } else {
-                console.warn('[Permissions] ⚠️ WebAuthn non supporté sur cet appareil');
             }
 
             // 6. Actualisation en arrière-plan (BackgroundFetch / ServiceWorker)

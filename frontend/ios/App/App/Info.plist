@@ -134,5 +134,10 @@
 	<string>NewKet accède à vos photos pour vous permettre d'ajouter des images à vos produits et commandes.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>NewKet utilise Face ID pour sécuriser l'accès à vos coordonnées de paiement et de retrait.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -295,6 +295,39 @@ async function clearWatch(watcherId) {
     navigator.geolocation.clearWatch(watcherId);
 }
 
+
+// ─── BIOMÉTRIE & CODE APPAREIL (Face ID / Touch ID / Code PIN) ──────────────
+
+/**
+ * Authentifie l'utilisateur via Face ID / Empreinte ou Code de l'appareil (iOS / Android).
+ * Utilise la politique deviceOwnerAuthentication (Face ID d'abord, puis code PIN appareil en repli).
+ * @param {string} reason
+ * @returns {Promise<boolean>}
+ */
+export async function authenticateDeviceOwner(reason = "Confirmez votre identité") {
+    if (isNative()) {
+        try {
+            const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
+            const available = await BiometricAuth.checkBiometry();
+            console.log('[NewKet Biometric] checkBiometry:', available);
+            
+            // Si la biométrie ou le code d'appareil est disponible
+            await BiometricAuth.authenticate({
+                reason: reason,
+                cancelTitle: 'Annuler',
+                allowDeviceCredential: true, // Permet le repli immédiat sur le code PIN de l'iPhone/Android
+                iosFallbackTitle: "Utiliser le code de l'iPhone"
+            });
+            console.log('[NewKet Biometric] ✅ Authentification appareil réussie.');
+            return true;
+        } catch (e) {
+            console.warn('[NewKet Biometric] Échec ou annulation appareil:', e?.message || e);
+            return false;
+        }
+    }
+    return false;
+}
+
 // ─── EXPOSITION GLOBALE ───────────────────────────────────────────────────────
 
 /**
@@ -313,6 +346,7 @@ export async function initCapacitorPlugins() {
 }
 
 // Géolocalisation exposée globalement pour usage dans tout le code
+window.authenticateDeviceOwner = authenticateDeviceOwner;
 window.NewKetGeo = {
     getCurrentPosition,
     watchPosition,

@@ -5758,19 +5758,17 @@
 
                 // Fonction d'authentification universelle (Biométrie avec fallback Mot de passe)
                 async function authenticateVendorSecurityAction(reasonText = "accéder aux informations de paiement") {
-                    // 1. Tenter la biométrie native / WebAuthn de l'appareil si supportée
-                    if (window.PublicKeyCredential && typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
-                        try {
-                            const isAvailable = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-                            if (isAvailable && navigator.credentials && typeof navigator.credentials.get === 'function') {
-                                if (navigator.vibrate) navigator.vibrate(10);
-                            }
-                        } catch (e) {
-                            console.warn('[Security] Biometric pre-check:', e);
+                    // 1. Tenter en priorité absolue Face ID / Touch ID / Code de l'appareil (iOS & Android)
+                    if (typeof window.authenticateDeviceOwner === 'function') {
+                        console.log('[Security] Tentative d\'authentification appareil native (Face ID / Code)...');
+                        const nativeOk = await window.authenticateDeviceOwner(`Autoriser pour ${reasonText}`);
+                        if (nativeOk) {
+                            console.log('[Security] ✅ Authentification appareil validée avec succès.');
+                            return true;
                         }
                     }
 
-                    // 2. Ouvrir la modale sécurisée NewKet (garantie 100% universelle Web, iOS et Android)
+                    // 2. Si sur le Web ou si échec/absence de biométrie, fallback sur la modale mot de passe NewKet
                     return new Promise((resolve) => {
                         _securityAuthResolver = resolve;
                         const modal = ensureSecurityAuthModal();
