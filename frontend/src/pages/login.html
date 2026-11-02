@@ -70,6 +70,17 @@
             background: #ffffff;
         }
 
+        @media (min-width: 1024px) {
+            .split-image {
+                display: flex !important;
+            }
+        }
+        @media (max-width: 1023px) {
+            .split-image {
+                display: none !important;
+            }
+        }
+
         /* Brand name coloring */
         .nk-brand { color: #3D3D3D; }
 
@@ -416,7 +427,7 @@
         </div>
 
         <!-- Right Side: Interactive Form -->
-        <div class="w-full lg:w-1/2 h-full flex flex-col relative bg-white overflow-y-scroll">
+        <div class="w-full lg:w-1/2 h-full flex flex-col relative bg-white overflow-y-auto">
 
             <!-- Form Container -->
             <main class="flex-1 block px-6 pb-16 md:px-12 lg:px-20 w-full max-w-xl mx-auto relative pt-6 sm:pt-8">
@@ -736,6 +747,20 @@
                 el.style.opacity = '1';
                 el.style.transform = 'none';
             });
+            ['#fcard1', '#fcard2', '#fcard3', '#fcard4', '#fcard5', '#fcard6'].forEach((sel) => {
+                const el = document.querySelector(sel);
+                if (el) {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                }
+            });
+            const hero = document.getElementById('heroContent');
+            if (hero) {
+                hero.style.opacity = '1';
+                hero.querySelectorAll('*').forEach(child => {
+                    if (child.id !== 'statsContainer') child.style.opacity = '1';
+                });
+            }
             const form = document.getElementById('authForm');
             if (form) {
                 form.style.opacity = '1';

@@ -1189,8 +1189,18 @@ const ComponentLoader = {
             const searchContainer = document.getElementById('mobileSearchContainer');
             if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
             const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
-            if (zoom && (!zoom.classList.contains('hidden') && zoom.style.display !== 'none')) return true;
-            const modal = document.querySelector('.nk-modal-overlay, #nk-announcement-modal, .modal:not(.hidden), [data-modal]:not(.hidden), #orderModal:not([style*="display: none"]), #orderSuccessOverlay, #paymentSuccessOverlay');
+            if (zoom && (!zoom.classList.contains('hidden') && !zoom.classList.contains('invisible') && !zoom.classList.contains('opacity-0') && zoom.style.display !== 'none' && zoom.style.visibility !== 'hidden')) return true;
+            const modal = Array.from(document.querySelectorAll('.nk-modal-overlay, #nk-announcement-modal, .modal, [data-modal], #orderModal, #orderDetailModal, #disputeModal, #confirmModal, #orderSuccessOverlay, #paymentSuccessOverlay')).find(el => {
+                if (!el) return false;
+                if (el.classList.contains('hidden') || el.classList.contains('invisible') || el.classList.contains('opacity-0')) return false;
+                if (el.style.display === 'none' || el.style.visibility === 'hidden' || el.style.opacity === '0') return false;
+                if (el.getAttribute('aria-hidden') === 'true') return false;
+                try {
+                    const st = window.getComputedStyle(el);
+                    if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+                } catch (_) {}
+                return (el.offsetWidth > 0 || el.offsetHeight > 0);
+            });
             if (modal) return true;
             return false;
         };
@@ -1239,7 +1249,7 @@ const ComponentLoader = {
             if (currentIsAchat) {
                 plugin.update({ showLeft: true, showRight: false, leftIcon: 'chevron.backward' }).catch(() => {});
             } else if (!isMinimal) {
-                plugin.update({ showLeft: true, showRight: true, leftIcon: 'line.3.horizontal' }).catch(() => {});
+                plugin.update({ showLeft: true, showRight: true, leftIcon: 'line.3.horizontal', rightIcon }).catch(() => {});
             }
             if (!isTabBarForbidden) {
                 window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
