@@ -5456,7 +5456,10 @@
                         const token = session?.session?.access_token;
                         if (!token) throw new Error("Non authentifié");
 
-                        const response = await fetch('/api/vendor-payouts/methods', {
+                        console.log('[VendorPayouts] 🚀 Chargement des méthodes de paiement...');
+                        const apiBase = (typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.isNativeCapacitor?.() ? 'https://newket.vercel.app/api' : '/api'));
+                        console.log('[VendorPayouts] URL cible:', `${apiBase}/vendor-payouts/methods`);
+                        const response = await fetch(`${apiBase}/vendor-payouts/methods`, {
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
                         let json = null;
@@ -5507,7 +5510,8 @@
                             document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:pen-bold');
                         }
                     } catch (error) {
-                        console.error('Erreur chargement paiements:', error);
+                        console.error('[VendorPayouts] ❌ Erreur chargement paiements:', error);
+                        console.error('[VendorPayouts] Détails:', { name: error.name, message: error.message, stack: error.stack });
                         // Masquer les erreurs techniques Supabase/PostgREST
                         const isTechErr = error.message && (error.message.includes('pattern') || error.message.includes('invalid input syntax') || error.message.includes('relation') || error.message.includes('column') || error.message.includes('permission denied'));
                         errorEl.textContent = isTechErr ? 'Impossible de charger vos méthodes de paiement. Veuillez réessayer.' : (error.message || 'Impossible de charger vos méthodes de paiement.');
@@ -6590,7 +6594,8 @@
                         const token = session?.session?.access_token;
                         if (!token) throw new Error("Non connecté");
 
-                        const response = await fetch('/api/vendor-payouts/request-otp', {
+                        const apiBase = (typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.isNativeCapacitor?.() ? 'https://newket.vercel.app/api' : '/api'));
+                        const response = await fetch(`${apiBase}/vendor-payouts/request-otp`, {
                             method: 'POST',
                             headers: { 
                                 'Authorization': `Bearer ${token}`,
@@ -6640,7 +6645,8 @@
                         const token = session?.session?.access_token;
                         if (!token) throw new Error("Non connecté");
 
-                        const response = await fetch(`/api/vendor-payouts/methods/${currentMethodToDelete}`, {
+                        const apiBase = (typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.isNativeCapacitor?.() ? 'https://newket.vercel.app/api' : '/api'));
+                        const response = await fetch(`${apiBase}/vendor-payouts/methods/${currentMethodToDelete}`, {
                             method: 'DELETE',
                             headers: { 
                                 'Authorization': `Bearer ${token}`,

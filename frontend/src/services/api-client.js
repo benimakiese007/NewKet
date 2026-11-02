@@ -438,4 +438,5 @@ if (typeof window !== 'undefined') {
     window.isNativeCapacitor = isNativeCapacitor;
 }
 
+window.getApiBaseUrl = getApiBaseUrl;
 window.ApiClient = ApiClient;

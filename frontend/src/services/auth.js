@@ -318,7 +318,8 @@ const AuthManager = {
                         const sessionData = await window.supabaseClient?.auth?.getSession();
                         const token = sessionData?.data?.session?.access_token;
                         if (token) {
-                            const sessionRes = await fetch('/api/users/session', {
+                            const apiBase = (typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.isNativeCapacitor?.() ? 'https://newket.vercel.app/api' : '/api'));
+                            const sessionRes = await fetch(`${apiBase}/users/session`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
