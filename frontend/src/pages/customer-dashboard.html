@@ -2182,8 +2182,16 @@
             });
         }
 
+        function getPublicBaseUrl() {
+            const isCap = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
+            if (isCap || !window.location.origin || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')) {
+                return 'https://newket.vercel.app';
+            }
+            return window.location.origin;
+        }
+
         function getReferralLoginLink(code) {
-            return `${window.location.origin}/signup/${code}`;
+            return `${getPublicBaseUrl()}/signup/${encodeURIComponent(code)}`;
         }
 
         function formatNkTokenUsd(amount) {

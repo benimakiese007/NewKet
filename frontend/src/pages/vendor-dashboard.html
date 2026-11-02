@@ -7783,8 +7783,16 @@
                         });
                     }
 
+                    const getPublicBaseUrl = () => {
+                        const isCap = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
+                        if (isCap || !window.location.origin || window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')) {
+                            return 'https://newket.vercel.app';
+                        }
+                        return window.location.origin;
+                    };
+
                     const getVendorReferralLink = (code) => {
-                        return `${window.location.origin}/signup/${code}`;
+                        return `${getPublicBaseUrl()}/signup/${encodeURIComponent(code)}`;
                     };
 
                     const loadVendorReferralPanel = async (retryCount = 0) => {
@@ -7808,7 +7816,7 @@
 
                             const code = String(data.referral_code || '').trim();
                             const link = code
-                                ? (data.referral_link ? `${window.location.origin}${data.referral_link}` : getVendorReferralLink(code))
+                                ? (data.referral_link ? `${getPublicBaseUrl()}${data.referral_link}` : getVendorReferralLink(code))
                                 : '';
                             codeInput.value = code;
                             linkInput.value = link;
