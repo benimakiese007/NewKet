@@ -38,10 +38,25 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
     }
 
     @objc private func handleEdgePan(_ gesture: UIScreenEdgePanGestureRecognizer) {
-        // Les boutons Liquid Glass sont gérés exclusivement par le JavaScript de chaque page
-        // via showClose() / hideButtons(). Le gesture recognizer ne touche jamais aux boutons :
-        // - Feinte → Page X reste → boutons de X jamais cachés → zéro flash ✅
-        // - Vraie navigation → Page Y se charge → JS de Y met à jour les boutons ✅
+        guard let view = self.view else { return }
+        switch gesture.state {
+        case .began:
+            headerButtonsPlugin?.beginInteractiveSwipe()
+        case .changed:
+            let translationX = max(0, gesture.translation(in: view).x)
+            let progress = min(1.0, translationX / max(1.0, view.bounds.width))
+            headerButtonsPlugin?.updateInteractiveSwipe(progress: progress)
+        case .ended:
+            let translationX = max(0, gesture.translation(in: view).x)
+            let velocityX = gesture.velocity(in: view).x
+            // Décision basée sur les règles Apple HIG : vélocité positive vive OU distance > 35% de l'écran
+            let isCommitted = velocityX > 300 || (velocityX > -200 && translationX > view.bounds.width * 0.35)
+            headerButtonsPlugin?.endInteractiveSwipe(committed: isCommitted)
+        case .cancelled, .failed:
+            headerButtonsPlugin?.endInteractiveSwipe(committed: false)
+        default:
+            break
+        }
     }
 
     override open func capacitorDidLoad() {
