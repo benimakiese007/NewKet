@@ -25,86 +25,39 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "hideClose", returnType: CAPPluginReturnPromise),
     ]
 
-    public struct HeaderButtonConfig {
-        public let showLeft: Bool
-        public let showRight: Bool
-        public let leftIcon: String
-        public let rightIcon: String
-    }
-
     private var overlayView: UIView?
     private var closeOverlayView: UIView?
-    private var currentConfig: HeaderButtonConfig?
-    private var pendingConfig: HeaderButtonConfig?
-    private var isSwipeInProgress: Bool = false
 
-    // MARK: - Interactive Transition Lifecycle (Swipe-to-Back Apple Music / WhatsApp)
+    // MARK: - show
 
-    public func beginInteractiveSwipe() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.isSwipeInProgress = true
-            self.pendingConfig = nil
-        }
-    }
-
-    public func updateInteractiveSwipe(progress: CGFloat) {
-        // Les boutons restent fermement fixés à l'écran (position stable x=0, y=0)
-    }
-
-    public func endInteractiveSwipe(committed: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            self.isSwipeInProgress = false
-            if committed {
-                // Transition validée à 100% : passage de relais avec morphing vers les boutons de Z
-                if let target = self.pendingConfig {
-                    self.applyConfig(target, animated: true)
-                    self.pendingConfig = nil
-                }
-            } else {
-                // Transition annulée (doigt relâché avant confirmation) :
-                // La demande de Z est immédiatement purgée, l'écran Y reste l'unique maître
-                self.pendingConfig = nil
-            }
-        }
-    }
-
-    // MARK: - applyConfig (Morphing & Elastic Spring)
-
-    private func applyConfig(_ config: HeaderButtonConfig, animated: Bool) {
-        guard #available(iOS 16.0, *) else { return }
-        guard let vc = self.bridge?.viewController,
-              let root = vc.view else { return }
-
-        self.currentConfig = config
-
-        if !config.showLeft && !config.showRight {
-            if let overlay = self.overlayView {
-                if animated {
-                    UIView.animate(withDuration: 0.20, delay: 0, options: [.beginFromCurrentState]) {
-                        overlay.alpha = 0
-                    } completion: { _ in
-                        overlay.removeFromSuperview()
-                        if self.overlayView === overlay {
-                            self.overlayView = nil
-                        }
-                    }
-                } else {
-                    overlay.removeFromSuperview()
-                    self.overlayView = nil
-                }
-            }
+    @objc func show(_ call: CAPPluginCall) {
+        guard #available(iOS 16.0, *) else {
+            call.resolve(["shown": false])
             return
         }
 
-        if let existing = self.overlayView as? NativeHeaderButtonsView {
-            existing.update(showLeft: config.showLeft, showRight: config.showRight, leftIcon: config.leftIcon, rightIcon: config.rightIcon, animated: animated)
-        } else {
+        let showLeft  = call.getBool("showLeft")  ?? true
+        let showRight = call.getBool("showRight") ?? true
+        let leftIcon  = call.getString("leftIcon")  ?? "line.3.horizontal"
+        let rightIcon = call.getString("rightIcon") ?? "magnifyingglass"
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self,
+                  let vc   = self.bridge?.viewController,
+                  let root = vc.view else {
+                call.reject("NativeHeaderButtonsPlugin: rootView not found")
+                return
+            }
+
             self.overlayView?.removeFromSuperview()
             self.overlayView = nil
 
-            let overlay = NativeHeaderButtonsView(showLeft: config.showLeft, showRight: config.showRight, leftIcon: config.leftIcon, rightIcon: config.rightIcon)
+            if !showLeft && !showRight {
+                call.resolve(["shown": false])
+                return
+            }
+
+            let overlay = NativeHeaderButtonsView(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
             overlay.translatesAutoresizingMaskIntoConstraints = false
 
             overlay.onLeftTap = { [weak self] in
@@ -126,44 +79,12 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 overlay.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             ])
 
-            if animated {
-                overlay.alpha = 0
-                overlay.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
-                UIView.animate(withDuration: 0.24, delay: 0.02, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction, .beginFromCurrentState]) {
-                    overlay.alpha = 1.0
-                    overlay.transform = .identity
-                }
-            } else {
+            overlay.alpha = 0
+            UIView.animate(withDuration: 0.22, delay: 0.04, options: [.allowUserInteraction, .beginFromCurrentState]) {
                 overlay.alpha = 1.0
             }
 
             self.overlayView = overlay
-        }
-    }
-
-    // MARK: - show
-
-    @objc func show(_ call: CAPPluginCall) {
-        guard #available(iOS 16.0, *) else {
-            call.resolve(["shown": false])
-            return
-        }
-
-        let showLeft  = call.getBool("showLeft")  ?? true
-        let showRight = call.getBool("showRight") ?? true
-        let leftIcon  = call.getString("leftIcon")  ?? "line.3.horizontal"
-        let rightIcon = call.getString("rightIcon") ?? "magnifyingglass"
-        let config = HeaderButtonConfig(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
-
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            if self.isSwipeInProgress {
-                // Swipe en cours : mise en file d'attente silencieuse (Z ne s'affiche pas encore)
-                self.pendingConfig = config
-                call.resolve(["shown": true, "pending": true])
-                return
-            }
-            self.applyConfig(config, animated: true)
             call.resolve(["shown": true])
         }
     }
@@ -187,14 +108,8 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func hide(_ call: CAPPluginCall) {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            let config = HeaderButtonConfig(showLeft: false, showRight: false, leftIcon: "", rightIcon: "")
-            if self.isSwipeInProgress {
-                self.pendingConfig = config
-                call.resolve(["hidden": true, "pending": true])
-                return
-            }
-            self.applyConfig(config, animated: true)
+            self?.overlayView?.removeFromSuperview()
+            self?.overlayView = nil
             call.resolve(["hidden": true])
         }
     }
@@ -212,22 +127,9 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         let rightIcon = call.getString("rightIcon")
 
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            let base = self.pendingConfig ?? self.currentConfig ?? HeaderButtonConfig(showLeft: true, showRight: true, leftIcon: "line.3.horizontal", rightIcon: "magnifyingglass")
-            let updated = HeaderButtonConfig(
-                showLeft: showLeft ?? base.showLeft,
-                showRight: showRight ?? base.showRight,
-                leftIcon: leftIcon ?? base.leftIcon,
-                rightIcon: rightIcon ?? base.rightIcon
-            )
-
-            if self.isSwipeInProgress {
-                self.pendingConfig = updated
-                call.resolve()
-                return
+            if let overlay = self?.overlayView as? NativeHeaderButtonsView {
+                overlay.update(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
             }
-
-            self.applyConfig(updated, animated: true)
             call.resolve()
         }
     }
@@ -408,7 +310,7 @@ class GlassCircleButton: UIView {
             tintLayer.bottomAnchor.constraint(equalTo: glassEffectView.contentView.bottomAnchor),
         ])
 
-        // Inner plain button — touches handled on container for fluid physics
+        // Inner plain button ÔÇö touches handled on container for fluid physics
         updateSymbol(sfSymbol)
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -503,37 +405,23 @@ class GlassCircleButton: UIView {
         }
     }
 
-    func updateSymbol(_ sfSymbol: String, animated: Bool = true) {
+    func updateSymbol(_ sfSymbol: String) {
         let ptSize: CGFloat = buttonSize < 44 ? 17 : 20
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: ptSize, weight: .semibold)
         let image = UIImage(systemName: sfSymbol, withConfiguration: symbolConfig)
 
+        var config = UIButton.Configuration.plain()
+        config.image = image
+        config.contentInsets = .zero
+
         let isDestructive = sfSymbol.contains("arrow.right") || sfSymbol.contains("trash")
-        let targetColor: UIColor = isDestructive ? UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0) : .white
-
-        let applyChanges = {
-            var config = UIButton.Configuration.plain()
-            config.image = image
-            config.contentInsets = .zero
-            config.baseForegroundColor = targetColor
-            self.button.configuration = config
-            self.button.tintColor = targetColor
-            self.updateStyling(isDestructive: isDestructive)
-        }
-
-        if animated {
-            // Morphing natif Apple des SF Symbols
-            UIView.transition(with: self.button, duration: 0.22, options: [.transitionCrossDissolve, .allowUserInteraction]) {
-                applyChanges()
-            }
-        } else {
-            applyChanges()
-        }
-    }
-
-    private func updateStyling(isDestructive: Bool) {
         if isDestructive {
             // Vrai rouge NewKet (#ff0a0a: 255, 10, 10)
+            let trueRed = UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0)
+            config.baseForegroundColor = trueRed
+            button.configuration = config
+            button.tintColor = trueRed
+
             tintLayer.backgroundColor = UIColor { trait in
                 trait.userInterfaceStyle == .dark
                     ? UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 0.25)
@@ -544,6 +432,10 @@ class GlassCircleButton: UIView {
             layer.shadowRadius  = 7
             layer.shadowOffset  = CGSize(width: 0, height: 2)
         } else {
+            config.baseForegroundColor = .white
+            button.configuration = config
+            button.tintColor = .white
+
             tintLayer.backgroundColor = UIColor { trait in
                 trait.userInterfaceStyle == .dark
                     ? UIColor.white.withAlphaComponent(0.12)
@@ -646,70 +538,20 @@ class NativeHeaderButtonsView: UIView {
         ])
     }
 
-    func update(showLeft: Bool?, showRight: Bool?, leftIcon: String? = nil, rightIcon: String? = nil, animated: Bool = true) {
+    func update(showLeft: Bool?, showRight: Bool?, leftIcon: String? = nil, rightIcon: String? = nil) {
+        if let showLeft, leftCircle.isHidden != !showLeft {
+            leftCircle.isHidden = !showLeft
+        }
+        if let showRight, rightCircle.isHidden != !showRight {
+            rightCircle.isHidden = !showRight
+        }
         if let icon = leftIcon, icon != leftIconName {
             leftIconName = icon
-            leftCircle.updateSymbol(icon, animated: animated)
+            leftCircle.updateSymbol(icon)
         }
         if let icon = rightIcon, icon != rightIconName {
             rightIconName = icon
-            rightCircle.updateSymbol(icon, animated: animated)
-        }
-
-        if let showLeft {
-            let shouldHide = !showLeft
-            if leftCircle.isHidden != shouldHide {
-                if animated {
-                    if shouldHide {
-                        UIView.animate(withDuration: 0.18, delay: 0, options: [.beginFromCurrentState]) {
-                            self.leftCircle.alpha = 0
-                            self.leftCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
-                        } completion: { _ in
-                            self.leftCircle.isHidden = true
-                            self.leftCircle.transform = .identity
-                        }
-                    } else {
-                        self.leftCircle.alpha = 0
-                        self.leftCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
-                        self.leftCircle.isHidden = false
-                        UIView.animate(withDuration: 0.24, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction]) {
-                            self.leftCircle.alpha = 1.0
-                            self.leftCircle.transform = .identity
-                        }
-                    }
-                } else {
-                    self.leftCircle.isHidden = shouldHide
-                    self.leftCircle.alpha = shouldHide ? 0 : 1.0
-                }
-            }
-        }
-
-        if let showRight {
-            let shouldHide = !showRight
-            if rightCircle.isHidden != shouldHide {
-                if animated {
-                    if shouldHide {
-                        UIView.animate(withDuration: 0.18, delay: 0, options: [.beginFromCurrentState]) {
-                            self.rightCircle.alpha = 0
-                            self.rightCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
-                        } completion: { _ in
-                            self.rightCircle.isHidden = true
-                            self.rightCircle.transform = .identity
-                        }
-                    } else {
-                        self.rightCircle.alpha = 0
-                        self.rightCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
-                        self.rightCircle.isHidden = false
-                        UIView.animate(withDuration: 0.24, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction]) {
-                            self.rightCircle.alpha = 1.0
-                            self.rightCircle.transform = .identity
-                        }
-                    }
-                } else {
-                    self.rightCircle.isHidden = shouldHide
-                    self.rightCircle.alpha = shouldHide ? 0 : 1.0
-                }
-            }
+            rightCircle.updateSymbol(icon)
         }
     }
 

@@ -15,7 +15,7 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
         // Swipe-to-back gesture natif iOS
         webView?.allowsBackForwardNavigationGestures = true
 
-        // Edge-to-edge : la WebView s'étend full-screen, safe-area gérée en CSS.
+        // Edge-to-edge : la WebView s'├®tend full-screen, safe-area g├®r├®e en CSS.
         // Le TabView SwiftUI natif s'occupe de l'inset du bas.
         if let webView = webView {
             webView.scrollView.contentInsetAdjustmentBehavior = .never
@@ -33,30 +33,15 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
     }
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // Autorise la reconnaissance simultanée pour ne jamais bloquer le swipe natif de WebKit
+        // Autorise la reconnaissance simultan├®e pour ne jamais bloquer le swipe natif de WebKit
         return true
     }
 
     @objc private func handleEdgePan(_ gesture: UIScreenEdgePanGestureRecognizer) {
-        guard let view = self.view else { return }
-        switch gesture.state {
-        case .began:
-            headerButtonsPlugin?.beginInteractiveSwipe()
-        case .changed:
-            let translationX = max(0, gesture.translation(in: view).x)
-            let progress = min(1.0, translationX / max(1.0, view.bounds.width))
-            headerButtonsPlugin?.updateInteractiveSwipe(progress: progress)
-        case .ended:
-            let translationX = max(0, gesture.translation(in: view).x)
-            let velocityX = gesture.velocity(in: view).x
-            // Décision basée sur les règles Apple HIG : vélocité positive vive OU distance > 35% de l'écran
-            let isCommitted = velocityX > 300 || (velocityX > -200 && translationX > view.bounds.width * 0.35)
-            headerButtonsPlugin?.endInteractiveSwipe(committed: isCommitted)
-        case .cancelled, .failed:
-            headerButtonsPlugin?.endInteractiveSwipe(committed: false)
-        default:
-            break
-        }
+        // Les boutons Liquid Glass sont g├®r├®s exclusivement par le JavaScript de chaque page
+        // via showClose() / hideButtons(). Le gesture recognizer ne touche jamais aux boutons :
+        // - Feinte ÔåÆ Page X reste ÔåÆ boutons de X jamais cach├®s ÔåÆ z├®ro flash Ô£à
+        // - Vraie navigation ÔåÆ Page Y se charge ÔåÆ JS de Y met ├á jour les boutons Ô£à
     }
 
     override open func capacitorDidLoad() {
@@ -91,9 +76,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
 
-        // ── Native SwiftUI TabView (Liquid Glass automatique sur iOS 26) ──────
-        // Le même BridgeViewController est partagé entre tous les onglets.
-        // Le TabView SwiftUI navigue la WebView en temps réel (window.location.href).
+        // ÔöÇÔöÇ Native SwiftUI TabView (Liquid Glass automatique sur iOS 26) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+        // Le m├¬me BridgeViewController est partag├® entre tous les onglets.
+        // Le TabView SwiftUI navigue la WebView en temps r├®el (window.location.href).
         let bridgeVC = NewKetBridgeViewController()
         let coordinator = NativeTabCoordinator(bridgeVC: bridgeVC)
         bridgeVC.nativeTabCoordinator = coordinator
