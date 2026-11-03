@@ -73,6 +73,7 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - applyConfig (Morphing & Elastic Spring)
 
     private func applyConfig(_ config: HeaderButtonConfig, animated: Bool) {
+        guard #available(iOS 16.0, *) else { return }
         guard let vc = self.bridge?.viewController,
               let root = vc.view else { return }
 
