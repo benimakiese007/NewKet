@@ -25,39 +25,94 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "hideClose", returnType: CAPPluginReturnPromise),
     ]
 
+    public struct HeaderButtonConfig: Equatable {
+        public let showLeft: Bool
+        public let showRight: Bool
+        public let leftIcon: String
+        public let rightIcon: String
+
+        public static func == (lhs: HeaderButtonConfig, rhs: HeaderButtonConfig) -> Bool {
+            return lhs.showLeft == rhs.showLeft &&
+                   lhs.showRight == rhs.showRight &&
+                   lhs.leftIcon == rhs.leftIcon &&
+                   lhs.rightIcon == rhs.rightIcon
+        }
+    }
+
     private var overlayView: UIView?
     private var closeOverlayView: UIView?
+    private var currentConfig: HeaderButtonConfig?
+    private var pendingConfig: HeaderButtonConfig?
+    private var isSwipeInProgress: Bool = false
 
-    // MARK: - show
+    // MARK: - Interactive Transition Lifecycle (Swipe-to-Back Apple Music / WhatsApp)
 
-    @objc func show(_ call: CAPPluginCall) {
-        guard #available(iOS 16.0, *) else {
-            call.resolve(["shown": false])
+    public func beginInteractiveSwipe() {
+        assert(Thread.isMainThread, "Must be called synchronously on main thread")
+        self.isSwipeInProgress = true
+        self.pendingConfig = nil
+    }
+
+    public func updateInteractiveSwipe(progress: CGFloat) {
+        // Les boutons restent fermement fixés à l'écran (position stable x=0, y=0)
+    }
+
+    public func endInteractiveSwipe(committed: Bool) {
+        assert(Thread.isMainThread, "Must be called on main thread")
+        self.isSwipeInProgress = false
+        if committed {
+            // Transition validée à 100% : passage de relais avec morphing vers les boutons de Z
+            if let target = self.pendingConfig {
+                self.pendingConfig = nil
+                self.applyConfig(target, animated: true)
+            }
+        } else {
+            // Transition annulée (feinte) :
+            // La demande de Z est immédiatement purgée, l'écran Y reste l'unique maître
+            self.pendingConfig = nil
+        }
+    }
+
+    // MARK: - applyConfig (Morphing & Elastic Spring)
+
+    @available(iOS 16.0, *)
+    private func applyConfig(_ config: HeaderButtonConfig, animated: Bool) {
+        guard let vc = self.bridge?.viewController,
+              let root = vc.view else { return }
+
+        if let current = self.currentConfig, current == config, self.overlayView != nil {
             return
         }
 
-        let showLeft  = call.getBool("showLeft")  ?? true
-        let showRight = call.getBool("showRight") ?? true
-        let leftIcon  = call.getString("leftIcon")  ?? "line.3.horizontal"
-        let rightIcon = call.getString("rightIcon") ?? "magnifyingglass"
+        self.currentConfig = config
 
-        DispatchQueue.main.async { [weak self] in
-            guard let self,
-                  let vc   = self.bridge?.viewController,
-                  let root = vc.view else {
-                call.reject("NativeHeaderButtonsPlugin: rootView not found")
-                return
+        if !config.showLeft && !config.showRight {
+            if let overlay = self.overlayView {
+                if animated {
+                    UIView.animate(withDuration: 0.20, delay: 0, options: [.beginFromCurrentState]) {
+                        overlay.alpha = 0
+                    } completion: { _ in
+                        overlay.removeFromSuperview()
+                        if self.overlayView === overlay {
+                            self.overlayView = nil
+                        }
+                    }
+                } else {
+                    overlay.removeFromSuperview()
+                    self.overlayView = nil
+                }
             }
+            return
+        }
 
+        if let existing = self.overlayView as? NativeHeaderButtonsView {
+            existing.alpha = 1.0
+            existing.update(showLeft: config.showLeft, showRight: config.showRight, leftIcon: config.leftIcon, rightIcon: config.rightIcon, animated: animated)
+        } else {
             self.overlayView?.removeFromSuperview()
             self.overlayView = nil
 
-            if !showLeft && !showRight {
-                call.resolve(["shown": false])
-                return
-            }
-
-            let overlay = NativeHeaderButtonsView(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
+            let overlay = NativeHeaderButtonsView(showLeft: config.showLeft, showRight: config.showRight, leftIcon: config.leftIcon, rightIcon: config.rightIcon)
             overlay.translatesAutoresizingMaskIntoConstraints = false
 
             overlay.onLeftTap = { [weak self] in
@@ -79,12 +134,44 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
                 overlay.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             ])
 
-            overlay.alpha = 0
-            UIView.animate(withDuration: 0.22, delay: 0.04, options: [.allowUserInteraction, .beginFromCurrentState]) {
+            if animated {
+                overlay.alpha = 0
+                overlay.transform = CGAffineTransform(scaleX: 0.94, y: 0.94)
+                UIView.animate(withDuration: 0.24, delay: 0.02, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction, .beginFromCurrentState]) {
+                    overlay.alpha = 1.0
+                    overlay.transform = .identity
+                }
+            } else {
                 overlay.alpha = 1.0
             }
 
             self.overlayView = overlay
+        }
+    }
+
+    // MARK: - show
+
+    @objc func show(_ call: CAPPluginCall) {
+        guard #available(iOS 16.0, *) else {
+            call.resolve(["shown": false])
+            return
+        }
+
+        let showLeft  = call.getBool("showLeft")  ?? true
+        let showRight = call.getBool("showRight") ?? true
+        let leftIcon  = call.getString("leftIcon")  ?? "line.3.horizontal"
+        let rightIcon = call.getString("rightIcon") ?? "magnifyingglass"
+        let config = HeaderButtonConfig(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.isSwipeInProgress {
+                // Swipe en cours : mise en file d'attente silencieuse (Z ne s'affiche pas encore)
+                self.pendingConfig = config
+                call.resolve(["shown": true, "pending": true])
+                return
+            }
+            self.applyConfig(config, animated: true)
             call.resolve(["shown": true])
         }
     }
@@ -107,9 +194,20 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - hide
 
     @objc func hide(_ call: CAPPluginCall) {
+        guard #available(iOS 16.0, *) else {
+            call.resolve(["hidden": false])
+            return
+        }
+
         DispatchQueue.main.async { [weak self] in
-            self?.overlayView?.removeFromSuperview()
-            self?.overlayView = nil
+            guard let self = self else { return }
+            if self.isSwipeInProgress {
+                // Si un swipe est en cours, ne JAMAIS cacher les boutons de l'écran visible (Y)
+                call.resolve(["hidden": true, "ignoredDuringSwipe": true])
+                return
+            }
+            let config = HeaderButtonConfig(showLeft: false, showRight: false, leftIcon: "", rightIcon: "")
+            self.applyConfig(config, animated: true)
             call.resolve(["hidden": true])
         }
     }
@@ -127,9 +225,22 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
         let rightIcon = call.getString("rightIcon")
 
         DispatchQueue.main.async { [weak self] in
-            if let overlay = self?.overlayView as? NativeHeaderButtonsView {
-                overlay.update(showLeft: showLeft, showRight: showRight, leftIcon: leftIcon, rightIcon: rightIcon)
+            guard let self = self else { return }
+            let base = self.pendingConfig ?? self.currentConfig ?? HeaderButtonConfig(showLeft: true, showRight: true, leftIcon: "line.3.horizontal", rightIcon: "magnifyingglass")
+            let updated = HeaderButtonConfig(
+                showLeft: showLeft ?? base.showLeft,
+                showRight: showRight ?? base.showRight,
+                leftIcon: leftIcon ?? base.leftIcon,
+                rightIcon: rightIcon ?? base.rightIcon
+            )
+
+            if self.isSwipeInProgress {
+                self.pendingConfig = updated
+                call.resolve()
+                return
             }
+
+            self.applyConfig(updated, animated: true)
             call.resolve()
         }
     }
@@ -277,13 +388,11 @@ class GlassCircleButton: UIView {
 
         super.init(frame: .zero)
 
-        // Outer shadow for 3D depth elevation
         layer.shadowColor   = UIColor.black.cgColor
         layer.shadowOpacity = 0.22
         layer.shadowRadius  = 5
         layer.shadowOffset  = CGSize(width: 0, height: 2)
 
-        // Perfect circular glass sphere: cornerRadius = size / 2
         glassEffectView.layer.cornerRadius = size / 2
         glassEffectView.layer.cornerCurve  = .circular
         glassEffectView.clipsToBounds      = true
@@ -297,7 +406,6 @@ class GlassCircleButton: UIView {
             glassEffectView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
 
-        // Translucent tint layer inside contentView for crisp contrast
         tintLayer.backgroundColor = UIColor.clear
         tintLayer.isUserInteractionEnabled = false
         tintLayer.translatesAutoresizingMaskIntoConstraints = false
@@ -310,8 +418,7 @@ class GlassCircleButton: UIView {
             tintLayer.bottomAnchor.constraint(equalTo: glassEffectView.contentView.bottomAnchor),
         ])
 
-        // Inner plain button ÔÇö touches handled on container for fluid physics
-        updateSymbol(sfSymbol)
+        updateSymbol(sfSymbol, animated: false)
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         glassEffectView.contentView.addSubview(button)
@@ -330,7 +437,6 @@ class GlassCircleButton: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Expands touch target to at least 44x44pt as recommended by Apple HIG
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         let dx = max(0, (44 - bounds.width) / 2)
         let dy = max(0, (44 - bounds.height) / 2)
@@ -346,12 +452,10 @@ class GlassCircleButton: UIView {
         initialTouchPoint = touch.location(in: self)
         isDragging = true
 
-        // Haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.prepare()
         generator.impactOccurred()
 
-        // Pure glass compression in place (no translation)
         UIView.animate(withDuration: 0.20, delay: 0, usingSpringWithDamping: 0.70, initialSpringVelocity: 0.5, options: [.allowUserInteraction, .beginFromCurrentState]) {
             self.transform = CGAffineTransform(scaleX: 0.94, y: 0.94)
             self.alpha = 0.92
@@ -363,7 +467,6 @@ class GlassCircleButton: UIView {
         guard isDragging, let touch = touches.first else { return }
         let currentPoint = touch.location(in: self)
 
-        // Stays perfectly fixed in place: simply check if touch is still inside boundary
         let isInside = point(inside: currentPoint, with: event)
         UIView.animate(withDuration: 0.15, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
             if isInside {
@@ -382,13 +485,11 @@ class GlassCircleButton: UIView {
         guard let touch = touches.first else { return }
         let endPoint = touch.location(in: self)
 
-        // Elastic spring rebound back to resting shape
         UIView.animate(withDuration: 0.38, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0.8, options: [.allowUserInteraction, .beginFromCurrentState]) {
             self.transform = .identity
             self.alpha = 1.0
         }
 
-        // Trigger action only if touch ended inside button area
         if point(inside: endPoint, with: event) {
             let feedback = UISelectionFeedbackGenerator()
             feedback.selectionChanged()
@@ -405,23 +506,35 @@ class GlassCircleButton: UIView {
         }
     }
 
-    func updateSymbol(_ sfSymbol: String) {
+    func updateSymbol(_ sfSymbol: String, animated: Bool = true) {
         let ptSize: CGFloat = buttonSize < 44 ? 17 : 20
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: ptSize, weight: .semibold)
         let image = UIImage(systemName: sfSymbol, withConfiguration: symbolConfig)
 
-        var config = UIButton.Configuration.plain()
-        config.image = image
-        config.contentInsets = .zero
-
         let isDestructive = sfSymbol.contains("arrow.right") || sfSymbol.contains("trash")
-        if isDestructive {
-            // Vrai rouge NewKet (#ff0a0a: 255, 10, 10)
-            let trueRed = UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0)
-            config.baseForegroundColor = trueRed
-            button.configuration = config
-            button.tintColor = trueRed
+        let targetColor: UIColor = isDestructive ? UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 1.0) : .white
 
+        let applyChanges = {
+            var config = UIButton.Configuration.plain()
+            config.image = image
+            config.contentInsets = .zero
+            config.baseForegroundColor = targetColor
+            self.button.configuration = config
+            self.button.tintColor = targetColor
+            self.updateStyling(isDestructive: isDestructive)
+        }
+
+        if animated {
+            UIView.transition(with: self.button, duration: 0.22, options: [.transitionCrossDissolve, .allowUserInteraction]) {
+                applyChanges()
+            }
+        } else {
+            applyChanges()
+        }
+    }
+
+    private func updateStyling(isDestructive: Bool) {
+        if isDestructive {
             tintLayer.backgroundColor = UIColor { trait in
                 trait.userInterfaceStyle == .dark
                     ? UIColor(red: 255/255, green: 10/255, blue: 10/255, alpha: 0.25)
@@ -432,10 +545,6 @@ class GlassCircleButton: UIView {
             layer.shadowRadius  = 7
             layer.shadowOffset  = CGSize(width: 0, height: 2)
         } else {
-            config.baseForegroundColor = .white
-            button.configuration = config
-            button.tintColor = .white
-
             tintLayer.backgroundColor = UIColor { trait in
                 trait.userInterfaceStyle == .dark
                     ? UIColor.white.withAlphaComponent(0.12)
@@ -477,7 +586,6 @@ class NativeHeaderButtonsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // Pass non-button taps straight through to the WebView underneath
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let hitView = super.hitTest(point, with: event)
         if hitView === self {
@@ -508,7 +616,6 @@ class NativeHeaderButtonsView: UIView {
         h.isActive = true
         heightConstraint = h
 
-        // Wire taps via interactive fluid closure
         leftCircle.onTap = { [weak self] in
             self?.handleLeftTap()
         }
@@ -524,13 +631,11 @@ class NativeHeaderButtonsView: UIView {
         addSubview(rightCircle)
 
         NSLayoutConstraint.activate([
-            // Left circle: pinned to leading edge, 48x48pt perfect sphere
             leftCircle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             leftCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
             leftCircle.widthAnchor.constraint(equalToConstant: 48),
             leftCircle.heightAnchor.constraint(equalToConstant: 48),
 
-            // Right circle: pinned to trailing edge, 48x48pt perfect sphere
             rightCircle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             rightCircle.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
             rightCircle.widthAnchor.constraint(equalToConstant: 48),
@@ -538,20 +643,70 @@ class NativeHeaderButtonsView: UIView {
         ])
     }
 
-    func update(showLeft: Bool?, showRight: Bool?, leftIcon: String? = nil, rightIcon: String? = nil) {
-        if let showLeft, leftCircle.isHidden != !showLeft {
-            leftCircle.isHidden = !showLeft
-        }
-        if let showRight, rightCircle.isHidden != !showRight {
-            rightCircle.isHidden = !showRight
-        }
+    func update(showLeft: Bool?, showRight: Bool?, leftIcon: String? = nil, rightIcon: String? = nil, animated: Bool = true) {
         if let icon = leftIcon, icon != leftIconName {
             leftIconName = icon
-            leftCircle.updateSymbol(icon)
+            leftCircle.updateSymbol(icon, animated: animated)
         }
         if let icon = rightIcon, icon != rightIconName {
             rightIconName = icon
-            rightCircle.updateSymbol(icon)
+            rightCircle.updateSymbol(icon, animated: animated)
+        }
+
+        if let showLeft {
+            let shouldHide = !showLeft
+            if leftCircle.isHidden != shouldHide {
+                if animated {
+                    if shouldHide {
+                        UIView.animate(withDuration: 0.18, delay: 0, options: [.beginFromCurrentState]) {
+                            self.leftCircle.alpha = 0
+                            self.leftCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+                        } completion: { _ in
+                            self.leftCircle.isHidden = true
+                            self.leftCircle.transform = .identity
+                        }
+                    } else {
+                        self.leftCircle.alpha = 0
+                        self.leftCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+                        self.leftCircle.isHidden = false
+                        UIView.animate(withDuration: 0.24, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction]) {
+                            self.leftCircle.alpha = 1.0
+                            self.leftCircle.transform = .identity
+                        }
+                    }
+                } else {
+                    self.leftCircle.isHidden = shouldHide
+                    self.leftCircle.alpha = shouldHide ? 0 : 1.0
+                }
+            }
+        }
+
+        if let showRight {
+            let shouldHide = !showRight
+            if rightCircle.isHidden != shouldHide {
+                if animated {
+                    if shouldHide {
+                        UIView.animate(withDuration: 0.18, delay: 0, options: [.beginFromCurrentState]) {
+                            self.rightCircle.alpha = 0
+                            self.rightCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+                        } completion: { _ in
+                            self.rightCircle.isHidden = true
+                            self.rightCircle.transform = .identity
+                        }
+                    } else {
+                        self.rightCircle.alpha = 0
+                        self.rightCircle.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+                        self.rightCircle.isHidden = false
+                        UIView.animate(withDuration: 0.24, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: [.allowUserInteraction]) {
+                            self.rightCircle.alpha = 1.0
+                            self.rightCircle.transform = .identity
+                        }
+                    }
+                } else {
+                    self.rightCircle.isHidden = shouldHide
+                    self.rightCircle.alpha = shouldHide ? 0 : 1.0
+                }
+            }
         }
     }
 

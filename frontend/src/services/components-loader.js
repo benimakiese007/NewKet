@@ -1264,13 +1264,11 @@ const ComponentLoader = {
         };
 
 
-        // 🍏 Disparition instantanée lors d'un changement de page pour ne jamais laisser de bouton fantôme traîner
+        // 🍏 Fermer les overlays éventuels lors du déchargement (les boutons d'en-tête sont gérés par la page cible et le cycle de transition)
         window.addEventListener('beforeunload', () => {
-            plugin.hide().catch(() => {});
             plugin.hideClose?.().catch?.(() => {});
         });
         window.addEventListener('pagehide', () => {
-            plugin.hide().catch(() => {});
             plugin.hideClose?.().catch?.(() => {});
         });
 

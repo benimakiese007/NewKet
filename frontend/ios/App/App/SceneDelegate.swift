@@ -9,6 +9,7 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
     public weak var headerButtonsPlugin: NativeHeaderButtonsPlugin?
 
     private var swipeBackGesture: UIScreenEdgePanGestureRecognizer?
+    private var swipeStartURL: URL?
 
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -38,10 +39,30 @@ open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecogni
     }
 
     @objc private func handleEdgePan(_ gesture: UIScreenEdgePanGestureRecognizer) {
-        // Les boutons Liquid Glass sont g├®r├®s exclusivement par le JavaScript de chaque page
-        // via showClose() / hideButtons(). Le gesture recognizer ne touche jamais aux boutons :
-        // - Feinte ÔåÆ Page X reste ÔåÆ boutons de X jamais cach├®s ÔåÆ z├®ro flash Ô£à
-        // - Vraie navigation ÔåÆ Page Y se charge ÔåÆ JS de Y met ├á jour les boutons Ô£à
+        switch gesture.state {
+        case .began:
+            // Synchronously freeze current page's buttons and mark swipe in progress
+            self.swipeStartURL = webView?.url
+            headerButtonsPlugin?.beginInteractiveSwipe()
+
+        case .changed:
+            break
+
+        case .ended, .cancelled, .failed:
+            // WebKit animates the pop transition over 250-300ms.
+            // After animation settles, verify whether WebKit actually navigated or stayed on current page.
+            let startURL = self.swipeStartURL
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+                guard let self = self else { return }
+                let currentURL = self.webView?.url
+                let hasCommitted = (currentURL != nil && startURL != nil && currentURL != startURL)
+                self.headerButtonsPlugin?.endInteractiveSwipe(committed: hasCommitted)
+                self.swipeStartURL = nil
+            }
+
+        default:
+            break
+        }
     }
 
     override open func capacitorDidLoad() {
