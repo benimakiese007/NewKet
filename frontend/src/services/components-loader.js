@@ -1170,6 +1170,23 @@ const ComponentLoader = {
         // opens or closes. Since our native overlay sits on top of WKWebView,
         // it must be hidden while any web panel is visible.
         // ------------------------------------------------------------------
+        const isAnyWebModalOpen = () => {
+            const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
+            if (zoom && (!zoom.classList.contains('hidden') && !zoom.classList.contains('invisible') && !zoom.classList.contains('opacity-0') && zoom.style.display !== 'none' && zoom.style.visibility !== 'hidden')) return true;
+            const modal = Array.from(document.querySelectorAll('.nk-modal-overlay, #nk-announcement-modal, .modal, [data-modal], #orderModal, #orderDetailModal, #disputeModal, #confirmModal, #orderSuccessOverlay, #paymentSuccessOverlay')).find(el => {
+                if (!el) return false;
+                if (el.classList.contains('hidden') || el.classList.contains('invisible') || el.classList.contains('opacity-0')) return false;
+                if (el.style.display === 'none' || el.style.visibility === 'hidden' || el.style.opacity === '0') return false;
+                if (el.getAttribute('aria-hidden') === 'true') return false;
+                try {
+                    const st = window.getComputedStyle(el);
+                    if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+                } catch (_) {}
+                return (el.offsetWidth > 0 || el.offsetHeight > 0);
+            });
+            return !!modal;
+        };
+
         const isAnyWebOverlayOpen = () => {
             if (window.SidebarManager?.state?.isDrawerOpen) return true;
             const menu = document.getElementById('mobileMenu');
@@ -1188,20 +1205,7 @@ const ComponentLoader = {
             if (customerSb && customerSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
             const searchContainer = document.getElementById('mobileSearchContainer');
             if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
-            const zoom = document.getElementById('zoomModal') || document.getElementById('imageZoomModal');
-            if (zoom && (!zoom.classList.contains('hidden') && !zoom.classList.contains('invisible') && !zoom.classList.contains('opacity-0') && zoom.style.display !== 'none' && zoom.style.visibility !== 'hidden')) return true;
-            const modal = Array.from(document.querySelectorAll('.nk-modal-overlay, #nk-announcement-modal, .modal, [data-modal], #orderModal, #orderDetailModal, #disputeModal, #confirmModal, #orderSuccessOverlay, #paymentSuccessOverlay')).find(el => {
-                if (!el) return false;
-                if (el.classList.contains('hidden') || el.classList.contains('invisible') || el.classList.contains('opacity-0')) return false;
-                if (el.style.display === 'none' || el.style.visibility === 'hidden' || el.style.opacity === '0') return false;
-                if (el.getAttribute('aria-hidden') === 'true') return false;
-                try {
-                    const st = window.getComputedStyle(el);
-                    if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
-                } catch (_) {}
-                return (el.offsetWidth > 0 || el.offsetHeight > 0);
-            });
-            if (modal) return true;
+            if (isAnyWebModalOpen()) return true;
             return false;
         };
 
@@ -1222,9 +1226,12 @@ const ComponentLoader = {
         };
 
         const _hideButtons = () => {
+            const isModal = isAnyWebModalOpen();
             const isSuccessOverlay = document.getElementById('orderSuccessOverlay') || document.getElementById('paymentSuccessOverlay');
-            if (isSuccessOverlay) {
+            // 🍏 Les modales web disposent de leur propre croix interne (Xmark in-modal) : jamais de X natif parasite dans l'en-tête
+            if (isModal || isSuccessOverlay) {
                 _isOverlayActive = true;
+                _lastCloseConfigKey = 'modal_no_native_close';
                 plugin.update({ showLeft: false, showRight: false }).catch(() => {});
                 plugin.hideClose?.().catch?.(() => {});
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});

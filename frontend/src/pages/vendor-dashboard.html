@@ -1149,10 +1149,10 @@
                             <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest" id="vModalOrderDate"></p>
                         </div>
-                        <button onclick="closeOrderDetailModal()"
-                            class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                        <button type="button" onclick="closeOrderDetailModal()" data-action="close-order-modal" data-modal-close
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors shadow-sm"
                             aria-label="Fermer les détails de la commande">
-                            <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                            <iconify-icon icon="solar:close-circle-bold" width="24" class="text-gray-700"></iconify-icon>
                         </button>
                     </div>
 
@@ -9287,8 +9287,8 @@ async function openOrderModal(id) {
                     <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
-                <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
-                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" data-modal-close class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors shadow-sm" aria-label="Fermer la commande">
+                    <iconify-icon icon="solar:close-circle-bold" width="24" class="text-gray-700"></iconify-icon>
                 </button>
             </div>
 
