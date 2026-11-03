@@ -4,66 +4,89 @@ import Capacitor
 import WidgetKit
 import WebKit
 
-open class NewKetBridgeViewController: CAPBridgeViewController, UIGestureRecognizerDelegate {
+open class NewKetBridgeViewController: CAPBridgeViewController, WKNavigationDelegate {
     public weak var nativeTabCoordinator: NativeTabCoordinator?
     public weak var headerButtonsPlugin: NativeHeaderButtonsPlugin?
 
-    private var swipeBackGesture: UIScreenEdgePanGestureRecognizer?
-    private var swipeStartURL: URL?
+    // We chain the original Capacitor navigation delegate so its logic still runs
+    private weak var capacitorNavigationDelegate: WKNavigationDelegate?
+    // Whether we intercepted a back-forward navigation (swipe-back)
+    private var swipeNavigationInProgress: Bool = false
 
     override open func viewDidLoad() {
         super.viewDidLoad()
         // Swipe-to-back gesture natif iOS
         webView?.allowsBackForwardNavigationGestures = true
 
-        // Edge-to-edge : la WebView s'├®tend full-screen, safe-area g├®r├®e en CSS.
+        // Edge-to-edge : la WebView s'etend full-screen, safe-area geree en CSS.
         // Le TabView SwiftUI natif s'occupe de l'inset du bas.
         if let webView = webView {
             webView.scrollView.contentInsetAdjustmentBehavior = .never
-            setupSwipeBackObserver(for: webView)
+            // Chain navigation delegate: save Capacitor's delegate, then take over
+            self.capacitorNavigationDelegate = webView.navigationDelegate
+            webView.navigationDelegate = self
         }
     }
 
-    private func setupSwipeBackObserver(for webView: WKWebView) {
-        let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleEdgePan(_:)))
-        edgePan.edges = .left
-        edgePan.delegate = self
-        edgePan.cancelsTouchesInView = false
-        webView.addGestureRecognizer(edgePan)
-        self.swipeBackGesture = edgePan
+    // MARK: - WKNavigationDelegate (swipe-back interception)
+
+    // Called BEFORE any JS runs on the destination page — perfect timing to freeze Y's buttons
+    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        // swipeNavigationInProgress is set in decidePolicyFor when navigationType == .backForward
+        capacitorNavigationDelegate?.webView?(webView, didStartProvisionalNavigation: navigation)
     }
 
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        // Autorise la reconnaissance simultan├®e pour ne jamais bloquer le swipe natif de WebKit
-        return true
+    public func webView(_ webView: WKWebView, didCommitNavigation navigation: WKNavigation!) {
+        capacitorNavigationDelegate?.webView?(webView, didCommitNavigation: navigation)
     }
 
-    @objc private func handleEdgePan(_ gesture: UIScreenEdgePanGestureRecognizer) {
-        switch gesture.state {
-        case .began:
-            // Synchronously freeze current page's buttons and mark swipe in progress
-            self.swipeStartURL = webView?.url
+    public func webView(_ webView: WKWebView, didFinishNavigation navigation: WKNavigation!) {
+        if swipeNavigationInProgress {
+            swipeNavigationInProgress = false
+            headerButtonsPlugin?.endInteractiveSwipe(committed: true)
+        }
+        capacitorNavigationDelegate?.webView?(webView, didFinishNavigation: navigation)
+    }
+
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        if swipeNavigationInProgress {
+            swipeNavigationInProgress = false
+            headerButtonsPlugin?.endInteractiveSwipe(committed: false)
+        }
+        capacitorNavigationDelegate?.webView?(webView, didFail: navigation, withError: error)
+    }
+
+    public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        if swipeNavigationInProgress {
+            swipeNavigationInProgress = false
+            headerButtonsPlugin?.endInteractiveSwipe(committed: false)
+        }
+        capacitorNavigationDelegate?.webView?(webView, didFailProvisionalNavigation: navigation, withError: error)
+    }
+
+    // Forward decidePolicyFor and detect back-forward navigation (swipe-back) BEFORE JS runs on destination
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        // .backForward = user swiped back (or forward) — intercept IMMEDIATELY before Z's pageshow fires
+        if navigationAction.navigationType == .backForward && !swipeNavigationInProgress {
+            swipeNavigationInProgress = true
             headerButtonsPlugin?.beginInteractiveSwipe()
-
-        case .changed:
-            break
-
-        case .ended, .cancelled, .failed:
-            // WebKit animates the pop transition over 250-300ms.
-            // After animation settles, verify whether WebKit actually navigated or stayed on current page.
-            let startURL = self.swipeStartURL
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
-                guard let self = self else { return }
-                let currentURL = self.webView?.url
-                let hasCommitted = (currentURL != nil && startURL != nil && currentURL != startURL)
-                self.headerButtonsPlugin?.endInteractiveSwipe(committed: hasCommitted)
-                self.swipeStartURL = nil
-            }
-
-        default:
-            break
+        }
+        if let cap = capacitorNavigationDelegate, cap.responds(to: #selector(webView(_:decidePolicyFor:decisionHandler:) as (WKWebView, WKNavigationAction, @escaping (WKNavigationActionPolicy) -> Void) -> Void)) {
+            capacitorNavigationDelegate?.webView?(webView, decidePolicyFor: navigationAction, decisionHandler: decisionHandler)
+        } else {
+            decisionHandler(.allow)
         }
     }
+
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if let cap = capacitorNavigationDelegate, cap.responds(to: #selector(webView(_:decidePolicyFor:decisionHandler:) as (WKWebView, WKNavigationResponse, @escaping (WKNavigationResponsePolicy) -> Void) -> Void)) {
+            capacitorNavigationDelegate?.webView?(webView, decidePolicyFor: navigationResponse, decisionHandler: decisionHandler)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
+
+    // MARK: - Capacitor Plugin Registration
 
     override open func capacitorDidLoad() {
         super.capacitorDidLoad()
