@@ -64,7 +64,9 @@ public class NativeHeaderButtonsPlugin: CAPPlugin, CAPBridgedPlugin {
             // Transition validée à 100% : passage de relais avec morphing vers les boutons de Z
             if let target = self.pendingConfig {
                 self.pendingConfig = nil
-                self.applyConfig(target, animated: true)
+                if #available(iOS 16.0, *) {
+                    self.applyConfig(target, animated: true)
+                }
             }
         } else {
             // Transition annulée (feinte) :
