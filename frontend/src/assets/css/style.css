@@ -2663,10 +2663,10 @@ html.is-ios-capacitor button[onclick*="closeAdminShellLightbox"]::after,
 html.is-ios-capacitor #drilldownCloseBtn::after,
 html.is-ios-capacitor button.rounded-full[data-action="close-order-modal"]::after,
 html.is-ios-capacitor button.rounded-full[data-action="close-dispute-modal"]::after,
-html.is-ios-capacitor button[aria-label*="Fermer" i]::after,
-html.is-ios-capacitor button[aria-label*="close" i]::after,
-html.is-ios-capacitor button[title*="Fermer" i]::after,
-html.is-ios-capacitor button[title*="close" i]::after,
+html.is-ios-capacitor button[aria-label*="Fermer" i]:not(.nk-toast-close)::after,
+html.is-ios-capacitor button[aria-label*="close" i]:not(.nk-toast-close)::after,
+html.is-ios-capacitor button[title*="Fermer" i]:not(.nk-toast-close)::after,
+html.is-ios-capacitor button[title*="close" i]:not(.nk-toast-close)::after,
 html.is-ios-capacitor #cartCloseBtn::after,
 html.is-ios-capacitor #favoritesCloseBtn::after,
 html.is-ios-capacitor #notificationsCloseBtn::after,
@@ -10214,6 +10214,12 @@ html.dark .skeleton {
   color: #ffffff;
 }
 
+.nk-toast-close::before,
+.nk-toast-close::after {
+  content: none !important;
+  display: none !important;
+}
+
 
 @keyframes toast-slide-down {
   from {
@@ -11697,6 +11703,15 @@ html.dark .liquid-glass-nav .nav-item.active span {
   }
 
   /* Sur iOS Capacitor, le toast est positionné au premier plan sous l'axe des boutons pour éviter tout chevauchement */
+  html.is-ios-capacitor .nk-toast-close,
+  html.is-android-capacitor .nk-toast-close,
+  html.is-ios-capacitor #dt-chat-toast-close,
+  html.is-android-capacitor #dt-chat-toast-close {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
   html.is-ios-capacitor #toast-container,
   html.is-ios-capacitor .toast-container,
   html.is-ios-capacitor .notifications-toast-wrap,

@@ -73,6 +73,7 @@ async function _processToastQueue() {
         info: 'Info'
     };
     const defaultTitle = displayTitles[type] || type;
+    const isMobileDevice = window.innerWidth <= 640 || document.documentElement.classList.contains("is-ios-capacitor") || document.documentElement.classList.contains("is-android-capacitor") || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
     toast.innerHTML = `
         <div class="nk-toast-body" style="padding-left: 0.5rem; flex-direction: row; align-items: center; justify-content: space-between;">
@@ -83,7 +84,7 @@ async function _processToastQueue() {
                 </div>
             </div>
         </div>
-        <button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>
+        ${!isMobileDevice ? '<button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>' : ''}
     `;
 
     container.appendChild(toast);
@@ -111,10 +112,12 @@ async function _processToastQueue() {
         window.setTimeout(finalizeDismiss, 450);
     };
 
-    closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dismiss();
-    });
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dismiss();
+        });
+    }
 
     // Swipe to dismiss (Touch + Mouse - SWIPE UP)
     let touchStartY = 0;

@@ -1758,6 +1758,15 @@ html.dark .glass-panel {
 
     .nk-toast {
         border-radius: 32px !important;
+        padding-right: 1.25rem !important;
+    }
+
+    /* Sur mobile, aucun toast ne doit avoir de bouton Xmark */
+    .nk-toast-close,
+    #dt-chat-toast-close {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
     }
 }
 

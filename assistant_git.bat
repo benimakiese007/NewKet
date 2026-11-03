@@ -106,7 +106,7 @@ echo   27. [BUILD APK]       Compiler l'APK Android (local)   (build-apk.ps1)
 echo.
 echo   28. [OTA]             Publier une MAJ mobile sans Store   (npm run ota:publish)
 echo.
-echo   --- Serveurs & Developpement --------------------
+echo   --- Serveurs et Developpement -------------------
 echo.
 echo   29. [DEV FRONT]       Lancer le Frontend seul          (port 5173 / Vite)
 echo.
@@ -881,7 +881,7 @@ echo             -^> Proposition de git pull apres le merge
 echo.
 echo.
 echo ==================================================
-echo       SOUS-MENUS 26 & 27 : BUILDS & ACTIONS
+echo       SOUS-MENUS 26 et 27 : BUILDS et ACTIONS
 echo ==================================================
 echo.
 echo   26  - ACTIONS : Lancer et surveiller les workflows GitHub.
@@ -922,7 +922,7 @@ echo.
 echo   28  - OTA       : Publier une MAJ mobile instantanee sans passer par le Store.
 echo                 (Vite build + archive ZIP + upload Supabase OTA).
 echo.
-echo   --- SERVEURS & DEVELOPPEMENT ---
+echo   --- SERVEURS ET DEVELOPPEMENT ---
 echo   29  - DEV FRONT  : Demarre le Frontend Vite (port 5173).
 echo                      Si deja actif, bascule dessus et ouvre le navigateur.
 echo   30  - DEV BACK   : Demarre le Backend API (port 3000).
@@ -936,7 +936,7 @@ echo ==================================================
 echo.
 echo.
 echo ==================================================
-echo        FLUX DE TRAVAIL & CONFLITS EN EQUIPE
+echo        FLUX DE TRAVAIL ET CONFLITS EN EQUIPE
 echo ==================================================
 echo.
 echo   1. COMMENT DEMARRER UNE TACHE :
