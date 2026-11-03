@@ -18,6 +18,16 @@
 (function () {
     'use strict';
 
+    function _getApiUrl(path) {
+        if (typeof window !== 'undefined' && typeof window.getApiBaseUrl === 'function') {
+            const base = window.getApiBaseUrl();
+            return path.startsWith('/') ? base + path.replace(/^\/api/, '') : base + '/' + path.replace(/^\/api/, '');
+        }
+        const isCap = typeof window !== 'undefined' && (window.location?.protocol === 'capacitor:' || !!window.Capacitor?.isNativePlatform?.());
+        const base = isCap ? 'https://newket.vercel.app/api' : '/api';
+        return path.startsWith('/') ? base + path.replace(/^\/api/, '') : base + '/' + path.replace(/^\/api/, '');
+    }
+
     class DeliveryTracker {
         constructor() {
             this.orderId = null;
@@ -759,7 +769,7 @@
                 const ext = isMpeg ? 'm4a' : 'webm';
                 formData.append('audio', audioBlob, `voice_${Date.now()}.${ext}`);
 
-                const response = await fetch('/api/chat/upload-audio', {
+                const response = await fetch(_getApiUrl('/api/chat/upload-audio'), {
                     method: 'POST',
                     body: formData
                 });
@@ -984,7 +994,7 @@
                         const sessionData = await window.supabaseClient?.auth?.getSession();
                         const token = sessionData?.data?.session?.access_token;
                         if (token) {
-                            fetch('/api/push/call-ring', {
+                            fetch(_getApiUrl('/api/push/call-ring'), {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -1292,7 +1302,7 @@
                 const token = sessionData?.data?.session?.access_token;
                 if (!token || !this.peerUserId) return;
 
-                fetch('/api/push/chat-message', {
+                fetch(_getApiUrl('/api/push/chat-message'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

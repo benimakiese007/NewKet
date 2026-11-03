@@ -42,15 +42,15 @@ let panel = null;
 let isOpen = false;
 
 function getDiagnosticState() {
+    const ota = window._otaState || {};
     const metaVer = document.querySelector('meta[name="newket-version"]')?.content || '';
-    const pkgVer = metaVer ? metaVer.split('-')[0] : (window.newketVersion || '1.0.11');
+    const pkgVer = ota.localVersion || (metaVer ? metaVer.split('-')[0] : (window.newketVersion || '1.0.42'));
     const isCap = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
     const bReady = window.newketBackendReady;
     const prodCount = window.ProductManager?.products?.length ?? 'N/A';
     const pubCount = window.ProductManager?.getPublicProducts?.()?.length ?? 'N/A';
     const sbOk = !!window.supabaseClient;
     const authRole = window.AuthManager?.role || 'visiteur';
-    const ota = window._otaState || {};
 
     return { pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole, ota };
 }
@@ -341,15 +341,25 @@ export function initDebugOverlay() {
                 }
             }
 
-            // 4. Notifications Push
+            // 4. Notifications Push (Natif Capacitor ou Web)
             setStatus('4/6 Notifications');
-            if (window.Notification && Notification.requestPermission) {
-                try {
+            try {
+                if (window.Capacitor?.isNativePlatform?.() || window.location?.protocol === 'capacitor:') {
+                    const { PushNotifications } = await import('@capacitor/push-notifications');
+                    let perm = await PushNotifications.checkPermissions();
+                    if (perm.receive === 'prompt') {
+                        perm = await PushNotifications.requestPermissions();
+                    }
+                    console.log('[Permissions] Notifications push natives statut:', perm.receive);
+                    if (perm.receive === 'granted') {
+                        await PushNotifications.register();
+                    }
+                } else if (window.Notification && Notification.requestPermission) {
                     const perm = await Notification.requestPermission();
-                    console.log('[Permissions] Notifications statut:', perm);
-                } catch (e) {
-                    console.warn('[Permissions] ⚠️ Notifications error:', e.message);
+                    console.log('[Permissions] Notifications web statut:', perm);
                 }
+            } catch (e) {
+                console.warn('[Permissions] ⚠️ Notifications error:', e.message);
             }
 
             // 5. Face ID / Biométrie native (Capacitor BiometricAuth -> LAContext iOS)
