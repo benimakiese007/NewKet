@@ -36,16 +36,16 @@ open class NewKetBridgeViewController: CAPBridgeViewController, WKNavigationDele
         capacitorNavigationDelegate?.webView?(webView, didStartProvisionalNavigation: navigation)
     }
 
-    public func webView(_ webView: WKWebView, didCommitNavigation navigation: WKNavigation!) {
-        capacitorNavigationDelegate?.webView?(webView, didCommitNavigation: navigation)
+    public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        capacitorNavigationDelegate?.webView?(webView, didCommit: navigation)
     }
 
-    public func webView(_ webView: WKWebView, didFinishNavigation navigation: WKNavigation!) {
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         if swipeNavigationInProgress {
             swipeNavigationInProgress = false
             headerButtonsPlugin?.endInteractiveSwipe(committed: true)
         }
-        capacitorNavigationDelegate?.webView?(webView, didFinishNavigation: navigation)
+        capacitorNavigationDelegate?.webView?(webView, didFinish: navigation)
     }
 
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
