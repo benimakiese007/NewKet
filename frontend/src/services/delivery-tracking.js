@@ -235,34 +235,33 @@
                         </div>
 
                         <!-- Chat Input Form & Voice Bar -->
-                        <div class="relative pt-1">
-                            <form id="dt-chat-form" class="flex items-center gap-1.5">
+                        <div class="relative pt-1 overflow-hidden rounded-xl">
+                            <form id="dt-chat-form" class="flex items-center gap-1.5 w-full">
                                 <input id="dt-chat-input" type="text" placeholder="Message rapide..." 
-                                    class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-black transition-colors" maxlength="150" />
+                                    class="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium outline-none focus:border-black transition-colors" maxlength="150" />
                                 
                                 <button id="dt-mic-btn" type="button" class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-emerald-600 text-gray-700 flex items-center justify-center transition-colors shrink-0" title="Note vocale (max 30s)">
                                     <iconify-icon icon="solar:microphone-3-bold" width="16"></iconify-icon>
                                 </button>
 
-                                <button type="submit" class="px-3 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center shrink-0">
+                                <button id="dt-chat-send-btn" type="submit" class="w-8 h-8 bg-black text-white rounded-xl hover:bg-gray-800 active:scale-95 transition-all flex items-center justify-center shrink-0" title="Envoyer">
                                     <iconify-icon icon="solar:plain-bold" width="14"></iconify-icon>
                                 </button>
                             </form>
 
                             <!-- Voice Recording Bar (hidden by default) -->
-                            <div id="dt-voice-recording-bar" class="hidden absolute inset-0 bg-white border border-emerald-400 rounded-xl px-3 py-1.5 flex items-center justify-between shadow-sm z-10">
-                                <div class="flex items-center gap-2">
+                            <div id="dt-voice-recording-bar" class="hidden absolute inset-0 bg-white border border-emerald-400 rounded-xl px-2.5 py-1 flex items-center justify-between shadow-sm z-10 w-full">
+                                <div class="flex items-center gap-2 min-w-0">
                                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
-                                    <span id="dt-voice-timer" class="text-xs font-mono font-bold text-gray-800">0:00 / 0:30</span>
-                                    <span class="text-[10px] text-gray-400 hidden sm:inline">Vocal...</span>
+                                    <span id="dt-voice-timer" class="text-xs font-mono font-bold text-gray-800 shrink-0">0:00 / 0:30</span>
+                                    <span class="text-[10px] text-gray-400 hidden sm:inline truncate">Vocal...</span>
                                 </div>
-                                <div class="flex items-center gap-1.5">
-                                    <button id="dt-voice-cancel-btn" type="button" class="p-1.5 text-gray-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors" title="Annuler">
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <button id="dt-voice-cancel-btn" type="button" class="w-8 h-8 text-gray-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 active:scale-95 transition-all flex items-center justify-center" title="Annuler">
                                         <iconify-icon icon="solar:trash-bin-trash-bold" width="16"></iconify-icon>
                                     </button>
-                                    <button id="dt-voice-send-btn" type="button" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1 transition-colors" title="Envoyer">
-                                        <iconify-icon icon="solar:plain-bold" width="12"></iconify-icon>
-                                        <span>Envoyer</span>
+                                    <button id="dt-voice-send-btn" type="button" class="w-8 h-8 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl flex items-center justify-center transition-all shadow-sm" title="Envoyer le vocal">
+                                        <iconify-icon icon="solar:plain-bold" width="14"></iconify-icon>
                                     </button>
                                 </div>
                             </div>
@@ -293,6 +292,7 @@
             this.dom.distanceEl = this.dom.container.querySelector('#dt-distance-text');
             this.dom.pauseBtn = this.dom.container.querySelector('#dt-pause-btn');
             this.dom.callBtn = this.dom.container.querySelector('#dt-call-btn');
+            this.dom.chatForm = this.dom.container.querySelector('#dt-chat-form');
             this.dom.chatInput = this.dom.container.querySelector('#dt-chat-input');
             this.dom.chatList = this.dom.container.querySelector('#dt-chat-messages');
             this.dom.micBtn = this.dom.container.querySelector('#dt-mic-btn');
@@ -646,7 +646,10 @@
                 this.isRecordingVoice = true;
                 this.recordingStartTime = Date.now();
 
-                // Show recording bar
+                // Show recording bar and hide text form to eliminate any black button leak
+                if (this.dom.chatForm) {
+                    this.dom.chatForm.classList.add('invisible');
+                }
                 if (this.dom.voiceRecordingBar) {
                     this.dom.voiceRecordingBar.classList.remove('hidden');
                 }
@@ -692,6 +695,9 @@
                     this.recordingStream.getTracks().forEach(t => t.stop());
                 } catch (e) {}
                 this.recordingStream = null;
+            }
+            if (this.dom.chatForm) {
+                this.dom.chatForm.classList.remove('invisible');
             }
             if (this.dom.voiceRecordingBar) {
                 this.dom.voiceRecordingBar.classList.add('hidden');
