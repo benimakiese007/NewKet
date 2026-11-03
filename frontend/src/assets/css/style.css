@@ -11675,6 +11675,11 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
   html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
   html.is-ios-capacitor button[onclick*="window.closeZoom"],
+  html.is-ios-capacitor .header-brand-row {
+    display: flex !important;
+    justify-content: center !important;
+  }
+
   html.is-ios-capacitor .header-brand-row > div:first-child,
   html.is-ios-capacitor .header-brand-row > div:last-child,
   html.is-ios-capacitor .header-actions,
