@@ -11654,6 +11654,8 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #vendorMobileBtn,
   html.is-ios-capacitor #adminMobileMenuBtn,
   html.is-ios-capacitor .dashboard-topbar button[data-logout-safe],
+  html.is-ios-capacitor #achatWebBackBtn,
+  html.is-ios-capacitor .lens-header .btn-back,
   html.is-ios-capacitor #closeMobileMenu,
   html.is-ios-capacitor #cartCloseBtn,
   html.is-ios-capacitor #favoritesCloseBtn,
@@ -11675,13 +11677,10 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-ios-capacitor #zoomModal button[onclick*="closeZoom"],
   html.is-ios-capacitor #imageZoomModal button[onclick*="closeImageZoom"],
   html.is-ios-capacitor button[onclick*="window.closeZoom"],
-  html.is-ios-capacitor .header-brand-row {
-    display: flex !important;
-    justify-content: center !important;
-  }
-
   html.is-ios-capacitor .header-brand-row > div:first-child,
   html.is-ios-capacitor .header-brand-row > div:last-child,
+  html.is-ios-capacitor .dashboard-topbar-inner > div:first-child,
+  html.is-ios-capacitor .dashboard-topbar-inner > div:last-child,
   html.is-ios-capacitor .header-actions,
   html.is-ios-capacitor #cartBtnTablet,
   html.is-ios-capacitor #accountLinkTablet {
@@ -11689,6 +11688,21 @@ html.dark .liquid-glass-nav .nav-item.active span {
     pointer-events: none !important;
     visibility: hidden !important;
     display: none !important;
+  }
+
+  html.is-ios-capacitor .header-brand-row,
+  html.is-ios-capacitor .dashboard-topbar-inner {
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  /* Sur iOS Capacitor, le toast est positionné au premier plan sous l'axe des boutons pour éviter tout chevauchement */
+  html.is-ios-capacitor #toast-container,
+  html.is-ios-capacitor .toast-container,
+  html.is-ios-capacitor .notifications-toast-wrap,
+  html.is-ios-capacitor #newket-toast-container {
+    top: calc(env(safe-area-inset-top, 0px) + 60px) !important;
+    z-index: 999999 !important;
   }
 
   /* -- iOS Capacitor : Dégagement Safe Area pour la TabBar native SwiftUI Liquid Glass -- */

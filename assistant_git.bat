@@ -106,13 +106,25 @@ echo   27. [BUILD APK]       Compiler l'APK Android (local)   (build-apk.ps1)
 echo.
 echo   28. [OTA]             Publier une MAJ mobile sans Store   (npm run ota:publish)
 echo.
+echo   --- Serveurs & Developpement --------------------
+echo.
+echo   29. [DEV FRONT]       Lancer le Frontend seul          (port 5173 / Vite)
+echo.
+echo   30. [DEV BACK]        Lancer le Backend seul           (port 3000 / API)
+echo.
+echo   31. [DEV FULL]        Lancer Front + Back ensemble     (Fullstack)
+echo.
+echo   32. [DEV STATUT]      Verifier l'etat des serveurs     (Ports 5173 / 3000)
+echo.
+echo   33. [DEV STOP]        Arreter / Liberer les serveurs   (Kill 5173 / 3000)
+echo.
 echo   --------------------------------------------------
 echo.
-echo   29. [AIDE]            Comprendre chaque option
+echo   34. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-29) : "
+set /p choix="   Choix (0-34) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -142,7 +154,12 @@ if "%choix%"=="25" goto PULL_REQUESTS
 if "%choix%"=="26" goto GITHUB_ACTIONS
 if "%choix%"=="27" goto BUILD_APK
 if "%choix%"=="28" goto OTA_PUBLISH
-if "%choix%"=="29" goto HELP
+if "%choix%"=="29" goto DEV_FRONT
+if "%choix%"=="30" goto DEV_BACK
+if "%choix%"=="31" goto DEV_FULL
+if "%choix%"=="32" goto DEV_STATUS
+if "%choix%"=="33" goto DEV_STOP
+if "%choix%"=="34" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -904,6 +921,16 @@ echo                 Depose l'APK final pret a installer sur le Bureau.
 echo.
 echo   28  - OTA       : Publier une MAJ mobile instantanee sans passer par le Store.
 echo                 (Vite build + archive ZIP + upload Supabase OTA).
+echo.
+echo   --- SERVEURS & DEVELOPPEMENT ---
+echo   29  - DEV FRONT  : Demarre le Frontend Vite (port 5173).
+echo                      Si deja actif, bascule dessus et ouvre le navigateur.
+echo   30  - DEV BACK   : Demarre le Backend API (port 3000).
+echo                      Si deja actif, confirme l'etat sans relancer de doublon.
+echo   31  - DEV FULL   : Demarre Frontend + Backend simultanement.
+echo                      Verifie chacun et n'allume que ceux qui manquent.
+echo   32  - DEV STATUT : Verification rapide en temps reel de l'etat des 2 serveurs.
+echo   33  - DEV STOP   : Tue et libere proprement les ports 5173 et 3000 si bloques.
 echo.
 echo ==================================================
 echo.
@@ -1713,5 +1740,40 @@ echo --------------------------------------------------
 echo   Appuyez sur une touche pour revenir au menu...
 pause >nul
 goto MENU
+
+
+REM ============================================================
+REM  OPTIONS SERVEURS & DEVELOPPEMENT (29, 30, 31, 32, 33)
+REM ============================================================
+:DEV_FRONT
+cls
+node "%~dp0scripts\server-launcher.mjs" --front
+pause >nul
+goto MENU
+
+:DEV_BACK
+cls
+node "%~dp0scripts\server-launcher.mjs" --back
+pause >nul
+goto MENU
+
+:DEV_FULL
+cls
+node "%~dp0scripts\server-launcher.mjs" --all
+pause >nul
+goto MENU
+
+:DEV_STATUS
+cls
+node "%~dp0scripts\server-launcher.mjs" --status
+pause >nul
+goto MENU
+
+:DEV_STOP
+cls
+node "%~dp0scripts\server-launcher.mjs" --stop
+pause >nul
+goto MENU
+
 :END
 exit
