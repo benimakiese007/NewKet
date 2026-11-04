@@ -1,28 +1,36 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY") ?? "";
+const BREVO_SENDER_EMAIL = Deno.env.get("BREVO_SENDER_EMAIL") ?? "newketmarket@gmail.com";
+const BREVO_SENDER_NAME = Deno.env.get("BREVO_SENDER_NAME") ?? "NewKet";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const APP_URL = Deno.env.get("APP_URL") ?? "https://newket.app";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
 
 Deno.serve(async (req: Request) => {
-  // Sécurité : vérifier le secret pour éviter les appels non autorisés
-  const authHeader = req.headers.get("Authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  // Sécurité : autoriser via CRON_SECRET ou JWT Supabase (anon / service_role)
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const isAuthorized =
+    !CRON_SECRET ||
+    authHeader === `Bearer ${CRON_SECRET}` ||
+    (authHeader.startsWith("Bearer eyJ") && authHeader.length > 50);
+
+  if (!isAuthorized) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const now = new Date();
-  const results = { processed: 0, emails_sent: 0, errors: 0 };
+  const results = { processed: 0, emails_sent: 0, errors: 0, orphan_cleaned: 0 };
 
   // --- Récupérer les paniers abandonnés éligibles ---
   // Conditions :
-  // 1. cart_data non vide
-  // 2. Pas encore atteint 3 rappels
-  // 3. Dernière modification > 24h
-  // 4. Pas de rappel envoyé récemment (dernier rappel > 24h ou jamais envoyé)
+  // 1. Pas encore atteint 3 rappels
+  // 2. Dernière modification > 24h
+  // 3. Pas de rappel envoyé récemment (dernier rappel > 24h ou jamais envoyé)
+  const cutoff24h = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
   const { data: carts, error: fetchError } = await supabase
     .from("user_carts")
     .select(`
@@ -32,10 +40,9 @@ Deno.serve(async (req: Request) => {
       reminder_count,
       last_reminded_at
     `)
-    .neq("cart_data", "[]")
     .lt("reminder_count", 3)
-    .lt("updated_at", new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString())
-    .or(`last_reminded_at.is.null,last_reminded_at.lt.${new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()}`);
+    .lt("updated_at", cutoff24h)
+    .or(`last_reminded_at.is.null,last_reminded_at.lt.${cutoff24h}`);
 
   if (fetchError) {
     console.error("[AbandonedCart] Fetch error:", fetchError.message);
@@ -48,26 +55,38 @@ Deno.serve(async (req: Request) => {
 
   // --- Pour chaque panier éligible ---
   for (const cart of carts) {
-    results.processed++;
+    // Parser les articles de manière robuste (supporte Array natif ou JSON stringifié)
+    let rawItems: any = cart.cart_data;
+    if (typeof rawItems === "string") {
+      try {
+        rawItems = JSON.parse(rawItems);
+      } catch (e) {
+        console.warn(`[AbandonedCart] JSON parse error for user ${cart.user_id}:`, e);
+        rawItems = [];
+      }
+    }
+    const items: Array<{ name?: string; title?: string; price?: number; quantity?: number; image?: string }> =
+      Array.isArray(rawItems) ? rawItems : [];
+
+    if (items.length === 0) continue;
 
     // Récupérer les infos de l'utilisateur (nom + email)
     const { data: user, error: userError } = await supabase
       .from("users")
       .select("name, email, company_name")
       .eq("id", cart.user_id)
-      .single();
+      .maybeSingle();
 
     if (userError || !user?.email) {
-      console.warn(`[AbandonedCart] User ${cart.user_id} non trouvé ou sans email.`);
-      results.errors++;
+      console.warn(`[AbandonedCart] User ${cart.user_id} introuvable ou supprimé — Nettoyage du panier orphelin.`);
+      await supabase.from("user_carts").delete().eq("user_id", cart.user_id);
+      results.orphan_cleaned++;
       continue;
     }
 
+    results.processed++;
+
     const userName = user.company_name || user.name || "cher client";
-    const items: Array<{ title: string; price: number; quantity: number; image?: string }> = Array.isArray(cart.cart_data) ? cart.cart_data : [];
-
-    if (items.length === 0) continue;
-
     const newReminderCount = (cart.reminder_count || 0) + 1;
     const rappelLabels = ["", "1er", "2ème", "3ème"];
     const rappelLabel = rappelLabels[newReminderCount] || `${newReminderCount}ème`;
@@ -75,16 +94,25 @@ Deno.serve(async (req: Request) => {
     // --- Construire le HTML de la liste des produits ---
     const itemsHtml = items.map((item) => {
       const price = Number(item.price || 0).toLocaleString("fr-FR");
+      const title = item.name || item.title || "Produit";
+
+      let imageSrc = item.image || "";
+      if (imageSrc && !imageSrc.startsWith("http://") && !imageSrc.startsWith("https://")) {
+        const cleanPath = imageSrc.startsWith("/") ? imageSrc.slice(1) : imageSrc;
+        imageSrc = `${APP_URL}/${cleanPath}`;
+      }
+
       return `
         <tr>
           <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;">
             <table cellpadding="0" cellspacing="0" width="100%">
               <tr>
-                <td width="60">
-                  ${item.image ? `<img src="${item.image}" width="55" height="55" style="border-radius:8px;object-fit:cover;" />` : ""}
-                </td>
-                <td style="padding-left:12px;vertical-align:middle;">
-                  <div style="font-weight:700;color:#111;font-size:14px;">${item.title || "Produit"}</div>
+                ${imageSrc ? `
+                <td width="60" style="vertical-align:middle;">
+                  <img src="${imageSrc}" width="55" height="55" style="border-radius:8px;object-fit:cover;display:block;" alt="${title}" />
+                </td>` : ""}
+                <td style="padding-left:${imageSrc ? "12px" : "0"};vertical-align:middle;">
+                  <div style="font-weight:700;color:#111;font-size:14px;">${title}</div>
                   <div style="color:#666;font-size:13px;margin-top:2px;">Qté : ${item.quantity || 1} &nbsp;·&nbsp; <strong>${price} FC</strong></div>
                 </td>
               </tr>
@@ -165,7 +193,7 @@ Deno.serve(async (req: Request) => {
 
     // --- Envoyer l'email via Brevo ---
     const brevoPayload = {
-      sender: { name: "NewKet", email: "no-reply@newket.app" },
+      sender: { name: BREVO_SENDER_NAME, email: BREVO_SENDER_EMAIL },
       to: [{ email: user.email, name: userName }],
       subject: isLastReminder
         ? `⚠️ Dernier rappel — Votre panier NewKet expire bientôt`
