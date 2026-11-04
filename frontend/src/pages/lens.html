@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -229,6 +229,50 @@
             gap: 8px;
         }
         .detection-hint iconify-icon { color: #f97316; }
+
+        /* -- Fallback Pinterest-style point ------------------------------ */
+        .fallback-point {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2.5px solid #fff;
+            cursor: pointer;
+            pointer-events: all;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            animation: fallback-pulse 2s ease-in-out infinite;
+            transition: transform 0.15s ease, background 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            padding: 0;
+        }
+        .fallback-point:hover, .fallback-point:active {
+            background: rgba(249, 115, 22, 0.5);
+            border-color: #f97316;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+        .fallback-point-inner {
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        @keyframes fallback-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+            50% { box-shadow: 0 0 0 14px rgba(255,255,255,0.15); }
+        }
+        .fallback-hint {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.55);
+            text-align: center;
+            margin-top: 4px;
+        }
 
         /* ── Scanner overlay ─────────────────────────────────────── */
         #lens-scanner {
@@ -538,18 +582,52 @@
                 });
                 if (!yoloRes.ok) throw new Error(`YOLO HTTP ${yoloRes.status}`);
                 const { objects } = await yoloRes.json();
-                if (!objects || objects.length === 0) throw new Error('Aucun objet détecté');
+                if (!objects || objects.length === 0) {
+                    // 0 objets YOLO -> fallback Pinterest
+                    console.info('[Lens] YOLO: 0 objets, fallback Pinterest');
+                    detectionLoading.style.display = 'none';
+                    renderFallbackPoint(file, dataUrl);
+                    return;
+                }
 
                 // 4. Affiche les points sur l'image
                 detectionLoading.style.display = 'none';
                 renderDots(objects, file, dataUrl);
 
             } catch (err) {
-                // Fallback : analyse de toute l'image si YOLO indisponible
-                console.warn('[Lens] YOLO indisponible, fallback image entière :', err.message);
-                detectionZone.classList.remove('active');
-                await searchWholeImage(file, dataUrl);
+                // Fallback Pinterest : point central cliquable
+                console.warn('[Lens] YOLO indisponible, fallback Pinterest :', err.message);
+                detectionLoading.style.display = 'none';
+                renderFallbackPoint(file, dataUrl);
             }
+        }
+
+        /**
+         * Fallback Pinterest : affiche un point blanc central cliquable
+         * quand YOLO ne du00e9tecte aucun objet (timeout ou 0 ru00e9sultats).
+         */
+        function renderFallbackPoint(file, dataUrl) {
+            detectionHint.style.display = 'none';
+            dotsContainer.innerHTML = '';
+
+            const btn = document.createElement('button');
+            btn.className = 'fallback-point';
+            btn.innerHTML = '<span class="fallback-point-inner"></span>';
+            btn.title = 'Rechercher cette image';
+            btn.addEventListener('click', () => {
+                detectionZone.classList.remove('active');
+                searchWholeImage(file, dataUrl);
+            });
+            dotsContainer.appendChild(btn);
+
+            // Hint sous l'image
+            const hint = document.createElement('div');
+            hint.className = 'fallback-hint';
+            hint.textContent = 'Touchez le point pour rechercher';
+            detectionHint.style.display = 'none';
+            const hintContainer = detectionZone.querySelector('.fallback-hint');
+            if (hintContainer) hintContainer.remove();
+            detectionZone.appendChild(hint);
         }
 
         function renderDots(objects, file, dataUrl) {

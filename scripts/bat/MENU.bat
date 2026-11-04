@@ -19,9 +19,10 @@ echo [8] Ouvrir Playwright en mode UI
 echo [9] Verifier le statut du projet (Git, etc.)
 echo [10] Sous-menu Securite (Audit, Scans de secrets...)
 echo [11] Sous-menu Scripts Node.js (.mjs et diagnostics)
+echo [12] Reveiller le serveur YOLO (Render)
 echo [0] Quitter
 echo.
-set /p choix="Choisissez une option (0-11) : "
+set /p choix="Choisissez une option (0-12) : "
 
 if "%choix%"=="1" (
     call start_all.bat
@@ -74,6 +75,11 @@ if "%choix%"=="10" (
 )
 if "%choix%"=="11" (
     call MENU_MJS.bat
+    goto menu
+)
+if "%choix%"=="12" (
+    call wake_yolo.bat
+    pause
     goto menu
 )
 if "%choix%"=="0" (

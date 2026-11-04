@@ -44,8 +44,8 @@ async def analyze_image(file: UploadFile = File(...)):
             cls_id = int(box.cls[0].item())
             label = yolo_model.names[cls_id]
 
-            # Filtre les détections trop incertaines
-            if conf < 0.4:
+            # Filtre les détections trop incertaines (seuil abaissé pour capter plus d'objets)
+            if conf < 0.2:
                 continue
 
             detected_objects.append({
