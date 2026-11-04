@@ -25,15 +25,16 @@ def health_check():
     return {"status": "healthy", "service": "NewKet Vision API"}
 
 @app.post("/analyze")
-async def analyze_image(file: UploadFile = File(...)):
+def analyze_image(file: UploadFile = File(...)):
     """
-    Détecte les objets dans une image avec YOLOv8.
+    Détecte les objets dans une image avec YOLOv8 (imgsz=320 pour vitesse CPU maximale).
     Retourne les bounding boxes et centres — le vecteur CLIP est généré côté navigateur.
     """
-    contents = await file.read()
+    contents = file.file.read()
     image = Image.open(io.BytesIO(contents)).convert("RGB")
 
-    results = yolo_model(image)
+    # imgsz=320 divise les calculs matriciels par 4 sur le CPU Render
+    results = yolo_model(image, imgsz=320)
 
     detected_objects = []
 

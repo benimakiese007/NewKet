@@ -611,22 +611,25 @@
             dotsContainer.innerHTML = '';
             uploadZone.classList.add('hidden');
             detectionZone.classList.add('active');
+            if (detectionLoading) {
+                detectionLoading.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Détection des objets...';
+            }
 
-            // Message rassurant si le serveur dort
+            // Message d'attente court
             const wakeTimer = setTimeout(() => {
                 if (detectionLoading) {
-                    detectionLoading.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Réveil du serveur IA (~30s)...';
+                    detectionLoading.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Analyse rapide...';
                 }
-            }, 6000);
+            }, 3000);
 
             try {
-                // 3. Appel YOLO (timeout 60s pour absorber le cold start Render)
+                // 3. Appel YOLO (timeout 6s max pour une réactivité instantanée)
                 const formData = new FormData();
                 formData.append('file', file);
                 const yoloRes = await fetch(YOLO_URL, {
                     method: 'POST',
                     body: formData,
-                    signal: AbortSignal.timeout(60000)
+                    signal: AbortSignal.timeout(6000)
                 });
                 clearTimeout(wakeTimer);
                 if (!yoloRes.ok) throw new Error(`YOLO HTTP ${yoloRes.status}`);
@@ -645,8 +648,8 @@
 
             } catch (err) {
                 clearTimeout(wakeTimer);
-                // Fallback Pinterest : point central cliquable
-                console.warn('[Lens] YOLO indisponible, fallback Pinterest :', err.message);
+                // Fallback Pinterest immédiat si YOLO est lent (>6s) ou indisponible
+                console.warn('[Lens] YOLO lent (>6s) ou indisponible, fallback Pinterest instantané');
                 detectionLoading.style.display = 'none';
                 renderFallbackPoint(file, dataUrl);
             }
