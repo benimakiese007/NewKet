@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -571,15 +571,23 @@
             uploadZone.classList.add('hidden');
             detectionZone.classList.add('active');
 
+            // Message rassurant si le serveur dort
+            const wakeTimer = setTimeout(() => {
+                if (detectionLoading) {
+                    detectionLoading.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Réveil du serveur IA (~30s)...';
+                }
+            }, 6000);
+
             try {
-                // 3. Appel YOLO (timeout 8s)
+                // 3. Appel YOLO (timeout 60s pour absorber le cold start Render)
                 const formData = new FormData();
                 formData.append('file', file);
                 const yoloRes = await fetch(YOLO_URL, {
                     method: 'POST',
                     body: formData,
-                    signal: AbortSignal.timeout(35000)  // 35s pour gérer le cold start Render
+                    signal: AbortSignal.timeout(60000)
                 });
+                clearTimeout(wakeTimer);
                 if (!yoloRes.ok) throw new Error(`YOLO HTTP ${yoloRes.status}`);
                 const { objects } = await yoloRes.json();
                 if (!objects || objects.length === 0) {
@@ -595,6 +603,7 @@
                 renderDots(objects, file, dataUrl);
 
             } catch (err) {
+                clearTimeout(wakeTimer);
                 // Fallback Pinterest : point central cliquable
                 console.warn('[Lens] YOLO indisponible, fallback Pinterest :', err.message);
                 detectionLoading.style.display = 'none';
@@ -673,6 +682,7 @@
                 seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
                 renderResults(results);
             } catch (err) {
+                clearTimeout(wakeTimer);
                 console.error('[Lens dot]', err);
                 resultsGrid.innerHTML = `
                     <div class="no-results" style="grid-column:1/-1">
@@ -696,6 +706,7 @@
                 seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
                 renderResults(results);
             } catch (err) {
+                clearTimeout(wakeTimer);
                 console.error('[Lens fallback]', err);
                 resultsGrid.innerHTML = `
                     <div class="no-results" style="grid-column:1/-1">
