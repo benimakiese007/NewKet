@@ -439,6 +439,47 @@
             transition: background 0.2s;
         }
         .btn-retry:hover { background: rgba(255,255,255,0.12); }
+
+        /* -- Skeletons loaders pour les resultats instantanes ------------ */
+        .skeleton-card {
+            background: #1a1a1a;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            flex-direction: column;
+        }
+        .skeleton-img {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(90deg, #202020 25%, #2d2d2d 50%, #202020 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.4s ease-in-out infinite;
+        }
+        .skeleton-info {
+            padding: 0.7rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .skeleton-text {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #202020 25%, #2d2d2d 50%, #202020 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.4s ease-in-out infinite;
+        }
+        .skeleton-text.title {
+            width: 75%;
+        }
+        .skeleton-text.price {
+            width: 40%;
+            height: 14px;
+        }
+        @keyframes skeleton-shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -667,10 +708,24 @@
             else { img.onload = placeDots; }
         }
 
+        /** Affiche immediatement des cartes skeletons chatoyantes (0ms de temps percu) */
+        function renderSkeletons(count = 6) {
+            resultsGrid.innerHTML = Array(count).fill(0).map(() => `
+                <div class="skeleton-card">
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-info">
+                        <div class="skeleton-text title"></div>
+                        <div class="skeleton-text price"></div>
+                    </div>
+                </div>
+            `).join('');
+            resultsSection.classList.add('active');
+        }
+
         async function onDotClick(obj, file, dataUrl) {
             detectionZone.classList.remove('active');
-            scannerPhoto.src = dataUrl;
-            lensScanner.classList.add('active');
+            // Affichage direct de la page de resultats avec skeletons (0ms percu)
+            renderSkeletons(6);
 
             try {
                 const croppedBlob = await cropImage(file, obj.box);
@@ -682,7 +737,6 @@
                 seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
                 renderResults(results);
             } catch (err) {
-                clearTimeout(wakeTimer);
                 console.error('[Lens dot]', err);
                 resultsGrid.innerHTML = `
                     <div class="no-results" style="grid-column:1/-1">
@@ -690,14 +744,14 @@
                         Impossible d'analyser cet objet.<br>
                         <small style="color:rgba(255,255,255,.3)">${err.message}</small>
                     </div>`;
-                lensScanner.classList.remove('active');
-                resultsSection.classList.add('active');
             }
         }
 
         async function searchWholeImage(file, dataUrl) {
-            scannerPhoto.src = dataUrl;
-            lensScanner.classList.add('active');
+            detectionZone.classList.remove('active');
+            // Affichage direct de la page de resultats avec skeletons (0ms percu)
+            renderSkeletons(6);
+
             try {
                 const vector  = await generateEmbedding(file);
                 const results = await searchByEmbedding(vector);
@@ -706,7 +760,6 @@
                 seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
                 renderResults(results);
             } catch (err) {
-                clearTimeout(wakeTimer);
                 console.error('[Lens fallback]', err);
                 resultsGrid.innerHTML = `
                     <div class="no-results" style="grid-column:1/-1">
@@ -714,8 +767,6 @@
                         Impossible d'analyser cette image.<br>
                         <small style="color:rgba(255,255,255,.3)">${err.message}</small>
                     </div>`;
-                lensScanner.classList.remove('active');
-                resultsSection.classList.add('active');
             }
         }
 
