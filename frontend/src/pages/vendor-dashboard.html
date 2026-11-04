@@ -7905,7 +7905,10 @@ async function openOrderModal(id) {
 
 
             document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
-            document.getElementById('modalOrderDateText').textContent = new Date(order.date).toLocaleDateString('fr-FR', {
+            const _rawDate = order?.date || order?.created_at || order?.createdAt || order?.timestamp || order?.updated_at;
+            const _d = _rawDate ? new Date(_rawDate) : new Date();
+            const _validDate = isNaN(_d.getTime()) ? new Date() : _d;
+            document.getElementById('modalOrderDateText').textContent = _validDate.toLocaleDateString('fr-FR', {
                 year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
             });
 
@@ -8771,7 +8774,9 @@ async function openOrderModal(id) {
             const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
             const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
             document.getElementById('invId').textContent = '#' + o.id;
-            document.getElementById('invDate').textContent = new Date(o.date).toLocaleDateString();
+            const _invRawDate = o?.date || o?.created_at || o?.createdAt || o?.timestamp || o?.updated_at;
+            const _invD = _invRawDate ? new Date(_invRawDate) : new Date();
+            document.getElementById('invDate').textContent = (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR');
             document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
             document.getElementById('invEmail').textContent = o.customer?.email || '';
             document.getElementById('invVendor').textContent = getVendorDisplayName(o);
@@ -9282,12 +9287,12 @@ async function openOrderModal(id) {
         class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60  p-4">
         <div
             class="bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll overflow-x-hidden animate-in fade-in zoom-in duration-300">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                <div>
-                    <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center gap-3 sticky top-0 bg-white z-10">
+                <div class="min-w-0 flex-1 pr-2">
+                    <h2 class="text-lg sm:text-xl font-bold break-all leading-tight" id="modalOrderIdText">Détails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
-                <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" data-modal-close class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors shadow-sm" aria-label="Fermer la commande">
+                <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" data-modal-close class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors shadow-sm shrink-0" aria-label="Fermer la commande">
                     <iconify-icon icon="solar:close-circle-bold" width="24" class="text-gray-700"></iconify-icon>
                 </button>
             </div>
@@ -9467,14 +9472,11 @@ async function openOrderModal(id) {
                 </div>
 
                 <!-- Actions -->
-                <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                    <button type="button" data-action="download-invoice"
-                        class="flex-1 py-3 bg-gray-100 text-black rounded-xl font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <div class="pt-4">
+                    <button type="button" onclick="downloadInvoice()" data-action="download-invoice"
+                        class="w-full py-3.5 bg-gray-100 text-black rounded-xl font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                         <iconify-icon icon="solar:download-minimalistic-linear" width="20"></iconify-icon>
                         Facture PDF
-                    </button>
-                    <button type="button" onclick="closeOrderModal()" data-action="close-order-modal" class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors cursor-pointer">
-                        Fermer
                     </button>
                 </div>
             </div>
