@@ -5457,17 +5457,10 @@
                         if (!token) throw new Error("Non authentifié");
 
                         console.log('[VendorPayouts] 🚀 Chargement des méthodes de paiement...');
-                        const apiBase = (typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.isNativeCapacitor?.() ? 'https://newket.vercel.app/api' : '/api'));
-                        console.log('[VendorPayouts] URL cible:', `${apiBase}/vendor-payouts/methods`);
-                        const response = await fetch(`${apiBase}/vendor-payouts/methods`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        let json = null;
-                        if (response.ok) json = await response.json();
+                        let methodsList = [];
 
-                        let methodsList = (json && json.success && Array.isArray(json.data)) ? json.data : [];
-
-                        if (methodsList.length === 0 && session?.user?.id) {
+                        // 1. Essai direct via Supabase Adapter (rapide, sécurisé par RLS)
+                        if (session?.user?.id && window.SupabaseAdapter) {
                             try {
                                 const directMethods = await window.SupabaseAdapter.fetchWithFilters('vendor_payout_methods', {
                                     eq: [['vendor_id', session.user.id]],
@@ -5475,46 +5468,72 @@
                                 });
                                 if (Array.isArray(directMethods) && directMethods.length > 0) {
                                     methodsList = directMethods;
-                                } else {
-                                    const uData = await window.SupabaseAdapter.fetchWithFilters('users', {
-                                        eq: [['id', session.user.id]],
-                                        limit: 1,
-                                        skipCache: true
-                                    });
-                                    const u = (Array.isArray(uData) && uData.length > 0) ? uData[0] : null;
-                                    if (u && u.preferred_payout_method && u.payout_account_id) {
-                                        methodsList = [{
-                                            id: 'onboarding-payout',
-                                            vendor_id: u.id,
-                                            provider: u.preferred_payout_method,
-                                            operator: u.preferred_payout_method,
-                                            account_id: u.payout_account_id,
-                                            account_name: u.company_name || u.name || '',
-                                            is_default: true
-                                        }];
+                                    console.log('[VendorPayouts] ✅ Méthodes chargées depuis Supabase:', methodsList.length);
+                                }
+                            } catch (sbErr) {
+                                console.warn('[VendorPayouts] Lecture Supabase directe:', sbErr);
+                            }
+                        }
+
+                        // 2. Si non trouvées via Supabase, interroger l'API backend avec protection JSON
+                        if (methodsList.length === 0) {
+                            try {
+                                const apiBase = (typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (window.isNativeCapacitor?.() ? 'https://newket.vercel.app/api' : '/api'));
+                                console.log('[VendorPayouts] URL cible:', `${apiBase}/vendor-payouts/methods`);
+                                const response = await fetch(`${apiBase}/vendor-payouts/methods`, {
+                                    headers: { 'Authorization': `Bearer ${token}` }
+                                });
+                                const contentType = response.headers?.get('content-type') || '';
+                                if (response.ok && contentType.includes('application/json')) {
+                                    const json = await response.json();
+                                    if (json && json.success && Array.isArray(json.data)) {
+                                        methodsList = json.data;
                                     }
                                 }
+                            } catch (apiErr) {
+                                console.warn('[VendorPayouts] Erreur API backend (non bloquante):', apiErr);
+                            }
+                        }
+
+                        // 3. Repli automatique sur les informations d'onboarding du vendeur (table users)
+                        if (methodsList.length === 0 && session?.user?.id && window.SupabaseAdapter) {
+                            try {
+                                const uData = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                    eq: [['id', session.user.id]],
+                                    limit: 1,
+                                    skipCache: true
+                                });
+                                const u = (Array.isArray(uData) && uData.length > 0) ? uData[0] : null;
+                                if (u && u.preferred_payout_method && u.payout_account_id) {
+                                    methodsList = [{
+                                        id: 'onboarding-payout',
+                                        vendor_id: u.id,
+                                        provider: u.preferred_payout_method,
+                                        operator: u.preferred_payout_method,
+                                        account_id: u.payout_account_id,
+                                        account_name: u.company_name || u.name || '',
+                                        is_default: true
+                                    }];
+                                    console.log('[VendorPayouts] ✅ Méthode récupérée depuis l\'onboarding vendeur');
+                                }
                             } catch (e) {
-                                console.warn('[VendorPayouts] Fallback direct fetch error:', e);
+                                console.warn('[VendorPayouts] Fallback users error:', e);
                             }
                         }
 
                         if (methodsList.length === 0) {
                             emptyEl.classList.remove('hidden');
                             document.getElementById('payoutsMainBtnText').textContent = 'Ajouter un compte';
-                            document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:add-circle-bold');
+                            document.querySelector('#payoutsMainBtn iconify-icon')?.setAttribute('icon', 'solar:add-circle-bold');
                         } else {
                             renderPayoutMethodsList(methodsList);
                             listEl.classList.remove('hidden');
                             document.getElementById('payoutsMainBtnText').textContent = 'Modifier le compte';
-                            document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:pen-bold');
+                            document.querySelector('#payoutsMainBtn iconify-icon')?.setAttribute('icon', 'solar:pen-bold');
                         }
                     } catch (error) {
                         console.error('[VendorPayouts] ❌ Erreur chargement paiements:', error);
-                        console.error('[VendorPayouts] Détails:', { name: error.name, message: error.message, stack: error.stack });
-                        // Masquer les erreurs techniques Supabase/PostgREST
-                        const isTechErr = error.message && (error.message.includes('pattern') || error.message.includes('invalid input syntax') || error.message.includes('relation') || error.message.includes('column') || error.message.includes('permission denied'));
-                        errorEl.textContent = isTechErr ? 'Impossible de charger vos méthodes de paiement. Veuillez réessayer.' : (error.message || 'Impossible de charger vos méthodes de paiement.');
+                        errorEl.textContent = 'Impossible de charger vos méthodes de paiement. Veuillez réessayer.';
                         errorEl.classList.remove('hidden');
                     } finally {
                         loader.classList.add('hidden');

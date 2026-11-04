@@ -45,14 +45,15 @@ export function getApiBaseUrl() {
             return configured.replace(/\/$/, '') + '/api';
         }
     }
-    // En dev local (localhost / 127.0.0.1 sur navigateur), toujours passer par le proxy local /api
-    const isLocalBrowser = typeof window !== 'undefined' && 
-        window.location.protocol !== 'capacitor:' &&
-        /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
 
-    if (!isLocalBrowser && isNativeCapacitor()) {
+    // Capacitor natif (iOS ou Android) : TOUJOURS cibler le backend distant de production.
+    // Note : Sur Android Capacitor, window.location.hostname vaut "localhost" avec protocol "https:".
+    // La vérification isNativeCapacitor() doit donc être prioritaire.
+    if (isNativeCapacitor()) {
         return 'https://newket.vercel.app/api';
     }
+
+    // Navigateur web (dev local ou production Vercel)
     return '/api';
 }
 
