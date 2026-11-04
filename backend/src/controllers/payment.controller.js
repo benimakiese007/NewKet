@@ -66,7 +66,7 @@ function getOrderAmountSummary(order) {
 function computeInvoiceReference(order, amounts) {
     const fingerprint = [
         order?.id || '',
-        order?.date || '',
+        order?.created_at || order?.date || '',
         order?.customer?.email || '',
         order?.customer?.name || '',
         getVendorDisplayName(order),

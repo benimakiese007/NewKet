@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#2e2e2e">
+    <meta name="theme-color" content="#1f2937">
     <title>Vérification facture | NewKet</title>
     <meta name="description" content="Vérification publique d'une facture NewKet depuis un QR code.">
     <script src="/vendor/iconify-preload.js"></script>
@@ -19,15 +19,23 @@
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .glass-premium {
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.35);
+        
+        /* Strictement masquer Header, Footer et TabBar sur tous supports */
+        #header-placeholder,
+        #footer-placeholder,
+        header,
+        nav.standard-bottom-nav,
+        .standard-bottom-nav,
+        .ios-tab-bar,
+        #mobile-nav,
+        #bottomNav,
+        .bottom-nav {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            pointer-events: none !important;
         }
-        .hero-gradient {
-            background: linear-gradient(135deg, #111827 0%, #0f5132 45%, #1f7a4f 100%);
-        }
+
         .status-ok { background: #dcfce7; color: #166534; }
         .status-warning { background: #fef3c7; color: #92400e; }
         .status-danger { background: #fee2e2; color: #991b1b; }
@@ -39,118 +47,113 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-[#f8fafc] text-gray-900 antialiased flex flex-col">
-    <div id="header-placeholder"></div>
-    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-green-50 via-transparent to-transparent opacity-70 pointer-events-none"></div>
+<body class="min-h-screen bg-[#f8fafc] text-gray-900 antialiased flex flex-col justify-center items-center p-3 sm:p-6 py-6 sm:py-10">
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-gray-100 via-transparent to-transparent opacity-80 pointer-events-none"></div>
 
-    <main class="pb-24 flex min-h-[70vh] items-center justify-center px-4 py-8 sm:px-6 sm:py-14 mt-2">
-        <div class="w-full max-w-3xl">
-            <div class="glass-premium overflow-hidden rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]">
-                <div class="hero-gradient px-6 py-6 sm:px-8 sm:py-8 text-white">
-                    <div class="flex items-center gap-4">
-                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 border border-white/20">
-                            <img src="/icons/icon-512-v2.png" alt="NewKet" class="h-8 w-8 object-contain rounded-lg">
-                        </div>
-                        <div>
-                            <div class="text-[10px] font-black uppercase tracking-[0.22em] text-white/70">Facture publique</div>
-                            <h1 class="mt-1 text-2xl font-black tracking-tight sm:text-4xl text-white">Vérification du QR</h1>
-                        </div>
+    <main class="w-full max-w-2xl my-auto">
+        <div class="bg-white border border-gray-100/80 rounded-3xl sm:rounded-[32px] shadow-xl shadow-gray-200/50 overflow-hidden">
+            
+            <!-- En-tête épuré et minimaliste (sans bandeau) -->
+            <div class="p-5 sm:p-6 pb-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <img src="/icons/icon-512-v2.png" alt="NewKet" class="h-9 w-9 object-contain rounded-xl shadow-sm border border-gray-100">
+                    <div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Certificat officiel</div>
+                        <h1 class="text-base sm:text-lg font-bold text-gray-900">Vérification de facture</h1>
                     </div>
-                    <p class="mt-4 max-w-2xl text-sm sm:text-base text-white/80">
-                        Cette page permet de vérifier une facture NewKet scannée depuis le QR. Elle affiche uniquement les informations utiles à la validation.
-                    </p>
+                </div>
+                <div id="referenceMatchBadge" class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-warning shrink-0">
+                    Contrôle...
+                </div>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-5">
+                <!-- État de chargement -->
+                <div id="loadingState" class="rounded-2xl border border-gray-100 bg-gray-50/80 p-8 text-center">
+                    <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm">
+                        <iconify-icon icon="solar:scanner-bold" width="20"></iconify-icon>
+                    </div>
+                    <div class="text-base font-bold text-gray-900">Vérification en cours</div>
+                    <p class="mt-1 text-xs text-gray-500">Lecture de la facture et validation de la référence...</p>
                 </div>
 
-                <div class="p-6 sm:p-8">
-                    <div id="loadingState" class="rounded-3xl border border-gray-100 bg-gray-50/80 p-6 text-center">
-                        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white">
-                            <iconify-icon icon="solar:scanner-bold" width="24"></iconify-icon>
+                <!-- État d'erreur -->
+                <div id="errorState" class="hidden rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
+                    <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white">
+                        <iconify-icon icon="solar:danger-triangle-bold" width="20"></iconify-icon>
+                    </div>
+                    <div id="errorTitle" class="text-base font-bold text-red-900">Vérification impossible</div>
+                    <p id="errorText" class="mt-1 text-xs text-red-700"></p>
+                </div>
+
+                <!-- Contenu certifié -->
+                <div id="contentState" class="hidden space-y-5">
+                    <!-- Grille des informations clés -->
+                    <div class="grid gap-3 invoice-grid">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-400">Référence facture</div>
+                            <div id="invoiceReference" class="mt-1.5 break-all text-base sm:text-lg font-black text-gray-900"></div>
                         </div>
-                        <div class="text-lg font-black text-gray-900">Vérification en cours</div>
-                        <p class="mt-2 text-sm text-gray-500">Lecture de la facture et contrôle de la référence QR...</p>
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-400">Commande</div>
+                            <div id="orderId" class="mt-1.5 break-all text-base sm:text-lg font-black text-gray-900"></div>
+                        </div>
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-400">Vendeur</div>
+                            <div id="vendorName" class="mt-1.5 truncate text-base font-bold text-gray-900"></div>
+                        </div>
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-400">Acheteur</div>
+                            <div id="buyerName" class="mt-1.5 truncate text-base font-bold text-gray-900"></div>
+                        </div>
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 sm:col-span-2 flex items-center justify-between">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-400">Statut de la commande</div>
+                            <div id="statusBadge" class="inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-warning">En attente</div>
+                        </div>
                     </div>
 
-                    <div id="errorState" class="hidden rounded-3xl border border-red-100 bg-red-50 p-6 text-center">
-                        <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white">
-                            <iconify-icon icon="solar:danger-triangle-bold" width="24"></iconify-icon>
+                    <!-- Résumé des montants -->
+                    <div class="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
+                        <div class="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-3">Montants vérifiés</div>
+                        <div class="grid gap-2 text-xs sm:text-sm">
+                            <div class="flex items-center justify-between gap-3 py-1 border-b border-gray-50">
+                                <span class="text-gray-500">Sous-total</span>
+                                <strong id="subtotalValue" class="text-gray-900 font-bold"></strong>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 py-1 border-b border-gray-50">
+                                <span class="text-gray-500">Livraison</span>
+                                <strong id="deliveryValue" class="text-gray-900 font-bold"></strong>
+                            </div>
+                            <div id="discountRow" class="hidden flex items-center justify-between gap-3 py-1 border-b border-gray-50">
+                                <span class="text-gray-500">Réduction promo</span>
+                                <strong id="discountValue" class="text-emerald-600 font-bold"></strong>
+                            </div>
+                            <div class="flex items-center justify-between gap-3 pt-2 text-sm sm:text-base">
+                                <span class="font-bold text-gray-900">Total payé</span>
+                                <strong id="totalValue" class="text-lg font-black text-gray-900"></strong>
+                            </div>
                         </div>
-                        <div id="errorTitle" class="text-lg font-black text-red-900">Vérification impossible</div>
-                        <p id="errorText" class="mt-2 text-sm text-red-700"></p>
                     </div>
 
-                    <div id="contentState" class="hidden space-y-6">
-                        <div class="grid gap-4 invoice-grid">
-                            <div class="rounded-3xl border border-gray-100 bg-white p-5">
-                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Référence facture</div>
-                                <div id="invoiceReference" class="mt-2 break-words text-xl font-black text-emerald-700"></div>
-                            </div>
-                            <div class="rounded-3xl border border-gray-100 bg-white p-5">
-                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Commande</div>
-                                <div id="orderId" class="mt-2 text-xl font-black text-gray-900"></div>
-                            </div>
-                            <div class="rounded-3xl border border-gray-100 bg-white p-5">
-                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Vendeur</div>
-                                <div id="vendorName" class="mt-2 text-xl font-black text-emerald-600"></div>
-                            </div>
-                            <div class="rounded-3xl border border-gray-100 bg-white p-5">
-                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Acheteur</div>
-                                <div id="buyerName" class="mt-2 text-xl font-black text-gray-900"></div>
-                            </div>
-                            <div class="rounded-3xl border border-gray-100 bg-white p-5">
-                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Statut</div>
-                                <div id="statusBadge" class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-warning">En attente</div>
-                            </div>
+                    <!-- Liste des articles -->
+                    <div class="rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div class="text-[10px] font-black uppercase tracking-wider text-gray-400">Articles commandés</div>
+                            <div class="text-xs font-bold text-gray-400" id="itemsCount"></div>
                         </div>
+                        <div id="itemsList" class="space-y-2"></div>
+                    </div>
 
-                        <div class="rounded-[2rem] border border-gray-100 bg-white p-6">
-                            <div class="flex items-center justify-between gap-4">
-                                <div>
-                                    <div class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Résumé</div>
-                                    <div class="mt-1 text-lg font-black text-gray-900">Montants et articles vérifiés</div>
-                                </div>
-                                <div id="referenceMatchBadge" class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-warning">Référence en attente</div>
-                            </div>
-                            <div class="mt-5 grid gap-3 invoice-grid text-sm">
-                                <div class="flex items-center justify-between gap-3 rounded-2xl bg-gray-50 px-4 py-3">
-                                    <span class="text-gray-500">Sous-total</span>
-                                    <strong id="subtotalValue" class="text-gray-900"></strong>
-                                </div>
-                                <div class="flex items-center justify-between gap-3 rounded-2xl bg-gray-50 px-4 py-3">
-                                    <span class="text-gray-500">Livraison</span>
-                                    <strong id="deliveryValue" class="text-gray-900"></strong>
-                                </div>
-                                <div class="flex items-center justify-between gap-3 rounded-2xl bg-gray-50 px-4 py-3">
-                                    <span class="text-gray-500">Réduction promo</span>
-                                    <strong id="discountValue" class="text-emerald-700"></strong>
-                                </div>
-                                <div class="flex items-center justify-between gap-3 rounded-2xl bg-emerald-50 px-4 py-3">
-                                    <span class="font-bold text-emerald-900">Total</span>
-                                    <strong id="totalValue" class="text-xl text-emerald-900"></strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-[2rem] border border-gray-100 bg-white p-6">
-                            <div class="flex items-center justify-between gap-3">
-                                <div>
-                                    <div class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Articles</div>
-                                    <div class="mt-1 text-lg font-black text-gray-900">Contenu de la facture</div>
-                                </div>
-                                <div class="text-xs font-bold text-gray-400" id="itemsCount"></div>
-                            </div>
-                            <div id="itemsList" class="mt-4 space-y-3"></div>
-                        </div>
-
-                        <div class="flex flex-col gap-3 sm:flex-row">
-                            <a href="/" class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm font-black uppercase tracking-widest text-gray-900 transition-all hover:bg-gray-50">
-                                <iconify-icon icon="solar:home-2-linear" width="18"></iconify-icon>
-                                Accueil
-                            </a>
-                            <a id="dashboardLink" href="/customer-dashboard" class="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl hero-gradient px-5 py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:scale-[1.01]">
-                                Ouvrir mes commandes
-                                <iconify-icon icon="solar:alt-arrow-right-linear" width="18"></iconify-icon>
-                            </a>
-                        </div>
+                    <!-- Boutons d'actions épurés -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <a href="/" class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-800 transition-all hover:bg-gray-50 active:scale-95 shadow-sm">
+                            <iconify-icon icon="solar:home-2-linear" width="16"></iconify-icon>
+                            Accueil
+                        </a>
+                        <a id="dashboardLink" href="/customer-dashboard" class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-black active:scale-95 shadow-sm">
+                            Ouvrir mes commandes
+                            <iconify-icon icon="solar:alt-arrow-right-linear" width="16"></iconify-icon>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -159,11 +162,9 @@
 
     <script type="module">
         const params = new URLSearchParams(window.location.search);
-        // Vercel rewrite transparent : le navigateur voit /facture/:orderId
-        // → extraire l'id depuis le chemin en priorité, fallback sur query param
         const pathMatch = window.location.pathname.match(/\/facture\/([^/?#]+)/i);
-        const orderId = pathMatch ? pathMatch[1] : (params.get('order_id') || '');
-        const invoiceRef = params.get('invoice_ref') || '';
+        const orderId = pathMatch ? pathMatch[1] : (params.get('order_id') || params.get('orderId') || '');
+        const invoiceRef = params.get('invoice_ref') || params.get('ref') || '';
 
         const loadingState = document.getElementById('loadingState');
         const errorState = document.getElementById('errorState');
@@ -185,23 +186,23 @@
 
             if (!badge || !refBadge) return;
 
-            if (verified) {
-                badge.textContent = 'Vérifiée';
-                badge.className = 'mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-ok';
-            } else if (!referenceMatches) {
+            if (verified || referenceMatches) {
+                badge.textContent = status || 'Vérifiée';
+                badge.className = 'inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-ok';
+            } else if (!referenceMatches && invoiceRef) {
                 badge.textContent = 'Référence invalide';
-                badge.className = 'mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-danger';
+                badge.className = 'inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-danger';
             } else {
                 badge.textContent = status || 'En attente';
-                badge.className = 'mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-warning';
+                badge.className = 'inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-warning';
             }
 
-            if (referenceMatches) {
+            if (referenceMatches || !invoiceRef) {
                 refBadge.textContent = 'Référence conforme';
-                refBadge.className = 'rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-ok';
+                refBadge.className = 'rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-ok shrink-0';
             } else {
                 refBadge.textContent = 'Référence non conforme';
-                refBadge.className = 'rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest status-danger';
+                refBadge.className = 'rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider status-danger shrink-0';
             }
         }
 
@@ -218,13 +219,24 @@
             errorState.classList.add('hidden');
             contentState.classList.remove('hidden');
 
-            document.getElementById('invoiceReference').textContent = data.invoice_reference || '—';
+            document.getElementById('invoiceReference').textContent = data.invoice_reference || invoiceRef || '—';
             document.getElementById('orderId').textContent = `#${data.order?.id || orderId}`;
             document.getElementById('vendorName').textContent = data.order?.vendor_username || data.order?.vendor_name || 'Vendeur NewKet';
-            document.getElementById('buyerName').textContent = data.order?.buyer_username || data.order?.buyer_name || '—';
+            document.getElementById('buyerName').textContent = data.order?.buyer_username || data.order?.buyer_name || 'Acheteur';
             document.getElementById('subtotalValue').textContent = formatAmount(data.order?.subtotal);
             document.getElementById('deliveryValue').textContent = Number(data.order?.delivery_fee || 0) > 0 ? formatAmount(data.order.delivery_fee) : 'Gratuit';
-            document.getElementById('discountValue').textContent = Number(data.order?.discount || 0) > 0 ? `- ${formatAmount(data.order.discount)}` : '0 FC';
+            
+            const discount = Number(data.order?.discount || 0);
+            const discountRow = document.getElementById('discountRow');
+            if (discountRow) {
+                if (discount > 0) {
+                    discountRow.classList.remove('hidden');
+                    document.getElementById('discountValue').textContent = `- ${formatAmount(discount)}`;
+                } else {
+                    discountRow.classList.add('hidden');
+                }
+            }
+
             document.getElementById('totalValue').textContent = formatAmount(data.order?.final_total || data.order?.total);
             document.getElementById('itemsCount').textContent = `${Array.isArray(data.order?.items) ? data.order.items.length : 0} article(s)`;
 
@@ -232,15 +244,15 @@
             const items = Array.isArray(data.order?.items) ? data.order.items : [];
             itemsList.innerHTML = items.length
                 ? items.map((item) => `
-                    <div class="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3">
+                    <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50/60 px-3 py-2 text-xs">
                         <div class="min-w-0">
                             <div class="font-bold text-gray-900 truncate">${item.name}</div>
-                            <div class="text-xs text-gray-500">Qté ${Number(item.quantity || 0)} x ${formatAmount(item.price)}</div>
+                            <div class="text-[10px] text-gray-500">Qté ${Number(item.quantity || 0)} x ${formatAmount(item.price)}</div>
                         </div>
-                        <div class="shrink-0 text-sm font-black text-gray-900">${formatAmount(Number(item.quantity || 0) * Number(item.price || 0))}</div>
+                        <div class="shrink-0 font-bold text-gray-900">${formatAmount(Number(item.quantity || 0) * Number(item.price || 0))}</div>
                     </div>
                 `).join('')
-                : '<div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-sm text-gray-500">Aucun article disponible.</div>';
+                : '<div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-4 text-center text-xs text-gray-500">Aucun article listé.</div>';
 
             setStatusBadge(Boolean(data.verified), Boolean(data.reference_matches), data.order?.status);
 
@@ -251,7 +263,7 @@
 
         async function load() {
             if (!orderId) {
-                showError('Paramètre manquant', 'Le QR doit contenir un order_id valide.');
+                showError('Paramètre manquant', 'Le QR doit contenir un identifiant de commande.');
                 return;
             }
 
@@ -273,7 +285,5 @@
 
         load();
     </script>
-  <div id="footer-placeholder"></div>
 </body>
 </html>
-
