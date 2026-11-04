@@ -118,13 +118,15 @@ echo   32. [DEV STATUT]      Verifier l'etat des serveurs     (Ports 5173 / 3000
 echo.
 echo   33. [DEV STOP]        Arreter / Liberer les serveurs   (Kill 5173 / 3000)
 echo.
+echo   34. [REVEIL YOLO]     Reveiller le serveur IA YOLO     (Render Vision API)
+echo.
 echo   --------------------------------------------------
 echo.
-echo   34. [AIDE]            Comprendre chaque option
+echo   35. [AIDE]            Comprendre chaque option
 echo.
 echo    0. Quitter
 echo.
-set /p choix="   Choix (0-34) : "
+set /p choix="   Choix (0-35) : "
 
 if "%choix%"=="1"  goto STATUS
 if "%choix%"=="2"  goto BRANCH
@@ -159,7 +161,8 @@ if "%choix%"=="30" goto DEV_BACK
 if "%choix%"=="31" goto DEV_FULL
 if "%choix%"=="32" goto DEV_STATUS
 if "%choix%"=="33" goto DEV_STOP
-if "%choix%"=="34" goto HELP
+if "%choix%"=="34" goto WAKE_YOLO
+if "%choix%"=="35" goto HELP
 if "%choix%"=="0"  goto END
 
 goto MENU
@@ -931,6 +934,8 @@ echo   31  - DEV FULL   : Demarre Frontend + Backend simultanement.
 echo                      Verifie chacun et n'allume que ceux qui manquent.
 echo   32  - DEV STATUT : Verification rapide en temps reel de l'etat des 2 serveurs.
 echo   33  - DEV STOP   : Tue et libere proprement les ports 5173 et 3000 si bloques.
+echo   34  - REVEIL YOLO: Reveiller le serveur Render YOLO avant d'utiliser Lens.
+echo   35  - AIDE       : Comprendre chaque option
 echo.
 echo ==================================================
 echo.
@@ -1774,6 +1779,115 @@ cls
 node "%~dp0scripts\server-launcher.mjs" --stop
 pause >nul
 goto MENU
+
+REM ============================================================
+REM  OPTION 34 - REVEIL YOLO : Reveiller le serveur Render
+REM ============================================================
+:WAKE_YOLO
+cls
+echo ==================================================
+echo        REVEIL DU SERVEUR IA VISION (YOLOv8)
+echo ==================================================
+echo.
+echo   Le service de detection IA tourne sur Render (gratuit).
+echo   Apres 15 minutes sans requete, le serveur s'endort.
+echo   Son premier reveil prend environ 30 a 60 secondes.
+echo.
+echo   1. Reveil rapide (Envoi d'un ping unique)
+echo   2. Reveil complet (Attente active jusqu'a disponibilite)
+echo   3. Test du service d'analyse (/analyze)
+echo   0. Retour au menu principal
+echo.
+set /p yolo_opt="   Votre choix (0-3) : "
+if "%yolo_opt%"=="1" goto YOLO_PING_RAPIDE
+if "%yolo_opt%"=="2" goto YOLO_PING_WAIT
+if "%yolo_opt%"=="3" goto YOLO_PING_TEST
+if "%yolo_opt%"=="0" goto MENU
+goto WAKE_YOLO
+
+:YOLO_PING_RAPIDE
+cls
+echo ==================================================
+echo   ENVOI D'UN PING A RENDER...
+echo ==================================================
+echo.
+echo   Cible : https://newket.onrender.com/
+echo.
+curl -s -m 15 -o nul -w "   Status HTTP : %{http_code} | Temps de reponse : %{time_total}s\n" https://newket.onrender.com/
+if %errorlevel% equ 0 (
+    echo.
+    echo   [OK] Requete envoyee ! Si le serveur dormait, il est en train de se reveiller.
+) else (
+    echo.
+    echo   [INFO] Le serveur met du temps a repondre (cold start en cours).
+    echo   Conseil : Utilisez l'option 2 pour attendre qu'il soit 100% pret.
+)
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
+
+:YOLO_PING_WAIT
+cls
+echo ==================================================
+echo   ATTENTE DU REVEIL COMPLET DU SERVEUR YOLO
+echo ==================================================
+echo.
+echo   Envoi de pings toutes les 5 secondes (max 12 tentatives / 60s)...
+echo.
+set /a attempt=0
+:YOLO_LOOP
+set /a attempt+=1
+echo   [Tentative %attempt%/12] Test de https://newket.onrender.com/ ...
+for /f "tokens=*" %%r in ('curl -s -m 10 https://newket.onrender.com/') do (
+    echo %%r | findstr /i "healthy" >nul 2>&1
+    if !errorlevel! equ 0 (
+        echo.
+        echo ==================================================
+        echo   SERVEUR YOLO REVEILLE ET 100% OPERATIONNEL !
+        echo ==================================================
+        echo   Reponse : %%r
+        echo.
+        echo   Tu peux maintenant ouvrir NewKet Lens et uploader tes photos !
+        echo.
+        echo --------------------------------------------------
+        echo   Appuyez sur une touche pour revenir au menu...
+        pause >nul
+        goto MENU
+    )
+)
+if %attempt% geq 12 (
+    echo.
+    echo   [TIMEOUT] Le serveur n'a pas encore fini de demarrer.
+    echo   Relancez cette option ou verifiez https://dashboard.render.com
+    echo.
+    echo --------------------------------------------------
+    echo   Appuyez sur une touche pour revenir au menu...
+    pause >nul
+    goto MENU
+)
+timeout /t 5 /nobreak >nul
+goto YOLO_LOOP
+
+:YOLO_PING_TEST
+cls
+echo ==================================================
+echo   TEST DU ENDPOINT D'ANALYSE (/analyze)
+echo ==================================================
+echo.
+echo   Verification que le endpoint POST /analyze repond...
+echo.
+curl -s -m 15 -w "   Status HTTP : %{http_code} | Temps total : %{time_total}s\n" -X POST https://newket.onrender.com/analyze -F "file=@NUL" 2>nul
+echo.
+echo   Note : Un code 422 ou 400 est NORMAL (aucun fichier reel transmis).
+echo   Cela confirme que FastAPI et YOLO sont prets a recevoir des images !
+echo.
+echo --------------------------------------------------
+echo   Appuyez sur une touche pour revenir au menu...
+pause >nul
+goto MENU
+
 
 :END
 exit
