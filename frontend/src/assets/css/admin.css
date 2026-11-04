@@ -1817,3 +1817,16 @@ html.admin-embedded-mode .stagger-5 {
     box-shadow: none !important;
     outline: none !important;
 }
+
+/* Sur iOS Capacitor : masquage strict des boutons Web de la topbar (remplacés par UIKit NativeHeaderButtons) */
+html.is-ios-capacitor .newket-dashboard-header #adminMobileMenuBtn,
+html.is-ios-capacitor .newket-dashboard-header #customerMobileBtn,
+html.is-ios-capacitor .newket-dashboard-header #vendorMobileBtn,
+html.is-ios-capacitor .newket-dashboard-header button[data-logout-safe],
+html.is-ios-capacitor .dashboard-topbar-inner > div:first-child,
+html.is-ios-capacitor .dashboard-topbar-inner > div:last-child {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

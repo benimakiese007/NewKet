@@ -932,23 +932,11 @@ const setupIOSLiquidGlassButtons = () => {
             // haptic disabled
         });
 
-        // 2. Dashboard Buttons (Menu Burger & Déconnexion sur Customer, Vendor, Admin)
-        const dashMenuBtns = [
-            document.getElementById('customerMobileBtn'),
-            document.getElementById('vendorMobileBtn'),
-            document.getElementById('adminMobileBtn'),
-            document.querySelector('[data-toggle-sidebar]')
-        ].filter(Boolean);
-
-        dashMenuBtns.forEach((btn) => {
-            btn.classList.add('liquid-glass-btn');
-            // haptic disabled
-        });
-
-        const logoutBtns = Array.from(document.querySelectorAll('[data-logout-safe]'));
-        logoutBtns.forEach((btn) => {
+        // 2. Dashboard Buttons : Sur iOS Capacitor, les boutons de la topbar sont 100% natifs Swift UIKit (NativeHeaderButtons).
+        // On ne stylise en Liquid Glass Web QUE les boutons internes aux tiroirs/menus latéraux (hors topbar).
+        const drawerLogoutBtns = Array.from(document.querySelectorAll('#mobileMenu [data-logout-safe], aside [data-logout-safe]'));
+        drawerLogoutBtns.forEach((btn) => {
             btn.classList.add('liquid-glass-btn-danger');
-            // haptic disabled
         });
 
         // 3. Bottom Nav Gesture Glissement au doigt (Swipe / Drag interactif)

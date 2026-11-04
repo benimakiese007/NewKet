@@ -2431,6 +2431,18 @@ html.is-ios-capacitor *::after {
    ========================================================================== */
 
 /* 1. Base universelle des boutons de fermeture (Modales, Tiroirs, Drawers, Lightbox) */
+/* Universal Modal Close Button (iOS, Android, Web, PWA) */
+.modal-close-btn,
+.nk-modal-close,
+[data-modal-close],
+[data-close-modal],
+[data-close-dialog],
+button.rounded-full[data-action="close-order-modal"],
+button.rounded-full[data-action="close-dispute-modal"],
+button.rounded-full[onclick*="closeOrderModal"],
+button.rounded-full[onclick*="closeDisputeModal"],
+button.rounded-full[onclick*="closeInvoiceModal"],
+button.rounded-full[onclick*="closeModal"],
 html.is-ios-capacitor button[onclick*="SidebarManager.close"],
 html.is-ios-capacitor [data-close-sidebar],
 html.is-ios-capacitor #closeMobileMenu,
@@ -2574,6 +2586,17 @@ html.is-ios-capacitor #achatWebBackBtn,
 }
 
 /* 2. Hit-target tactile Apple HIG : extension invisible de 44x44pt */
+.modal-close-btn::before,
+.nk-modal-close::before,
+[data-modal-close]::before,
+[data-close-modal]::before,
+[data-close-dialog]::before,
+button.rounded-full[data-action="close-order-modal"]::before,
+button.rounded-full[data-action="close-dispute-modal"]::before,
+button.rounded-full[onclick*="closeOrderModal"]::before,
+button.rounded-full[onclick*="closeDisputeModal"]::before,
+button.rounded-full[onclick*="closeInvoiceModal"]::before,
+button.rounded-full[onclick*="closeModal"]::before,
 html.is-ios-capacitor button[onclick*="SidebarManager.close"]::before,
 html.is-ios-capacitor [data-close-sidebar]::before,
 html.is-ios-capacitor #closeMobileMenu::before,
@@ -2618,6 +2641,17 @@ html.is-ios-capacitor #cartSlideOver button[onclick*="_hideSlideOver"]::before {
 }
 
 /* 3. Masquer l'ancienne icône pour afficher le SF Symbol xmark épuré */
+.modal-close-btn > iconify-icon,
+.nk-modal-close > iconify-icon,
+[data-modal-close] > iconify-icon,
+[data-close-modal] > iconify-icon,
+[data-close-dialog] > iconify-icon,
+button.rounded-full[data-action="close-order-modal"] > iconify-icon,
+button.rounded-full[data-action="close-dispute-modal"] > iconify-icon,
+button.rounded-full[onclick*="closeOrderModal"] > iconify-icon,
+button.rounded-full[onclick*="closeDisputeModal"] > iconify-icon,
+button.rounded-full[onclick*="closeInvoiceModal"] > iconify-icon,
+button.rounded-full[onclick*="closeModal"] > iconify-icon,
 html.is-ios-capacitor button[onclick*="SidebarManager.close"] > iconify-icon,
 html.is-ios-capacitor [data-close-sidebar] > iconify-icon,
 html.is-ios-capacitor #closeMobileMenu > iconify-icon,
@@ -2656,6 +2690,17 @@ html.is-ios-capacitor #cartSlideOver button[onclick*="_hideSlideOver"] > iconify
 }
 
 /* 4. Rendu de la croix épurée Apple SF Symbol xmark en BLANC PUR (#FFFFFF) */
+.modal-close-btn::after,
+.nk-modal-close::after,
+[data-modal-close]::after,
+[data-close-modal]::after,
+[data-close-dialog]::after,
+button.rounded-full[data-action="close-order-modal"]::after,
+button.rounded-full[data-action="close-dispute-modal"]::after,
+button.rounded-full[onclick*="closeOrderModal"]::after,
+button.rounded-full[onclick*="closeDisputeModal"]::after,
+button.rounded-full[onclick*="closeInvoiceModal"]::after,
+button.rounded-full[onclick*="closeModal"]::after,
 html.is-ios-capacitor button[onclick*="SidebarManager.close"]::after,
 html.is-ios-capacitor [data-close-sidebar]::after,
 html.is-ios-capacitor #closeMobileMenu::after,
@@ -2700,6 +2745,17 @@ html.is-ios-capacitor #cartSlideOver button[onclick*="_hideSlideOver"]::after {
 }
 
 /* 5. Compression élastique au contact (:active) */
+.modal-close-btn:active,
+.nk-modal-close:active,
+[data-modal-close]:active,
+[data-close-modal]:active,
+[data-close-dialog]:active,
+button.rounded-full[data-action="close-order-modal"]:active,
+button.rounded-full[data-action="close-dispute-modal"]:active,
+button.rounded-full[onclick*="closeOrderModal"]:active,
+button.rounded-full[onclick*="closeDisputeModal"]:active,
+button.rounded-full[onclick*="closeInvoiceModal"]:active,
+button.rounded-full[onclick*="closeModal"]:active,
 html.is-ios-capacitor button[onclick*="SidebarManager.close"]:active,
 html.is-ios-capacitor [data-close-sidebar]:active,
 html.is-ios-capacitor #closeMobileMenu:active,
@@ -2771,11 +2827,11 @@ html.is-ios-capacitor button[onclick*="window.closeZoom"]:active {
   background: rgba(255, 255, 255, 0.35) !important;
 }
 
-/* 7. Bouton Déconnexion Dashboard en Rouge Apple Liquid Glass */
-html.is-ios-capacitor button[data-logout-safe],
-html.is-ios-capacitor button[data-action="logout"],
+/* 7. Bouton Déconnexion Dashboard en Rouge Apple Liquid Glass (Tiroir / Menu interne uniquement) */
+html.is-ios-capacitor #mobileMenu button[data-logout-safe],
+html.is-ios-capacitor #mobileMenu button[data-action="logout"],
 html.is-ios-capacitor #mobileMenu [data-action="logout"],
-html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
+html.is-ios-capacitor .sidebar-link[data-logout-safe] {
   background: rgba(255, 10, 10, 0.22) !important;
   -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
   backdrop-filter: blur(25px) saturate(180%) !important;
@@ -2787,25 +2843,61 @@ html.is-ios-capacitor .dashboard-topbar button[data-logout-safe] {
   transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, color 0.2s ease !important;
 }
 
-html.is-ios-capacitor button[data-logout-safe] iconify-icon,
-html.is-ios-capacitor button[data-action="logout"] iconify-icon,
-html.is-ios-capacitor #mobileMenu [data-action="logout"] iconify-icon {
+html.is-ios-capacitor #mobileMenu button[data-logout-safe] iconify-icon,
+html.is-ios-capacitor #mobileMenu button[data-action="logout"] iconify-icon,
+html.is-ios-capacitor #mobileMenu [data-action="logout"] iconify-icon,
+html.is-ios-capacitor .sidebar-link[data-logout-safe] iconify-icon {
   color: #ff0a0a !important;
 }
 
-html.is-ios-capacitor button[data-logout-safe]:active,
-html.is-ios-capacitor button[data-action="logout"]:active,
+html.is-ios-capacitor #mobileMenu button[data-logout-safe]:active,
+html.is-ios-capacitor #mobileMenu button[data-action="logout"]:active,
 html.is-ios-capacitor #mobileMenu [data-action="logout"]:active,
-html.is-ios-capacitor .dashboard-topbar button[data-logout-safe]:active {
+html.is-ios-capacitor .sidebar-link[data-logout-safe]:active {
   transform: scale(0.94) !important;
   background: rgba(255, 10, 10, 0.45) !important;
   color: #ffffff !important;
 }
 
-html.is-ios-capacitor button[data-logout-safe]:active iconify-icon,
-html.is-ios-capacitor button[data-action="logout"]:active iconify-icon,
-html.is-ios-capacitor #mobileMenu [data-action="logout"]:active iconify-icon {
+html.is-ios-capacitor #mobileMenu button[data-logout-safe]:active iconify-icon,
+html.is-ios-capacitor #mobileMenu button[data-action="logout"]:active iconify-icon,
+html.is-ios-capacitor #mobileMenu [data-action="logout"]:active iconify-icon,
+html.is-ios-capacitor .sidebar-link[data-logout-safe]:active iconify-icon {
   color: #ffffff !important;
+}
+
+/* ==========================================================================
+   Masquage absolu des boutons Web de l'en-tête sur iOS Capacitor
+   (Sur iOS, les boutons de navigation et d'actions sont 100% natifs Swift UIKit)
+   ========================================================================== */
+html.is-ios-capacitor .dashboard-topbar-inner > div:first-child,
+html.is-ios-capacitor .dashboard-topbar-inner > div:last-child,
+html.is-ios-capacitor .dashboard-topbar #vendorMobileBtn,
+html.is-ios-capacitor .dashboard-topbar #customerMobileBtn,
+html.is-ios-capacitor .dashboard-topbar #adminMobileMenuBtn,
+html.is-ios-capacitor .dashboard-topbar button[data-logout-safe],
+html.is-ios-capacitor .newket-dashboard-header #vendorMobileBtn,
+html.is-ios-capacitor .newket-dashboard-header #customerMobileBtn,
+html.is-ios-capacitor .newket-dashboard-header #adminMobileMenuBtn,
+html.is-ios-capacitor .newket-dashboard-header button[data-logout-safe],
+html.is-ios-capacitor .header-brand-row > div:first-child,
+html.is-ios-capacitor .header-brand-row > div:last-child,
+html.is-ios-capacitor .header-actions,
+html.is-ios-capacitor #mobileMenuBtn,
+html.is-ios-capacitor #mobileHeaderSearchBtn,
+html.is-ios-capacitor #cartBtnTablet,
+html.is-ios-capacitor #accountLinkTablet,
+html.is-ios-capacitor #achatWebBackBtn {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.is-ios-capacitor .dashboard-topbar-inner {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 
 /* Mobile responsive */
@@ -27327,4 +27419,60 @@ html.dark .standard-bottom-nav .nav-item.active span {
 }
 .standard-bottom-nav .nav-indicator {
   display: none !important;
+}
+
+
+/* ==========================================================================
+   Print Stylesheet for Official Invoices (Universal)
+   ========================================================================== */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #invoiceModal,
+  #invoiceModal * {
+    visibility: visible !important;
+  }
+  #invoiceModal {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    z-index: 999999 !important;
+  }
+  #invoiceModal > div {
+    max-width: 100% !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+  }
+  #invoiceModal .border-b,
+  #invoiceModal button,
+  #nk-debug-pill,
+  #nk-debug-panel {
+    display: none !important;
+  }
+  #invoiceModalContent {
+    background: #ffffff !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .invoice-sheet {
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 760px !important;
+    page-break-inside: avoid !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
 }

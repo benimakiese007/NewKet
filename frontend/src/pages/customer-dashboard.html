@@ -803,7 +803,7 @@
     <div id="orderModal" style="display: none;"
         class="nk-modal-overlay fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60 p-4">
         <div
-            class="relative w-full max-w-md max-h-[65dvh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300" style="max-height: 65dvh !important; height: min(65dvh, 100%) !important;">
+            class="relative w-full max-w-2xl max-h-[90dvh] flex flex-col bg-white rounded-3xl sm:rounded-[32px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300" style="max-height: 90dvh !important;">
             <div class="p-5 border-b border-gray-100 flex justify-between items-center gap-3 bg-white flex-shrink-0">
                 <div class="min-w-0 flex-1 pr-2">
                     <h2 class="text-lg sm:text-xl font-bold break-all leading-tight" id="modalOrderIdText">Détails de la demande</h2>
@@ -1016,6 +1016,39 @@
                         Facture PDF
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Invoice Preview Modal (Universal across iOS, Android, Web, PWA) -->
+    <div id="invoiceModal" style="display: none;"
+        class="nk-modal-overlay fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+        <div class="relative w-full max-w-2xl max-h-[92dvh] flex flex-col bg-white rounded-3xl sm:rounded-[32px] shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center gap-3 bg-white flex-shrink-0">
+                <div class="min-w-0 flex-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-emerald-600">Facture Officielle</div>
+                    <h2 class="text-base sm:text-lg font-bold text-gray-900 truncate" id="invoiceModalTitle">Facture Commande</h2>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="printInvoiceFromModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm shadow-emerald-600/30">
+                        <iconify-icon icon="solar:printer-bold" width="16"></iconify-icon>
+                        <span class="hidden sm:inline">Imprimer / </span>PDF
+                    </button>
+                    <button type="button" id="btnShareInvoice" onclick="shareInvoiceFromModal()" class="hidden px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-800 text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <iconify-icon icon="solar:share-bold" width="16"></iconify-icon>
+                        <span class="hidden sm:inline">Partager</span>
+                    </button>
+                    <button type="button" onclick="closeInvoiceModal()" data-modal-close class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors shadow-sm shrink-0" aria-label="Fermer la facture">
+                        <iconify-icon icon="solar:close-circle-bold" width="24" class="text-gray-700"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body (The Invoice Sheet) -->
+            <div class="p-4 sm:p-6 overflow-y-auto overscroll-contain flex-1 bg-gray-50/60" id="invoiceModalContent">
+                <!-- Rendered invoiceSheet injected dynamically -->
             </div>
         </div>
     </div>
@@ -4605,224 +4638,164 @@
         }
 
         async function downloadInvoice() {
-            if (!currentSelectedOrder) return;
+            if (!currentSelectedOrder) {
+                console.warn('[Facture] ⚠️ Aucune commande sélectionnée.');
+                return;
+            }
 
             const o = currentSelectedOrder;
-            const amounts = getOrderAmounts(o);
-            const qrReference = await buildInvoiceQrReference(o, amounts);
-            const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
-            const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
-            document.getElementById('invId').textContent = '#' + o.id;
-            const _invRawDate = o?.date || o?.created_at || o?.createdAt || o?.timestamp || o?.updated_at;
-            const _invD = _invRawDate ? new Date(_invRawDate) : new Date();
-            document.getElementById('invDate').textContent = (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR');
-            document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
-            document.getElementById('invEmail').textContent = o.customer?.email || '';
-            document.getElementById('invVendor').textContent = getVendorDisplayName(o);
-            document.getElementById('invQrCode').textContent = qrReference;
-            document.getElementById('invQrImage').src = qrImageSrc;
-            const promoCode = String(o.promo_code || '').trim().toUpperCase();
-            const discountAmount = Number(amounts.discount || 0);
-            const discountRow = document.getElementById('invDiscountRow');
-            const discountValue = document.getElementById('invDiscount');
-            const promoCodeRow = document.getElementById('invPromoCodeRow');
-            const promoCodeValue = document.getElementById('invPromoCode');
-            const qrLinkEl = document.getElementById('invQrLink');
+            console.log(`[Facture] 📄 Préparation de la facture pour la commande #${o.id}`);
 
-            const invoiceLogo = document.getElementById('invLogo');
-            if (invoiceLogo) {
-                invoiceLogo.src = getNewketLogoUrl();
-            }
-            if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
+            try {
+                const amounts = getOrderAmounts(o);
+                const qrReference = await buildInvoiceQrReference(o, amounts);
+                const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
 
-            // Use the same exchange rate as the modal to ensure consistent amounts
-            const invRate = parseFloat(o?.items?.[0]?.custom_exchange_rate || 0) || null;
-            const fmt = (v) => CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate);
+                document.getElementById('invId').textContent = '#' + o.id;
+                const _invRawDate = o?.date || o?.created_at || o?.createdAt || o?.timestamp || o?.updated_at;
+                const _invD = _invRawDate ? new Date(_invRawDate) : new Date();
+                document.getElementById('invDate').textContent = (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
+                document.getElementById('invEmail').textContent = o.customer?.email || '';
+                document.getElementById('invVendor').textContent = getVendorDisplayName(o);
+                document.getElementById('invQrCode').textContent = qrReference;
+                document.getElementById('invQrImage').src = qrImageSrc;
 
-            const invItems = document.getElementById('invItems');
-            invItems.innerHTML = o.items.map(item => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px 0;">${item.name}</td>
-                    <td style="padding: 10px 0; text-align: center;">${item.quantity}</td>
-                    <td style="padding: 10px 0; text-align: right;">${fmt(item.price)}</td>
-                    <td style="padding: 10px 0; text-align: right;">${fmt(item.price * item.quantity)}</td>
-                </tr>
-            `).join('');
+                const promoCode = String(o.promo_code || '').trim().toUpperCase();
+                const discountAmount = Number(amounts.discount || 0);
+                const discountRow = document.getElementById('invDiscountRow');
+                const discountValue = document.getElementById('invDiscount');
+                const promoCodeRow = document.getElementById('invPromoCodeRow');
+                const promoCodeValue = document.getElementById('invPromoCode');
+                const qrLinkEl = document.getElementById('invQrLink');
 
-            document.getElementById('invSubtotal').textContent = fmt(amounts.subtotal);
-            if (discountRow && discountValue) {
-                const hasDiscount = discountAmount > 0;
-                // classList.remove/add (not style.display) so innerHTML captures the correct class state
-                hasDiscount ? discountRow.classList.remove('hidden') : discountRow.classList.add('hidden');
-                discountValue.textContent = hasDiscount ? `- ${fmt(discountAmount)}` : '';
-            }
-            if (promoCodeRow && promoCodeValue) {
-                const hasPromoCode = Boolean(promoCode);
-                hasPromoCode ? promoCodeRow.classList.remove('hidden') : promoCodeRow.classList.add('hidden');
-                promoCodeValue.textContent = promoCode;
-            }
-            document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
-                ? fmt(amounts.deliveryFee)
-                : 'Gratuit';
+                const invoiceLogo = document.getElementById('invLogo');
+                if (invoiceLogo) invoiceLogo.src = getNewketLogoUrl();
+                if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
 
-            // Derive the protection fee from the total when payin_fee_amount is missing in DB
-            // (the fee is still included in client_total_paid / final_total_amount)
-            let payinFee = amounts.payinFee;
-            if (!(payinFee > 0)) {
-                const inferred = amounts.total - amounts.subtotal - amounts.deliveryFee + amounts.discount;
-                if (inferred > 0.01) payinFee = inferred;
-            }
-            const payinRow = document.getElementById('invPayinRow');
-            const payinEl = document.getElementById('invPayin');
-            if (payinRow && payinEl) {
-                const hasPayin = payinFee > 0;
-                hasPayin ? payinRow.classList.remove('hidden') : payinRow.classList.add('hidden');
-                payinEl.textContent = hasPayin ? fmt(payinFee) : '';
-            }
-            document.getElementById('invTotal').textContent = fmt(amounts.total);
+                const invRate = parseFloat(o?.items?.[0]?.custom_exchange_rate || 0) || null;
+                const fmt = (v) => CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate);
 
-            // Trigger print dialog so the customer can save the invoice as PDF.
-            // On mobile (iOS/Android), window.print() inside a hidden iframe is silently ignored.
-            // We detect mobile and open the invoice in a new tab instead, where the user can
-            // use the browser's native share/save-as-PDF flow.
-            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+                const invItems = document.getElementById('invItems');
+                invItems.innerHTML = (o.items || []).map(item => `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px 0;">${item.name || 'Article'}</td>
+                        <td style="padding: 10px 0; text-align: center;">${item.quantity || 1}</td>
+                        <td style="padding: 10px 0; text-align: right;">${fmt(item.price)}</td>
+                        <td style="padding: 10px 0; text-align: right;">${fmt(item.price * (item.quantity || 1))}</td>
+                    </tr>
+                `).join('');
 
-            // Embed the logo as base64 so it renders correctly in blob:// URLs and iframes
-            // (relative paths like /LogoOfficiel_PWA_Icone.png are broken outside the main document context).
-            async function fetchLogoAsDataUrl() {
-                try {
-                    const logoUrl = getNewketLogoUrl();
-                    const resp = await fetch(logoUrl);
-                    if (!resp.ok) return null;
-                    const blob = await resp.blob();
-                    return await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = () => resolve(null);
-                        reader.readAsDataURL(blob);
-                    });
-                } catch {
-                    return null;
+                document.getElementById('invSubtotal').textContent = fmt(amounts.subtotal);
+                if (discountRow && discountValue) {
+                    const hasDiscount = discountAmount > 0;
+                    hasDiscount ? discountRow.classList.remove('hidden') : discountRow.classList.add('hidden');
+                    discountValue.textContent = hasDiscount ? `- ${fmt(discountAmount)}` : '';
                 }
-            }
+                if (promoCodeRow && promoCodeValue) {
+                    const hasPromoCode = Boolean(promoCode);
+                    hasPromoCode ? promoCodeRow.classList.remove('hidden') : promoCodeRow.classList.add('hidden');
+                    promoCodeValue.textContent = promoCode;
+                }
+                document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
+                    ? fmt(amounts.deliveryFee)
+                    : 'Gratuit';
 
-            const logoDataUrl = await fetchLogoAsDataUrl();
-
-            // Temporarily patch the logo src in the hidden template so innerHTML captures base64
-            const invLogoEl = document.getElementById('invLogo');
-            const originalLogoSrc = invLogoEl ? invLogoEl.src : null;
-            if (invLogoEl && logoDataUrl) invLogoEl.src = logoDataUrl;
-
-            const printContent = document.getElementById('invoiceTemplate').innerHTML;
-
-            // Restore original src to avoid side-effects
-            if (invLogoEl && originalLogoSrc !== null) invLogoEl.src = originalLogoSrc;
-
-            const invoiceHtml = `
-                <!doctype html>
-                <html>
-                    <head>
-                        <title>Facture NewKet</title>
-                        <style>
-                            @page { size: A4 portrait; margin: 10mm; }
-                            * { box-sizing: border-box; }
-                            html, body { width: 100%; }
-                            body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #ffffff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            .invoice-sheet { position: relative; overflow: hidden; width: 100%; max-width: 760px; background: #fff; margin: 0 auto; page-break-inside: avoid; }
-                            .invoice-accent { position: absolute; inset: 0 auto 0 0; width: 108px; background:
-                                radial-gradient(circle at -8% 12%, rgba(183, 228, 199, 0.58) 0, rgba(183, 228, 199, 0.58) 34%, transparent 35%),
-                                radial-gradient(circle at 18% 34%, rgba(16, 185, 129, 0.16) 0, rgba(16, 185, 129, 0.16) 44%, transparent 45%),
-                                radial-gradient(circle at 2% 60%, rgba(74, 222, 128, 0.18) 0, rgba(74, 222, 128, 0.18) 38%, transparent 39%),
-                                linear-gradient(180deg, rgba(220, 252, 231, 0.95), rgba(255, 255, 255, 0.25)); }
-                            .invoice-body { position: relative; padding: 18px 20px 14px 58px; }
-                            .invoice-header { margin-bottom: 12px; }
-                            .invoice-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-                            .invoice-brand { display: flex; align-items: center; gap: 12px; }
-                            .invoice-logo { width: 64px; height: 64px; object-fit: contain; }
-                            .invoice-title { font-size: 32px; line-height: 0.95; font-weight: 900; letter-spacing: 0.02em; color: #065f46; }
-                            .invoice-subtitle { margin-top: 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; }
-                            .invoice-meta-card { min-width: 200px; padding: 10px 12px; border: 1px solid #d1fae5; border-radius: 14px; background: linear-gradient(180deg, #f0fdf4, #ffffff); }
-                            .invoice-meta-card--below { margin-top: 8px; margin-left: auto; max-width: 300px; }
-                            .invoice-meta-row { display: flex; justify-content: space-between; gap: 14px; font-size: 11px; padding: 3px 0; }
-                            .invoice-meta-row span { color: #065f46; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
-                            .invoice-meta-row strong { color: #111827; font-weight: 800; }
-                            .invoice-parties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
-                            .invoice-party-card { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 14px; background: #ffffff; }
-                            .invoice-party-card--soft { background: #f0fdf4; border-color: #bbf7d0; }
-                            .invoice-party-label { font-size: 10px; font-weight: 900; color: #047857; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
-                            .invoice-party-name { font-size: 14px; font-weight: 800; color: #111827; line-height: 1.2; }
-                            .invoice-party-detail { margin-top: 4px; font-size: 11px; line-height: 1.35; color: #6b7280; }
-                            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
-                            .invoice-table thead th { padding: 8px 10px; border-bottom: 2px solid #a7f3d0; font-size: 10px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
-                            .invoice-table td { padding: 9px 10px; border-bottom: 1px solid #ecfdf5; font-size: 11px; color: #1f2937; }
-                            .invoice-table tbody tr:last-child td { border-bottom: 0; }
-                            .text-center { text-align: center !important; }
-                            .text-right { text-align: right !important; }
-                            .invoice-totals { margin-left: auto; width: 250px; padding: 12px 14px; border-radius: 14px; background: #f9fafb; border: 1px solid #e5e7eb; }
-                            .invoice-total-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0; font-size: 12px; color: #4b5563; }
-                            .invoice-total-row strong { color: #111827; font-weight: 800; }
-                            .invoice-total-row--discount strong { color: #047857; }
-                            .invoice-total-row--grand { margin-top: 6px; padding-top: 10px; border-top: 2px solid #10b981; font-size: 16px; font-weight: 900; color: #065f46; }
-                            .invoice-total-row--grand strong { font-size: 20px; color: #065f46; }
-                            .invoice-security { margin-top: 12px; display: flex; justify-content: flex-end; }
-                            .invoice-qr-card { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 320px; padding: 10px 12px; border-radius: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; }
-                            .invoice-qr-image { width: 76px; height: 76px; object-fit: contain; background: #ffffff; border-radius: 10px; padding: 6px; border: 1px solid #d1fae5; }
-                            .invoice-qr-copy { min-width: 0; flex: 1; }
-                            .invoice-qr-code { margin-top: 3px; font-size: 13px; font-weight: 900; color: #065f46; letter-spacing: 0.08em; word-break: break-word; }
-                            .hidden { display: none !important; }
-                        </style>
-                    </head>
-                    <body>${printContent}</body>
-                </html>
-            `;
-
-            if (isMobile) {
-                // Mobile : ouvrir dans un nouvel onglet — l'utilisateur peut partager/sauvegarder en PDF nativement
-                try {
-                    const blob = new Blob([invoiceHtml], { type: 'text/html;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const tab = window.open(url, '_blank');
-                    if (!tab) {
-                        // Popup bloqué — fallback : lien de téléchargement
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `facture-newket-${o.id}.html`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
+                const payinRow = document.getElementById('invPayinRow');
+                const payinEl = document.getElementById('invPayin');
+                if (payinRow && payinEl) {
+                    let payinFee = amounts.payinFee;
+                    if (!(payinFee > 0)) {
+                        const inferred = amounts.total - amounts.subtotal - amounts.deliveryFee + amounts.discount;
+                        if (inferred > 0.01) payinFee = inferred;
                     }
-                    // Libérer l'URL après un délai pour laisser le tab s'ouvrir
-                    setTimeout(() => URL.revokeObjectURL(url), 10000);
-                } catch (err) {
-                    console.error('Erreur ouverture facture mobile:', err);
+                    const hasPayin = payinFee > 0;
+                    hasPayin ? payinRow.classList.remove('hidden') : payinRow.classList.add('hidden');
+                    payinEl.textContent = hasPayin ? fmt(payinFee) : '';
+                }
+                document.getElementById('invTotal').textContent = fmt(amounts.total);
+
+                // Inject into invoiceModalContent
+                const template = document.getElementById('invoiceTemplate');
+                const modalContent = document.getElementById('invoiceModalContent');
+                const modalTitle = document.getElementById('invoiceModalTitle');
+                if (modalTitle) modalTitle.textContent = `Facture #${o.id}`;
+                if (template && modalContent) {
+                    modalContent.innerHTML = template.innerHTML;
+                }
+
+                // Share button visibility
+                const shareBtn = document.getElementById('btnShareInvoice');
+                if (shareBtn) {
+                    if (typeof navigator.share === 'function') {
+                        shareBtn.classList.remove('hidden');
+                    } else {
+                        shareBtn.classList.add('hidden');
+                    }
+                }
+
+                // Open in-app invoice modal
+                const modal = document.getElementById('invoiceModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.style.display = 'flex';
+                    console.log(`[Facture] ✅ Modale facture ouverte avec succès pour #${o.id}`);
+                }
+            } catch (err) {
+                console.error(`[Facture] ❌ Erreur lors de la préparation de la facture:`, err);
+                if (window.showInlineMessage) {
                     showInlineMessage('client-modal-feedback', 'Impossible d\'ouvrir la facture.', 'error');
                 }
-            } else {
-                // Desktop : print via iframe caché
-                const printFrame = document.createElement('iframe');
-                printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-                document.body.appendChild(printFrame);
-
-                const printDocument = printFrame.contentWindow?.document;
-                if (!printDocument) {
-                    printFrame.remove();
-                    showInlineMessage('client-modal-feedback', 'Impossible de préparer la facture.', 'error');
-                    return;
-                }
-
-                printDocument.open();
-                printDocument.write(invoiceHtml);
-                printDocument.close();
-
-                await waitForFrameAssets(printFrame);
-
-                setTimeout(() => {
-                    printFrame.contentWindow.focus();
-                    printFrame.contentWindow.print();
-                    setTimeout(() => printFrame.remove(), 1000);
-                }, 250);
             }
         }
+
+        function closeInvoiceModal() {
+            console.log('[Facture] 🚪 Fermeture de la modale facture');
+            const modal = document.getElementById('invoiceModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        }
+
+        function printInvoiceFromModal() {
+            console.log('[Facture] 🖨️ Déclenchement de window.print()');
+            try {
+                window.print();
+            } catch (e) {
+                console.error('[Facture] ❌ Erreur window.print():', e);
+            }
+        }
+
+        async function shareInvoiceFromModal() {
+            if (!currentSelectedOrder) return;
+            const o = currentSelectedOrder;
+            console.log(`[Facture] 📤 Partage de la facture #${o.id}`);
+            try {
+                if (navigator.share) {
+                    const amounts = getOrderAmounts(o);
+                    const qrReference = await buildInvoiceQrReference(o, amounts);
+                    const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                    await navigator.share({
+                        title: `Facture NewKet #${o.id}`,
+                        text: `Facture NewKet commande #${o.id} - Montant: ${CurrencyManager.formatPrice(amounts.total)}`,
+                        url: targetUrl
+                    });
+                    console.log('[Facture] ✅ Partage réussi');
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.warn('[Facture] Partage annulé ou non disponible:', err);
+                }
+            }
+        }
+
+        document.getElementById('invoiceModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'invoiceModal') closeInvoiceModal();
+        });
 
         function removeFavorite(id) {
             FavoritesManager.removeItem(id);
