@@ -454,9 +454,7 @@ class GlassCircleButton: UIView {
         initialTouchPoint = touch.location(in: self)
         isDragging = true
 
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.prepare()
-        generator.impactOccurred()
+        // Haptic feedback removed
 
         UIView.animate(withDuration: 0.20, delay: 0, usingSpringWithDamping: 0.70, initialSpringVelocity: 0.5, options: [.allowUserInteraction, .beginFromCurrentState]) {
             self.transform = CGAffineTransform(scaleX: 0.94, y: 0.94)
@@ -493,8 +491,7 @@ class GlassCircleButton: UIView {
         }
 
         if point(inside: endPoint, with: event) {
-            let feedback = UISelectionFeedbackGenerator()
-            feedback.selectionChanged()
+            // Haptic feedback removed
             onTap?()
         }
     }

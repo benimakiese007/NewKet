@@ -2378,18 +2378,33 @@ html.is-ios-capacitor .currency-switch-segmented[data-active="CDF"]:active .segm
   transform: translateX(43px) scale(0.95) !important;
 }
 
-/* Version tiroir mobile (fond clair) */
-html.is-ios-capacitor #mobileCurrencyToggle .segmented-track {
+/* Version tiroir mobile & menus internes dashboard (fond clair) */
+html.is-ios-capacitor #mobileCurrencyToggle .segmented-track,
+html.is-ios-capacitor #vendorCurrencyToggle .segmented-track,
+html.is-ios-capacitor #customerCurrencyToggle .segmented-track,
+html.is-ios-capacitor #currencyToggle .segmented-track,
+html.is-ios-capacitor .sidebar-currency-box .segmented-track {
   background: rgba(0, 0, 0, 0.06) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
 }
-html.is-ios-capacitor #mobileCurrencyToggle .segmented-label {
-  color: #64748b !important;
-}
-html.is-ios-capacitor #mobileCurrencyToggle[data-active="USD"] .segmented-label[data-currency="USD"],
-html.is-ios-capacitor #mobileCurrencyToggle[data-active="CDF"] .segmented-label[data-currency="CDF"] {
+
+/* Texte USD et CDF TOUJOURS NOIR peu importe l'indicateur actif */
+html.is-ios-capacitor #mobileCurrencyToggle .segmented-label,
+html.is-ios-capacitor #vendorCurrencyToggle .segmented-label,
+html.is-ios-capacitor #customerCurrencyToggle .segmented-label,
+html.is-ios-capacitor #currencyToggle .segmented-label,
+html.is-ios-capacitor .sidebar-currency-box .segmented-label,
+html.is-ios-capacitor .sidebar-currency-box .segmented-label[data-currency="USD"],
+html.is-ios-capacitor .sidebar-currency-box .segmented-label[data-currency="CDF"],
+html.is-ios-capacitor #vendorCurrencyToggle .segmented-label[data-currency="USD"],
+html.is-ios-capacitor #vendorCurrencyToggle .segmented-label[data-currency="CDF"],
+html.is-ios-capacitor #customerCurrencyToggle .segmented-label[data-currency="USD"],
+html.is-ios-capacitor #customerCurrencyToggle .segmented-label[data-currency="CDF"],
+html.is-ios-capacitor #currencyToggle .segmented-label[data-currency="USD"],
+html.is-ios-capacitor #currencyToggle .segmented-label[data-currency="CDF"] {
   color: #0f172a !important;
+  font-weight: 800 !important;
 }
 
 /* ==========================================================================

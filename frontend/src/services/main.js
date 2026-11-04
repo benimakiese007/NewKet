@@ -911,15 +911,8 @@ window.addEventListener('online', () => {
 
 // === 🍏 iOS Capacitor Native Haptics & Liquid Glass Button Enhancement ===
 window.NewKetHaptics = {
-    trigger: async (style = 'light') => {
-        try {
-            if (window.Capacitor?.isNativePlatform?.() && window.Capacitor.getPlatform?.() === 'ios') {
-                const plugin = window.Capacitor.Plugins?.LiveActivityPlugin;
-                if (plugin && typeof plugin.triggerHaptic === 'function') {
-                    await plugin.triggerHaptic({ style });
-                }
-            }
-        } catch (_) {}
+    trigger: async () => {
+        // Haptics totalement désactivés sur tous les supports
     }
 };
 
@@ -936,7 +929,7 @@ const setupIOSLiquidGlassButtons = () => {
 
         headerButtons.forEach((btn) => {
             btn.classList.add('liquid-glass-btn');
-            btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
+            // haptic disabled
         });
 
         // 2. Dashboard Buttons (Menu Burger & Déconnexion sur Customer, Vendor, Admin)
@@ -949,13 +942,13 @@ const setupIOSLiquidGlassButtons = () => {
 
         dashMenuBtns.forEach((btn) => {
             btn.classList.add('liquid-glass-btn');
-            btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('light'), { passive: true });
+            // haptic disabled
         });
 
         const logoutBtns = Array.from(document.querySelectorAll('[data-logout-safe]'));
         logoutBtns.forEach((btn) => {
             btn.classList.add('liquid-glass-btn-danger');
-            btn.addEventListener('touchstart', () => window.NewKetHaptics.trigger('medium'), { passive: true });
+            // haptic disabled
         });
 
         // 3. Bottom Nav Gesture Glissement au doigt (Swipe / Drag interactif)

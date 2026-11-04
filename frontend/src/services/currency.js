@@ -73,7 +73,7 @@ const CurrencyManager = {
         }
 
         this.setCurrency(nextCurrency);
-        try { window.NewKetHaptics?.trigger?.('light'); } catch (_) {}
+        // haptics disabled
         return true;
     },
 

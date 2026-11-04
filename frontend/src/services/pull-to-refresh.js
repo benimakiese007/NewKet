@@ -263,7 +263,7 @@ const PullToRefresh = {
 
         // Haptic feedback when threshold is crossed (Android only — iOS ignores this)
         if (this.state.armed && !wasArmed) {
-            navigator.vibrate?.(10);
+            // vibration disabled
         }
 
         // Re-verify we're still at top right before blocking native scroll (#1)
