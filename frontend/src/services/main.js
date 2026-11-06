@@ -96,18 +96,9 @@ const App = {
 
             let btn = document.getElementById('sellFloatingBtn');
             if (!btn && isSeller) {
-                const isNative = window.location.protocol === 'capacitor:' ||
-                    window.location.protocol === 'ionic:' ||
-                    document.documentElement.classList.contains('is-ios-capacitor') ||
-                    document.documentElement.classList.contains('capacitor-native') ||
-                    !!(window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.isNative || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android'));
-
-                const targetPath = isNative ? '/src/pages/publish.html' : ((typeof window.resolvePath === 'function' ? window.resolvePath('publish') : null) || '/publish');
-
                 btn = document.createElement('a');
                 btn.id = 'sellFloatingBtn';
                 btn.className = 'sell-floating-btn publish-btn';
-                btn.href = targetPath;
                 btn.setAttribute('aria-label', 'Vendre un article');
                 btn.setAttribute('data-track-action', 'navigation:publish_click');
                 btn.innerHTML = '<iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon><span style="pointer-events:none;">Vendre</span>';
@@ -116,6 +107,19 @@ const App = {
 
             if (btn) {
                 btn.style.display = isSeller ? 'inline-flex' : 'none';
+
+                // URL exacte identique au bouton du Hero qui fonctionne sur iOS
+                const isCapacitor = window.location.protocol === 'capacitor:' ||
+                    window.location.protocol === 'ionic:' ||
+                    document.documentElement.classList.contains('is-ios-capacitor') ||
+                    document.documentElement.classList.contains('capacitor-native') ||
+                    !!(window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.isNative || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android'));
+
+                const exactUrl = isCapacitor
+                    ? ((window.location.origin && window.location.origin.includes('capacitor')) ? `${window.location.origin}/src/pages/publish.html` : '/src/pages/publish.html')
+                    : ((typeof window.resolvePath === 'function' ? window.resolvePath('publish') : null) || '/publish');
+
+                btn.href = exactUrl;
             }
         };
 
