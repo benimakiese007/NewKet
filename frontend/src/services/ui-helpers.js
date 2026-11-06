@@ -216,7 +216,13 @@ function resolvePath(path) {
         return root + 'src/' + cleanPath + query;
     }
 
-    if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
+    const isCapacitorEnv = window.location.protocol === 'capacitor:' ||
+            window.location.protocol === 'ionic:' ||
+            document.documentElement.classList.contains('is-ios-capacitor') ||
+            document.documentElement.classList.contains('capacitor-native') ||
+            (window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.isNative || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android'));
+
+        if (isCapacitorEnv) {
         if (cleanPath === '' || cleanPath === 'index') {
             return root + 'index.html' + query;
         }

@@ -5338,6 +5338,7 @@ body.sidebar-resizing {
 /* ── Bouton flottant Vendre (pill capsule liquid glass) ── */
 .sell-floating-btn {
   position: fixed;
+  text-decoration: none !important;
   /* Positionné juste au-dessus de la TabBar (62px + safe-area) */
   bottom: calc(62px + env(safe-area-inset-bottom, 0px) + 8px);
   right: 14px;

@@ -96,19 +96,24 @@ const App = {
 
             let btn = document.getElementById('sellFloatingBtn');
             if (!btn && isSeller) {
-                btn = document.createElement('button');
+                const isNative = window.location.protocol === 'capacitor:' ||
+                    window.location.protocol === 'ionic:' ||
+                    document.documentElement.classList.contains('is-ios-capacitor') ||
+                    document.documentElement.classList.contains('capacitor-native') ||
+                    !!(window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.isNative || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android'));
+
+                const targetPath = isNative ? '/src/pages/publish.html' : ((typeof window.resolvePath === 'function' ? window.resolvePath('publish') : null) || '/publish');
+
+                btn = document.createElement('a');
                 btn.id = 'sellFloatingBtn';
                 btn.className = 'sell-floating-btn';
+                btn.href = targetPath;
                 btn.setAttribute('aria-label', 'Vendre un article');
                 btn.innerHTML = '<iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon><span style="pointer-events:none;">Vendre</span>';
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Sur iOS Capacitor, toujours utiliser le chemin physique du fichier
-                    const isNative = !!(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.isNative);
-                    const finalPath = isNative ? '/src/pages/publish.html' : (window.ComponentLoader?.getAdjustedPath?.('publish') || '/src/pages/publish.html');
-                    console.log('[VendreBtn] CLICK — isNative:', isNative, '| finalPath:', finalPath, '| current href:', window.location.href);
-                    window.location.href = finalPath;
+                
+                // Logging on click
+                btn.onclick = () => {
+                    console.log('[VendreBtn] CLICK — navigating to:', targetPath, '| isNative:', isNative, '| current href:', window.location.href);
                 };
                 document.body.appendChild(btn);
             }
