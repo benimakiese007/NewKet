@@ -852,15 +852,10 @@ const ComponentLoader = {
 
     initOrientationNotice() {
         if (document.getElementById('nk-rotate-device-overlay')) return;
-        const isCapacitor = !!(
-            (window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : window.Capacitor.isNative)) ||
-            document.documentElement.classList.contains('is-ios-capacitor') ||
-            document.documentElement.classList.contains('is-android-capacitor')
-        );
-        if (isCapacitor) return;
 
         const overlay = document.createElement('div');
         overlay.id = 'nk-rotate-device-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
         overlay.innerHTML = `
             <div class="nk-rotate-card">
                 <div class="nk-rotate-icon-box">
@@ -877,6 +872,24 @@ const ComponentLoader = {
             </div>
         `;
         document.body.appendChild(overlay);
+
+        const syncOrientation = () => {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            // Détection smartphone en paysage : hauteur <= 600px et largeur <= 1024px
+            const isMobileLandscape = isLandscape && window.innerHeight <= 600 && window.innerWidth <= 1024;
+            
+            if (isMobileLandscape) {
+                overlay.classList.add('is-active');
+            } else {
+                overlay.classList.remove('is-active');
+            }
+        };
+
+        window.addEventListener('resize', syncOrientation, { passive: true });
+        window.addEventListener('orientationchange', syncOrientation, { passive: true });
+        screen.orientation?.addEventListener('change', syncOrientation);
+        setTimeout(syncOrientation, 100);
+        setTimeout(syncOrientation, 500);
     },
 
     initNetworkStatus() {
