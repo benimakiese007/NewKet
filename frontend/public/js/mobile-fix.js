@@ -1,5 +1,5 @@
 (function() {
-  const isCapacitor = window.Capacitor !== undefined || window.location.protocol === 'capacitor:';
+  const isCapacitor = window.location.protocol === 'capacitor:' || !!(window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android'));
   if (!isCapacitor) return;
 
   console.log('[Mobile Fix] Capacitor detected. Applying fixes for routing and scroll...');

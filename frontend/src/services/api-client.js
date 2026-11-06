@@ -15,26 +15,19 @@ import { captureError } from './sentry.js';
 export function isNativeCapacitor() {
     try {
         if (typeof window === 'undefined') return false;
-        return (
-            window.location?.protocol === 'capacitor:' ||
-            !!(window.Capacitor && (
-                (typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) ||
-                window.Capacitor.isNative ||
-                window.Capacitor.getPlatform?.() === 'ios' ||
-                window.Capacitor.getPlatform?.() === 'android'
-            )) ||
-            document.documentElement?.classList?.contains('capacitor-native') ||
-            document.documentElement?.classList?.contains('is-ios-capacitor') ||
-            document.documentElement?.classList?.contains('is-android-capacitor')
-        );
+        if (window.location?.protocol === 'capacitor:') return true;
+        if (window.Capacitor) {
+            if (typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) return true;
+            if (window.Capacitor.isNative) return true;
+            const p = window.Capacitor.getPlatform?.();
+            if (p === 'ios' || p === 'android') return true;
+        }
+        return false;
     } catch {
         return false;
     }
 }
 
-// En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
-// Sur Capacitor natif (iOS / Android), les requêtes relatives /api échoueraient sur localhost du device.
-// On cible donc explicitement le backend de production distant https://newket.vercel.app/api.
 export function getApiBaseUrl() {
     let configured = (import.meta.env.VITE_API_URL ?? '').trim();
     if (configured.startsWith('http')) {

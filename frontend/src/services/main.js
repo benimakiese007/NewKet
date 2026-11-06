@@ -75,15 +75,15 @@ const App = {
             const currentPath = window.location.pathname;
             const fullHref   = window.location.href;
 
-            // Détection robuste : on est sur publish UNIQUEMENT si le fichier physique chargé est publish.html
-            // (ou clean URL /publish sur web standard — mais PAS si on est sur index.html avec URL résiduelle)
-            const isPhysicalPublish = fullHref.includes('/src/pages/publish.html') || fullHref.includes('publish.html');
-            const isCleanPublish    = currentPath === '/publish' && !fullHref.includes('index.html') && !fullHref.includes('index');
-            // Sur iOS Capacitor, l'URL peut rester à /publish après navigation — on vérifie qu'on est PAS sur index
-            const isOnIndexPhysically = fullHref.includes('index.html') || fullHref.endsWith('/') || fullHref.endsWith('localhost') || fullHref.endsWith('localhost/');
-            const isPublish = isPhysicalPublish || (isCleanPublish && !isOnIndexPhysically);
+            // ── Détection robuste de la page publish ──
+            // Sur iOS Capacitor, l'URL peut être /publish même sur la home page (URL résiduelle restaurée).
+            // On se fie donc EN PRIORITÉ au DOM : body.home-page est la class unique de index.html.
+            const isHomeDOM         = document.body?.classList.contains('home-page');
+            const isPhysicalPublish = fullHref.includes('/src/pages/publish.html');
+            const isCleanPublish    = currentPath === '/publish' && !isHomeDOM;
+            const isPublish = isPhysicalPublish || isCleanPublish;
 
-            console.log('[VendreBtn] ensureAndSync — pathname:', currentPath, '| href:', fullHref, '| isPublish:', isPublish, '| isPhysicalPublish:', isPhysicalPublish, '| isOnIndex:', isOnIndexPhysically);
+            console.log('[VendreBtn] ensureAndSync — pathname:', currentPath, '| href:', fullHref, '| isHomeDOM:', isHomeDOM, '| isPublish:', isPublish);
 
             if (isPublish) {
                 const btn = document.getElementById('sellFloatingBtn');
@@ -104,11 +104,10 @@ const App = {
                 btn.onclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    // Sur iOS Capacitor, toujours utiliser le chemin physique
+                    // Sur iOS Capacitor, toujours utiliser le chemin physique du fichier
                     const isNative = !!(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.isNative);
-                    const adjustedPath = window.ComponentLoader?.getAdjustedPath?.('publish');
-                    const finalPath = isNative ? '/src/pages/publish.html' : (adjustedPath || '/src/pages/publish.html');
-                    console.log('[VendreBtn] CLICK — isNative:', isNative, '| adjustedPath:', adjustedPath, '| finalPath:', finalPath, '| current href:', window.location.href);
+                    const finalPath = isNative ? '/src/pages/publish.html' : (window.ComponentLoader?.getAdjustedPath?.('publish') || '/src/pages/publish.html');
+                    console.log('[VendreBtn] CLICK — isNative:', isNative, '| finalPath:', finalPath, '| current href:', window.location.href);
                     window.location.href = finalPath;
                 };
                 document.body.appendChild(btn);

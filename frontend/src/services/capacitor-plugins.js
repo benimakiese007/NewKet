@@ -335,7 +335,7 @@ export async function authenticateDeviceOwner(reason = "Confirmez votre identit�
  * Appelé par main.js après l'initialisation de l'AuthManager.
  */
 export async function initCapacitorPlugins() {
-    if (!window.Capacitor) return;
+    if (!isNative()) return;
 
     console.log('[NewKet] Initialisation des plugins Capacitor...');
 
