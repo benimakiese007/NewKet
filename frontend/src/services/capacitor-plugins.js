@@ -305,6 +305,7 @@ async function clearWatch(watcherId) {
  * @returns {Promise<boolean>}
  */
 export async function authenticateDeviceOwner(reason = "Confirmez votre identité") {
+    // 1. Mobile natif (iOS & Android) : plugin Capacitor BiometricAuth natif (inchangé)
     if (isNative()) {
         try {
             const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
@@ -325,6 +326,47 @@ export async function authenticateDeviceOwner(reason = "Confirmez votre identit�
             return false;
         }
     }
+
+    // 2. Web (Safari, Chrome sur PC / Mac) : WebAuthn (Touch ID, Face ID, Windows Hello, Code appareil)
+    if (typeof window !== 'undefined' && window.PublicKeyCredential && typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+        try {
+            const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+            if (available && navigator.credentials && navigator.credentials.create) {
+                console.log('[NewKet Biometric] Déclenchement biométrie WebAuthn pour :', reason);
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                const userId = new Uint8Array(16);
+                window.crypto.getRandomValues(userId);
+
+                await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: { name: "NewKet", id: window.location.hostname },
+                        user: {
+                            id: userId,
+                            name: "vendor-auth@newket.com",
+                            displayName: "NewKet Sécurité Vendeur"
+                        },
+                        pubKeyCredParams: [
+                            { alg: -7, type: "public-key" },
+                            { alg: -257, type: "public-key" }
+                        ],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform", // Touch ID / Face ID / Windows Hello / Code PIN
+                            userVerification: "required"
+                        },
+                        timeout: 60000
+                    }
+                });
+                console.log('[NewKet Biometric] ✅ Authentification WebAuthn appareil réussie.');
+                return true;
+            }
+        } catch (e) {
+            console.warn('[NewKet Biometric] Échec ou annulation WebAuthn :', e?.message || e?.name);
+            return false;
+        }
+    }
+
     return false;
 }
 
