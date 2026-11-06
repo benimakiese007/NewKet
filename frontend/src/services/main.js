@@ -72,6 +72,12 @@ const App = {
 
         // ── Bouton flottant Vendre : visible uniquement pour les vendeurs (Web / Android / iOS) ──
         const ensureAndSyncSellFloatingBtn = () => {
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/publish')) {
+                const btn = document.getElementById('sellFloatingBtn');
+                if (btn) btn.style.display = 'none';
+                return;
+            }
             const role = window.AuthManager?.role || localStorage.getItem('newketRole') || '';
             const isSeller = role === 'seller' || role === 'vendor' || role === 'supplier';
 

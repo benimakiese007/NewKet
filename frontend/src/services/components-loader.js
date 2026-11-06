@@ -524,7 +524,7 @@ const ComponentLoader = {
         // Determine current page status
         const currentPath = window.location.pathname;
         const isRoleChoicePage = currentPath.includes('/choose-role');
-        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish') || currentPath.includes('/payment-success') || currentPath.includes('/payment-cancel');
+        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/payment-success') || currentPath.includes('/payment-cancel');
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
         const isDashboardPage = currentPath.includes('-dashboard');
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
@@ -1066,7 +1066,7 @@ const ComponentLoader = {
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
         const isAchat     = path.includes('/achat');
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/payment-success') || path.includes('/payment-cancel');
         const isTabBarForbidden = isMinimal || isDashboard || isAchat;
 
         if (isTabBarForbidden) {
@@ -1089,7 +1089,7 @@ const ComponentLoader = {
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
         const isAchat     = path.includes('/achat');
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/payment-success') || path.includes('/payment-cancel');
 
         if (isMinimal) {
             // Minimal pages (login, etc.) don't have header buttons
@@ -1122,7 +1122,7 @@ const ComponentLoader = {
         const isAdmin     = path.includes('/admin') || path.includes('/pages/admin');
         const isDashboard = path.includes('-dashboard') || path.includes('dashboard') || isAdmin;
         const isAchat     = path.includes('/achat');
-        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/publish') || path.includes('/payment-success') || path.includes('/payment-cancel');
+        const isMinimal   = path.includes('/login') || path.includes('/choose-role') || path.includes('/payment-success') || path.includes('/payment-cancel');
 
         // Initial badge sync for cart on iOS native TabView
         try {
