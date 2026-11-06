@@ -221,16 +221,30 @@ class CartManager {
             endY = cartRect.top + cartRect.height / 2;
         } else {
             // Aucun bouton panier visible dans le DOM (ex: iOS Capacitor avec TabBar 100% native Swift/UIKit)
-            // La TabBar iOS possede 5 onglets : Accueil (1), Catalogue (2), Boutiques/Vendre (3), Panier (4), Compte (5).
-            // Le 4e onglet Panier est centre exactement a 70% de la largeur de l\'ecran.
-            const isMobileScreen = window.innerWidth <= 768;
+            // Detection infaillible du mobile meme en rotation paysage (landscape) :
+            const isCapacitorPlatform = !!(
+                (window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : window.Capacitor.isNative)) ||
+                document.documentElement.classList.contains('is-ios-capacitor') ||
+                document.documentElement.classList.contains('is-android-capacitor')
+            );
+            const isLandscapePhone = window.innerHeight <= 520 && window.innerWidth <= 1024;
+            const isMobileScreen = isCapacitorPlatform || window.innerWidth <= 768 || isLandscapePhone;
+
             if (isMobileScreen) {
+                // La TabBar iOS possede 5 onglets : Accueil (1), Catalogue (2), Boutiques/Vendre (3), Panier (4), Compte (5).
+                // Le 4e onglet Panier est centre exactement a 70% de la largeur de l\'ecran (portrait et paysage).
                 endX = window.innerWidth * 0.70;
-                // Calcul de la marge du bas avec la Safe Area iOS (home indicator ~34px) ou barre standard 49px
-                const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom') || '0', 10) || 34;
-                endY = window.innerHeight - (safeBottom > 0 ? (safeBottom + 26) : 36);
+
+                if (isLandscapePhone) {
+                    // En mode paysage sur smartphone, la barre d\'onglets est compacte en bas (~32px de hauteur)
+                    endY = window.innerHeight - 20;
+                } else {
+                    // En mode portrait, prise en compte de la Safe Area iOS (home indicator ~34px)
+                    const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom') || '0', 10) || 34;
+                    endY = window.innerHeight - (safeBottom > 0 ? (safeBottom + 26) : 36);
+                }
             } else {
-                // Fallback de securite ecran large (coin superieur droit vers le header)
+                // Fallback de securite ecran large de bureau sans icone panier DOM
                 endX = window.innerWidth - 60;
                 endY = 40;
             }
