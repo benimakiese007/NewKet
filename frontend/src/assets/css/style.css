@@ -5334,6 +5334,76 @@ body.sidebar-resizing {
 }
 
 /* ========== MOBILE BOTTOM NAV (Cleaned - styles unified in Liquid Glass section) ========== */
+
+/* ── Bouton flottant Vendre (pill capsule liquid glass) ── */
+.sell-floating-btn {
+  position: fixed;
+  /* Positionné juste au-dessus de la TabBar (62px + safe-area) */
+  bottom: calc(62px + env(safe-area-inset-bottom, 0px) + 10px);
+  right: 14px;
+  z-index: 51; /* au-dessus de la TabBar z-50 */
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+
+  /* Liquid glass pill — fond anthracite #1f2937 */
+  background: rgba(31, 41, 55, 0.90);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.30),
+    0 1.5px 4px rgba(0, 0, 0, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.10);
+
+  /* Texte & icône */
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  white-space: nowrap;
+
+  /* Animation */
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.18s ease,
+    box-shadow 0.18s ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.sell-floating-btn:hover {
+  transform: scale(1.05);
+}
+.sell-floating-btn:active {
+  transform: scale(0.94);
+}
+html.dark .sell-floating-btn {
+  background: rgba(17, 24, 39, 0.92);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.50),
+    0 1.5px 4px rgba(0, 0, 0, 0.30),
+    inset 0 1px 1px rgba(255, 255, 255, 0.07);
+}
+/* Masqué sur iOS Capacitor (TabBar native) */
+html.is-ios-capacitor .sell-floating-btn,
+body.is-ios-capacitor .sell-floating-btn {
+  display: none !important;
+}
+/* Masqué sur desktop */
+@media (min-width: 640px) {
+  .sell-floating-btn {
+    display: none !important;
+  }
+}
+
 #mobileBottomNav.hide {
   transform: translateY(150%) !important;
 }

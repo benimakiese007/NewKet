@@ -1,4 +1,15 @@
 <!-- Mobile Bottom Nav Fragment (Pre-rendered Standard for Web / PWA / Android) -->
+<!-- Bouton flottant Vendre — visible uniquement pour les vendeurs (géré par main.js) -->
+<button
+  id="sellFloatingBtn"
+  onclick="window.location.href='/publish'"
+  aria-label="Vendre un article"
+  style="display:none;"
+  class="sell-floating-btn"
+>
+  <iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon>
+  <span style="pointer-events:none;">Vendre</span>
+</button>
 <nav id="mobileBottomNav" class="standard-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200/60 dark:border-gray-700/60 sm:hidden transition-transform duration-300" style="padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);">
     <div id="liquidGlassSlider" class="liquid-sliding-lens" aria-hidden="true" style="display:none;"></div>
     <div class="relative flex items-stretch justify-around h-[62px] overflow-hidden w-full">

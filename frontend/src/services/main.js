@@ -68,6 +68,19 @@ const App = {
         const isLoggedIn = !!currentRole;
         const isAdmin = currentRole === 'admin';
         const isSupplier = currentRole === 'supplier';
+        const isSeller = currentRole === 'seller' || currentRole === 'vendor';
+
+        // ── Bouton flottant Vendre : visible uniquement pour les vendeurs (web/PWA/Android) ──
+        const showSellFloatingBtn = () => {
+            const btn = document.getElementById('sellFloatingBtn');
+            if (!btn) return;
+            btn.style.display = isSeller ? 'inline-flex' : 'none';
+        };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', showSellFloatingBtn);
+        } else {
+            showSellFloatingBtn();
+        }
         const MAINTENANCE_MODAL_ID = 'newket-maintenance-modal';
         const removeMaintenanceOverlay = () => {
             if (!document.body) return;
