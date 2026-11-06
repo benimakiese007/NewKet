@@ -555,7 +555,8 @@ const ComponentLoader = {
             let earlyRole = 'buyer';
             try { earlyRole = localStorage.getItem('newketRole') || 'buyer'; } catch (e) {}
             try {
-                window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: 'customer' });
+                const isSeller_nt = (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'seller' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'supplier' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'vendor';
+                window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: isSeller_nt ? 'seller' : 'customer' });
                 const hasUser = !!localStorage.getItem('newketUserId');
                 const avatar = hasUser ? localStorage.getItem('newketUserAvatar') : null;
                 const rawName = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '';
@@ -564,7 +565,7 @@ const ComponentLoader = {
                     isLoggedIn: hasUser,
                     avatarUrl: avatar,
                     initials: init,
-                    role: 'customer'
+                    role: ((typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'seller' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'supplier' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'vendor') ? 'seller' : 'customer'
                 });
             } catch (_) {}
             // Sur iOS Capacitor, les dashboards (client, vendeur, admin) n'ont pas de TabBar, comme sur Web et Android
@@ -621,7 +622,8 @@ const ComponentLoader = {
                 document.documentElement.classList.add('is-ios-capacitor');
                 if (existingMobileNav) existingMobileNav.remove();
                 try {
-                    window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: 'customer' });
+                    const isSeller_nt = (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'seller' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'supplier' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'vendor';
+                window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: isSeller_nt ? 'seller' : 'customer' });
                     const hasUser = !isGuest;
                     const avatar = hasUser ? localStorage.getItem('newketUserAvatar') : null;
                     const rawName = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '';
@@ -630,7 +632,7 @@ const ComponentLoader = {
                         isLoggedIn: hasUser,
                         avatarUrl: avatar,
                         initials: init,
-                        role: 'customer'
+                        role: ((typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'seller' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'supplier' || (typeof userRole !== 'undefined' ? userRole : (typeof earlyRole !== 'undefined' ? earlyRole : localStorage.getItem('newketRole'))) === 'vendor') ? 'seller' : 'customer'
                     });
                 } catch (_) {}
                 // Inject native header buttons (burger + search/logout) on all pages
@@ -1677,7 +1679,7 @@ const ComponentLoader = {
         
         if (hasSession && role) {
             if (role === 'admin') accountPath = 'admin';
-            else if (role === 'supplier') accountPath = 'vendor-dashboard';
+            else if (role === 'supplier' || role === 'seller' || role === 'vendor') accountPath = 'vendor-dashboard';
             else accountPath = 'customer-dashboard';
         }
 

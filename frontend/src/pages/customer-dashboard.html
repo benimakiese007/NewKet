@@ -285,13 +285,7 @@
                         <span>Paramètres</span>
                     </a>
                     <!-- Admin Link for Suppliers -->
-                    <div id="supplier-link-container" class="hidden">
-                        <div class="h-px bg-gray-100 my-4 mx-2"></div>
-                        <a href="/admin/index" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
-                            <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
-                            <span>Espace Vendeur</span>
-                        </a>
-                    </div>
+                    
                 </nav>
                 <div class="sidebar-currency-box mt-6 pt-5 border-t border-gray-100">
                     <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
@@ -1740,11 +1734,12 @@
             renderFavorites();
             renderDashboardNotifications();
 
-            // Show Admin Link for Suppliers
-            const role = localStorage.getItem('newketRole');
-            if (role === 'supplier') {
-                const supplierLink = document.getElementById('supplier-link-container');
-                if (supplierLink) supplierLink.classList.remove('hidden');
+            // Si le compte connecté est un vendeur, rediriger directement vers le tableau de bord vendeur
+            const role = localStorage.getItem('newketRole') || window.AuthManager?.role;
+            if (role === 'supplier' || role === 'seller' || role === 'vendor') {
+                const vendorPath = (window.ComponentLoader?.getAdjustedPath?.('vendor-dashboard')) || '/src/pages/vendor-dashboard.html';
+                window.location.replace(vendorPath);
+                return;
             }
 
             // Load Dashboard Stats

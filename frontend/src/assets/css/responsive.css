@@ -2129,3 +2129,10 @@ html.capacitor-native #mobileMenu {
         transform: rotate(0deg);
     }
 }
+
+/* Masquer le bouton flottant Vendre quand un tiroir, modal ou sidebar est ouvert */
+body.sidebar-open .sell-floating-btn,
+body.drawer-open .sell-floating-btn,
+body.modal-open .sell-floating-btn {
+    display: none !important;
+}

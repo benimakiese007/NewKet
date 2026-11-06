@@ -1274,7 +1274,7 @@ const AuthManager = {
         if (this.status) body.classList.add(`status-${this.status}`);
 
         // Mobile Nav Visibility
-        const isVendor = this.role === 'supplier' || this.role === 'admin';
+        const isVendor = this.role === 'supplier' || this.role === 'seller' || this.role === 'vendor' || this.role === 'admin';
         document.querySelectorAll('.vendor-nav').forEach(el => el.classList.toggle('hidden', !isVendor));
         document.querySelectorAll('.customer-nav').forEach(el => el.classList.toggle('hidden', isVendor));
 
@@ -1293,7 +1293,7 @@ const AuthManager = {
         if (logoutBtn) logoutBtn.style.display = isLoggedIn ? 'flex' : 'none';
         if (mobileNotifs) mobileNotifs.style.display = isLoggedIn ? 'flex' : 'none';
 
-        if (this.role === 'supplier' || this.role === 'admin') {
+        if (this.role === 'supplier' || this.role === 'seller' || this.role === 'vendor' || this.role === 'admin') {
             const isAdmin = this.role === 'admin';
 
             document.querySelectorAll('.sidebar-link').forEach(link => {
@@ -1440,12 +1440,15 @@ const AuthManager = {
         try {
             if (window.Capacitor?.Plugins?.NativeTabBar?.setProfile) {
                 const isLoggedIn = !this._logoutInProgress && !!(this.user || localStorage.getItem('newketUserId'));
+                const isSeller = this.role === 'supplier' || this.role === 'seller' || this.role === 'vendor' || localStorage.getItem('newketRole') === 'supplier' || localStorage.getItem('newketRole') === 'seller' || localStorage.getItem('newketRole') === 'vendor';
+                const nativeRole = isSeller ? 'seller' : 'customer';
                 window.Capacitor.Plugins.NativeTabBar.setProfile({
                     isLoggedIn: isLoggedIn,
                     avatarUrl: (isLoggedIn && avatarUrl) ? avatarUrl : null,
                     initials: isLoggedIn ? initials : null,
-                    role: 'customer'
+                    role: nativeRole
                 }).catch(() => {});
+                window.Capacitor.Plugins.NativeTabBar.setRole({ role: nativeRole }).catch(() => {});
             }
         } catch (_) {}
         const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkTablet, #accountLinkFooter, #accountLinkMobileBottom');
@@ -1559,7 +1562,7 @@ const AuthManager = {
                     }
                 }
 
-            } else if (this.role === 'supplier') {
+            } else if (this.role === 'supplier' || this.role === 'seller' || this.role === 'vendor') {
                 accountLink.href = window.resolvePath('vendor-dashboard');
                 accountLink.title = 'Tableau de bord Vendeur';
                 if (icon) {
@@ -1669,7 +1672,7 @@ const AuthManager = {
                 loggedLink.href = window.resolvePath('admin/');
                 if (loggedName) loggedName.textContent = userName;
                 if (loggedRole) loggedRole.textContent = 'Administrateur';
-            } else if (this.role === 'supplier') {
+            } else if (this.role === 'supplier' || this.role === 'seller' || this.role === 'vendor') {
                 loggedLink.href = window.resolvePath('vendor-dashboard');
                 // Fetch company if available, fallback to user name
                 const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
