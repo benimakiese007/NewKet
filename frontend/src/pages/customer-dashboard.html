@@ -5194,12 +5194,16 @@
                 const totalCycleSteps = 9;
                 const current = stepsConfig[currentStepIndex];
 
-                appendLog(`Mise à jour -> Étape ${currentStepIndex}/${totalCycleSteps} [${current.status}] : ${current.title} (${Math.round(current.prog * 100)}%)`);
+                const targetId = activeTrackingOrderId || demoOrderId;
+                const orderNum = activeTrackingOrderObj ? (activeTrackingOrderObj.order_number || ('#' + (activeTrackingOrderObj.id || '').slice(0, 6).toUpperCase())) : '#NK-DEMO';
+                const sName = activeTrackingOrderObj?.shop_name || 'Boutique Officielle';
+
+                appendLog(`Mise à jour ${orderNum} -> Étape ${currentStepIndex}/${totalCycleSteps} [${current.status}] : ${current.title} (${Math.round(current.prog * 100)}%)`);
                 try {
                     await plugin.updateActivity({
-                        orderId: demoOrderId,
-                        orderNumber: "#NK-DEMO",
-                        shopName: "Boutique Officielle",
+                        orderId: targetId,
+                        orderNumber: orderNum,
+                        shopName: sName,
                         status: current.status,
                         statusTitle: current.title,
                         statusDescription: current.desc,
@@ -5209,9 +5213,9 @@
                         etaText: current.eta,
                         isCancelled: Boolean(current.isCancelled)
                     });
-                    appendLog(`Étape ${currentStepIndex} synchronisée avec succès.`);
+                    appendLog(`✅ Étape ${currentStepIndex} synchronisée pour ${orderNum} !`);
                 } catch (err) {
-                    appendLog(`Erreur updateActivity: ${err?.message || err}`, true);
+                    appendLog(`Erreur updateActivity sur ${targetId}: ${err?.message || err}`, true);
                 }
             });
 
@@ -5279,6 +5283,8 @@
                     return;
                 }
 
+                activeTrackingOrderId = targetOrder.id;
+                activeTrackingOrderObj = targetOrder;
                 appendLog(`Activation du suivi pour la commande #${targetOrder.order_number || targetOrder.id.slice(0, 6)} (Statut: ${targetOrder.status})...`);
                 if (window.LiveOrderTracker) {
                     try {
