@@ -5385,6 +5385,12 @@ body.sidebar-resizing {
 .sell-floating-btn:active {
   transform: scale(0.94);
 }
+/* Scroll bas → bouton Vendre se cache (slide bas + fade) */
+.sell-floating-btn.scroll-hidden {
+  opacity: 0 !important;
+  transform: translateY(16px) scale(0.88) !important;
+  pointer-events: none !important;
+}
 html.dark .sell-floating-btn {
   background: rgba(17, 24, 39, 0.92);
   box-shadow:
@@ -5392,10 +5398,10 @@ html.dark .sell-floating-btn {
     0 1.5px 4px rgba(0, 0, 0, 0.30),
     inset 0 1px 1px rgba(255, 255, 255, 0.07);
 }
-/* Masqué sur iOS Capacitor (TabBar native) */
+/* iOS Capacitor : bottom adapté — safe-area inclut la TabBar native SwiftUI */
 html.is-ios-capacitor .sell-floating-btn,
 body.is-ios-capacitor .sell-floating-btn {
-  display: none !important;
+  bottom: calc(env(safe-area-inset-bottom, 20px) + 12px) !important;
 }
 /* Masqué sur desktop */
 @media (min-width: 640px) {

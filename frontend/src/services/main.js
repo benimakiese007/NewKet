@@ -81,6 +81,40 @@ const App = {
         } else {
             showSellFloatingBtn();
         }
+
+        // ── Scroll hide/show bouton Vendre (bas → caché, haut → visible) ──
+        (() => {
+            let _sellLastY = window.pageYOffset || 0;
+            let _sellTick  = false;
+            const THRESHOLD = 40; // px depuis le top pour toujours afficher
+
+            const syncSellBtn = () => {
+                const btn = document.getElementById('sellFloatingBtn');
+                if (!btn || btn.style.display === 'none') {
+                    _sellTick = false;
+                    return;
+                }
+                const y    = window.pageYOffset || document.documentElement.scrollTop || 0;
+                const diff = y - _sellLastY;
+
+                if (y < THRESHOLD) {
+                    btn.classList.remove('scroll-hidden');       // toujours visible au top
+                } else if (diff > 2) {
+                    btn.classList.add('scroll-hidden');          // scroll bas → cacher
+                } else if (diff < -2) {
+                    btn.classList.remove('scroll-hidden');       // scroll haut → montrer
+                }
+                _sellLastY = y;
+                _sellTick  = false;
+            };
+
+            window.addEventListener('scroll', () => {
+                if (!_sellTick) {
+                    _sellTick = true;
+                    window.requestAnimationFrame(syncSellBtn);
+                }
+            }, { passive: true });
+        })();
         const MAINTENANCE_MODAL_ID = 'newket-maintenance-modal';
         const removeMaintenanceOverlay = () => {
             if (!document.body) return;
