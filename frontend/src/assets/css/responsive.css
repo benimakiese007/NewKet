@@ -2021,3 +2021,96 @@ html.capacitor-native #mobileMenu {
     touch-action: none;
 }
 
+
+/* ==========================================================================
+   54. OVERLAY VERROUILLAGE ROTATION PAYSAGE (Smartphones Web/PWA)
+   ========================================================================== */
+#nk-rotate-device-overlay {
+    display: none;
+}
+
+@media screen and (orientation: landscape) and (max-height: 520px) and (pointer: coarse) {
+    #nk-rotate-device-overlay {
+        display: flex !important;
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 99999999 !important;
+        background: rgba(15, 23, 42, 0.94) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+        backdrop-filter: blur(16px) saturate(180%) !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 1.5rem !important;
+        touch-action: none !important;
+    }
+
+    .nk-rotate-card {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
+        border-radius: 1.5rem !important;
+        padding: 1.25rem 2rem !important;
+        max-width: 440px !important;
+        text-align: center !important;
+        color: #ffffff !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+    }
+
+    .nk-rotate-icon-box {
+        position: relative;
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border-radius: 50%;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .nk-rotate-phone-svg {
+        width: 26px;
+        height: 26px;
+        animation: nkPhoneRotate 2.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nk-rotate-arrow-svg {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        top: 4px;
+        right: 4px;
+        opacity: 0.8;
+    }
+
+    .nk-rotate-title {
+        font-size: 1rem !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
+        letter-spacing: -0.01em !important;
+        color: #ffffff !important;
+    }
+
+    .nk-rotate-desc {
+        font-size: 0.8rem !important;
+        color: rgba(255, 255, 255, 0.75) !important;
+        margin: 0 !important;
+        line-height: 1.4 !important;
+    }
+
+    @keyframes nkPhoneRotate {
+        0%, 15% {
+            transform: rotate(-90deg);
+        }
+        50%, 85% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(0deg);
+        }
+    }
+}

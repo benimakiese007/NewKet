@@ -1444,7 +1444,7 @@ const AuthManager = {
                     isLoggedIn: isLoggedIn,
                     avatarUrl: (isLoggedIn && avatarUrl) ? avatarUrl : null,
                     initials: isLoggedIn ? initials : null,
-                    role: this.role || 'customer'
+                    role: 'customer'
                 }).catch(() => {});
             }
         } catch (_) {}

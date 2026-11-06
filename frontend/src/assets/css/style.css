@@ -5398,10 +5398,13 @@ html.dark .sell-floating-btn {
     0 1.5px 4px rgba(0, 0, 0, 0.30),
     inset 0 1px 1px rgba(255, 255, 255, 0.07);
 }
-/* iOS Capacitor : bottom adapté — safe-area inclut la TabBar native SwiftUI */
+/* iOS Capacitor : placé AU-DESSUS de la TabBar native SwiftUI (qui fait ~49pt + safe area ~34pt) */
 html.is-ios-capacitor .sell-floating-btn,
 body.is-ios-capacitor .sell-floating-btn {
-  bottom: calc(env(safe-area-inset-bottom, 20px) + 12px) !important;
+  bottom: calc(env(safe-area-inset-bottom, 34px) + 64px) !important;
+  right: 16px !important;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
 }
 /* Masqué sur desktop */
 @media (min-width: 640px) {

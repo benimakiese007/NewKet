@@ -70,17 +70,40 @@ const App = {
         const isSupplier = currentRole === 'supplier';
         const isSeller = currentRole === 'seller' || currentRole === 'vendor';
 
-        // ── Bouton flottant Vendre : visible uniquement pour les vendeurs (web/PWA/Android) ──
-        const showSellFloatingBtn = () => {
-            const btn = document.getElementById('sellFloatingBtn');
-            if (!btn) return;
-            btn.style.display = isSeller ? 'inline-flex' : 'none';
+        // ── Bouton flottant Vendre : visible uniquement pour les vendeurs (Web / Android / iOS) ──
+        const ensureAndSyncSellFloatingBtn = () => {
+            const role = window.AuthManager?.role || localStorage.getItem('newketRole') || '';
+            const isSeller = role === 'seller' || role === 'vendor' || role === 'supplier';
+
+            let btn = document.getElementById('sellFloatingBtn');
+            if (!btn && isSeller) {
+                btn = document.createElement('button');
+                btn.id = 'sellFloatingBtn';
+                btn.className = 'sell-floating-btn';
+                btn.setAttribute('aria-label', 'Vendre un article');
+                btn.innerHTML = '<iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon><span style="pointer-events:none;">Vendre</span>';
+                btn.onclick = () => { window.location.href = '/src/pages/publish.html'; };
+                document.body.appendChild(btn);
+            }
+
+            if (btn) {
+                btn.style.display = isSeller ? 'inline-flex' : 'none';
+            }
         };
+
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', showSellFloatingBtn);
+            document.addEventListener('DOMContentLoaded', ensureAndSyncSellFloatingBtn);
         } else {
-            showSellFloatingBtn();
+            ensureAndSyncSellFloatingBtn();
         }
+
+        // Réactivité multi-événements (dès que le rôle est connu / mis à jour)
+        window.addEventListener('componentsLoaded', ensureAndSyncSellFloatingBtn);
+        window.addEventListener('roleChanged', ensureAndSyncSellFloatingBtn);
+        window.addEventListener('userStatusUpdated', ensureAndSyncSellFloatingBtn);
+        setTimeout(ensureAndSyncSellFloatingBtn, 400);
+        setTimeout(ensureAndSyncSellFloatingBtn, 1200);
+        setTimeout(ensureAndSyncSellFloatingBtn, 2500);
 
         // ── Scroll hide/show bouton Vendre (bas → caché, haut → visible) ──
         (() => {
@@ -99,9 +122,9 @@ const App = {
 
                 if (y < THRESHOLD) {
                     btn.classList.remove('scroll-hidden');       // toujours visible au top
-                } else if (diff > 2) {
+                } else if (diff > 4) {
                     btn.classList.add('scroll-hidden');          // scroll bas → cacher
-                } else if (diff < -2) {
+                } else if (diff < -4) {
                     btn.classList.remove('scroll-hidden');       // scroll haut → montrer
                 }
                 _sellLastY = y;

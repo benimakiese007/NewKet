@@ -441,26 +441,18 @@ const getBottomNavHTML = (role, isGuest = false) => {
     const isAdmin  = role === 'admin';
     const useLiquidGlass = isIOSCapacitor();
 
-    // ── Item 3 : Boutiques (défaut) | Vendre (seller) ──────────────────────
-    const item3_lg = isSeller
-        ? `<a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Vendre" data-track-action="navigation:publish_click">
-        <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
-        <span class="text-[9px] font-medium tracking-wide">Vendre</span>
-    </a>`
-        : `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
+    // ── Item 3 : Boutiques pour TOUS les comptes (clients, vendeurs, admins) ──
+    const item3_lg = `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Boutiques">
         <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Boutiques</span>
     </a>`;
 
-    const item3_std = isSeller
-        ? `<a href="{{ROOT}}publish" data-bottom-nav-item="sell" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Vendre" data-track-action="navigation:publish_click">
-            <iconify-icon icon="solar:add-circle-linear" width="22"></iconify-icon>
-            <span>Vendre</span>
-        </a>`
-        : `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Boutiques">
-            <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
-            <span>Boutiques</span>
-        </a>`;
+    const item3_std = `<a href="{{ROOT}}shops" data-bottom-nav-item="shops" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Boutiques">
+        <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
+        <span>Boutiques</span>
+    </a>`;
+
+    
 
     // ── Item 4 : Notifs (admin) | Panier→login (invité) | Panier→drawer (buyer/seller) ──
     const item4_lg = isAdmin
@@ -560,7 +552,7 @@ const ComponentLoader = {
             let earlyRole = 'buyer';
             try { earlyRole = localStorage.getItem('newketRole') || 'buyer'; } catch (e) {}
             try {
-                window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: earlyRole });
+                window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: 'customer' });
                 const hasUser = !!localStorage.getItem('newketUserId');
                 const avatar = hasUser ? localStorage.getItem('newketUserAvatar') : null;
                 const rawName = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '';
@@ -569,7 +561,7 @@ const ComponentLoader = {
                     isLoggedIn: hasUser,
                     avatarUrl: avatar,
                     initials: init,
-                    role: earlyRole
+                    role: 'customer'
                 });
             } catch (_) {}
             // Sur iOS Capacitor, les dashboards (client, vendeur, admin) n'ont pas de TabBar, comme sur Web et Android
@@ -626,7 +618,7 @@ const ComponentLoader = {
                 document.documentElement.classList.add('is-ios-capacitor');
                 if (existingMobileNav) existingMobileNav.remove();
                 try {
-                    window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: userRole });
+                    window.Capacitor?.Plugins?.NativeTabBar?.setRole?.({ role: 'customer' });
                     const hasUser = !isGuest;
                     const avatar = hasUser ? localStorage.getItem('newketUserAvatar') : null;
                     const rawName = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '';
@@ -635,7 +627,7 @@ const ComponentLoader = {
                         isLoggedIn: hasUser,
                         avatarUrl: avatar,
                         initials: init,
-                        role: userRole
+                        role: 'customer'
                     });
                 } catch (_) {}
                 // Inject native header buttons (burger + search/logout) on all pages
@@ -727,6 +719,7 @@ const ComponentLoader = {
         }
 
         this.initNetworkStatus();
+        this.initOrientationNotice();
         this.initMobileSearchToggle();
 
         // Auto-open notifications or favorites drawer if redirected
@@ -855,6 +848,35 @@ const ComponentLoader = {
 
         document.addEventListener('click', hideSearchIfOutside);
         document.addEventListener('touchstart', hideSearchIfOutside, { passive: true });
+    },
+
+    initOrientationNotice() {
+        if (document.getElementById('nk-rotate-device-overlay')) return;
+        const isCapacitor = !!(
+            (window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : window.Capacitor.isNative)) ||
+            document.documentElement.classList.contains('is-ios-capacitor') ||
+            document.documentElement.classList.contains('is-android-capacitor')
+        );
+        if (isCapacitor) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'nk-rotate-device-overlay';
+        overlay.innerHTML = `
+            <div class="nk-rotate-card">
+                <div class="nk-rotate-icon-box">
+                    <svg class="nk-rotate-phone-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="5" y="2" width="14" height="20" rx="3" ry="3"></rect>
+                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                    </svg>
+                    <svg class="nk-rotate-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                    </svg>
+                </div>
+                <h3 class="nk-rotate-title">Mode Portrait recommandé</h3>
+                <p class="nk-rotate-desc">Pour une meilleure expérience sur NewKet, veuillez faire pivoter votre téléphone à la verticale.</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
     },
 
     initNetworkStatus() {
