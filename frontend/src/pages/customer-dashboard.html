@@ -5169,30 +5169,36 @@
             stepBtn?.addEventListener('click', async () => {
                 const plugin = getPlugin();
                 if (!plugin) return;
-                currentStepIndex = (currentStepIndex % 4) + 1;
+                currentStepIndex = (currentStepIndex % totalCycleSteps) + 1;
                 
                 const stepsConfig = {
-                    1: { title: "Commande confirmée", desc: "En préparation en boutique", prog: 0.25, eta: "15 min" },
-                    2: { title: "Colis prêt", desc: "Le livreur a récupéré votre commande", prog: 0.50, eta: "10 min" },
-                    3: { title: "En cours de livraison", desc: "Le coursier se dirige vers votre adresse", prog: 0.75, eta: "4 min" },
-                    4: { title: "Commande livrée !", desc: "Colis remis en main propre. Bon appétit !", prog: 1.0, eta: "Livré" }
+                    1: { status: "PENDING", title: "Commande confirmée", desc: "Votre paiement est validé. En attente de la boutique.", prog: 0.15, step: 1, eta: "25 min" },
+                    2: { status: "PAID_HELD", title: "Paiement sécurisé 🔒", desc: "Fonds sous séquestre. En attente de la boutique.", prog: 0.25, step: 1, eta: "20 min" },
+                    3: { status: "PROCESSING", title: "Préparation en cours 🔧", desc: "Le vendeur prépare vos articles.", prog: 0.40, step: 2, eta: "18 min" },
+                    4: { status: "READY_FOR_DELIVERY", title: "Colis prêt 📦", desc: "La commande attend la prise en charge du livreur.", prog: 0.50, step: 2, eta: "15 min" },
+                    5: { status: "SHIPPED", title: "Commande expédiée 🚚", desc: "Votre colis a quitté la boutique.", prog: 0.65, step: 3, eta: "10 min" },
+                    6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le coursier se dirige vers votre adresse.", prog: 0.85, step: 3, eta: "4 min" },
+                    7: { status: "DELIVERED", title: "Commande livrée 🎉", desc: "Colis remis en main propre. Merci !", prog: 1.0, step: 4, eta: "Livré" },
+                    8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre commande.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
+                    9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true }
                 };
+                const totalCycleSteps = 9;
                 const current = stepsConfig[currentStepIndex];
 
-                appendLog(`Mise à jour -> Étape ${currentStepIndex}/4 : ${current.title}`);
+                appendLog(`Mise à jour -> Étape ${currentStepIndex}/${totalCycleSteps} [${current.status}] : ${current.title} (${Math.round(current.prog * 100)}%)`);
                 try {
                     await plugin.updateActivity({
                         orderId: demoOrderId,
                         orderNumber: "#NK-DEMO",
                         shopName: "Boutique Officielle",
-                        status: currentStepIndex === 4 ? "DELIVERED" : "IN_TRANSIT",
+                        status: current.status,
                         statusTitle: current.title,
                         statusDescription: current.desc,
                         progress: current.prog,
-                        currentStep: currentStepIndex,
+                        currentStep: current.step,
                         totalSteps: 4,
                         etaText: current.eta,
-                        isCancelled: false
+                        isCancelled: Boolean(current.isCancelled)
                     });
                     appendLog(`Étape ${currentStepIndex} synchronisée avec succès.`);
                 } catch (err) {
