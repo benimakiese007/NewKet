@@ -5339,7 +5339,7 @@ body.sidebar-resizing {
 .sell-floating-btn {
   position: fixed;
   /* Positionné juste au-dessus de la TabBar (62px + safe-area) */
-  bottom: calc(62px + env(safe-area-inset-bottom, 0px) + 10px);
+  bottom: calc(62px + env(safe-area-inset-bottom, 0px) + 8px);
   right: 14px;
   z-index: 51; /* au-dessus de la TabBar z-50 */
 
@@ -5401,7 +5401,7 @@ html.dark .sell-floating-btn {
 /* iOS Capacitor : placé AU-DESSUS de la TabBar native SwiftUI (qui fait ~49pt + safe area ~34pt) */
 html.is-ios-capacitor .sell-floating-btn,
 body.is-ios-capacitor .sell-floating-btn {
-  bottom: calc(env(safe-area-inset-bottom, 34px) + 64px) !important;
+  bottom: calc(env(safe-area-inset-bottom, 34px) + 46px) !important;
   right: 16px !important;
   z-index: 99999 !important;
   pointer-events: auto !important;
