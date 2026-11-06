@@ -141,6 +141,9 @@ const OrderManager = {
 
         // Dashboards listen to this event to rerender their lists/stats.
         window.dispatchEvent(new CustomEvent('ordersUpdated'));
+
+        // Auto-démarrage transparent du Live Tracking sur mobile pour la commande active la plus récente
+        this._autoSyncActiveLiveTracking();
     },
 
     _setupRealtime() {
@@ -151,6 +154,25 @@ const OrderManager = {
             .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
                 console.log('[OrderManager] Realtime update received:', payload);
                 
+                // Poussée instantanée vers Live Activity si la commande appartient à l'acheteur connecté
+                if (payload.new && window.LiveOrderTracker) {
+                    try {
+                        const currentUserId = localStorage.getItem('newketUserId') || window.AuthManager?.user?.id;
+                        const currentUserEmail = localStorage.getItem('newketUserEmail') || window.AuthManager?.user?.email;
+                        const order = payload.new;
+                        const isMyOrder = (currentUserId && (order.user_id === currentUserId || order.customer_id === currentUserId))
+                            || (currentUserEmail && order.customer_email === currentUserEmail);
+
+                        if (isMyOrder) {
+                            window.LiveOrderTracker.trackOrder(order).catch(err => {
+                                console.warn('[OrderManager] Auto Live Tracking update:', err?.message);
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('[OrderManager] Erreur auto Live Tracking realtime:', e);
+                    }
+                }
+
                 // Clear the 5-min cache 
                 localStorage.removeItem('newket_orders_sync_time');
 
@@ -169,6 +191,40 @@ const OrderManager = {
      * Normalize an order object
      * so all admin pages can consume it uniformly.
      */
+    /**
+     * Analyse les commandes de l'utilisateur connecté et initialise automatiquement
+     * le Dynamic Island / Lock Screen si une commande est en cours de préparation ou livraison.
+     */
+    _autoSyncActiveLiveTracking() {
+        if (!window.LiveOrderTracker || !this.data || this.data.length === 0) return;
+
+        try {
+            const currentUserId = localStorage.getItem('newketUserId') || window.AuthManager?.user?.id;
+            const currentUserEmail = localStorage.getItem('newketUserEmail') || window.AuthManager?.user?.email;
+            if (!currentUserId && !currentUserEmail) return;
+
+            const activeStatuses = ['PAID_HELD', 'PROCESSING', 'READY_FOR_DELIVERY', 'SHIPPED', 'IN_DELIVERY'];
+            
+            // Trouver les commandes de l'utilisateur
+            const myOrders = this.data.filter(o => 
+                (currentUserId && (o.user_id === currentUserId || o.customer_id === currentUserId)) ||
+                (currentUserEmail && o.customer_email === currentUserEmail)
+            );
+
+            // Trouver la commande active la plus récente
+            const activeOrder = myOrders.find(o => activeStatuses.includes(String(o.status || '').toUpperCase()));
+
+            if (activeOrder) {
+                console.log('[OrderManager] 🚀 Commande active détectée pour le Live Tracking :', activeOrder.id, activeOrder.status);
+                window.LiveOrderTracker.trackOrder(activeOrder).catch(err => {
+                    console.log('[OrderManager] Info auto-track (normal si hors iOS natif) :', err?.message);
+                });
+            }
+        } catch (e) {
+            console.warn('[OrderManager] Erreur dans _autoSyncActiveLiveTracking :', e);
+        }
+    },
+
     _normalizeOrder(order) {
         // Parse items if they arrive as a JSON string
         let rawItems = order.items;

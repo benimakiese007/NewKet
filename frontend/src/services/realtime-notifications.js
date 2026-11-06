@@ -85,34 +85,47 @@ const AppNotifications = {
                     userId = session.user.id;
                     userEmail = session.user.email;
                     
-                    // Listen for order status updates for the current user safely
-                    client.channel(`public:orders:${userId}`)
+                    // Handler unifié pour les mises à jour de commandes de l'utilisateur
+                    const handleOrderChange = (payload) => {
+                        const newStatus = payload.new?.status;
+                        const oldStatus = payload.old?.status;
+                        const hasChanged = !oldStatus || newStatus !== oldStatus;
+
+                        if (hasChanged && payload.new) {
+                            this.showToast(
+                                'Mise à jour de commande 📦',
+                                `Le statut de votre commande #${(payload.new.id || '').split('-')[0]} est passé à : ${payload.new.status}.`,
+                                'info',
+                                'solar:box-minimalistic-bold'
+                            );
+
+                            // Synchronisation automatique immédiate avec les Live Activities natives (Dynamic Island / Lock Screen)
+                            if (window.LiveOrderTracker) {
+                                window.LiveOrderTracker.trackOrder(payload.new).catch(e => {
+                                    console.warn('[NewKet] LiveOrderTracker non bloquant :', e?.message);
+                                });
+                            }
+                        }
+                    };
+
+                    // Écoute sur user_id
+                    client.channel(`public:orders:user:${userId}`)
                         .on('postgres_changes', { 
                             event: 'UPDATE', 
                             schema: 'public', 
                             table: 'orders',
                             filter: `user_id=eq.${userId}` 
-                        }, payload => {
-                            const newStatus = payload.new?.status;
-                            const oldStatus = payload.old?.status;
-                            const hasChanged = !oldStatus || newStatus !== oldStatus;
+                        }, handleOrderChange)
+                        .subscribe();
 
-                            if (hasChanged) {
-                                this.showToast(
-                                    'Mise à jour de commande 📦',
-                                    `Le statut de votre commande #${payload.new.id.split('-')[0]} est passé à : ${payload.new.status}.`,
-                                    'info',
-                                    'solar:box-minimalistic-bold'
-                                );
-
-                                // Synchronisation avec les Live Activities natives (iOS & Android)
-                                if (window.LiveOrderTracker) {
-                                    window.LiveOrderTracker.trackOrder(payload.new).catch(e => {
-                                        console.warn('[NewKet] LiveOrderTracker non bloquant :', e?.message);
-                                    });
-                                }
-                            }
-                        })
+                    // Écoute également sur customer_id pour couvrir les deux structures de données
+                    client.channel(`public:orders:customer:${userId}`)
+                        .on('postgres_changes', { 
+                            event: 'UPDATE', 
+                            schema: 'public', 
+                            table: 'orders',
+                            filter: `customer_id=eq.${userId}` 
+                        }, handleOrderChange)
                         .subscribe();
                 }
 
