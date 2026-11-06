@@ -446,6 +446,10 @@
                                 Déclenchez une commande test en direct sur votre <strong>Dynamic Island</strong> et votre <strong>Écran Verrouillé</strong>.
                             </p>
                             <div class="flex flex-wrap gap-2">
+                                <button type="button" id="btn-test-live-activity-real"
+                                    class="px-3 py-1.5 bg-black hover:bg-gray-800 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5 border border-white/20">
+                                    <span>📱</span> <span id="btn-test-live-activity-real-text">Suivre ma commande</span>
+                                </button>
                                 <button type="button" id="btn-test-live-activity-start"
                                     class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5">
                                     <span>▶</span> Lancer #NK-DEMO
@@ -5210,6 +5214,48 @@
 
             clearBtn?.addEventListener('click', () => {
                 logsEl.textContent = "Journal réinitialisé.\n";
+            });
+
+            // ── Synchronisation Commande Réelle ──
+            const realOrderBtn = document.getElementById('btn-test-live-activity-real');
+            const realOrderBtnText = document.getElementById('btn-test-live-activity-real-text');
+
+            const refreshRealOrderBtn = () => {
+                if (!realOrderBtn) return;
+                const orders = (typeof getCustomerOrdersForDashboard === 'function' ? getCustomerOrdersForDashboard() : (window.OrderManager?.getOrders() || []));
+                const active = orders.find(o => isCustomerOrderActive ? isCustomerOrderActive(o.status) : (o.status !== 'CANCELLED' && o.status !== 'REFUNDED'));
+                if (active) {
+                    realOrderBtn.style.display = 'inline-flex';
+                    if (realOrderBtnText) realOrderBtnText.textContent = `Suivre #${active.order_number || active.id.slice(0, 6)} (${active.status})`;
+                    realOrderBtn.onclick = async () => {
+                        appendLog(`Démarrage du suivi en direct pour la commande réelle #${active.id.slice(0, 8)}...`);
+                        if (window.LiveOrderTracker) {
+                            try {
+                                const res = await window.LiveOrderTracker.trackOrder(active);
+                                appendLog(`✅ Suivi actif sur Dynamic Island ! Statut: ${active.status}`);
+                                appendLog("👉 Verrouillez l'écran pour observer le widget de verrouillage.");
+                            } catch (e) {
+                                appendLog(`Erreur démarrage suivi : ${e?.message || e}`, true);
+                            }
+                        } else {
+                            appendLog("Service LiveOrderTracker non chargé.", true);
+                        }
+                    };
+                } else {
+                    if (realOrderBtnText) realOrderBtnText.textContent = "Aucune commande active";
+                }
+            };
+
+            setTimeout(refreshRealOrderBtn, 1500);
+            window.addEventListener('ordersUpdated', refreshRealOrderBtn);
+
+            // Écoute des mises à jour en direct depuis l'Admin (Supabase Realtime)
+            window.addEventListener('orderLiveTrackingRealtimeUpdate', (e) => {
+                const updated = e.detail;
+                if (!updated) return;
+                appendLog(`⚡ REÇU DE L'ADMIN : Commande #${(updated.id || '').slice(0, 8)} -> Nouveau Statut : ${updated.status}`);
+                appendLog("📱 La Dynamic Island et l'écran de verrouillage ont été mis à jour !");
+                refreshRealOrderBtn();
             });
         })();
     </script>

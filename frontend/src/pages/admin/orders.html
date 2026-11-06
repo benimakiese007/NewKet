@@ -845,7 +845,237 @@
                 btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> Clôturer et Appliquer';
             }
         }
-    </script>
+    
+        // ── Admin Live Activity Remote Controller Logic ─────────────────────────
+        let activeAdminLiveOrder = null;
+
+        function appendAdminLiveLog(msg, isError = false) {
+            const logsEl = document.getElementById('adminLiveTrackingLogs');
+            if (!logsEl) return;
+            const time = new Date().toLocaleTimeString();
+            const prefix = isError ? '❌' : '⚡';
+            const line = `[${time}] ${prefix} ${msg}\n`;
+            if (logsEl.textContent.trim() === "Prêt pour l'envoi...") {
+                logsEl.textContent = line;
+            } else {
+                logsEl.textContent += line;
+            }
+            logsEl.scrollTop = logsEl.scrollHeight;
+        }
+
+        window.openAdminLiveTrackingModal = function(orderId) {
+            const orders = window.OrderManager?.getOrders() || [];
+            const order = orders.find(o => o.id === orderId);
+            if (!order) {
+                alert("Commande introuvable dans le cache local.");
+                return;
+            }
+            activeAdminLiveOrder = order;
+
+            const modal = document.getElementById('adminLiveTrackingModal');
+            if (!modal) return;
+
+            document.getElementById('adminLiveOrderId').textContent = '#' + (order.order_number || order.id.slice(0, 8).toUpperCase());
+            document.getElementById('adminLiveCustomerName').textContent = order.customer?.name || order.customer_name || 'Client Anonyme';
+            document.getElementById('adminLiveCustomerEmail').textContent = order.customer?.email || order.customer_email || order.phone_number || 'Sans coordonnées';
+
+            const statusBadge = document.getElementById('adminLiveStatusBadge');
+            const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status;
+            statusBadge.textContent = statusLabel;
+            statusBadge.className = `mt-1 px-3 py-1 rounded-full text-xs font-black inline-block ${getStatusStyle(order.status)}`;
+
+            modal.classList.remove('hidden');
+            appendAdminLiveLog(`Session ouverte pour la commande #${order.id.slice(0, 8)} (Statut actuel: ${order.status})`);
+        };
+
+        window.closeAdminLiveTrackingModal = function() {
+            const modal = document.getElementById('adminLiveTrackingModal');
+            if (modal) modal.classList.add('hidden');
+            activeAdminLiveOrder = null;
+        };
+
+        window.adminSendLiveStatus = async function(newStatus) {
+            if (!activeAdminLiveOrder) {
+                alert("Aucune commande active.");
+                return;
+            }
+            const orderId = activeAdminLiveOrder.id;
+            appendAdminLiveLog(`Envoi du statut ${newStatus} vers Supabase...`);
+
+            try {
+                await OrderManager.updateStatus(orderId, newStatus);
+                activeAdminLiveOrder.status = newStatus;
+
+                // Mettre à jour l'UI de la modale
+                const statusBadge = document.getElementById('adminLiveStatusBadge');
+                if (statusBadge) {
+                    const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(newStatus) : newStatus;
+                    statusBadge.textContent = statusLabel;
+                    statusBadge.className = `mt-1 px-3 py-1 rounded-full text-xs font-black inline-block ${getStatusStyle(newStatus)}`;
+                }
+
+                // Rafraîchir le tableau principal
+                if (typeof renderAdminOrders === 'function') renderAdminOrders();
+
+                appendAdminLiveLog(`✅ Statut ${newStatus} enregistré ! Supabase Realtime a propagé l'événement vers le mobile.`);
+                if (window.showToast) showToast(`Statut passé à : ${newStatus}`, 'success');
+            } catch (err) {
+                appendAdminLiveLog(`Erreur lors de la mise à jour : ${err?.message || err}`, true);
+            }
+        };
+
+        window.adminForceStartLiveTracking = async function() {
+            if (!activeAdminLiveOrder) return;
+            appendAdminLiveLog("Demande de forçage de démarrage Live Activity...");
+            await adminSendLiveStatus('PROCESSING');
+        };
+
+        window.adminForceEndLiveTracking = async function() {
+            if (!activeAdminLiveOrder) return;
+            appendAdminLiveLog("Demande de clôture Live Activity...");
+            await adminSendLiveStatus('COMPLETED');
+        };
+
+</script>
+
+    <!-- 🎛️ Admin Live Activity Controller Modal -->
+    <div id="adminLiveTrackingModal" class="fixed inset-0 z-[200] items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300 flex">
+        <div class="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] border border-gray-100">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-sm">
+                        <iconify-icon icon="solar:radar-bold" width="22" class="animate-pulse"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                            <span>Télécommande Live Activity</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-widest">Natif iOS / Android</span>
+                        </h2>
+                        <p class="text-xs text-gray-500 font-medium">Commande <span id="adminLiveOrderId" class="font-bold text-gray-900">#---</span></p>
+                    </div>
+                </div>
+                <button onclick="closeAdminLiveTrackingModal()" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors shadow-sm">
+                    <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto modal-scroll space-y-5">
+                <!-- Order Summary Card -->
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200/70 flex items-center justify-between gap-4">
+                    <div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Client</div>
+                        <div id="adminLiveCustomerName" class="font-black text-gray-900 text-sm mt-0.5">---</div>
+                        <div id="adminLiveCustomerEmail" class="text-xs text-gray-500">---</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Statut en Base</div>
+                        <div id="adminLiveStatusBadge" class="mt-1 px-3 py-1 rounded-full text-xs font-black inline-block bg-gray-200 text-gray-800">
+                            ---
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Progression Remote Control -->
+                <div>
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                        📡 Changer l'étape en direct (Progression Dynamic Island & Écran verrouillé)
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button type="button" onclick="adminSendLiveStatus('PENDING')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-amber-50/50">
+                            <span class="text-base">🟡</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900">1. Confirmée</div>
+                                <div class="text-[9px] font-bold text-amber-600">15%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('PAID_HELD')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-blue-50/50">
+                            <span class="text-base">🔒</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900">2. Sécurisée</div>
+                                <div class="text-[9px] font-bold text-blue-600">25%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('PROCESSING')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-orange-50/50">
+                            <span class="text-base">🟠</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900">3. Préparation</div>
+                                <div class="text-[9px] font-bold text-orange-600">40%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('READY_FOR_DELIVERY')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-indigo-50/50">
+                            <span class="text-base">📦</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900">4. Colis prêt</div>
+                                <div class="text-[9px] font-bold text-indigo-600">50%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('SHIPPED')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-purple-50/50">
+                            <span class="text-base">🚚</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900">5. Expédiée</div>
+                                <div class="text-[9px] font-bold text-purple-600">65%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('IN_DELIVERY')"
+                            class="p-3 rounded-2xl border-2 border-emerald-500 hover:border-emerald-700 active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-emerald-50/60 shadow-sm">
+                            <span class="text-base">🛵</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-emerald-900">6. En livraison</div>
+                                <div class="text-[9px] font-bold text-emerald-600">85%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('DELIVERED')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-emerald-50/50">
+                            <span class="text-base">🎉</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900">7. Livrée</div>
+                                <div class="text-[9px] font-bold text-emerald-600">100%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="adminSendLiveStatus('CANCELLED')"
+                            class="p-3 rounded-2xl border border-gray-200 hover:border-red-400 active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white hover:bg-red-50/50">
+                            <span class="text-base">❌</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-red-600">Annulée</div>
+                                <div class="text-[9px] font-bold text-red-500">0%</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Emergency / Quick Actions -->
+                <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
+                    <button type="button" onclick="adminForceStartLiveTracking()"
+                        class="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
+                        <iconify-icon icon="solar:play-circle-bold" width="16"></iconify-icon>
+                        <span>Forcer Démarrage sur Mobile</span>
+                    </button>
+                    <button type="button" onclick="adminForceEndLiveTracking()"
+                        class="px-4 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-700 font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5">
+                        <iconify-icon icon="solar:stop-circle-bold" width="16"></iconify-icon>
+                        <span>Clôturer Activité</span>
+                    </button>
+                </div>
+
+                <!-- Live Logs from Admin -->
+                <div>
+                    <div class="flex items-center justify-between text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1.5">
+                        <span>Journal d'envoi Realtime (Supabase) :</span>
+                        <button type="button" onclick="document.getElementById('adminLiveTrackingLogs').textContent = 'Prêt pour l\'envoi...'" class="hover:underline">Effacer</button>
+                    </div>
+                    <pre id="adminLiveTrackingLogs" class="p-3 bg-gray-950 text-emerald-400 text-[11px] font-mono rounded-2xl max-h-32 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">Prêt pour l'envoi...</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

@@ -19,6 +19,12 @@ const STEP_MAPPING = {
         title: 'Commande confirmée',
         description: 'Votre paiement est validé. En attente de la boutique.',
     },
+    'PAID_HELD': {
+        step: 1,
+        progress: 0.25,
+        title: 'Paiement sécurisé 🔒',
+        description: 'Fonds sous séquestre. En attente de la boutique.',
+    },
     'PROCESSING': {
         step: 2,
         progress: 0.40,
@@ -301,6 +307,22 @@ class LiveOrderTrackerService {
             this.logEvent(this.lastOperation || 'TRACK', `Échec de l'opération : ${this.lastError}`, 'ERROR', { payload });
             throw err;
         }
+    }
+
+    /**
+     * Met à jour le suivi avec un ID de commande et un nouveau statut.
+     * @param {string} orderId
+     * @param {string} newStatus
+     */
+    async updateStatus(orderId, newStatus) {
+        if (!orderId) throw new Error('orderId requis pour updateStatus');
+        let order = window.OrderManager?.data?.find?.(o => o.id === orderId);
+        if (!order) {
+            order = { id: orderId, status: newStatus };
+        } else {
+            order = { ...order, status: newStatus };
+        }
+        return this.trackOrder(order);
     }
 
     /**

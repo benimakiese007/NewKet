@@ -17,6 +17,7 @@ const OrderManager = {
         'QUOTE':      'Devis livraison',
         'READY_FOR_PAYMENT': 'Prêt pour paiement',
         'PROCESSING': 'En cours',
+        'READY_FOR_DELIVERY': 'Colis prêt',
         'SHIPPED':    'Expédié',
         'IN_DELIVERY': 'En livraison',
         'DELIVERED':  'Livré',
@@ -512,6 +513,21 @@ const OrderManager = {
             order.status = newStatus;
         }
 
+        // Direct Supabase update for immediate Realtime websocket push
+        if (window.supabaseClient) {
+            try {
+                await window.supabaseClient
+                    .from('orders')
+                    .update({
+                        status: newStatus,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', id);
+            } catch (supErr) {
+                console.warn('[OrderManager] Supabase direct update (fallback sur ApiClient) :', supErr?.message);
+            }
+        }
+
         // Update in backend API if possible
         if (window.ApiClient) {
             try {
@@ -523,6 +539,7 @@ const OrderManager = {
         }
 
         window.dispatchEvent(new CustomEvent('ordersUpdated'));
+        window.dispatchEvent(new CustomEvent('orderLiveTrackingUpdated', { detail: { id, status: newStatus } }));
         return true;
     },
 

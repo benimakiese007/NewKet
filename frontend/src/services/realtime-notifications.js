@@ -93,7 +93,11 @@ const AppNotifications = {
                             table: 'orders',
                             filter: `user_id=eq.${userId}` 
                         }, payload => {
-                            if (payload.new.status !== payload.old.status) {
+                            const newStatus = payload.new?.status;
+                            const oldStatus = payload.old?.status;
+                            const hasChanged = !oldStatus || newStatus !== oldStatus;
+
+                            if (hasChanged) {
                                 this.showToast(
                                     'Mise à jour de commande 📦',
                                     `Le statut de votre commande #${payload.new.id.split('-')[0]} est passé à : ${payload.new.status}.`,
