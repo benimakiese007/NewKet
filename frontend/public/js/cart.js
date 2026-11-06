@@ -200,37 +200,63 @@ class CartManager {
     animateFlyToCart(imageUrl, clickEvent) {
         if (!clickEvent) return;
         
-        const cartSelectors = '[title="Panier"], [aria-label="Panier"], [aria-label="Mon panier"], [aria-label="Voir le panier"], .cart-badge';
+        // 1. Chercher tous les boutons panier potentiels dans le DOM
+        const cartSelectors = '#cartBtnTablet, [data-bottom-nav-item="cart"], [title="Panier"], [aria-label="Panier"], [aria-label="Mon panier"], [aria-label="Voir le panier"], .cart-badge';
         const cartButtons = Array.from(document.querySelectorAll(cartSelectors));
-        // Sort by whether they are visible (width/height > 0) and prefer elements that are more likely to be the actual icon
+        
+        // 2. Trouver un bouton reellement visible (width & height > 0, affiche a l\'ecran)
         const visibleCartBtn = cartButtons.find(btn => {
             const rect = btn.getBoundingClientRect();
-            return rect.width > 0 && rect.height > 0 && window.getComputedStyle(btn).display !== 'none' && window.getComputedStyle(btn).visibility !== 'hidden';
-        }) || cartButtons[0];
-        if (!visibleCartBtn) return;
+            if (rect.width <= 0 || rect.height <= 0) return false;
+            const style = window.getComputedStyle(btn);
+            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+        });
+
+        let endX, endY;
+
+        if (visibleCartBtn) {
+            // Cible DOM trouvee (Web desktop header, tablette, ou barre mobile web)
+            const cartRect = visibleCartBtn.getBoundingClientRect();
+            endX = cartRect.left + cartRect.width / 2;
+            endY = cartRect.top + cartRect.height / 2;
+        } else {
+            // Aucun bouton panier visible dans le DOM (ex: iOS Capacitor avec TabBar 100% native Swift/UIKit)
+            // La TabBar iOS possede 5 onglets : Accueil (1), Catalogue (2), Boutiques/Vendre (3), Panier (4), Compte (5).
+            // Le 4e onglet Panier est centre exactement a 70% de la largeur de l\'ecran.
+            const isMobileScreen = window.innerWidth <= 768;
+            if (isMobileScreen) {
+                endX = window.innerWidth * 0.70;
+                // Calcul de la marge du bas avec la Safe Area iOS (home indicator ~34px) ou barre standard 49px
+                const safeBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom') || '0', 10) || 34;
+                endY = window.innerHeight - (safeBottom > 0 ? (safeBottom + 26) : 36);
+            } else {
+                // Fallback de securite ecran large (coin superieur droit vers le header)
+                endX = window.innerWidth - 60;
+                endY = 40;
+            }
+        }
         
-        const cartRect = visibleCartBtn.getBoundingClientRect();
-        const startX = clickEvent.clientX;
-        const startY = clickEvent.clientY;
-        const endX = cartRect.left + cartRect.width / 2;
-        const endY = cartRect.top + cartRect.height / 2;
+        // Coordonnees de depart du clic
+        const startX = clickEvent.clientX || (clickEvent.touches && clickEvent.touches[0] ? clickEvent.touches[0].clientX : window.innerWidth / 2);
+        const startY = clickEvent.clientY || (clickEvent.touches && clickEvent.touches[0] ? clickEvent.touches[0].clientY : window.innerHeight / 2);
         
         const flyEl = document.createElement('div');
         flyEl.style.position = 'fixed';
         flyEl.style.left = startX + 'px';
         flyEl.style.top = startY + 'px';
-        flyEl.style.width = '50px';
-        flyEl.style.height = '50px';
+        flyEl.style.width = '48px';
+        flyEl.style.height = '48px';
         flyEl.style.borderRadius = '50%';
-        flyEl.style.backgroundImage = imageUrl ? `url(${imageUrl})` : 'none';
+        flyEl.style.backgroundImage = imageUrl ? ('url("' + imageUrl + '")') : 'none';
         flyEl.style.backgroundSize = 'cover';
         flyEl.style.backgroundPosition = 'center';
         flyEl.style.backgroundColor = '#013220';
         flyEl.style.zIndex = '999999';
-        flyEl.style.transition = 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+        flyEl.style.transition = 'all 0.65s cubic-bezier(0.2, 0.9, 0.3, 1)';
         flyEl.style.transform = 'translate(-50%, -50%) scale(1)';
         flyEl.style.pointerEvents = 'none';
-        flyEl.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+        flyEl.style.boxShadow = '0 10px 25px rgba(0,0,0,0.35)';
+        flyEl.style.border = '2px solid rgba(255,255,255,0.85)';
         
         document.body.appendChild(flyEl);
         
@@ -238,23 +264,23 @@ class CartManager {
             requestAnimationFrame(() => {
                 flyEl.style.left = endX + 'px';
                 flyEl.style.top = endY + 'px';
-                flyEl.style.transform = 'translate(-50%, -50%) scale(0.2)';
-                flyEl.style.opacity = '0.5';
+                flyEl.style.transform = 'translate(-50%, -50%) scale(0.18)';
+                flyEl.style.opacity = '0.3';
             });
         });
         
         setTimeout(() => {
             if (document.body.contains(flyEl)) document.body.removeChild(flyEl);
-            const originalTransform = visibleCartBtn.style.transform;
-            visibleCartBtn.style.transform = 'scale(1.2)';
-            visibleCartBtn.style.transition = 'transform 0.2s';
-            setTimeout(() => {
-                visibleCartBtn.style.transform = originalTransform;
-            }, 200);
-        }, 600);
+            if (visibleCartBtn) {
+                const originalTransform = visibleCartBtn.style.transform;
+                visibleCartBtn.style.transform = 'scale(1.25)';
+                visibleCartBtn.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                setTimeout(() => {
+                    visibleCartBtn.style.transform = originalTransform;
+                }, 220);
+            }
+        }, 650);
     }
-
-
 
     /**
      * Update quantity of an item
