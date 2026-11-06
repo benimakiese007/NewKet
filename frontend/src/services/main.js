@@ -106,15 +106,11 @@ const App = {
 
                 btn = document.createElement('a');
                 btn.id = 'sellFloatingBtn';
-                btn.className = 'sell-floating-btn';
+                btn.className = 'sell-floating-btn publish-btn';
                 btn.href = targetPath;
                 btn.setAttribute('aria-label', 'Vendre un article');
+                btn.setAttribute('data-track-action', 'navigation:publish_click');
                 btn.innerHTML = '<iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon><span style="pointer-events:none;">Vendre</span>';
-                
-                // Logging on click
-                btn.onclick = () => {
-                    console.log('[VendreBtn] CLICK — navigating to:', targetPath, '| isNative:', isNative, '| current href:', window.location.href);
-                };
                 document.body.appendChild(btn);
             }
 
