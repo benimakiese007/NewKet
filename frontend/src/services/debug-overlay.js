@@ -206,13 +206,13 @@ export function initDebugOverlay() {
 
     panel.innerHTML = `
         <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:20px 20px calc(24px + env(safe-area-inset-bottom, 20px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:8px;">
-                <h3 style="margin:0; font-size:14px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diagnostic</h3>
-                <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-                    <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
-                    <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
-                    <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 Code OTA</button>
-                    <button id="nk-dbg-close" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer;">✕</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px;">
+                <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
+                <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
+                    <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
+                    <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
+                    <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:6px; padding:4px 6px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 OTA</button>
+                    <button id="nk-dbg-close" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:6px; padding:4px 8px; font-size:11px; font-weight:bold; cursor:pointer; line-height:1;" title="Fermer">✕</button>
                 </div>
             </div>
             <!-- Bouton pour demander toutes les autorisations natives (Localisation, Caméra, Micro, Face ID, Notifs) -->
@@ -303,13 +303,13 @@ export function initDebugOverlay() {
         try {
             const SUPA_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co';
             const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY';
-            const url = `${SUPA_URL}/rest/v1/app_versions?select=version,release_notes,created_at,checksum,is_active&order=created_at.desc&limit=20`;
+            const url = `${SUPA_URL}/rest/v1/app_versions?select=version,release_notes,created_at,checksum,is_active&order=created_at.desc&limit=5`;
             const res = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const rows = await res.json();
             if (infoEl) {
                 infoEl.innerHTML = `
-                    <div style="font-size:10px; font-weight:800; color:#7c3aed; letter-spacing:0.05em; margin-bottom:8px;">📜 HISTORIQUE OTA (${rows.length} versions)</div>
+                    <div style="font-size:10px; font-weight:800; color:#c084fc; letter-spacing:0.05em; margin-bottom:8px;">📜 DERNIERS CODES OTA (${rows.length})</div>
                     <div style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
                         ${rows.map(r => {
                             const date = new Date(r.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
