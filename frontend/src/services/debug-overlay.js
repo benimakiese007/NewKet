@@ -211,6 +211,7 @@ export function initDebugOverlay() {
                 <div style="display:flex; gap:6px; flex-wrap:nowrap;">
                     <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
                     <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
+                    <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 Code OTA</button>
                     <button id="nk-dbg-close" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:bold; cursor:pointer;">✕</button>
                 </div>
             </div>
@@ -290,6 +291,47 @@ export function initDebugOverlay() {
             console.error('[Debug] ProductManager is undefined!');
         }
         updatePanel();
+    });
+
+    // ── Bouton Historique OTA ──────────────────────────────────────────────────
+    panel.querySelector('#nk-dbg-ota-history').addEventListener('click', async () => {
+        const btn = panel.querySelector('#nk-dbg-ota-history');
+        const infoEl = panel.querySelector('#nk-debug-info');
+        const origText = btn.textContent;
+        btn.textContent = '⏳ Chargement...';
+        btn.disabled = true;
+        try {
+            const SUPA_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co';
+            const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY';
+            const url = `${SUPA_URL}/rest/v1/app_versions?select=version,release_notes,created_at,checksum,is_active&order=created_at.desc&limit=20`;
+            const res = await fetch(url, { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const rows = await res.json();
+            if (infoEl) {
+                infoEl.innerHTML = `
+                    <div style="font-size:10px; font-weight:800; color:#7c3aed; letter-spacing:0.05em; margin-bottom:8px;">📜 HISTORIQUE OTA (${rows.length} versions)</div>
+                    <div style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+                        ${rows.map(r => {
+                            const date = new Date(r.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+                            const cs = r.checksum ? r.checksum.slice(0,16) + '…' : '⚠️ absent';
+                            const active = r.is_active ? ' ✅' : '';
+                            return `<div style="background:rgba(255,255,255,0.05); padding:6px 8px; border-radius:8px; border-left:3px solid ${r.is_active ? '#10b981' : '#475569'};">
+                                <div style="font-weight:800; color:${r.is_active ? '#10b981' : '#94a3b8'};">v${r.version}${active}</div>
+                                <div style="opacity:0.6; font-size:10px;">${date}</div>
+                                <div style="font-size:10px; color:#cbd5e1; margin-top:2px;">${r.release_notes || '—'}</div>
+                                <div style="font-size:9px; opacity:0.4; font-family:monospace;">${cs}</div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                `;
+            }
+            btn.textContent = '✅ Chargé';
+            setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000);
+        } catch (err) {
+            if (infoEl) infoEl.innerHTML = `<div style="color:#f87171;">❌ Erreur OTA History: ${err.message}</div>`;
+            btn.textContent = origText;
+            btn.disabled = false;
+        }
     });
 
     // ── Déclencheur séquentiel de toutes les permissions système iOS & Android ──

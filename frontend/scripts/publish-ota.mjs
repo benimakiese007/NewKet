@@ -60,11 +60,47 @@ for (let i = 0; i < args.length; i++) {
     }
 }
 
-// Si pas de version fournie, incrémenter le patch de package.json
+// Supabase client (initialisé tôt pour getNextVersion)
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/**
+ * Calcule la prochaine version avec lettre-suffixe depuis la DB.
+ * Exemples : 1.0.65 → 1.0.65a → 1.0.65b → ... → 1.0.65z → 1.0.66
+ * Protège contre les collisions multi-agents simultanés.
+ */
+async function getNextVersion() {
+    const { data, error } = await supabase
+        .from('app_versions')
+        .select('version')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+    if (error) {
+        console.warn('[OTA] Impossible de lire la DB, fallback sur package.json :', error.message);
+        return pkg.version || '1.0.0';
+    }
+
+    const latest = data?.[0]?.version || pkg.version || '1.0.0';
+    console.log('[OTA] Dernière version en DB :', latest);
+
+    // Parsing : "1.0.65" ou "1.0.65a" ou "1.0.65b"
+    const match = String(latest).match(/^(\d+\.\d+\.)(\d+)([a-z]?)$/);
+    if (!match) {
+        console.warn('[OTA] Version en DB non parsable, fallback direct :', latest);
+        return latest;
+    }
+    const prefix = match[1]; // "1.0."
+    const patch = parseInt(match[2]); // 65
+    const letter = match[3]; // "" ou "a" ou "b"
+
+    if (!letter) return `${prefix}${patch}a`;             // 1.0.65 → 1.0.65a
+    if (letter === 'z') return `${prefix}${patch + 1}`;  // 1.0.65z → 1.0.66
+    return `${prefix}${patch}${String.fromCharCode(letter.charCodeAt(0) + 1)}`; // 1.0.65a → 1.0.65b
+}
+
+// Si pas de version fournie, calculer depuis la DB avec lettre-suffixe
 if (!targetVersion) {
-    const parts = (pkg.version || '1.0.0').split('.').map(Number);
-    parts[2] = (parts[2] || 0) + 1;
-    targetVersion = parts.join('.');
+    targetVersion = await getNextVersion();
 }
 
 releaseNotes = releaseNotes || `Mise à jour OTA v${targetVersion} (${new Date().toLocaleDateString('fr-FR')})`;
@@ -120,8 +156,6 @@ try {
 }
 
 // 5. Upload sur Supabase Storage
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 async function uploadAndPublish() {
     console.log('\n[3/3] Upload vers Supabase Storage (bucket app-releases)...');
     const fileBuffer = readFileSync(zipPath);

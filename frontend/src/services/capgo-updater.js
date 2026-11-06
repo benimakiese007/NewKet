@@ -12,16 +12,26 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Mode silencieux : aucune notification visuelle intrusive n'est affichée à l'utilisateur.
 function showToast() {}
 
+/**
+ * Compare deux versions avec support de suffixes lettre (ex: 1.0.65a < 1.0.65b < 1.0.66).
+ * Retourne: -1 si v1 < v2, 0 si égal, 1 si v1 > v2.
+ */
 function compareVersions(v1, v2) {
     if (!v1 || !v2) return 0;
-    const p1 = String(v1).replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
-    const p2 = String(v2).replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
-    const maxLen = Math.max(p1.length, p2.length);
+    const parsePart = (p) => {
+        const m = String(p).match(/^(\d+)([a-zA-Z]*)$/);
+        if (!m) return { num: 0, letter: '' };
+        return { num: parseInt(m[1], 10) || 0, letter: m[2] || '' };
+    };
+    const parts1 = String(v1).replace(/^v/, '').split('.');
+    const parts2 = String(v2).replace(/^v/, '').split('.');
+    const maxLen = Math.max(parts1.length, parts2.length);
     for (let i = 0; i < maxLen; i++) {
-        const num1 = p1[i] || 0;
-        const num2 = p2[i] || 0;
-        if (num1 > num2) return 1;
-        if (num1 < num2) return -1;
+        const a = parsePart(parts1[i] || '0');
+        const b = parsePart(parts2[i] || '0');
+        if (a.num !== b.num) return a.num > b.num ? 1 : -1;
+        // Même numéro : comparer la lettre ('' < 'a' < 'b' < ...)
+        if (a.letter !== b.letter) return a.letter > b.letter ? 1 : -1;
     }
     return 0;
 }
