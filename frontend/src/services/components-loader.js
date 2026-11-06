@@ -518,6 +518,9 @@ const getBottomNavHTML = (role, isGuest = false) => {
 
 const ComponentLoader = {
     async init() {
+        // Early orientation init
+        try { this.initOrientationNotice(); } catch (_) {}
+
         if (window.componentsLoading) return;
         window.componentsLoading = true;
 
@@ -851,45 +854,56 @@ const ComponentLoader = {
     },
 
     initOrientationNotice() {
-        if (document.getElementById('nk-rotate-device-overlay')) return;
-
-        const overlay = document.createElement('div');
-        overlay.id = 'nk-rotate-device-overlay';
-        overlay.setAttribute('aria-hidden', 'true');
-        overlay.innerHTML = `
-            <div class="nk-rotate-card">
-                <div class="nk-rotate-icon-box">
-                    <svg class="nk-rotate-phone-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="5" y="2" width="14" height="20" rx="3" ry="3"></rect>
-                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                    </svg>
-                    <svg class="nk-rotate-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-                    </svg>
+        if (typeof document === 'undefined' || !document.body) return;
+        let overlay = document.getElementById('nk-rotate-device-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'nk-rotate-device-overlay';
+            overlay.setAttribute('aria-hidden', 'true');
+            overlay.innerHTML = `
+                <div class="nk-rotate-card">
+                    <div class="nk-rotate-icon-box">
+                        <svg class="nk-rotate-phone-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="3" ry="3"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                        <svg class="nk-rotate-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                        </svg>
+                    </div>
+                    <h3 class="nk-rotate-title">Mode Portrait recommandé</h3>
+                    <p class="nk-rotate-desc">Pour une meilleure expérience sur NewKet, veuillez faire pivoter votre téléphone à la verticale.</p>
                 </div>
-                <h3 class="nk-rotate-title">Mode Portrait recommandé</h3>
-                <p class="nk-rotate-desc">Pour une meilleure expérience sur NewKet, veuillez faire pivoter votre téléphone à la verticale.</p>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+            `;
+            document.body.appendChild(overlay);
+        }
 
         const syncOrientation = () => {
-            const isLandscape = window.innerWidth > window.innerHeight;
-            // Détection smartphone en paysage : hauteur <= 600px et largeur <= 1024px
-            const isMobileLandscape = isLandscape && window.innerHeight <= 600 && window.innerWidth <= 1024;
-            
-            if (isMobileLandscape) {
+            const w = window.innerWidth || document.documentElement.clientWidth || 0;
+            const h = window.innerHeight || document.documentElement.clientHeight || 0;
+            const isLandscape = w > h;
+            const minDim = Math.min(window.screen?.width || w, window.screen?.height || h);
+            const isPhoneDevice = minDim <= 600 ||
+                                  /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent) ||
+                                  (window.Capacitor?.isNativePlatform?.() || !!window.Capacitor);
+            const isDesktopScreen = w > 1024 && h > 650;
+            const shouldBlock = isLandscape && (h <= 650 || isPhoneDevice) && !isDesktopScreen;
+
+            if (shouldBlock) {
                 overlay.classList.add('is-active');
             } else {
                 overlay.classList.remove('is-active');
             }
+
+            console.log(`[Orientation] w=${w} h=${h} minDim=${minDim} landscape=${isLandscape} isPhone=${isPhoneDevice} block=${shouldBlock}`);
         };
 
         window.addEventListener('resize', syncOrientation, { passive: true });
         window.addEventListener('orientationchange', syncOrientation, { passive: true });
-        screen.orientation?.addEventListener('change', syncOrientation);
-        setTimeout(syncOrientation, 100);
-        setTimeout(syncOrientation, 500);
+        screen.orientation?.addEventListener?.('change', syncOrientation);
+        setTimeout(syncOrientation, 50);
+        setTimeout(syncOrientation, 300);
+        setTimeout(syncOrientation, 800);
     },
 
     initNetworkStatus() {

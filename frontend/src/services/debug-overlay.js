@@ -86,6 +86,12 @@ function updatePanel() {
                     <div><b>BackendReady :</b> ${s.bReady ? '✅ true' : '❌ false'}</div>
                     <div><b>Produits :</b> ${s.prodCount} total (${s.pubCount} publics)</div>
                     <div><b>Rôle Auth :</b> ${s.authRole}</div>
+                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
+                        <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🧭 ORIENTATION & ECRAN</div>
+                        <div><b>Mode :</b> ${window.innerWidth > window.innerHeight ? '⚠️ Landscape (Paysage)' : '✅ Portrait'}</div>
+                        <div><b>Taille :</b> ${window.innerWidth} x ${window.innerHeight} px</div>
+                        <div><b>Overlay :</b> ${document.getElementById('nk-rotate-device-overlay')?.classList?.contains('is-active') ? '🔴 ACTIF (bloqué)' : '⚪ Inactif'}</div>
+                    </div>
                 </div>
                 <div>
                     <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">🔄 OTA</div>

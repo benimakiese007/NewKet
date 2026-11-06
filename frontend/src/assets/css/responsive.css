@@ -2044,7 +2044,7 @@ html.capacitor-native #mobileMenu {
     touch-action: none !important;
 }
 
-@media screen and (orientation: landscape) and (max-height: 600px) and (max-width: 1024px) {
+@media screen and (orientation: landscape) and (max-height: 650px) and (max-width: 1024px) {
     #nk-rotate-device-overlay {
         display: flex !important;
         position: fixed !important;
