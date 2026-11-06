@@ -5335,92 +5335,6 @@ body.sidebar-resizing {
 
 /* ========== MOBILE BOTTOM NAV (Cleaned - styles unified in Liquid Glass section) ========== */
 
-/* ── Bouton flottant Vendre (pill capsule liquid glass) ── */
-.sell-floating-btn {
-  position: fixed;
-  text-decoration: none !important;
-  /* Positionné juste au-dessus de la TabBar (62px + safe-area) */
-  bottom: calc(62px + env(safe-area-inset-bottom, 0px) + 8px);
-  right: 14px;
-  z-index: 51; /* au-dessus de la TabBar z-50 */
-
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 0.5px solid rgba(255, 255, 255, 0.60);
-  cursor: pointer;
-  outline: none;
-
-  /* Apple Liquid Glass — cristal translucide */
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(20px) saturate(180%) brightness(110%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(110%);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.12),
-    0 1px 4px rgba(0, 0, 0, 0.08),
-    inset 0 1px 1px rgba(255, 255, 255, 0.90),
-    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.06);
-
-  /* Texte & icône */
-  color: #000000;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  line-height: 1;
-  white-space: nowrap;
-
-  /* Animation */
-  transition:
-    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.18s ease,
-    box-shadow 0.18s ease;
-  will-change: transform;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-.sell-floating-btn:hover {
-  transform: scale(1.05);
-}
-.sell-floating-btn:active {
-  transform: scale(0.94);
-}
-/* Scroll bas → bouton Vendre se cache (slide bas + fade) */
-.sell-floating-btn.scroll-hidden {
-  opacity: 0 !important;
-  transform: translateY(16px) scale(0.88) !important;
-  pointer-events: none !important;
-}
-/* Dark mode — verre sombre */
-html.dark .sell-floating-btn {
-  background: rgba(28, 28, 30, 0.72);
-  backdrop-filter: blur(20px) saturate(180%) brightness(100%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(100%);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.40),
-    0 1.5px 4px rgba(0, 0, 0, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.12),
-    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.30);
-  border: 0.5px solid rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-}
-/* iOS Capacitor : placé AU-DESSUS de la TabBar native SwiftUI (qui fait ~49pt + safe area ~34pt) */
-html.is-ios-capacitor .sell-floating-btn,
-body.is-ios-capacitor .sell-floating-btn {
-  bottom: calc(env(safe-area-inset-bottom, 34px) + 46px) !important;
-  right: 16px !important;
-  z-index: 99999 !important;
-  pointer-events: auto !important;
-}
-/* Masqué sur desktop */
-@media (min-width: 640px) {
-  .sell-floating-btn {
-    display: none !important;
-  }
-}
-
 #mobileBottomNav.hide {
   transform: translateY(150%) !important;
 }
@@ -27972,9 +27886,3 @@ html.dark .standard-bottom-nav .nav-item.active span {
     }
 }
 
-/* Masquer le bouton flottant Vendre quand un tiroir, modal ou sidebar est ouvert */
-body.sidebar-open .sell-floating-btn,
-body.drawer-open .sell-floating-btn,
-body.modal-open .sell-floating-btn {
-    display: none !important;
-}
