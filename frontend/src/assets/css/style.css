@@ -5347,23 +5347,24 @@ body.sidebar-resizing {
   align-items: center;
   gap: 5px;
 
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 999px;
-  border: none;
+  border: 0.5px solid rgba(255, 255, 255, 0.60);
   cursor: pointer;
   outline: none;
 
-  /* Liquid glass pill — fond anthracite #1f2937 */
-  background: rgba(31, 41, 55, 0.90);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  /* Apple Liquid Glass — cristal translucide */
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(180%) brightness(110%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(110%);
   box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.30),
-    0 1.5px 4px rgba(0, 0, 0, 0.18),
-    inset 0 1px 1px rgba(255, 255, 255, 0.10);
+    0 4px 20px rgba(0, 0, 0, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.90),
+    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.06);
 
   /* Texte & icône */
-  color: #ffffff;
+  color: #000000;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -5391,12 +5392,18 @@ body.sidebar-resizing {
   transform: translateY(16px) scale(0.88) !important;
   pointer-events: none !important;
 }
+/* Dark mode — verre sombre */
 html.dark .sell-floating-btn {
-  background: rgba(17, 24, 39, 0.92);
+  background: rgba(28, 28, 30, 0.72);
+  backdrop-filter: blur(20px) saturate(180%) brightness(100%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(100%);
   box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.50),
-    0 1.5px 4px rgba(0, 0, 0, 0.30),
-    inset 0 1px 1px rgba(255, 255, 255, 0.07);
+    0 4px 20px rgba(0, 0, 0, 0.40),
+    0 1.5px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.30);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 /* iOS Capacitor : placé AU-DESSUS de la TabBar native SwiftUI (qui fait ~49pt + safe area ~34pt) */
 html.is-ios-capacitor .sell-floating-btn,

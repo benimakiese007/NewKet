@@ -88,7 +88,12 @@ const App = {
                 btn.className = 'sell-floating-btn';
                 btn.setAttribute('aria-label', 'Vendre un article');
                 btn.innerHTML = '<iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon><span style="pointer-events:none;">Vendre</span>';
-                btn.onclick = () => { window.location.href = '/src/pages/publish.html'; };
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const path = (window.ComponentLoader?.getAdjustedPath?.('publish')) || '/src/pages/publish.html';
+                    window.location.href = path;
+                };
                 document.body.appendChild(btn);
             }
 
