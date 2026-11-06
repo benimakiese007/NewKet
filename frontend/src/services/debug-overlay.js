@@ -430,6 +430,44 @@ export function initDebugOverlay() {
                 try {
                     const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
                     console.log('[Permissions] Biométrie Web (WebAuthn / Face ID / Touch ID) :', available ? '✅ Disponible sur cet appareil' : '⚪ Non disponible sur ce navigateur');
+
+                    if (available && navigator.credentials && navigator.credentials.create) {
+                        console.log('[Permissions] 📱 Déclenchement de la fenêtre système Face ID / Touch ID / Code appareil...');
+                        const challenge = new Uint8Array(32);
+                        window.crypto.getRandomValues(challenge);
+                        const userId = new Uint8Array(16);
+                        window.crypto.getRandomValues(userId);
+
+                        try {
+                            await navigator.credentials.create({
+                                publicKey: {
+                                    challenge: challenge,
+                                    rp: { name: "NewKet", id: window.location.hostname },
+                                    user: {
+                                        id: userId,
+                                        name: "test-auth@newket.com",
+                                        displayName: "NewKet Appareil Test"
+                                    },
+                                    pubKeyCredParams: [
+                                        { alg: -7, type: "public-key" },
+                                        { alg: -257, type: "public-key" }
+                                    ],
+                                    authenticatorSelection: {
+                                        authenticatorAttachment: "platform", // Force Touch ID / Face ID / Code appareil local
+                                        userVerification: "required"
+                                    },
+                                    timeout: 60000
+                                }
+                            });
+                            console.log('[Permissions] ✅ Fenêtre validée avec succès avec la biométrie/code de votre appareil !');
+                        } catch (promptErr) {
+                            if (promptErr.name === 'NotAllowedError') {
+                                console.log('[Permissions] ℹ️ Fenêtre de l\'appareil affichée avec succès (Action annulée par l\'utilisateur)');
+                            } else {
+                                console.log('[Permissions] ℹ️ Fenêtre de l\'appareil déclenchée :', promptErr.message || promptErr.name);
+                            }
+                        }
+                    }
                 } catch (e) {
                     console.warn('[Permissions] ⚠️ WebAuthn check:', e?.message);
                 }
