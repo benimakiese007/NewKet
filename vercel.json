@@ -85,7 +85,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "accelerometer=(self), camera=(self), geolocation=(), gyroscope=(self), magnetometer=(self), microphone=(), payment=(), usb=()"
+          "value": "accelerometer=(self), camera=(self), geolocation=(self), gyroscope=(self), magnetometer=(self), microphone=(self), payment=(), usb=()"
         }
       ]
     }
