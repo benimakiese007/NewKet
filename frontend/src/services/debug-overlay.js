@@ -410,23 +410,31 @@ export function initDebugOverlay() {
                 console.warn('[Permissions] ⚠️ Notifications error:', e.message);
             }
 
-            // 5. Face ID / Biométrie native (Capacitor BiometricAuth -> LAContext iOS)
+            // 5. Face ID / Biométrie native (Capacitor BiometricAuth -> LAContext iOS) ou WebAuthn (Web)
             setStatus('5/6 Face ID / Biométrie');
-            if (typeof window.authenticateDeviceOwner === 'function') {
+            const isNativeCap = Boolean(
+                window.Capacitor?.isNativePlatform?.() ||
+                window.Capacitor?.getPlatform?.() === 'android' ||
+                window.Capacitor?.getPlatform?.() === 'ios'
+            );
+
+            if (isNativeCap && typeof window.authenticateDeviceOwner === 'function') {
                 try {
-                    console.log('[Permissions] Déclenchement Face ID natif iOS...');
+                    console.log('[Permissions] Déclenchement Face ID natif iOS/Android...');
                     const bioOk = await window.authenticateDeviceOwner("Test des permissions Face ID NewKet");
                     console.log('[Permissions] Résultat Face ID natif:', bioOk ? '✅ Autorisé' : 'Annulé / Rejeté');
                 } catch (e) {
                     console.warn('[Permissions] ⚠️ Face ID natif error:', e?.message || e);
                 }
-            } else if (window.PublicKeyCredential) {
+            } else if (window.PublicKeyCredential && typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
                 try {
                     const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-                    console.log('[Permissions] Face ID WebAuthn disponible:', available);
+                    console.log('[Permissions] Biométrie Web (WebAuthn / Face ID / Touch ID) :', available ? '✅ Disponible sur cet appareil' : '⚪ Non disponible sur ce navigateur');
                 } catch (e) {
-                    console.warn('[Permissions] ⚠️ WebAuthn fallback:', e?.message);
+                    console.warn('[Permissions] ⚠️ WebAuthn check:', e?.message);
                 }
+            } else {
+                console.log('[Permissions] ℹ️ Biométrie : non supportée sur ce navigateur web');
             }
 
             // 6. Actualisation en arrière-plan (BackgroundFetch / ServiceWorker)
