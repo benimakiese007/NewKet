@@ -73,13 +73,18 @@ const App = {
         // ── Bouton flottant Vendre : visible uniquement pour les vendeurs (Web / Android / iOS) ──
         const ensureAndSyncSellFloatingBtn = () => {
             const currentPath = window.location.pathname;
-            if (currentPath.includes('/publish')) {
+            const fullHref   = window.location.href;
+            const isPublish  = currentPath.includes('/publish') || fullHref.includes('/publish');
+            console.log('[VendreBtn] ensureAndSync — pathname:', currentPath, '| href:', fullHref, '| isPublish:', isPublish);
+
+            if (isPublish) {
                 const btn = document.getElementById('sellFloatingBtn');
                 if (btn) btn.style.display = 'none';
                 return;
             }
             const role = window.AuthManager?.role || localStorage.getItem('newketRole') || '';
             const isSeller = role === 'seller' || role === 'vendor' || role === 'supplier';
+            console.log('[VendreBtn] role:', role, '| isSeller:', isSeller);
 
             let btn = document.getElementById('sellFloatingBtn');
             if (!btn && isSeller) {
@@ -91,8 +96,10 @@ const App = {
                 btn.onclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const path = (window.ComponentLoader?.getAdjustedPath?.('publish')) || '/src/pages/publish.html';
-                    window.location.href = path;
+                    const adjustedPath = window.ComponentLoader?.getAdjustedPath?.('publish');
+                    const finalPath    = adjustedPath || '/src/pages/publish.html';
+                    console.log('[VendreBtn] CLICK — getAdjustedPath("publish"):', adjustedPath, '| finalPath:', finalPath, '| current href:', window.location.href);
+                    window.location.href = finalPath;
                 };
                 document.body.appendChild(btn);
             }
