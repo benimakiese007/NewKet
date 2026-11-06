@@ -102,24 +102,42 @@ const App = {
                 btn.setAttribute('aria-label', 'Vendre un article');
                 btn.setAttribute('data-track-action', 'navigation:publish_click');
                 btn.innerHTML = '<iconify-icon icon="solar:tag-price-bold" width="15" style="pointer-events:none;"></iconify-icon><span style="pointer-events:none;">Vendre</span>';
+
+                // Clic : sur la home page, déclencher directement le bouton du Hero qui fonctionne à 100% sur iOS
+                btn.addEventListener('click', (e) => {
+                    const heroBtn = document.getElementById('heroSecondaryCta');
+                    if (heroBtn && heroBtn !== btn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        heroBtn.click();
+                        return;
+                    }
+                    const isCap = window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:' || document.documentElement.classList.contains('is-ios-capacitor');
+                    if (isCap) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.href = '/src/pages/publish.html';
+                    }
+                });
+
                 document.body.appendChild(btn);
             }
 
             if (btn) {
                 btn.style.display = isSeller ? 'inline-flex' : 'none';
 
-                // URL exacte identique au bouton du Hero qui fonctionne sur iOS
-                const isCapacitor = window.location.protocol === 'capacitor:' ||
-                    window.location.protocol === 'ionic:' ||
-                    document.documentElement.classList.contains('is-ios-capacitor') ||
-                    document.documentElement.classList.contains('capacitor-native') ||
-                    !!(window.Capacitor && ((typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) || window.Capacitor.isNative || window.Capacitor.getPlatform?.() === 'ios' || window.Capacitor.getPlatform?.() === 'android'));
+                // Synchroniser avec le bouton du Hero s'il est présent
+                const heroBtn = document.getElementById('heroSecondaryCta');
+                if (heroBtn && heroBtn.getAttribute('href')) {
+                    btn.setAttribute('href', heroBtn.getAttribute('href'));
+                } else {
+                    const isCapacitor = window.location.protocol === 'capacitor:' ||
+                        window.location.protocol === 'ionic:' ||
+                        document.documentElement.classList.contains('is-ios-capacitor') ||
+                        document.documentElement.classList.contains('capacitor-native');
 
-                const exactUrl = isCapacitor
-                    ? ((window.location.origin && window.location.origin.includes('capacitor')) ? `${window.location.origin}/src/pages/publish.html` : '/src/pages/publish.html')
-                    : ((typeof window.resolvePath === 'function' ? window.resolvePath('publish') : null) || '/publish');
-
-                btn.href = exactUrl;
+                    btn.setAttribute('href', isCapacitor ? '/src/pages/publish.html' : '/publish');
+                }
             }
         };
 
