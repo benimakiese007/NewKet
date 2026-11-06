@@ -83,6 +83,122 @@
                 </div>
             </div>
 
+            
+            <!-- 🎛️ Live Activity Remote Playground (Diagnostics Direct Control) -->
+            <div class="glass-panel p-6 border-2 border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-950/20 rounded-3xl mb-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-sm">
+                            <iconify-icon icon="solar:radar-bold" width="22" class="animate-pulse"></iconify-icon>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-black text-gray-900 dark:text-white flex items-center gap-2">
+                                <span>Télécommande Live Activity & Dynamic Island</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-widest">Natif iOS / Android</span>
+                            </h2>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Pilotez les étapes en direct sur votre iPhone verrouillé depuis cette page.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select id="diagOrderSelect" onchange="diagOnOrderSelected(this.value)" class="text-xs font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer min-w-[220px]">
+                            <option value="">Chargement des commandes...</option>
+                        </select>
+                        <button type="button" onclick="diagRefreshOrdersList()" class="p-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-all text-gray-600" title="Rafraîchir les commandes">
+                            <iconify-icon icon="solar:refresh-bold" width="16"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Selected Preview -->
+                <div id="diagOrderPreviewBox" class="p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 border border-gray-200/60 mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-black uppercase tracking-wider text-gray-400">Commande Active :</span>
+                        <span id="diagSelectedOrderIdLabel" class="text-sm font-black text-gray-900 dark:text-white">Sélectionnez une commande ci-dessus</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400 font-bold">Statut Actuel :</span>
+                        <span id="diagSelectedOrderStatusBadge" class="px-3 py-1 rounded-full text-xs font-black bg-gray-100 text-gray-700">---</span>
+                    </div>
+                </div>
+
+                <!-- 8-Stage Direct Action Grid -->
+                <div class="mb-4">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+                        <button type="button" onclick="diagSendStatus('PENDING')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-amber-50/50">
+                            <span class="text-sm">🟡</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">1. Confirmée</div>
+                                <div class="text-[9px] font-bold text-amber-600">15%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('PAID_HELD')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-blue-50/50">
+                            <span class="text-sm">🔒</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">2. Sécurisée</div>
+                                <div class="text-[9px] font-bold text-blue-600">25%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('PROCESSING')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-orange-50/50">
+                            <span class="text-sm">🟠</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">3. Préparation</div>
+                                <div class="text-[9px] font-bold text-orange-600">40%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('READY_FOR_DELIVERY')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-indigo-50/50">
+                            <span class="text-sm">📦</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">4. Colis prêt</div>
+                                <div class="text-[9px] font-bold text-indigo-600">50%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('SHIPPED')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-purple-50/50">
+                            <span class="text-sm">🚚</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">5. Expédiée</div>
+                                <div class="text-[9px] font-bold text-purple-600">65%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('IN_DELIVERY')" class="p-2.5 rounded-2xl border-2 border-emerald-500 hover:border-emerald-700 active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-emerald-50/70 dark:bg-emerald-950/40 shadow-sm">
+                            <span class="text-sm">🛵</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-emerald-900 dark:text-emerald-300">6. En livraison</div>
+                                <div class="text-[9px] font-bold text-emerald-600">85%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('DELIVERED')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-black active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-emerald-50/50">
+                            <span class="text-sm">🎉</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-white">7. Livrée</div>
+                                <div class="text-[9px] font-bold text-emerald-600">100%</div>
+                            </div>
+                        </button>
+                        <button type="button" onclick="diagSendStatus('CANCELLED')" class="p-2.5 rounded-2xl border border-gray-200 hover:border-red-400 active:scale-95 transition-all text-left flex flex-col justify-between h-20 bg-white dark:bg-gray-800 hover:bg-red-50/50">
+                            <span class="text-sm">❌</span>
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-wider text-red-600">Annulée</div>
+                                <div class="text-[9px] font-bold text-red-500">0%</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Emergency action + Logs -->
+                <div class="flex flex-col sm:flex-row items-stretch gap-3">
+                    <button type="button" onclick="diagForceStart()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
+                        <iconify-icon icon="solar:play-circle-bold" width="16"></iconify-icon>
+                        <span>Forcer Démarrage sur Mobile</span>
+                    </button>
+                    <button type="button" onclick="diagForceEnd()" class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 text-gray-700 dark:text-gray-200 font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5">
+                        <iconify-icon icon="solar:stop-circle-bold" width="16"></iconify-icon>
+                        <span>Clôturer Activité</span>
+                    </button>
+                    <div class="flex-1">
+                        <pre id="diagLiveLogs" class="p-2.5 bg-gray-950 text-emerald-400 text-[10px] font-mono rounded-xl max-h-20 overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">Sélectionnez une commande pour commencer le pilotage...</pre>
+                    </div>
+                </div>
+            </div>
+
             <!-- Enhanced Stats Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="glass-panel p-6 flex flex-col gap-1">
@@ -644,6 +760,132 @@
                 </div>
             `).join('');
         }
+    
+        // ── Diagnostics Live Activity Remote Logic ──────────────────────────────
+        let diagActiveOrder = null;
+
+        function diagLog(msg, isError = false) {
+            const el = document.getElementById('diagLiveLogs');
+            if (!el) return;
+            const time = new Date().toLocaleTimeString();
+            const prefix = isError ? '❌' : '⚡';
+            const line = `[${time}] ${prefix} ${msg}\n`;
+            if (el.textContent.includes('Sélectionnez une commande')) {
+                el.textContent = line;
+            } else {
+                el.textContent += line;
+            }
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function diagRefreshOrdersList() {
+            const selectEl = document.getElementById('diagOrderSelect');
+            if (!selectEl) return;
+            selectEl.innerHTML = '<option value="">Chargement...</option>';
+
+            let orders = window.OrderManager?.getOrders() || [];
+            if (!orders || orders.length === 0) {
+                if (window.supabaseClient) {
+                    try {
+                        const { data } = await window.supabaseClient
+                            .from('orders')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(30);
+                        if (data && data.length > 0) orders = data;
+                    } catch (_) {}
+                }
+            }
+
+            if (!orders || orders.length === 0) {
+                selectEl.innerHTML = '<option value="">Aucune commande trouvée</option>';
+                return;
+            }
+
+            selectEl.innerHTML = '<option value="">-- Choisir une commande (' + orders.length + ') --</option>' +
+                orders.map(o => {
+                    const idShort = (o.order_number || o.id.slice(0, 8)).toUpperCase();
+                    const status = o.status || 'PENDING';
+                    const name = o.customer?.name || o.customer_name || 'Client';
+                    return `<option value="${o.id}">#${idShort} — ${name} (${status})</option>`;
+                }).join('');
+
+            // Auto-select first order if none selected
+            if (!diagActiveOrder && orders.length > 0) {
+                selectEl.value = orders[0].id;
+                diagOnOrderSelected(orders[0].id);
+            }
+        }
+
+        window.diagOnOrderSelected = function(orderId) {
+            let orders = window.OrderManager?.getOrders() || [];
+            let order = orders.find(o => o.id === orderId);
+            if (!order && window.supabaseClient) {
+                window.supabaseClient.from('orders').select('*').eq('id', orderId).single().then(({ data }) => {
+                    if (data) {
+                        diagActiveOrder = data;
+                        updateDiagPreview(data);
+                    }
+                });
+                return;
+            }
+            diagActiveOrder = order;
+            if (order) updateDiagPreview(order);
+        };
+
+        function updateDiagPreview(order) {
+            const idLabel = document.getElementById('diagSelectedOrderIdLabel');
+            const badge = document.getElementById('diagSelectedOrderStatusBadge');
+            if (idLabel) idLabel.textContent = '#' + (order.order_number || order.id.slice(0, 8).toUpperCase()) + ' (' + (order.customer?.name || order.customer_name || 'Client') + ')';
+            if (badge) {
+                badge.textContent = order.status || 'PENDING';
+                badge.className = 'px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800';
+            }
+            diagLog(`Commande #${(order.order_number || order.id.slice(0, 8))} sélectionnée (Statut: ${order.status})`);
+        }
+
+        window.diagSendStatus = async function(newStatus) {
+            if (!diagActiveOrder) {
+                alert("Veuillez d'abord sélectionner une commande.");
+                return;
+            }
+            const orderId = diagActiveOrder.id;
+            diagLog(`Envoi du statut ${newStatus} vers Supabase...`);
+
+            try {
+                if (window.OrderManager?.updateStatus) {
+                    await OrderManager.updateStatus(orderId, newStatus);
+                } else if (window.supabaseClient) {
+                    await window.supabaseClient.from('orders').update({
+                        status: newStatus,
+                        updated_at: new Date().toISOString()
+                    }).eq('id', orderId);
+                }
+                diagActiveOrder.status = newStatus;
+                updateDiagPreview(diagActiveOrder);
+                diagLog(`✅ Statut ${newStatus} enregistré ! Supabase Realtime a propagé l'événement vers le mobile.`);
+            } catch (err) {
+                diagLog(`Erreur mise à jour : ${err?.message || err}`, true);
+            }
+        };
+
+        window.diagForceStart = async function() {
+            if (!diagActiveOrder) { alert("Sélectionnez une commande."); return; }
+            diagLog("Forçage démarrage Live Activity sur le mobile...");
+            await diagSendStatus('PROCESSING');
+        };
+
+        window.diagForceEnd = async function() {
+            if (!diagActiveOrder) { alert("Sélectionnez une commande."); return; }
+            diagLog("Forçage clôture Live Activity sur le mobile...");
+            await diagSendStatus('COMPLETED');
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(diagRefreshOrdersList, 1200);
+            window.addEventListener('ordersUpdated', diagRefreshOrdersList);
+        });
+
     </script>
 </body>
 

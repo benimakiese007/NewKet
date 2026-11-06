@@ -107,7 +107,27 @@ const OrderManager = {
                 localStorage.setItem('newket_orders_sync_time', now.toString());
                 console.log(`[OrderManager] Loaded ${this.data.length} orders.`);
             } catch (error) {
-                console.warn('[OrderManager] Could not fetch orders, using empty data:', error.message);
+                console.warn('[OrderManager] API backend inaccessible, tentative de secours via Supabase direct :', error.message);
+                if (window.supabaseClient) {
+                    try {
+                        const { data, error: supErr } = await window.supabaseClient
+                            .from('orders')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(100);
+                        if (!supErr && Array.isArray(data) && data.length > 0) {
+                            this._rawOrders = data;
+                            this.data = this._rawOrders.map(order => this._normalizeOrder(order));
+                            this._initialized = true;
+                            localStorage.setItem('newket_orders_sync_time', now.toString());
+                            console.log(`[OrderManager] Secours réussi : ${this.data.length} commandes chargées depuis Supabase.`);
+                            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+                            return;
+                        }
+                    } catch (fallbackErr) {
+                        console.warn('[OrderManager] Échec du secours Supabase :', fallbackErr?.message);
+                    }
+                }
                 if (!this._initialized) this.data = [];
                 this._initialized = true;
             }
