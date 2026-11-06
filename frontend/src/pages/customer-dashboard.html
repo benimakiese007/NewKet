@@ -445,11 +445,17 @@
                             <p class="text-xs text-gray-600 dark:text-gray-300 mb-3">
                                 Déclenchez une commande test en direct sur votre <strong>Dynamic Island</strong> et votre <strong>Écran Verrouillé</strong>.
                             </p>
-                            <div class="flex flex-wrap gap-2">
-                                <button type="button" id="btn-test-live-activity-real"
-                                    class="px-3 py-1.5 bg-black hover:bg-gray-800 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5 border border-white/20">
-                                    <span>📱</span> <span id="btn-test-live-activity-real-text">Suivre ma commande</span>
+                            <!-- Sélecteur de commande à activer -->
+                            <div class="mb-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <select id="select-active-live-order" class="px-3 py-2 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 text-xs font-medium rounded-xl border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-emerald-500 flex-1">
+                                    <option value="">Chargement des commandes...</option>
+                                </select>
+                                <button type="button" id="btn-activate-selected-order"
+                                    class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                                    <span>📱</span> Activer sur mon écran
                                 </button>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
                                 <button type="button" id="btn-test-live-activity-start"
                                     class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5">
                                     <span>▶</span> Lancer #NK-DEMO
@@ -460,7 +466,7 @@
                                 </button>
                                 <button type="button" id="btn-test-live-activity-end"
                                     class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
-                                    <span>⏹</span> Terminer
+                                    <span>⏹</span> Fermer (Immédiat)
                                 </button>
                             </div>
                             <!-- Console Logs -->
@@ -5168,7 +5174,10 @@
 
             stepBtn?.addEventListener('click', async () => {
                 const plugin = getPlugin();
-                if (!plugin) return;
+                if (!plugin) {
+                    appendLog("Erreur : Plugin Live Activity introuvable sur cet appareil.", true);
+                    return;
+                }
                 currentStepIndex = (currentStepIndex % totalCycleSteps) + 1;
                 
                 const stepsConfig = {
@@ -5208,11 +5217,19 @@
 
             endBtn?.addEventListener('click', async () => {
                 const plugin = getPlugin();
-                if (!plugin) return;
-                appendLog("Fermeture de la Live Activity...");
+                if (!plugin) {
+                    appendLog("Plugin non disponible pour fermer l'activité.", true);
+                    return;
+                }
+                appendLog("Fermeture immédiate de toutes les activités en cours...");
                 try {
-                    await plugin.endActivity({ orderId: demoOrderId });
-                    appendLog("Live Activity terminée.");
+                    // Fermeture immédiate de la démo ET de toute commande réelle suivie
+                    await plugin.endActivity({ orderId: demoOrderId, immediate: true });
+                    await plugin.endActivity({ immediate: true });
+                    if (window.LiveOrderTracker?.stopTracking) {
+                        await window.LiveOrderTracker.stopTracking(demoOrderId).catch(() => {});
+                    }
+                    appendLog("✅ Live Activity fermée instantanément !");
                 } catch (err) {
                     appendLog(`Erreur endActivity: ${err?.message || err}`, true);
                 }
@@ -5222,34 +5239,62 @@
                 logsEl.textContent = "Journal réinitialisé.\n";
             });
 
-            // ── Synchronisation Commande Réelle ──
-            const realOrderBtn = document.getElementById('btn-test-live-activity-real');
-            const realOrderBtnText = document.getElementById('btn-test-live-activity-real-text');
+            // ── Sélecteur et Suivi de Commande Réelle ──
+            const orderSelect = document.getElementById('select-active-live-order');
+            const activateSelectedBtn = document.getElementById('btn-activate-selected-order');
+
+            const populateOrdersDropdown = () => {
+                if (!orderSelect) return;
+                const orders = (typeof getCustomerOrdersForDashboard === 'function' ? getCustomerOrdersForDashboard() : (window.OrderManager?.getOrders() || []));
+                
+                orderSelect.innerHTML = '';
+                if (!orders || orders.length === 0) {
+                    orderSelect.innerHTML = '<option value="">Aucune commande trouvée</option>';
+                    return;
+                }
+
+                orders.forEach((o, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = o.id;
+                    const num = o.order_number || ('#' + (o.id || '').slice(0, 6).toUpperCase());
+                    const status = o.status || 'PENDING';
+                    opt.textContent = `${num} — ${status} (${o.shop_name || 'Boutique'})`;
+                    if (index === 0) opt.selected = true;
+                    orderSelect.appendChild(opt);
+                });
+            };
+
+            activateSelectedBtn?.addEventListener('click', async () => {
+                const selectedId = orderSelect?.value;
+                if (!selectedId) {
+                    appendLog("Veuillez sélectionner une commande dans la liste.", true);
+                    return;
+                }
+
+                const orders = (typeof getCustomerOrdersForDashboard === 'function' ? getCustomerOrdersForDashboard() : (window.OrderManager?.getOrders() || []));
+                const targetOrder = orders.find(o => o.id === selectedId);
+
+                if (!targetOrder) {
+                    appendLog(`Commande ${selectedId} introuvable.`, true);
+                    return;
+                }
+
+                appendLog(`Activation du suivi pour la commande #${targetOrder.order_number || targetOrder.id.slice(0, 6)} (Statut: ${targetOrder.status})...`);
+                if (window.LiveOrderTracker) {
+                    try {
+                        const res = await window.LiveOrderTracker.trackOrder(targetOrder);
+                        appendLog(`✅ Commande activée sur Dynamic Island & Écran Verrouillé !`);
+                        appendLog("👉 Verrouillez votre iPhone pour admirer le widget en direct.");
+                    } catch (e) {
+                        appendLog(`Erreur activation suivi : ${e?.message || e}`, true);
+                    }
+                } else {
+                    appendLog("Service LiveOrderTracker non disponible.", true);
+                }
+            });
 
             const refreshRealOrderBtn = () => {
-                if (!realOrderBtn) return;
-                const orders = (typeof getCustomerOrdersForDashboard === 'function' ? getCustomerOrdersForDashboard() : (window.OrderManager?.getOrders() || []));
-                const active = orders.find(o => isCustomerOrderActive ? isCustomerOrderActive(o.status) : (o.status !== 'CANCELLED' && o.status !== 'REFUNDED'));
-                if (active) {
-                    realOrderBtn.style.display = 'inline-flex';
-                    if (realOrderBtnText) realOrderBtnText.textContent = `Suivre #${active.order_number || active.id.slice(0, 6)} (${active.status})`;
-                    realOrderBtn.onclick = async () => {
-                        appendLog(`Démarrage du suivi en direct pour la commande réelle #${active.id.slice(0, 8)}...`);
-                        if (window.LiveOrderTracker) {
-                            try {
-                                const res = await window.LiveOrderTracker.trackOrder(active);
-                                appendLog(`✅ Suivi actif sur Dynamic Island ! Statut: ${active.status}`);
-                                appendLog("👉 Verrouillez l'écran pour observer le widget de verrouillage.");
-                            } catch (e) {
-                                appendLog(`Erreur démarrage suivi : ${e?.message || e}`, true);
-                            }
-                        } else {
-                            appendLog("Service LiveOrderTracker non chargé.", true);
-                        }
-                    };
-                } else {
-                    if (realOrderBtnText) realOrderBtnText.textContent = "Aucune commande active";
-                }
+                populateOrdersDropdown();
             };
 
             setTimeout(refreshRealOrderBtn, 1500);

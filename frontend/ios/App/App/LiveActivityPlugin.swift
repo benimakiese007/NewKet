@@ -309,28 +309,47 @@ public class LiveActivityPlugin: CAPPlugin, CAPBridgedPlugin {
         }
 
         let orderId = call.getString("orderId")
+        let immediate = call.getBool("immediate") ?? true
 
         Task {
-            if let orderId = orderId, let activity = Self.activeActivities[orderId] {
-                if #available(iOS 16.2, *) {
-                    await activity.end(nil, dismissalPolicy: .after(.now + 15)) // Keep 15s so user sees completion
-                } else {
-                    await activity.end(using: nil, dismissalPolicy: .immediate)
-                }
-                Self.activeActivities.removeValue(forKey: orderId)
-                Self.logEvent(tag: "END", message: "Ended activity for \(orderId)", details: ["activityId": activity.id])
-            } else {
-                // End all if orderId omitted
-                for (oid, activity) in Self.activeActivities {
+            let policy: ActivityUIDismissalPolicy = immediate ? .immediate : .after(.now + 15)
+
+            // 1. Fermer les activités stockées en mémoire
+            if let orderId = orderId {
+                if let activity = Self.activeActivities[orderId] {
                     if #available(iOS 16.2, *) {
-                        await activity.end(nil, dismissalPolicy: .immediate)
+                        await activity.end(nil, dismissalPolicy: policy)
                     } else {
                         await activity.end(using: nil, dismissalPolicy: .immediate)
                     }
-                    Self.logEvent(tag: "END", message: "Ended activity for \(oid)", details: ["activityId": activity.id])
+                    Self.activeActivities.removeValue(forKey: orderId)
+                    Self.logEvent(tag: "END", message: "Ended cached activity for \(orderId)", details: ["activityId": activity.id])
+                }
+            } else {
+                for (oid, activity) in Self.activeActivities {
+                    if #available(iOS 16.2, *) {
+                        await activity.end(nil, dismissalPolicy: policy)
+                    } else {
+                        await activity.end(using: nil, dismissalPolicy: .immediate)
+                    }
+                    Self.logEvent(tag: "END", message: "Ended cached activity for \(oid)", details: ["activityId": activity.id])
                 }
                 Self.activeActivities.removeAll()
             }
+
+            // 2. Recherche et fermeture de secours dans toutes les activités actives de l'OS (sécurité anti-orphelins)
+            let allSystemActivities = Activity<OrderTrackingAttributes>.activities
+            for act in allSystemActivities {
+                if orderId == nil || act.attributes.orderId == orderId {
+                    if #available(iOS 16.2, *) {
+                        await act.end(nil, dismissalPolicy: policy)
+                    } else {
+                        await act.end(using: nil, dismissalPolicy: .immediate)
+                    }
+                    Self.logEvent(tag: "END", message: "Ended system activity for \(act.attributes.orderId)", details: ["activityId": act.id])
+                }
+            }
+
             call.resolve(["success": true])
         }
     }
