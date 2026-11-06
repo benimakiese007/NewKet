@@ -353,6 +353,8 @@ export async function authenticateDeviceOwner(reason = "Confirmez votre identit�
                         ],
                         authenticatorSelection: {
                             authenticatorAttachment: "platform", // Touch ID / Face ID / Windows Hello / Code PIN
+                            residentKey: "discouraged", // Privilégie l'authentificateur local de l'appareil (Windows Hello) plutôt que Google Cloud
+                            requireResidentKey: false,
                             userVerification: "required"
                         },
                         timeout: 60000

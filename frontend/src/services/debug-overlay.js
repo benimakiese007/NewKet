@@ -454,6 +454,8 @@ export function initDebugOverlay() {
                                     ],
                                     authenticatorSelection: {
                                         authenticatorAttachment: "platform", // Force Touch ID / Face ID / Code appareil local
+                                        residentKey: "discouraged", // Privilégie l'appareil local (Windows Hello)
+                                        requireResidentKey: false,
                                         userVerification: "required"
                                     },
                                     timeout: 60000
