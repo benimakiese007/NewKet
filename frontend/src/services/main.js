@@ -74,8 +74,16 @@ const App = {
         const ensureAndSyncSellFloatingBtn = () => {
             const currentPath = window.location.pathname;
             const fullHref   = window.location.href;
-            const isPublish  = currentPath.includes('/publish') || fullHref.includes('/publish');
-            console.log('[VendreBtn] ensureAndSync — pathname:', currentPath, '| href:', fullHref, '| isPublish:', isPublish);
+
+            // Détection robuste : on est sur publish UNIQUEMENT si le fichier physique chargé est publish.html
+            // (ou clean URL /publish sur web standard — mais PAS si on est sur index.html avec URL résiduelle)
+            const isPhysicalPublish = fullHref.includes('/src/pages/publish.html') || fullHref.includes('publish.html');
+            const isCleanPublish    = currentPath === '/publish' && !fullHref.includes('index.html') && !fullHref.includes('index');
+            // Sur iOS Capacitor, l'URL peut rester à /publish après navigation — on vérifie qu'on est PAS sur index
+            const isOnIndexPhysically = fullHref.includes('index.html') || fullHref.endsWith('/') || fullHref.endsWith('localhost') || fullHref.endsWith('localhost/');
+            const isPublish = isPhysicalPublish || (isCleanPublish && !isOnIndexPhysically);
+
+            console.log('[VendreBtn] ensureAndSync — pathname:', currentPath, '| href:', fullHref, '| isPublish:', isPublish, '| isPhysicalPublish:', isPhysicalPublish, '| isOnIndex:', isOnIndexPhysically);
 
             if (isPublish) {
                 const btn = document.getElementById('sellFloatingBtn');
@@ -96,9 +104,11 @@ const App = {
                 btn.onclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    // Sur iOS Capacitor, toujours utiliser le chemin physique
+                    const isNative = !!(window.Capacitor?.isNativePlatform?.() || window.Capacitor?.isNative);
                     const adjustedPath = window.ComponentLoader?.getAdjustedPath?.('publish');
-                    const finalPath    = adjustedPath || '/src/pages/publish.html';
-                    console.log('[VendreBtn] CLICK — getAdjustedPath("publish"):', adjustedPath, '| finalPath:', finalPath, '| current href:', window.location.href);
+                    const finalPath = isNative ? '/src/pages/publish.html' : (adjustedPath || '/src/pages/publish.html');
+                    console.log('[VendreBtn] CLICK — isNative:', isNative, '| adjustedPath:', adjustedPath, '| finalPath:', finalPath, '| current href:', window.location.href);
                     window.location.href = finalPath;
                 };
                 document.body.appendChild(btn);
