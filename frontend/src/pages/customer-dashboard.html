@@ -460,9 +460,13 @@
                                     class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5">
                                     <span>▶</span> Lancer #NK-DEMO
                                 </button>
+                                <button type="button" id="btn-test-live-activity-prev"
+                                    class="px-3 py-1.5 bg-gray-800 hover:bg-gray-900 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                                    <span>⏪</span> Précédente
+                                </button>
                                 <button type="button" id="btn-test-live-activity-step"
                                     class="px-3 py-1.5 bg-gray-800 hover:bg-gray-900 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
-                                    <span>⏩</span> Étape suivante
+                                    <span>⏩</span> Suivante
                                 </button>
                                 <button type="button" id="btn-test-live-activity-end"
                                     class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
@@ -5102,6 +5106,7 @@
         (function setupLiveActivityTesting() {
             const logsEl = document.getElementById('nk-live-activity-logs');
             const startBtn = document.getElementById('btn-test-live-activity-start');
+            const prevBtn = document.getElementById('btn-test-live-activity-prev');
             const stepBtn = document.getElementById('btn-test-live-activity-step');
             const endBtn = document.getElementById('btn-test-live-activity-end');
             const clearBtn = document.getElementById('btn-test-live-activity-clear');
@@ -5172,33 +5177,33 @@
                 }
             });
 
-            stepBtn?.addEventListener('click', async () => {
+            const stepsConfig = {
+                1: { status: "PENDING", title: "Commande confirmée", desc: "Votre paiement est validé. En attente de la boutique.", prog: 0.15, step: 1, eta: "25 min" },
+                2: { status: "PAID_HELD", title: "Paiement sécurisé 🔒", desc: "Fonds sous séquestre. En attente de la boutique.", prog: 0.25, step: 1, eta: "20 min" },
+                3: { status: "PROCESSING", title: "Préparation en cours 🔧", desc: "Le vendeur prépare vos articles.", prog: 0.40, step: 2, eta: "18 min" },
+                4: { status: "READY_FOR_DELIVERY", title: "Colis prêt 📦", desc: "La commande attend la prise en charge du livreur.", prog: 0.50, step: 2, eta: "15 min" },
+                5: { status: "SHIPPED", title: "Commande expédiée 🚚", desc: "Votre colis a quitté la boutique.", prog: 0.65, step: 3, eta: "10 min" },
+                6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le coursier se dirige vers votre adresse.", prog: 0.85, step: 3, eta: "4 min" },
+                7: { status: "DELIVERED", title: "Commande livrée 🎉", desc: "Colis remis en main propre. Merci !", prog: 1.0, step: 4, eta: "Livré" },
+                8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre commande.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
+                9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true }
+            };
+            const totalCycleSteps = 9;
+
+            const applyStepUpdate = async (stepIndex) => {
                 const plugin = getPlugin();
                 if (!plugin) {
                     appendLog("Erreur : Plugin Live Activity introuvable sur cet appareil.", true);
                     return;
                 }
-                currentStepIndex = (currentStepIndex % totalCycleSteps) + 1;
-                
-                const stepsConfig = {
-                    1: { status: "PENDING", title: "Commande confirmée", desc: "Votre paiement est validé. En attente de la boutique.", prog: 0.15, step: 1, eta: "25 min" },
-                    2: { status: "PAID_HELD", title: "Paiement sécurisé 🔒", desc: "Fonds sous séquestre. En attente de la boutique.", prog: 0.25, step: 1, eta: "20 min" },
-                    3: { status: "PROCESSING", title: "Préparation en cours 🔧", desc: "Le vendeur prépare vos articles.", prog: 0.40, step: 2, eta: "18 min" },
-                    4: { status: "READY_FOR_DELIVERY", title: "Colis prêt 📦", desc: "La commande attend la prise en charge du livreur.", prog: 0.50, step: 2, eta: "15 min" },
-                    5: { status: "SHIPPED", title: "Commande expédiée 🚚", desc: "Votre colis a quitté la boutique.", prog: 0.65, step: 3, eta: "10 min" },
-                    6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le coursier se dirige vers votre adresse.", prog: 0.85, step: 3, eta: "4 min" },
-                    7: { status: "DELIVERED", title: "Commande livrée 🎉", desc: "Colis remis en main propre. Merci !", prog: 1.0, step: 4, eta: "Livré" },
-                    8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre commande.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
-                    9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true }
-                };
-                const totalCycleSteps = 9;
-                const current = stepsConfig[currentStepIndex];
+                const current = stepsConfig[stepIndex];
+                if (!current) return;
 
                 const targetId = activeTrackingOrderId || demoOrderId;
                 const orderNum = activeTrackingOrderObj ? (activeTrackingOrderObj.order_number || ('#' + (activeTrackingOrderObj.id || '').slice(0, 6).toUpperCase())) : '#NK-DEMO';
                 const sName = activeTrackingOrderObj?.shop_name || 'Boutique Officielle';
 
-                appendLog(`Mise à jour ${orderNum} -> Étape ${currentStepIndex}/${totalCycleSteps} [${current.status}] : ${current.title} (${Math.round(current.prog * 100)}%)`);
+                appendLog(`Mise à jour ${orderNum} -> Étape ${stepIndex}/${totalCycleSteps} [${current.status}] : ${current.title} (${Math.round(current.prog * 100)}%)`);
                 try {
                     await plugin.updateActivity({
                         orderId: targetId,
@@ -5213,10 +5218,20 @@
                         etaText: current.eta,
                         isCancelled: Boolean(current.isCancelled)
                     });
-                    appendLog(`✅ Étape ${currentStepIndex} synchronisée pour ${orderNum} !`);
+                    appendLog(`✅ Étape ${stepIndex} synchronisée pour ${orderNum} !`);
                 } catch (err) {
                     appendLog(`Erreur updateActivity sur ${targetId}: ${err?.message || err}`, true);
                 }
+            };
+
+            prevBtn?.addEventListener('click', async () => {
+                currentStepIndex = currentStepIndex <= 1 ? totalCycleSteps : currentStepIndex - 1;
+                await applyStepUpdate(currentStepIndex);
+            });
+
+            stepBtn?.addEventListener('click', async () => {
+                currentStepIndex = (currentStepIndex % totalCycleSteps) + 1;
+                await applyStepUpdate(currentStepIndex);
             });
 
             endBtn?.addEventListener('click', async () => {
