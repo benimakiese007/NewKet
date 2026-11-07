@@ -84,6 +84,80 @@ const STEP_MAPPING = {
     },
 };
 
+
+// 🏪 Statuts Vendeur NewKet ➔ Échelons de Progression
+const VENDOR_STEP_MAPPING = {
+    'PENDING': {
+        step: 1,
+        progress: 0.15,
+        title: 'Nouvelle commande 🛍️',
+        description: 'Un client a commandé. En attente de validation.',
+    },
+    'PAID_HELD': {
+        step: 1,
+        progress: 0.25,
+        title: 'Paiement garanti 🔒',
+        description: 'Fonds sécurisés par NewKet. Vous pouvez préparer le colis !',
+    },
+    'PROCESSING': {
+        step: 2,
+        progress: 0.40,
+        title: 'Préparation en cours 📦',
+        description: 'Emballage des articles et vérification des références.',
+    },
+    'READY_FOR_DELIVERY': {
+        step: 2,
+        progress: 0.50,
+        title: 'Colis prêt pour le livreur 🏷️',
+        description: 'En attente de prise en charge par le coursier NewKet.',
+    },
+    'SHIPPED': {
+        step: 3,
+        progress: 0.65,
+        title: 'Colis remis au coursier 🚚',
+        description: 'Le livreur a pris le colis et est en route.',
+    },
+    'IN_DELIVERY': {
+        step: 3,
+        progress: 0.85,
+        title: 'En cours d acheminement 🛵',
+        description: 'Le coursier approche de l adresse de votre client.',
+    },
+    'DELIVERED': {
+        step: 4,
+        progress: 1.0,
+        title: 'Vente livrée avec succès 🎉',
+        description: 'Colis remis au client. Vos fonds sont débloqués !',
+    },
+    'COMPLETED': {
+        step: 4,
+        progress: 1.0,
+        title: 'Vente clôturée 💰',
+        description: 'Fonds disponibles sur votre solde NewKet.',
+    },
+    'CANCELLED': {
+        step: 1,
+        progress: 0.0,
+        title: 'Vente annulée ❌',
+        description: 'La commande client a été annulée.',
+        isCancelled: true,
+    },
+    'REFUNDED': {
+        step: 1,
+        progress: 0.0,
+        title: 'Vente remboursée ↩️',
+        description: 'Le montant a été remboursé au client.',
+        isCancelled: true,
+    },
+    'DISPUTED': {
+        step: 2,
+        progress: 0.5,
+        title: 'Litige client ouvert ⚠️',
+        description: 'Litige signalé sur cette vente. Consultez l administration.',
+        isCancelled: true,
+    },
+};
+
 // ─── Service Singleton ─────────────────────────────────────────────────────────
 
 class LiveOrderTrackerService {
