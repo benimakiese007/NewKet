@@ -59,3 +59,5 @@ playwright-report/
 # Archives et dossiers temporaires de test
 *.zip
 scratch/
+brain/
+supabase/.temp/
