@@ -5155,32 +5155,27 @@
             }, 1000);
 
             startBtn?.addEventListener('click', async () => {
-                const plugin = getPlugin();
-                if (!plugin) {
-                    appendLog("Plugin indisponible hors application mobile native.", true);
-                    return;
-                }
                 currentStepIndex = 1;
+                activeTrackingOrderId = demoOrderId;
+                activeTrackingOrderObj = {
+                    id: demoOrderId,
+                    order_number: '#NK-DEMO',
+                    shop_name: 'Boutique Officielle',
+                    status: 'PROCESSING',
+                    items: [{}, {}],
+                    eta_text: '15 min'
+                };
                 appendLog("Lancement Live Activity #NK-DEMO...");
-                try {
-                    const res = await plugin.startActivity({
-                        orderId: demoOrderId,
-                        orderNumber: "#NK-DEMO",
-                        shopName: "Boutique Officielle",
-                        itemCount: 2,
-                        status: "PROCESSING",
-                        statusTitle: "Commande confirmée",
-                        statusDescription: "Votre colis est en cours de préparation.",
-                        progress: 0.25,
-                        currentStep: 1,
-                        totalSteps: 4,
-                        etaText: "15 min",
-                        isCancelled: false
-                    });
-                    appendLog(`Live Activity lancée ! ID: ${res.activityId || 'OK'}`);
-                    appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
-                } catch (err) {
-                    appendLog(`Échec startActivity: ${err?.message || JSON.stringify(err)}`, true);
+                if (window.LiveOrderTracker) {
+                    try {
+                        const res = await window.LiveOrderTracker.trackOrder(activeTrackingOrderObj, { role: 'buyer' });
+                        appendLog(`✅ Live Activity lancée ! ID: ${res?.activityId || 'Actif'}`);
+                        appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
+                    } catch (err) {
+                        appendLog(`Échec: ${err?.message || err}`, true);
+                    }
+                } else {
+                    appendLog("LiveOrderTracker indisponible", true);
                 }
             });
 
@@ -5188,9 +5183,9 @@
                 1: { status: "PENDING", title: "Commande confirmée", desc: "Votre paiement est validé. En attente de la boutique.", prog: 0.15, step: 1, eta: "25 min" },
                 2: { status: "PAID_HELD", title: "Paiement sécurisé 🔒", desc: "Fonds sous séquestre. En attente de la boutique.", prog: 0.25, step: 1, eta: "20 min" },
                 3: { status: "PROCESSING", title: "Préparation en cours 🔧", desc: "Le vendeur prépare vos articles.", prog: 0.40, step: 2, eta: "18 min" },
-                4: { status: "READY_FOR_DELIVERY", title: "Colis prêt 📦", desc: "La commande attend la prise en charge du livreur.", prog: 0.50, step: 2, eta: "15 min" },
+                4: { status: "READY_FOR_DELIVERY", title: "Colis prêt 📦", desc: "La commande attend la prise en charge pour la livraison.", prog: 0.50, step: 2, eta: "15 min" },
                 5: { status: "SHIPPED", title: "Commande expédiée 🚚", desc: "Votre colis a quitté la boutique.", prog: 0.65, step: 3, eta: "10 min" },
-                6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le coursier se dirige vers votre adresse.", prog: 0.85, step: 3, eta: "4 min" },
+                6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le vendeur est en route vers votre point de livraison.", prog: 0.85, step: 3, eta: "4 min" },
                 7: { status: "DELIVERED", title: "Commande livrée 🎉", desc: "Colis remis en main propre. Merci !", prog: 1.0, step: 4, eta: "Livré" },
                 8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre commande.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
                 9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true }
@@ -5198,11 +5193,6 @@
             const totalCycleSteps = 9;
 
             const applyStepUpdate = async (stepIndex) => {
-                const plugin = getPlugin();
-                if (!plugin) {
-                    appendLog("Erreur : Plugin Live Activity introuvable sur cet appareil.", true);
-                    return;
-                }
                 const current = stepsConfig[stepIndex];
                 if (!current) return;
 
@@ -5211,35 +5201,22 @@
                 const sName = activeTrackingOrderObj?.shop_name || 'Boutique Officielle';
 
                 appendLog(`Mise à jour ${orderNum} -> Étape ${stepIndex}/${totalCycleSteps} [${current.status}] : ${current.title} (${Math.round(current.prog * 100)}%)`);
-                const payload = {
-                    orderId: targetId,
-                    orderNumber: orderNum,
-                    shopName: sName,
+
+                const orderToTrack = {
+                    id: targetId,
+                    order_number: orderNum,
+                    shop_name: sName,
                     status: current.status,
-                    statusTitle: current.title,
-                    statusDescription: current.desc,
-                    progress: current.prog,
-                    currentStep: current.step,
-                    totalSteps: 4,
-                    etaText: current.eta,
-                    isCancelled: Boolean(current.isCancelled)
+                    eta_text: current.eta,
+                    items: [{}, {}]
                 };
 
-                try {
-                    await plugin.updateActivity(payload);
-                    appendLog(`✅ Étape ${stepIndex} synchronisée pour ${orderNum} !`);
-                } catch (err) {
-                    const errMsg = err?.message || String(err);
-                    if (errMsg.includes('No active Live Activity found') || errMsg.includes('Activity not found')) {
-                        appendLog(`⚡ Activité absente de l'écran, réactivation automatique pour ${orderNum}...`);
-                        try {
-                            await plugin.startActivity(payload);
-                            appendLog(`✅ Activité réactivée et synchronisée à l'étape ${stepIndex} !`);
-                        } catch (startErr) {
-                            appendLog(`Erreur réactivation sur ${targetId}: ${startErr?.message || startErr}`, true);
-                        }
-                    } else {
-                        appendLog(`Erreur updateActivity sur ${targetId}: ${errMsg}`, true);
+                if (window.LiveOrderTracker) {
+                    try {
+                        await window.LiveOrderTracker.trackOrder(orderToTrack, { role: 'buyer' });
+                        appendLog(`✅ Étape ${stepIndex} synchronisée pour ${orderNum} !`);
+                    } catch (err) {
+                        appendLog(`Erreur: ${err?.message || err}`, true);
                     }
                 }
             };

@@ -9901,29 +9901,27 @@ async function openOrderModal(id) {
 
             startBtn?.addEventListener('click', async () => {
                 activeTrackingOrderId = demoOrderId;
-                activeTrackingOrderObj = null;
+                activeTrackingOrderObj = {
+                    id: demoOrderId,
+                    order_number: '#VENTE-DEMO',
+                    customer_name: 'Client VIP NewKet',
+                    status: 'PAID_HELD',
+                    items: [{}, {}],
+                    eta_text: 'À préparer'
+                };
                 currentStepIndex = 1;
                 appendLog(`Lancement Live Activity #VENTE-DEMO...`);
 
-                const plugin = getPlugin();
-                if (!plugin) {
-                    appendLog("Live Activity simulée (Web).");
-                    return;
-                }
-
-                try {
-                    const step1 = vendorSteps[0];
-                    const res = await plugin.startActivity({
-                        orderId: demoOrderId,
-                        orderNumber: '#VENTE-DEMO',
-                        shopName: 'Client VIP NewKet',
-                        itemCount: 2,
-                        ...step1
-                    });
-                    appendLog(`Live Activity lancée ! ID: ${res?.activityId || 'Actif'}`);
-                    appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
-                } catch (err) {
-                    appendLog(`Erreur startActivity: ${err?.message || err}`, true);
+                if (window.LiveOrderTracker) {
+                    try {
+                        const res = await window.LiveOrderTracker.trackOrder(activeTrackingOrderObj, { role: 'vendor' });
+                        appendLog(`✅ Live Activity Vendeur lancée ! ID: ${res?.activityId || 'Actif'}`);
+                        appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
+                    } catch (err) {
+                        appendLog(`Erreur: ${err?.message || err}`, true);
+                    }
+                } else {
+                    appendLog("LiveOrderTracker indisponible", true);
                 }
             });
 
