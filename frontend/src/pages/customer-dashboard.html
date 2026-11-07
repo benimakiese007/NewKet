@@ -5376,6 +5376,22 @@
                 appendLog("📱 La Dynamic Island et l'écran de verrouillage ont été mis à jour !");
                 refreshRealOrderBtn();
             });
+        })
+            // Écoute Broadcast de la télécommande Admin (pour #NK-DEMO)
+            if (window.supabaseClient) {
+                window.supabaseClient.channel('admin-demo-live-activity')
+                    .on('broadcast', { event: 'demo_order_update' }, async ({ payload }) => {
+                        if (payload?.id === 'NK-DEMO-TEST') {
+                            const foundIndex = demoSteps.findIndex(s => s.status === payload.status);
+                            if (foundIndex !== -1) {
+                                currentStepIndex = foundIndex + 1;
+                                appendLog(`⚡ TÉLÉCOMMANDE ADMIN : Statut -> ${payload.status}`);
+                                await applyStepUpdate(currentStepIndex);
+                            }
+                        }
+                    })
+                    .subscribe();
+            }
         })();
     </script>
 </body>

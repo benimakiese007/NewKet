@@ -35,7 +35,7 @@ const STEP_MAPPING = {
         step: 2,
         progress: 0.50,
         title: 'Colis prêt',
-        description: 'La commande attend la prise en charge du livreur.',
+        description: 'Le vendeur a préparé votre commande.',
     },
     'SHIPPED': {
         step: 3,
@@ -47,13 +47,13 @@ const STEP_MAPPING = {
         step: 3,
         progress: 0.85,
         title: 'En cours de livraison 🛵',
-        description: 'Le livreur approche de votre point de livraison.',
+        description: 'Le vendeur est en route vers votre point de livraison.',
     },
     'DELIVERED': {
         step: 4,
         progress: 1.0,
         title: 'Commande livrée 🎉',
-        description: 'Colis remis. Merci pour votre confiance !',
+        description: 'Colis remis par le vendeur. Merci pour votre confiance !',
     },
     'COMPLETED': {
         step: 4,
@@ -108,26 +108,26 @@ const VENDOR_STEP_MAPPING = {
     'READY_FOR_DELIVERY': {
         step: 2,
         progress: 0.50,
-        title: 'Colis prêt pour le livreur 🏷️',
-        description: 'En attente de prise en charge par le coursier NewKet.',
+        title: 'Colis prêt à livrer 🏷️',
+        description: 'Votre colis est emballé et prêt à être livré.',
     },
     'SHIPPED': {
         step: 3,
         progress: 0.65,
-        title: 'Colis remis au coursier 🚚',
-        description: 'Le livreur a pris le colis et est en route.',
+        title: 'Départ en livraison 🚚',
+        description: 'Vous êtes en route pour livrer la commande au client.',
     },
     'IN_DELIVERY': {
         step: 3,
         progress: 0.85,
         title: 'En cours d acheminement 🛵',
-        description: 'Le coursier approche de l adresse de votre client.',
+        description: 'Vous approchez du point de livraison du client.',
     },
     'DELIVERED': {
         step: 4,
         progress: 1.0,
         title: 'Vente livrée avec succès 🎉',
-        description: 'Colis remis au client. Vos fonds sont débloqués !',
+        description: 'Colis remis en main propre. Vos fonds sont débloqués !',
     },
     'COMPLETED': {
         step: 4,

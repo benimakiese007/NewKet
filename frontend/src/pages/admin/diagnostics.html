@@ -867,6 +867,22 @@
             diagLog(`Envoi du statut ${newStatus} vers Supabase...`);
 
             try {
+                // Si c'est une commande de démo
+                if (orderId === 'NK-VENTE-DEMO' || orderId === 'NK-DEMO-TEST') {
+                    if (window.supabaseClient) {
+                        const broadcastChannel = window.supabaseClient.channel('admin-demo-live-activity');
+                        await broadcastChannel.send({
+                            type: 'broadcast',
+                            event: 'demo_order_update',
+                            payload: { id: orderId, status: newStatus }
+                        });
+                    }
+                    diagActiveOrder.status = newStatus;
+                    updateDiagPreview(diagActiveOrder);
+                    diagLog(`✅ Démo ${orderId} mise à jour en ${newStatus} ! Événement diffusé.`);
+                    return;
+                }
+
                 if (window.OrderManager?.updateStatus) {
                     await OrderManager.updateStatus(orderId, newStatus);
                 } else if (window.supabaseClient) {
