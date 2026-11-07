@@ -864,38 +864,70 @@
                 return;
             }
             const orderId = diagActiveOrder.id;
-            diagLog(`Envoi du statut ${newStatus} vers Supabase...`);
+            diagLog(`⚡ Envoi statut → ${newStatus} pour #${(diagActiveOrder.order_number || orderId).slice(0,10).toUpperCase()}...`);
+
+            // ── Helper: broadcast Supabase avec subscribe() correct ──────────
+            const sendBroadcast = async (targetId, status) => {
+                if (!window.supabaseClient) return false;
+                try {
+                    // IMPORTANT: subscribe() AVANT send() — sinon le message est ignoré
+                    const ch = window.supabaseClient.channel('admin-demo-live-activity');
+                    await new Promise((resolve) => {
+                        ch.subscribe((state) => { if (state === 'SUBSCRIBED') resolve(); });
+                        setTimeout(resolve, 1500); // fallback timeout
+                    });
+                    await ch.send({
+                        type: 'broadcast',
+                        event: 'demo_order_update',
+                        payload: { id: targetId, status }
+                    });
+                    return true;
+                } catch (e) {
+                    diagLog(`Broadcast erreur: ${e?.message}`, true);
+                    return false;
+                }
+            };
 
             try {
-                // Si c'est une commande de démo
+                // ── DÉMO (NK-VENTE-DEMO ou NK-DEMO-TEST) ───────────────────
                 if (orderId === 'NK-VENTE-DEMO' || orderId === 'NK-DEMO-TEST') {
-                    if (window.supabaseClient) {
-                        const broadcastChannel = window.supabaseClient.channel('admin-demo-live-activity');
-                        await broadcastChannel.send({
-                            type: 'broadcast',
-                            event: 'demo_order_update',
-                            payload: { id: orderId, status: newStatus }
-                        });
-                    }
+                    const ok = await sendBroadcast(orderId, newStatus);
                     diagActiveOrder.status = newStatus;
                     updateDiagPreview(diagActiveOrder);
-                    diagLog(`✅ Démo ${orderId} mise à jour en ${newStatus} ! Événement diffusé.`);
+                    diagLog(ok
+                        ? `✅ Démo ${orderId} → ${newStatus} ! Broadcast envoyé vers mobile.`
+                        : `⚠️ Démo ${orderId} → ${newStatus} (broadcast échoué, supabaseClient absent)`);
                     return;
                 }
 
-                if (window.OrderManager?.updateStatus) {
-                    await OrderManager.updateStatus(orderId, newStatus);
-                } else if (window.supabaseClient) {
-                    await window.supabaseClient.from('orders').update({
+                // ── COMMANDE RÉELLE ─────────────────────────────────────────
+                // Étape 1: Mettre à jour dans Supabase
+                let dbOk = false;
+                if (window.supabaseClient) {
+                    const { error } = await window.supabaseClient.from('orders').update({
                         status: newStatus,
                         updated_at: new Date().toISOString()
                     }).eq('id', orderId);
+                    dbOk = !error;
+                    if (error) diagLog(`DB erreur: ${error.message}`, true);
                 }
+
+                // Étape 2: Broadcast immédiat → le mobile reçoit et met à jour le widget SANS attendre le Realtime postgres_changes
+                // Le payload contient l'orderId réel → customer-dashboard et vendor-dashboard l'appliquent
+                const broadcastOk = await sendBroadcast(orderId, newStatus);
+
                 diagActiveOrder.status = newStatus;
                 updateDiagPreview(diagActiveOrder);
-                diagLog(`✅ Statut ${newStatus} enregistré ! Supabase Realtime a propagé l'événement vers le mobile.`);
+
+                if (dbOk && broadcastOk) {
+                    diagLog(`✅ Statut ${newStatus} → DB OK + Broadcast envoyé → widget mobile mis à jour !`);
+                } else if (dbOk) {
+                    diagLog(`✅ DB OK | ⚠️ Broadcast échoué → mobile se mettra à jour via Realtime.`);
+                } else {
+                    diagLog(`⚠️ Statut ${newStatus} → vérifiez les droits Supabase.`);
+                }
             } catch (err) {
-                diagLog(`Erreur mise à jour : ${err?.message || err}`, true);
+                diagLog(`Erreur: ${err?.message || err}`, true);
             }
         };
 

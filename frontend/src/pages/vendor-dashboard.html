@@ -271,7 +271,7 @@
                             <span class="text-[10px] text-gray-500">Dynamic Island & Écran Verrouillé</span>
                         </div>
                         <p class="text-xs text-gray-600 dark:text-gray-300 mb-3">
-                            Suivez en direct l'avancement d'une de vos <strong>ventes</strong> sur votre iPhone (préparation, coursier, libération des fonds).
+                            Suivez en direct l'avancement d'une de vos <strong>ventes</strong> sur votre iPhone (préparation, livraison, libération des fonds).
                         </p>
                         <!-- Sélecteur de vente -->
                         <div class="mb-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -8139,7 +8139,7 @@ async function openOrderModal(id) {
                 btnDispute.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
-                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
+                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au vendeur uniquement APRÈS avoir reçu et vérifié le produit.";
                 }
             }
 
@@ -9805,7 +9805,7 @@ async function openOrderModal(id) {
                 {
                     status: 'READY_FOR_DELIVERY',
                     statusTitle: 'Colis prêt à livrer 🏷️',
-                    statusDescription: 'En attente de prise en charge par le coursier.',
+                    statusDescription: 'En attente de prise en charge pour la livraison.',
                     progress: 0.50,
                     currentStep: 2,
                     totalSteps: 4,
@@ -10051,12 +10051,34 @@ async function openOrderModal(id) {
             if (window.supabaseClient) {
                 window.supabaseClient.channel('admin-demo-live-activity')
                     .on('broadcast', { event: 'demo_order_update' }, async ({ payload }) => {
-                        if (payload?.id === 'NK-VENTE-DEMO') {
-                            const foundIndex = vendorSteps.findIndex(s => s.status === payload.status);
+                        const pId = payload?.id;
+                        const pStatus = payload?.status;
+                        if (!pId || !pStatus) return;
+
+                        // Cas 1 : Démo NK-VENTE-DEMO
+                        if (pId === 'NK-VENTE-DEMO') {
+                            const foundIndex = vendorSteps.findIndex(s => s.status === pStatus);
                             if (foundIndex !== -1) {
                                 currentStepIndex = foundIndex + 1;
-                                appendLog(`⚡ TÉLÉCOMMANDE ADMIN : Statut -> ${payload.status}`);
+                                appendLog(`⚡ TÉLÉCOMMANDE ADMIN : Statut -> ${pStatus}`);
                                 await applyStepUpdate(currentStepIndex);
+                            }
+                            return;
+                        }
+
+                        // Cas 2 : Vente réelle — l'admin a changé le statut
+                        // Si c'est la vente actuellement trackée en mode vendeur
+                        const trackedId = activeTrackingOrderId || (typeof selectedRealOrderId !== 'undefined' ? selectedRealOrderId : null);
+                        if (pId === trackedId && trackedId) {
+                            appendLog(`⚡ ADMIN → Vente #${pId.slice(0, 8)} mis à jour : ${pStatus}`);
+                            if (window.LiveOrderTracker && activeTrackingOrderObj) {
+                                try {
+                                    const updated = { ...activeTrackingOrderObj, status: pStatus };
+                                    await window.LiveOrderTracker.trackOrder(updated, { role: 'vendor' });
+                                    appendLog(`✅ Widget Vendeur mis à jour → ${pStatus} !`);
+                                } catch (e) {
+                                    appendLog(`Widget erreur: ${e?.message || e}`, true);
+                                }
                             }
                         }
                     })

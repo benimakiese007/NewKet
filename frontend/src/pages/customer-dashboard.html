@@ -5120,6 +5120,8 @@
 
             let currentStepIndex = 1;
             const demoOrderId = 'NK-DEMO-TEST';
+            let activeTrackingOrderId = null;
+            let activeTrackingOrderObj = null;
 
             const appendLog = (msg, isError = false) => {
                 const time = new Date().toLocaleTimeString();
@@ -5377,16 +5379,39 @@
                 refreshRealOrderBtn();
             });
         })
-            // Écoute Broadcast de la télécommande Admin (pour #NK-DEMO)
+            // Écoute Broadcast de la télécommande Admin (Démo + Commandes réelles)
             if (window.supabaseClient) {
                 window.supabaseClient.channel('admin-demo-live-activity')
                     .on('broadcast', { event: 'demo_order_update' }, async ({ payload }) => {
-                        if (payload?.id === 'NK-DEMO-TEST') {
-                            const foundIndex = demoSteps.findIndex(s => s.status === payload.status);
+                        const pId = payload?.id;
+                        const pStatus = payload?.status;
+                        if (!pId || !pStatus) return;
+
+                        // Cas 1 : Commande de démo NK-DEMO-TEST
+                        if (pId === 'NK-DEMO-TEST') {
+                            const foundIndex = demoSteps.findIndex(s => s.status === pStatus);
                             if (foundIndex !== -1) {
                                 currentStepIndex = foundIndex + 1;
-                                appendLog(`⚡ TÉLÉCOMMANDE ADMIN : Statut -> ${payload.status}`);
+                                appendLog(`⚡ TÉLÉCOMMANDE ADMIN : Statut -> ${pStatus}`);
                                 await applyStepUpdate(currentStepIndex);
+                            }
+                            return;
+                        }
+
+                        // Cas 2 : Commande réelle — l'admin a changé le statut d'une vraie commande
+                        // Si c'est la commande actuellement trackée → mettre à jour le widget
+                        if (pId === activeTrackingOrderId && activeTrackingOrderId) {
+                            appendLog(`⚡ ADMIN → Commande #${pId.slice(0, 8)} mis à jour : ${pStatus}`);
+                            // Utiliser LiveOrderTracker directement pour commande réelle
+                            if (window.LiveOrderTracker && activeTrackingOrderObj) {
+                                try {
+                                    const updated = { ...activeTrackingOrderObj, status: pStatus };
+                                    await window.LiveOrderTracker.trackOrder(updated, { role: 'buyer' });
+                                    appendLog(`✅ Widget Live Activity mis à jour → ${pStatus} !`);
+                                    refreshRealOrderBtn();
+                                } catch (e) {
+                                    appendLog(`Widget erreur: ${e?.message || e}`, true);
+                                }
                             }
                         }
                     })
