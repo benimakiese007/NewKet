@@ -9785,6 +9785,15 @@ async function openOrderModal(id) {
 
             const vendorSteps = [
                 {
+                    status: 'PENDING',
+                    statusTitle: 'Nouvelle commande 🛍️',
+                    statusDescription: 'Un client a commandé. En attente de validation.',
+                    progress: 0.15,
+                    currentStep: 1,
+                    totalSteps: 4,
+                    etaText: 'Nouvelle'
+                },
+                {
                     status: 'PAID_HELD',
                     statusTitle: 'Paiement garanti 🔒',
                     statusDescription: 'Fonds sécurisés par NewKet. Préparez le colis !',
@@ -9846,6 +9855,36 @@ async function openOrderModal(id) {
                     currentStep: 4,
                     totalSteps: 4,
                     etaText: 'Clôturé'
+                },
+                {
+                    status: 'DISPUTED',
+                    statusTitle: 'Litige client ouvert ⚠️',
+                    statusDescription: 'Litige signalé sur cette vente. Consultez l administration.',
+                    progress: 0.50,
+                    currentStep: 2,
+                    totalSteps: 4,
+                    etaText: 'Litige',
+                    isCancelled: true
+                },
+                {
+                    status: 'CANCELLED',
+                    statusTitle: 'Vente annulée ❌',
+                    statusDescription: 'La commande client a été annulée.',
+                    progress: 0.0,
+                    currentStep: 1,
+                    totalSteps: 4,
+                    etaText: 'Annulé',
+                    isCancelled: true
+                },
+                {
+                    status: 'REFUNDED',
+                    statusTitle: 'Vente remboursée 💳',
+                    statusDescription: 'Le montant a été remboursé au client.',
+                    progress: 0.0,
+                    currentStep: 1,
+                    totalSteps: 4,
+                    etaText: 'Remboursé',
+                    isCancelled: true
                 }
             ];
 

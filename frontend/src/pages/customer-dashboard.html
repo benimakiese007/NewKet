@@ -5188,9 +5188,10 @@
                 6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le vendeur est en route vers votre point de livraison.", prog: 0.85, step: 3, eta: "4 min" },
                 7: { status: "DELIVERED", title: "Commande livrée 🎉", desc: "Colis remis en main propre. Merci !", prog: 1.0, step: 4, eta: "Livré" },
                 8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre commande.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
-                9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true }
+                9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true },
+                10: { status: "REFUNDED", title: "Commande remboursée 💳", desc: "Les fonds ont été restitués sur votre compte.", prog: 0.0, step: 1, eta: "Remboursé", isCancelled: true }
             };
-            const totalCycleSteps = 9;
+            const totalCycleSteps = 10;
 
             const applyStepUpdate = async (stepIndex) => {
                 const current = stepsConfig[stepIndex];
@@ -5369,11 +5370,13 @@
 
                         // Cas 1 : Démo Client NK-DEMO-TEST
                         if (pId === 'NK-DEMO-TEST') {
-                            const foundIndex = demoSteps.findIndex(s => s.status === pStatus);
-                            if (foundIndex !== -1) {
-                                currentStepIndex = foundIndex + 1;
+                            const foundKey = Object.keys(stepsConfig).find(k => stepsConfig[k]?.status === pStatus);
+                            if (foundKey) {
+                                currentStepIndex = parseInt(foundKey);
                                 appendLog(`⚡ TÉLÉCOMMANDE ADMIN : Statut -> ${pStatus}`);
                                 await applyStepUpdate(currentStepIndex);
+                            } else {
+                                appendLog(`Statut non reconnu pour démo : ${pStatus}`, true);
                             }
                             return;
                         }
