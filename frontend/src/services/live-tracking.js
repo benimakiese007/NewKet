@@ -47,7 +47,7 @@ const STEP_MAPPING = {
         step: 3,
         progress: 0.85,
         title: 'En cours de livraison 🛵',
-        description: 'Le vendeur est en route vers votre point de livraison.',
+        description: 'Le vendeur arrive bientôt. Préparez votre code secret OTP !',
     },
     'DELIVERED': {
         step: 4,
@@ -58,7 +58,7 @@ const STEP_MAPPING = {
     'COMPLETED': {
         step: 4,
         progress: 1.0,
-        title: 'Commande terminée',
+        title: 'Commande terminée ✅',
         description: 'Transaction clôturée avec succès.',
     },
     'CANCELLED': {
@@ -71,15 +71,22 @@ const STEP_MAPPING = {
     'REFUNDED': {
         step: 1,
         progress: 0.0,
-        title: 'Commande remboursée',
-        description: 'Les fonds ont été restitués.',
+        title: 'Commande remboursée 💳',
+        description: 'Les fonds ont été restitués sur votre compte.',
         isCancelled: true,
     },
     'DISPUTED': {
         step: 2,
         progress: 0.5,
         title: 'Litige en cours ⚠️',
-        description: 'Notre service client examine la commande.',
+        description: 'Notre service client examine votre réclamation.',
+        isCancelled: true,
+    },
+    'NO_SHOW': {
+        step: 3,
+        progress: 0.80,
+        title: 'Absence signalée ⚠️',
+        description: 'Le vendeur est sur place mais n\'a pas pu vous joindre. Contactez-le vite !',
         isCancelled: true,
     },
 };
@@ -120,14 +127,14 @@ const VENDOR_STEP_MAPPING = {
     'IN_DELIVERY': {
         step: 3,
         progress: 0.85,
-        title: 'En cours d acheminement 🛵',
-        description: 'Vous approchez du point de livraison du client.',
+        title: 'Arrivé sur place 🛵',
+        description: 'Vous êtes chez le client. Demandez le code secret OTP pour valider la vente.',
     },
     'DELIVERED': {
         step: 4,
         progress: 1.0,
         title: 'Vente livrée avec succès 🎉',
-        description: 'Colis remis en main propre. Vos fonds sont débloqués !',
+        description: 'Code OTP validé ! Colis remis au client. Vos fonds sont débloqués !',
     },
     'COMPLETED': {
         step: 4,
@@ -139,21 +146,28 @@ const VENDOR_STEP_MAPPING = {
         step: 1,
         progress: 0.0,
         title: 'Vente annulée ❌',
-        description: 'La commande client a été annulée.',
+        description: 'La commande client a été annulée. Vos articles sont remis en stock.',
         isCancelled: true,
     },
     'REFUNDED': {
         step: 1,
         progress: 0.0,
         title: 'Vente remboursée ↩️',
-        description: 'Le montant a été remboursé au client.',
+        description: 'Le montant a été remboursé au client par le séquestre NewKet.',
         isCancelled: true,
     },
     'DISPUTED': {
         step: 2,
         progress: 0.5,
         title: 'Litige client ouvert ⚠️',
-        description: 'Litige signalé sur cette vente. Consultez l administration.',
+        description: 'Litige signalé sur cette vente. Envoyez vos preuves de livraison.',
+        isCancelled: true,
+    },
+    'NO_SHOW': {
+        step: 3,
+        progress: 0.75,
+        title: 'Client introuvable ⏳',
+        description: 'Absence signalée. Le client a 48h pour répondre ou la commande sera annulée.',
         isCancelled: true,
     },
 };

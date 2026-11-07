@@ -5444,6 +5444,20 @@
 
                         if (window.showInlineFeedback && btn) window.showInlineFeedback(btn, data.message || 'Absence signalée.', 'success');
                         else showInlineMessage('order-modal-feedback', data.message || 'Absence signalée.', 'success');
+
+                        // 🔴 Déclencher la Live Activity "Client introuvable" sur la Dynamic Island / Écran Verrouillé
+                        if (window.LiveOrderTracker && orderId) {
+                            try {
+                                const noShowOrder = {
+                                    id: orderId,
+                                    status: 'NO_SHOW',
+                                    order_number: currentOrderIdForOtp || orderId
+                                };
+                                await window.LiveOrderTracker.trackOrder(noShowOrder, { role: 'vendor' });
+                            } catch (laErr) {
+                                console.warn('[LiveActivity] NO_SHOW update skipped:', laErr?.message);
+                            }
+                        }
                         
                         setTimeout(() => {
                             closeOrderDetailModal();
@@ -9880,11 +9894,21 @@ async function openOrderModal(id) {
                 {
                     status: 'REFUNDED',
                     statusTitle: 'Vente remboursée 💳',
-                    statusDescription: 'Le montant a été remboursé au client.',
+                    statusDescription: 'Le montant a été remboursé au client par le séquestre NewKet.',
                     progress: 0.0,
                     currentStep: 1,
                     totalSteps: 4,
                     etaText: 'Remboursé',
+                    isCancelled: true
+                },
+                {
+                    status: 'NO_SHOW',
+                    statusTitle: 'Client introuvable ⏳',
+                    statusDescription: 'Absence signalée. Le client a 48h pour répondre ou la commande sera annulée.',
+                    progress: 0.75,
+                    currentStep: 3,
+                    totalSteps: 4,
+                    etaText: '48h',
                     isCancelled: true
                 }
             ];

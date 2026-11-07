@@ -5189,13 +5189,14 @@
                 3: { status: "PROCESSING", title: "Préparation en cours 🔧", desc: "Le vendeur prépare vos articles.", prog: 0.40, step: 2, eta: "18 min" },
                 4: { status: "READY_FOR_DELIVERY", title: "Colis prêt 📦", desc: "La commande attend la prise en charge pour la livraison.", prog: 0.50, step: 2, eta: "15 min" },
                 5: { status: "SHIPPED", title: "Commande expédiée 🚚", desc: "Votre colis a quitté la boutique.", prog: 0.65, step: 3, eta: "10 min" },
-                6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le vendeur est en route vers votre point de livraison.", prog: 0.85, step: 3, eta: "4 min" },
+                6: { status: "IN_DELIVERY", title: "En cours de livraison 🛵", desc: "Le vendeur arrive bientôt. Préparez votre code secret OTP !", prog: 0.85, step: 3, eta: "4 min" },
                 7: { status: "DELIVERED", title: "Commande livrée 🎉", desc: "Colis remis en main propre. Merci !", prog: 1.0, step: 4, eta: "Livré" },
-                8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre commande.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
+                8: { status: "DISPUTED", title: "Litige en cours ⚠️", desc: "Notre service client examine votre réclamation.", prog: 0.50, step: 2, eta: "Litige", isCancelled: true },
                 9: { status: "CANCELLED", title: "Commande annulée ❌", desc: "La commande a été annulée.", prog: 0.0, step: 1, eta: "Annulé", isCancelled: true },
-                10: { status: "REFUNDED", title: "Commande remboursée 💳", desc: "Les fonds ont été restitués sur votre compte.", prog: 0.0, step: 1, eta: "Remboursé", isCancelled: true }
+                10: { status: "REFUNDED", title: "Commande remboursée 💳", desc: "Les fonds ont été restitués sur votre compte.", prog: 0.0, step: 1, eta: "Remboursé", isCancelled: true },
+                11: { status: "NO_SHOW", title: "Absence signalée ⚠️", desc: "Le vendeur est sur place mais ne vous trouve pas. Contactez-le vite !", prog: 0.80, step: 3, eta: "Urgent", isCancelled: true }
             };
-            const totalCycleSteps = 10;
+            const totalCycleSteps = 11;
 
             const applyStepUpdate = async (stepIndex) => {
                 const current = stepsConfig[stepIndex];
