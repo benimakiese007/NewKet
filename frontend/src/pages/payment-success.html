@@ -168,6 +168,24 @@
                 try { localStorage.setItem(orderRefreshSignalKey, JSON.stringify({ txRef, at: Date.now() })); } catch {}
                 window.dispatchEvent(new CustomEvent('ordersUpdated'));
 
+                // Déclenchement automatique et instantané de la Live Activity
+                if (serverStatus?.order) {
+                    const orderToTrack = serverStatus.order;
+                    const triggerTracking = () => {
+                        if (window.LiveOrderTracker?.trackOrder) {
+                            window.LiveOrderTracker.trackOrder(orderToTrack).catch(err => {
+                                console.log('[PaymentSuccess] Auto Live Tracking :', err?.message);
+                            });
+                        }
+                    };
+                    if (window.LiveOrderTracker) {
+                        triggerTracking();
+                    } else {
+                        window.addEventListener('load', triggerTracking, { once: true });
+                        setTimeout(triggerTracking, 1000);
+                    }
+                }
+
                 // Redirect after animation (3s) → #purchases?filter=paid
                 if (window.__newketPaymentRedirectTimer) clearTimeout(window.__newketPaymentRedirectTimer);
                 window.__newketPaymentRedirectTimer = setTimeout(() => {
