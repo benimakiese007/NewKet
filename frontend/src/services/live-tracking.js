@@ -484,9 +484,25 @@ class LiveOrderTrackerService {
     async _syncPushTokenWithBackend(orderId, token) {
         if (!window.supabaseClient || !orderId || !token) return;
         try {
+            const currentUserId = typeof localStorage !== 'undefined' ? localStorage.getItem('newketUserId') : null;
+            const currentUserEmail = typeof localStorage !== 'undefined' ? localStorage.getItem('newketUserEmail') : null;
+
+            const { data: order } = await window.supabaseClient
+                .from('orders')
+                .select('user_id, customer_id, vendor_id, vendor_email')
+                .eq('id', orderId)
+                .maybeSingle();
+
+            const isVendor = order && (
+                (order.vendor_id && currentUserId && String(order.vendor_id) === String(currentUserId)) ||
+                (order.vendor_email && currentUserEmail && String(order.vendor_email).toLowerCase() === String(currentUserEmail).toLowerCase())
+            ) && !(order.user_id && currentUserId && String(order.user_id) === String(currentUserId));
+
+            const updateField = isVendor ? { vendor_live_activity_token: token } : { live_activity_token: token };
+
             await window.supabaseClient
                 .from('orders')
-                .update({ live_activity_token: token })
+                .update(updateField)
                 .eq('id', orderId);
         } catch (_) {}
     }
