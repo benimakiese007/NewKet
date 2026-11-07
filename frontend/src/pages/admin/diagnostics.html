@@ -816,13 +816,19 @@
                 return;
             }
 
-            selectEl.innerHTML = '<option value="">-- Choisir une commande (' + orders.length + ') --</option>' +
-                orders.map(o => {
-                    const idShort = (o.order_number || o.id.slice(0, 8)).toUpperCase();
-                    const status = o.status || 'PENDING';
-                    const name = o.customer?.name || o.customer_name || 'Client';
-                    return `<option value="${o.id}">#${idShort} — ${name} (${status})</option>`;
-                }).join('');
+            selectEl.innerHTML = '<option value="">-- Sélectionner une commande (' + orders.length + ') --</option>' +
+                '<optgroup label="🧪 Commandes Démo (Test Direct)">' +
+                    '<option value="NK-DEMO-TEST">⚡ #NK-DEMO (Démo Client iPhone)</option>' +
+                    '<option value="NK-VENTE-DEMO">⚡ #VENTE-DEMO (Démo Vendeur iPhone)</option>' +
+                '</optgroup>' +
+                '<optgroup label="📦 Commandes Réelles Supabase">' +
+                    orders.map(o => {
+                        const idShort = (o.order_number || o.id.slice(0, 8)).toUpperCase();
+                        const status = o.status || 'PENDING';
+                        const name = o.customer?.name || o.customer_name || 'Client';
+                        return `<option value="${o.id}">#${idShort} — ${name} (${status})</option>`;
+                    }).join('') +
+                '</optgroup>';
 
             // Auto-select first order if none selected
             if (!diagActiveOrder && orders.length > 0) {
@@ -832,6 +838,17 @@
         }
 
         window.diagOnOrderSelected = function(orderId) {
+            if (orderId === 'NK-DEMO-TEST') {
+                diagActiveOrder = { id: 'NK-DEMO-TEST', order_number: 'NK-DEMO', customer_name: 'Démo Client iPhone', status: 'PENDING' };
+                updateDiagPreview(diagActiveOrder);
+                return;
+            }
+            if (orderId === 'NK-VENTE-DEMO') {
+                diagActiveOrder = { id: 'NK-VENTE-DEMO', order_number: 'VENTE-DEMO', customer_name: 'Démo Vendeur iPhone', status: 'PENDING' };
+                updateDiagPreview(diagActiveOrder);
+                return;
+            }
+
             let orders = window.OrderManager?.getOrders() || [];
             let order = orders.find(o => o.id === orderId);
             if (!order && window.supabaseClient) {
