@@ -795,6 +795,24 @@ export const updateOrderStatus = async (req, res, next) => {
             notes: force ? 'Forced admin transition' : adminActor ? null : 'Vendor initiated transition'
         });
 
+        
+        // Déclenchement APNs Live Activity via Supabase Edge Function (non-bloquant)
+        if (updatedOrder && (updatedOrder.live_activity_token || updatedOrder.vendor_live_activity_token)) {
+            const edgeUrl = `${process.env.SUPABASE_URL || 'https://kuygjocnnlvjtoaquicq.supabase.co'}/functions/v1/push-live-activity`;
+            fetch(edgeUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY || ''}`
+                },
+                body: JSON.stringify({
+                    record: updatedOrder,
+                    old_record: { status: previousStatus },
+                    type: 'UPDATE'
+                })
+            }).catch(e => console.warn('[LiveActivity] Edge Function push notice:', e.message));
+        }
+
         return res.status(200).json({ success: true, order: updatedOrder });
     } catch (error) {
         console.error('❌ Erreur updateOrderStatus:', error.message);
