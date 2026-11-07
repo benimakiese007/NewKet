@@ -85,7 +85,7 @@ const AppNotifications = {
                     userId = session.user.id;
                     userEmail = session.user.email;
                     
-                    // Handler unifié pour les mises à jour de commandes de l'utilisateur
+                    // Handler unifié pour les mises à jour de commandes de l'utilisateur (Acheteur)
                     const handleOrderChange = (payload) => {
                         const newStatus = payload.new?.status;
                         const oldStatus = payload.old?.status;
@@ -101,8 +101,34 @@ const AppNotifications = {
 
                             // Synchronisation automatique immédiate avec les Live Activities natives (Dynamic Island / Lock Screen)
                             if (window.LiveOrderTracker) {
-                                window.LiveOrderTracker.trackOrder(payload.new).catch(e => {
+                                window.LiveOrderTracker.trackOrder(payload.new, { role: 'buyer' }).catch(e => {
                                     console.warn('[NewKet] LiveOrderTracker non bloquant :', e?.message);
+                                });
+                            }
+                        }
+                    };
+
+                    // Handler unifié pour les ventes de la boutique (Vendeur)
+                    const handleVendorOrderChange = (payload) => {
+                        const newStatus = payload.new?.status;
+                        const oldStatus = payload.old?.status;
+                        const isInsert = payload.eventType === 'INSERT';
+                        const hasChanged = isInsert || !oldStatus || newStatus !== oldStatus;
+
+                        if (hasChanged && payload.new) {
+                            const orderNum = (payload.new.id || '').split('-')[0].slice(0, 8);
+                            this.showToast(
+                                isInsert ? 'Nouvelle vente reçue ! 🎉' : 'Mise à jour vente 🛍️',
+                                isInsert 
+                                    ? `Un client vient de commander (#${orderNum}). Préparez le colis !`
+                                    : `Votre vente #${orderNum} est passée à : ${payload.new.status}.`,
+                                'success',
+                                'solar:bag-check-bold'
+                            );
+
+                            if (window.LiveOrderTracker) {
+                                window.LiveOrderTracker.trackOrder(payload.new, { role: 'vendor' }).catch(e => {
+                                    console.warn('[NewKet] LiveOrderTracker vendeur non bloquant :', e?.message);
                                 });
                             }
                         }
@@ -126,6 +152,25 @@ const AppNotifications = {
                             table: 'orders',
                             filter: `customer_id=eq.${userId}` 
                         }, handleOrderChange)
+                        .subscribe();
+
+                    // Écoute sur vendor_id pour les ventes (UPDATE + INSERT)
+                    client.channel(`public:orders:vendor:update:${userId}`)
+                        .on('postgres_changes', { 
+                            event: 'UPDATE', 
+                            schema: 'public', 
+                            table: 'orders',
+                            filter: `vendor_id=eq.${userId}` 
+                        }, handleVendorOrderChange)
+                        .subscribe();
+
+                    client.channel(`public:orders:vendor:insert:${userId}`)
+                        .on('postgres_changes', { 
+                            event: 'INSERT', 
+                            schema: 'public', 
+                            table: 'orders',
+                            filter: `vendor_id=eq.${userId}` 
+                        }, handleVendorOrderChange)
                         .subscribe();
                 }
 

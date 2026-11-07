@@ -226,7 +226,7 @@ class LiveOrderTrackerService {
      * @param {Object} order - Objet commande NewKet
      * @returns {Promise<Object>} Résultat complet (sans masquer les erreurs)
      */
-    async trackOrder(order) {
+    async trackOrder(order, options = {}) {
         if (!order || !order.id) {
             throw new Error('Données de commande invalides : order.id est requis.');
         }
@@ -234,11 +234,26 @@ class LiveOrderTrackerService {
         await this.init();
 
         const rawStatus = String(order.status || 'PENDING').toUpperCase();
-        const mapping = STEP_MAPPING[rawStatus] || STEP_MAPPING['PROCESSING'];
+
+        // Détection automatique du rôle (Vendeur ou Acheteur)
+        const currentUserId = typeof localStorage !== 'undefined' ? localStorage.getItem('newketUserId') : null;
+        const currentUserEmail = typeof localStorage !== 'undefined' ? localStorage.getItem('newketUserEmail') : null;
+        const isVendorRole = options?.role === 'vendor' || (
+            (order.vendor_id && currentUserId && String(order.vendor_id) === String(currentUserId)) ||
+            (order.vendor_email && currentUserEmail && String(order.vendor_email).toLowerCase() === String(currentUserEmail).toLowerCase())
+        ) && !(order.user_id && currentUserId && String(order.user_id) === String(currentUserId));
+
+        const activeDict = isVendorRole ? VENDOR_STEP_MAPPING : STEP_MAPPING;
+        const mapping = activeDict[rawStatus] || activeDict['PROCESSING'] || STEP_MAPPING[rawStatus] || STEP_MAPPING['PROCESSING'];
 
         const orderId = String(order.id);
-        const orderNumber = order.order_number || `#NK-${orderId.slice(0, 6).toUpperCase()}`;
-        const shopName = order.shop_name || order.shops?.name || 'NewKet';
+        const orderNumber = isVendorRole 
+            ? (order.order_number ? `Vente ${order.order_number}` : `#VENTE-${orderId.slice(0, 6).toUpperCase()}`)
+            : (order.order_number || `#NK-${orderId.slice(0, 6).toUpperCase()}`);
+            
+        const shopName = isVendorRole
+            ? (order.customer_name || 'Client NewKet')
+            : (order.shop_name || order.shops?.name || 'NewKet');
         const itemCount = Array.isArray(order.items) ? order.items.length : (Number(order.item_count) || 1);
         const etaText = order.eta_text || order.estimated_delivery_time || order.eta || null;
 

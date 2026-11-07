@@ -162,10 +162,16 @@ const OrderManager = {
                         const order = payload.new;
                         const isMyOrder = (currentUserId && (order.user_id === currentUserId || order.customer_id === currentUserId))
                             || (currentUserEmail && order.customer_email === currentUserEmail);
+                        const isMySale = (currentUserId && order.vendor_id === currentUserId)
+                            || (currentUserEmail && order.vendor_email === currentUserEmail);
 
-                        if (isMyOrder) {
-                            window.LiveOrderTracker.trackOrder(order).catch(err => {
-                                console.warn('[OrderManager] Auto Live Tracking update:', err?.message);
+                        if (isMySale) {
+                            window.LiveOrderTracker.trackOrder(order, { role: 'vendor' }).catch(err => {
+                                console.warn('[OrderManager] Auto Live Tracking vendor update:', err?.message);
+                            });
+                        } else if (isMyOrder) {
+                            window.LiveOrderTracker.trackOrder(order, { role: 'buyer' }).catch(err => {
+                                console.warn('[OrderManager] Auto Live Tracking buyer update:', err?.message);
                             });
                         }
                     } catch (e) {
@@ -205,20 +211,43 @@ const OrderManager = {
 
             const activeStatuses = ['PAID_HELD', 'PROCESSING', 'READY_FOR_DELIVERY', 'SHIPPED', 'IN_DELIVERY'];
             
-            // Trouver les commandes de l'utilisateur
+            const isVendorDashboard = typeof window !== 'undefined' && window.location && window.location.pathname.includes('vendor-dashboard');
+
+            // Commandes acheteur
             const myOrders = this.data.filter(o => 
                 (currentUserId && (o.user_id === currentUserId || o.customer_id === currentUserId)) ||
                 (currentUserEmail && o.customer_email === currentUserEmail)
             );
 
-            // Trouver la commande active la plus récente
-            const activeOrder = myOrders.find(o => activeStatuses.includes(String(o.status || '').toUpperCase()));
+            // Commandes vendeur (ventes)
+            const mySales = this.data.filter(o => 
+                (currentUserId && o.vendor_id === currentUserId) ||
+                (currentUserEmail && o.vendor_email === currentUserEmail)
+            );
 
+            // Priorité selon la page ou la présence de vente active
+            if (isVendorDashboard && mySales.length > 0) {
+                const activeSale = mySales.find(o => activeStatuses.includes(String(o.status || '').toUpperCase()));
+                if (activeSale) {
+                    console.log('[OrderManager] 🚀 Vente active détectée pour le Live Tracking Vendeur :', activeSale.id, activeSale.status);
+                    window.LiveOrderTracker.trackOrder(activeSale, { role: 'vendor' }).catch(err => {
+                        console.log('[OrderManager] Info auto-track vente :', err?.message);
+                    });
+                    return;
+                }
+            }
+
+            const activeOrder = myOrders.find(o => activeStatuses.includes(String(o.status || '').toUpperCase()));
             if (activeOrder) {
-                console.log('[OrderManager] 🚀 Commande active détectée pour le Live Tracking :', activeOrder.id, activeOrder.status);
-                window.LiveOrderTracker.trackOrder(activeOrder).catch(err => {
-                    console.log('[OrderManager] Info auto-track (normal si hors iOS natif) :', err?.message);
+                console.log('[OrderManager] 🚀 Commande active détectée pour le Live Tracking Acheteur :', activeOrder.id, activeOrder.status);
+                window.LiveOrderTracker.trackOrder(activeOrder, { role: 'buyer' }).catch(err => {
+                    console.log('[OrderManager] Info auto-track :', err?.message);
                 });
+            } else if (mySales.length > 0) {
+                const activeSale = mySales.find(o => activeStatuses.includes(String(o.status || '').toUpperCase()));
+                if (activeSale) {
+                    window.LiveOrderTracker.trackOrder(activeSale, { role: 'vendor' }).catch(() => {});
+                }
             }
         } catch (e) {
             console.warn('[OrderManager] Erreur dans _autoSyncActiveLiveTracking :', e);
