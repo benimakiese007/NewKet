@@ -10045,9 +10045,12 @@ async function openOrderModal(id) {
             setTimeout(populateVendorOrdersDropdown, 1500);
             window.addEventListener('ordersUpdated', populateVendorOrdersDropdown);
 
-            // Écoute Broadcast de la télécommande Admin (pour les tests immédiats de démo)
-            if (window.supabaseClient) {
-                window.supabaseClient.channel('admin-demo-live-activity')
+            // Écoute Broadcast robuste de la télécommande Admin (attente de Supabase)
+            const initVendorRemoteListener = () => {
+                const client = window.supabaseClient || (window.SupabaseAdapter ? window.SupabaseAdapter.getClient() : null);
+                if (!client) return false;
+
+                client.channel('admin-demo-live-activity')
                     .on('broadcast', { event: 'demo_order_update' }, async ({ payload }) => {
                         const pId = payload?.id;
                         const pStatus = payload?.status;
@@ -10064,11 +10067,10 @@ async function openOrderModal(id) {
                             return;
                         }
 
-                        // Cas 2 : Vente réelle — l'admin a changé le statut
-                        // Si c'est la vente actuellement trackée en mode vendeur
+                        // Cas 2 : Vente réelle
                         const trackedId = activeTrackingOrderId || (typeof selectedRealOrderId !== 'undefined' ? selectedRealOrderId : null);
                         if (pId === trackedId && trackedId) {
-                            appendLog(`⚡ ADMIN → Vente #${pId.slice(0, 8)} mis à jour : ${pStatus}`);
+                            appendLog(`⚡ ADMIN → Vente #${pId.slice(0, 8)} mise à jour : ${pStatus}`);
                             if (window.LiveOrderTracker && activeTrackingOrderObj) {
                                 try {
                                     const updated = { ...activeTrackingOrderObj, status: pStatus };
@@ -10080,7 +10082,20 @@ async function openOrderModal(id) {
                             }
                         }
                     })
-                    .subscribe();
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            appendLog("📡 Télécommande Admin connectée (Prêt à recevoir les ordres PC)");
+                        }
+                    });
+                return true;
+            };
+
+            if (!initVendorRemoteListener()) {
+                window.addEventListener('newketInitialized', initVendorRemoteListener, { once: true });
+                const retryTimer = setInterval(() => {
+                    if (initVendorRemoteListener()) clearInterval(retryTimer);
+                }, 300);
+                setTimeout(() => clearInterval(retryTimer), 10000);
             }
         })();
     </script>

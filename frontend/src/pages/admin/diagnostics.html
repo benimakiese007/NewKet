@@ -883,16 +883,25 @@
             const orderId = diagActiveOrder.id;
             diagLog(`⚡ Envoi statut → ${newStatus} pour #${(diagActiveOrder.order_number || orderId).slice(0,10).toUpperCase()}...`);
 
-            // ── Helper: broadcast Supabase avec subscribe() correct ──────────
-            const sendBroadcast = async (targetId, status) => {
-                if (!window.supabaseClient) return false;
-                try {
-                    // IMPORTANT: subscribe() AVANT send() — sinon le message est ignoré
-                    const ch = window.supabaseClient.channel('admin-demo-live-activity');
-                    await new Promise((resolve) => {
-                        ch.subscribe((state) => { if (state === 'SUBSCRIBED') resolve(); });
-                        setTimeout(resolve, 1500); // fallback timeout
+            // ── Helper: broadcast Supabase persistant et instantané (0ms de latence) ──
+            let adminBroadcastChannel = null;
+            const getBroadcastChannel = () => {
+                if (!adminBroadcastChannel && window.supabaseClient) {
+                    adminBroadcastChannel = window.supabaseClient.channel('admin-demo-live-activity');
+                    adminBroadcastChannel.subscribe((state) => {
+                        diagLog(`📡 Canal télécommande : ${state}`);
                     });
+                }
+                return adminBroadcastChannel;
+            };
+
+            const sendBroadcast = async (targetId, status) => {
+                const ch = getBroadcastChannel();
+                if (!ch) {
+                    diagLog("⚠️ Supabase non prêt pour l'envoi broadcast", true);
+                    return false;
+                }
+                try {
                     await ch.send({
                         type: 'broadcast',
                         event: 'demo_order_update',

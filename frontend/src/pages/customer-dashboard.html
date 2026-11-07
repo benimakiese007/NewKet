@@ -5355,16 +5355,19 @@
                 appendLog("📱 La Dynamic Island et l'écran de verrouillage ont été mis à jour !");
                 refreshRealOrderBtn();
             });
-        })
-            // Écoute Broadcast de la télécommande Admin (Démo + Commandes réelles)
-            if (window.supabaseClient) {
-                window.supabaseClient.channel('admin-demo-live-activity')
+
+            // Écoute Broadcast robuste de la télécommande Admin (attente de Supabase)
+            const initCustomerRemoteListener = () => {
+                const client = window.supabaseClient || (window.SupabaseAdapter ? window.SupabaseAdapter.getClient() : null);
+                if (!client) return false;
+
+                client.channel('admin-demo-live-activity')
                     .on('broadcast', { event: 'demo_order_update' }, async ({ payload }) => {
                         const pId = payload?.id;
                         const pStatus = payload?.status;
                         if (!pId || !pStatus) return;
 
-                        // Cas 1 : Commande de démo NK-DEMO-TEST
+                        // Cas 1 : Démo Client NK-DEMO-TEST
                         if (pId === 'NK-DEMO-TEST') {
                             const foundIndex = demoSteps.findIndex(s => s.status === pStatus);
                             if (foundIndex !== -1) {
@@ -5375,11 +5378,9 @@
                             return;
                         }
 
-                        // Cas 2 : Commande réelle — l'admin a changé le statut d'une vraie commande
-                        // Si c'est la commande actuellement trackée → mettre à jour le widget
+                        // Cas 2 : Commande réelle
                         if (pId === activeTrackingOrderId && activeTrackingOrderId) {
-                            appendLog(`⚡ ADMIN → Commande #${pId.slice(0, 8)} mis à jour : ${pStatus}`);
-                            // Utiliser LiveOrderTracker directement pour commande réelle
+                            appendLog(`⚡ ADMIN → Commande #${pId.slice(0, 8)} mise à jour : ${pStatus}`);
                             if (window.LiveOrderTracker && activeTrackingOrderObj) {
                                 try {
                                     const updated = { ...activeTrackingOrderObj, status: pStatus };
@@ -5392,7 +5393,20 @@
                             }
                         }
                     })
-                    .subscribe();
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            appendLog("📡 Télécommande Admin connectée (Prêt à recevoir les ordres PC)");
+                        }
+                    });
+                return true;
+            };
+
+            if (!initCustomerRemoteListener()) {
+                window.addEventListener('newketInitialized', initCustomerRemoteListener, { once: true });
+                const retryTimer = setInterval(() => {
+                    if (initCustomerRemoteListener()) clearInterval(retryTimer);
+                }, 300);
+                setTimeout(() => clearInterval(retryTimer), 10000);
             }
         })();
     </script>
