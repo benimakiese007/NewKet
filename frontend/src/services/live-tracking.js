@@ -358,8 +358,22 @@ class LiveOrderTrackerService {
             throw err;
         }
 
+        if (!this.isSupported && this.plugin) {
+            // Tenter de demander les permissions si nécessaire (ex: Android 13+ POST_NOTIFICATIONS)
+            if (typeof this.plugin.requestPermissions === 'function') {
+                try {
+                    await this.plugin.requestPermissions();
+                    const status = await this.plugin.isAvailable();
+                    this.isSupported = Boolean(status?.available && status?.enabled);
+                } catch (permErr) {
+                    this.logEvent('PERM', 'Demande de permission : ' + (permErr?.message || permErr), 'WARNING');
+                }
+            }
+        }
+
         if (!this.isSupported) {
-            const err = new Error('Live Activities désactivées dans les Réglages iOS de NewKet ou non supportées.');
+            const platformSettings = this.platform === 'android' ? 'les Paramètres de notifications Android' : 'les Réglages iOS';
+            const err = new Error(`Suivi en direct désactivé ou non autorisé dans ${platformSettings} pour NewKet.`);
             this.logEvent('TRACK', err.message, 'ERROR');
             throw err;
         }
@@ -378,7 +392,7 @@ class LiveOrderTrackerService {
             }
 
             // Auto-fermeture si terminée
-            if (rawStatus === 'DELIVERED' || rawStatus === 'COMPLETED' || rawStatus === 'CANCELLED') {
+            if (rawStatus === 'DELIVERED' || rawStatus === 'COMPLETED' || rawStatus === 'CANCELLED' || rawStatus === 'REFUNDED') {
                 setTimeout(() => {
                     this.stopTracking(orderId).catch(() => {});
                 }, 20000);

@@ -9768,7 +9768,8 @@ async function openOrderModal(id) {
                 }
                 try {
                     const status = await plugin.isAvailable();
-                    appendLog(`Plugin disponible ! Auth: ${status?.enabled}, iOS: ${status?.iosVersion || 'N/A'}`);
+                    const isAndroid = status?.platform === 'android' || window.Capacitor?.getPlatform?.() === 'android';
+                    appendLog(`Plugin disponible ! Auth: ${status?.enabled}, Système: ${isAndroid ? 'Android (SDK ' + (status?.sdkInt || 'N/A') + ')' : (status?.iosVersion || 'iOS')}`);
                     return Boolean(status?.available && status?.enabled);
                 } catch (e) {
                     appendLog(`Erreur checkSupport: ${e?.message || e}`, true);
@@ -9954,8 +9955,11 @@ async function openOrderModal(id) {
                 if (window.LiveOrderTracker) {
                     try {
                         const res = await window.LiveOrderTracker.trackOrder(activeTrackingOrderObj, { role: 'vendor' });
-                        appendLog(`✅ Live Activity Vendeur lancée ! ID: ${res?.activityId || 'Actif'}`);
-                        appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
+                        const isAndroid = window.Capacitor?.getPlatform?.() === 'android';
+                        appendLog(`✅ Suivi Vendeur lancé ! ID: ${res?.activityId || 'Actif'}`);
+                        appendLog(isAndroid 
+                            ? "👉 Balayez le volet de notifications ou verrouillez votre écran pour voir le suivi !" 
+                            : "👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
                     } catch (err) {
                         appendLog(`Erreur: ${err?.message || err}`, true);
                     }
@@ -10073,8 +10077,11 @@ async function openOrderModal(id) {
                 if (window.LiveOrderTracker) {
                     try {
                         await window.LiveOrderTracker.trackOrder(targetOrder, { role: 'vendor' });
-                        appendLog(`✅ Vente activée sur Dynamic Island & Écran Verrouillé !`);
-                        appendLog("👉 Verrouillez votre iPhone pour admirer le widget en direct.");
+                        const isAndroid = window.Capacitor?.getPlatform?.() === 'android';
+                        appendLog(`✅ Vente activée sur l'Écran Verrouillé & Notifications !`);
+                        appendLog(isAndroid 
+                            ? "👉 Balayez le volet de notifications ou verrouillez votre écran pour voir le suivi !" 
+                            : "👉 Verrouillez votre iPhone pour admirer le widget en direct.");
                     } catch (e) {
                         appendLog(`Erreur activation suivi : ${e?.message || e}`, true);
                     }

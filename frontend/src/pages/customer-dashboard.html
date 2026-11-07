@@ -5148,7 +5148,8 @@
                 }
                 try {
                     const status = await plugin.isAvailable();
-                    appendLog(`Plugin disponible ! Auth: ${status.enabled}, iOS: ${status.iosVersion || 'Android'}`);
+                    const isAndroid = status.platform === 'android' || window.Capacitor?.getPlatform?.() === 'android';
+                    appendLog(`Plugin disponible ! Auth: ${status.enabled}, Système: ${isAndroid ? 'Android (SDK ' + (status.sdkInt || 'N/A') + ')' : (status.iosVersion || 'iOS')}`);
                 } catch (e) {
                     appendLog(`Erreur isAvailable(): ${e?.message || e}`, true);
                 }
@@ -5169,8 +5170,11 @@
                 if (window.LiveOrderTracker) {
                     try {
                         const res = await window.LiveOrderTracker.trackOrder(activeTrackingOrderObj, { role: 'buyer' });
-                        appendLog(`✅ Live Activity lancée ! ID: ${res?.activityId || 'Actif'}`);
-                        appendLog("👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
+                        const isAndroid = window.Capacitor?.getPlatform?.() === 'android';
+                        appendLog(`✅ Suivi en direct lancé ! ID: ${res?.activityId || 'Actif'}`);
+                        appendLog(isAndroid 
+                            ? "👉 Balayez le volet de notifications ou verrouillez votre écran pour voir le suivi !" 
+                            : "👉 Verrouillez l'écran ou revenez à l'accueil pour voir la Dynamic Island !");
                     } catch (err) {
                         appendLog(`Échec: ${err?.message || err}`, true);
                     }
@@ -5331,8 +5335,11 @@
                 if (window.LiveOrderTracker) {
                     try {
                         const res = await window.LiveOrderTracker.trackOrder(targetOrder);
-                        appendLog(`✅ Commande activée sur Dynamic Island & Écran Verrouillé !`);
-                        appendLog("👉 Verrouillez votre iPhone pour admirer le widget en direct.");
+                        const isAndroid = window.Capacitor?.getPlatform?.() === 'android';
+                        appendLog(`✅ Commande activée sur l'Écran Verrouillé & Notifications !`);
+                        appendLog(isAndroid 
+                            ? "👉 Balayez le volet de notifications ou verrouillez votre écran pour voir le suivi !" 
+                            : "👉 Verrouillez votre iPhone pour admirer le widget en direct.");
                     } catch (e) {
                         appendLog(`Erreur activation suivi : ${e?.message || e}`, true);
                     }

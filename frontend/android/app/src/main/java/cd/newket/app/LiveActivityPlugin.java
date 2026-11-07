@@ -53,7 +53,7 @@ public class LiveActivityPlugin extends Plugin {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_HIGH
             );
             channel.setDescription(CHANNEL_DESC);
             channel.enableLights(true);
@@ -75,7 +75,32 @@ public class LiveActivityPlugin extends Plugin {
         JSObject ret = new JSObject();
         ret.put("available", true);
         ret.put("enabled", notificationsEnabled);
+        ret.put("platform", "android");
+        ret.put("sdkInt", Build.VERSION.SDK_INT);
         call.resolve(ret);
+    }
+
+    // MARK: - openNotificationSettings
+    @PluginMethod
+    public void openNotificationSettings(PluginCall call) {
+        Context context = getContext();
+        try {
+            Intent intent = new Intent();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.setAction(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+            } else {
+                intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(android.net.Uri.fromParts("package", context.getPackageName(), null));
+            }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            JSObject ret = new JSObject();
+            ret.put("success", true);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject("Cannot open settings: " + e.getMessage());
+        }
     }
 
     // MARK: - startActivity
@@ -175,6 +200,8 @@ public class LiveActivityPlugin extends Plugin {
             Integer notifId = activeOrders.remove(orderId);
             if (notifId != null) {
                 notificationManager.cancel(notifId);
+            } else {
+                notificationManager.cancel(getNotificationId(orderId));
             }
         } else {
             for (Integer notifId : activeOrders.values()) {
@@ -244,13 +271,26 @@ public class LiveActivityPlugin extends Plugin {
         // Stepper text summary: e.g. "Étape 3/4 • En route"
         String stepSummary = String.format("Étape %d/%d : %s", currentStep, totalSteps, statusDescription);
 
+        // Select clean vector icon (cart for buyer, shop for seller)
+        int iconRes = 0;
+        try {
+            boolean isVendor = orderNumber != null && (orderNumber.toUpperCase().contains("VENTE"));
+            String iconName = isVendor ? "ic_widget_shop" : "ic_widget_cart";
+            iconRes = context.getResources().getIdentifier(iconName, "drawable", context.getPackageName());
+        } catch (Exception ignored) {}
+
+        if (iconRes == 0) {
+            iconRes = context.getApplicationInfo().icon;
+        }
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(context.getApplicationInfo().icon)
+                .setSmallIcon(iconRes)
                 .setColor(BRAND_COLOR)
                 .setContentTitle(contentTitle)
                 .setContentText(stepSummary)
                 .setSubText(shopName + " (" + orderNumber + ")")
                 .setContentIntent(pendingIntent)
+                .addAction(iconRes, "Ouvrir NewKet", pendingIntent)
                 .setOngoing(ongoing)
                 .setAutoCancel(!ongoing)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
