@@ -286,7 +286,7 @@ function buildShopShareUrl({ shopName, shopSlug } = {}) {
 
     // On Capacitor (native), return the physical file path with origin so it forms a valid absolute URL for native sharing & linking
     if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
-        return `${window.location.origin}/src/pages/shop.html?shop=${encodeURIComponent(slug)}`;
+        return `https://newket.vercel.app/src/pages/shop.html?shop=${encodeURIComponent(slug)}`;
     }
 
     const url = new URL(`/boutique/${encodeURIComponent(slug)}`, window.location.origin);
@@ -296,7 +296,8 @@ function buildShopShareUrl({ shopName, shopSlug } = {}) {
 function buildProductShareUrl({ shopName, email, productName, productId } = {}) {
     const shopSlug = buildShopSlug(shopName);
     const productSlug = buildProductSlug(productName);
-    const url = new URL(`/boutique/${encodeURIComponent(shopSlug)}/produit/${encodeURIComponent(productSlug)}`, window.location.origin);
+    const origin = (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) || window.location.origin.includes('localhost') ? 'https://newket.vercel.app' : window.location.origin;
+    const url = new URL(`/boutique/${encodeURIComponent(shopSlug)}/produit/${encodeURIComponent(productSlug)}`, origin);
     // Keep id as a query param so product.html can always resolve to a real product record.
     if (productId) url.searchParams.set('id', productId);
     return url.toString();
@@ -315,6 +316,7 @@ function buildProductPagePath({ shopName, shopSlug, productName, productId, emai
 
     const resolvedShopSlug = String(shopSlug || '').trim() || buildShopSlug(shopName);
     const productSlug = buildProductSlug(productName);
+    const origin = (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) || window.location.origin.includes('localhost') ? 'https://newket.vercel.app' : window.location.origin;
 
     if (resolvedShopSlug && productSlug) {
         const url = new URL(`/boutique/${encodeURIComponent(resolvedShopSlug)}/produit/${encodeURIComponent(productSlug)}`, window.location.origin);
