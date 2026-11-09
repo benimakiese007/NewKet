@@ -143,7 +143,6 @@ const ProductManager = {
         this.fetchFreshData().finally(() => {
             this.loading = false;
             this._initialFetchDone = true;
-            window.dispatchEvent(new CustomEvent('productsUpdated'));
         });
 
         // Keep the browse feed stable. It refreshes through the normal page

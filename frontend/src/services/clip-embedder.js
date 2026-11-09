@@ -53,13 +53,6 @@ async function loadModel(onProgress) {
   return loadPromise;
 }
 
-/**
- * Pré-charge le modèle CLIP discrètement en arrière-plan
- */
-export function preloadModel() {
-  loadModel().catch(err => console.warn('[CLIP] Préchargement discret :', err.message));
-}
-
 
 /**
  * Génère un vecteur CLIP 512-dim à partir d'un fichier image

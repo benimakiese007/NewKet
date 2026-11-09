@@ -8,17 +8,19 @@ const UI = {
         this.renderHomeGrid();
 
         // Avoid replacing the grid while the user explicitly requests another block.
-        window.addEventListener('productsUpdated', () => {
+        let renderFrame = null;
+        const debouncedRender = () => {
             if (!window._isFetchingHome) {
-                this.renderHomeGrid();
+                if (renderFrame) cancelAnimationFrame(renderFrame);
+                renderFrame = requestAnimationFrame(() => {
+                    this.renderHomeGrid();
+                });
             }
-        });
+        };
 
-        window.addEventListener('productsError', () => {
-            if (!window._isFetchingHome) {
-                this.renderHomeGrid();
-            }
-        });
+        window.addEventListener('productsUpdated', debouncedRender);
+
+        window.addEventListener('productsError', debouncedRender);
 
         if (!this._homeResizeBound) {
             let resizeTimer;
@@ -78,6 +80,7 @@ const UI = {
 
         // If no products yet, show skeletons
         if (!products || products.length === 0) {
+            delete grid.dataset.renderedSignature;
 
             if (window.ProductManager && window.ProductManager._error) {
                 const retryHtml = `
@@ -109,6 +112,7 @@ const UI = {
             .slice(0, 12);
 
         if (pinned.length === 0) {
+            delete grid.dataset.renderedSignature;
             if (section) section.classList.add('hidden');
             grid.innerHTML = '';
             return;
@@ -118,10 +122,22 @@ const UI = {
 
         const isMobile = window.matchMedia('(max-width: 767px)').matches;
         const limit = isMobile ? 4 : 12;
-        grid.innerHTML = pinned.slice(0, limit).map((p, idx) =>
+        const listToRender = pinned.slice(0, limit);
+
+        const currentCurrency = window.CurrencyManager?.currentCurrency || 'USD';
+        const signature = listToRender.map(p => `${p.id}_${p.price}_${p.stock ?? 0}_${currentCurrency}`).join('|');
+        if (grid.dataset.renderedSignature === signature) {
+            return; // Déjà affiché et identique — évite de clignoter / re-render
+        }
+        grid.dataset.renderedSignature = signature;
+
+        const isInitialRender = !grid.querySelector('[data-product-id]');
+        const animationClass = isInitialRender ? 'animate-fade-in' : '';
+
+        grid.innerHTML = listToRender.map((p, idx) =>
             window.buildProductCardHTML(p, {
-                animationClass: 'animate-fade-in',
-                delay: `${idx * 0.05}s`,
+                animationClass: animationClass,
+                delay: isInitialRender ? `${idx * 0.05}s` : '0s',
                 imageLoading: idx === 0 ? 'eager' : 'lazy',
                 prioritizeImage: idx === 0,
                 prioritizeAvatar: idx === 0
@@ -133,7 +149,10 @@ const UI = {
 
     renderRecent(products) {
         const grid = document.getElementById('recentProductGrid');
-        if (!grid) return;        if (!products || products.length === 0) {
+        if (!grid) return;
+
+        if (!products || products.length === 0) {
+            delete grid.dataset.renderedSignature;
 
             if (window.ProductManager && window.ProductManager._error) {
                 const retryHtml = `
@@ -158,10 +177,20 @@ const UI = {
         const recentLimit = window.matchMedia('(max-width: 767px)').matches ? 6 : 10;
         const recent = products.slice(0, recentLimit);
 
+        const currentCurrency = window.CurrencyManager?.currentCurrency || 'USD';
+        const signature = recent.map(p => `${p.id}_${p.price}_${p.stock ?? 0}_${currentCurrency}`).join('|');
+        if (grid.dataset.renderedSignature === signature) {
+            return; // Déjà affiché et identique — évite de clignoter / re-render
+        }
+        grid.dataset.renderedSignature = signature;
+
+        const isInitialRender = !grid.querySelector('[data-product-id]');
+        const animationClass = isInitialRender ? 'animate-fade-in' : '';
+
         grid.innerHTML = recent.map((p, idx) =>
             window.buildProductCardHTML(p, {
-                animationClass: 'animate-fade-in',
-                delay: `${idx * 0.05}s`,
+                animationClass: animationClass,
+                delay: isInitialRender ? `${idx * 0.05}s` : '0s',
                 imageLoading: idx === 0 ? 'eager' : 'lazy',
                 prioritizeImage: idx === 0,
                 prioritizeAvatar: idx === 0
@@ -227,21 +256,22 @@ const UI = {
     renderFilteredBatch(products, container, batchSize, append = false) {
         if (!products || products.length === 0) {
             if (!append) {
+                delete container.dataset.renderedSignature;
 
-            if (window.ProductManager && window.ProductManager._error) {
-                const retryHtml = `
-                <div class="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-gray-100">
-                    <iconify-icon icon="solar:wifi-router-minimalistic-broken" width="48" class="text-red-400 mb-3"></iconify-icon>
-                    <p class="text-gray-800 font-semibold mb-1">Impossible de charger les produits</p>
-                    <p class="text-gray-500 text-sm mb-4">Veuillez vérifier votre connexion réseau.</p>
-                    <button onclick="window.ProductManager.fetchFreshData()" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors">
-                        Réessayer
-                    </button>
-                </div>`;
-                if (null) null.innerHTML = retryHtml;
-                if (container) container.innerHTML = retryHtml;
-                return;
-            }
+                if (window.ProductManager && window.ProductManager._error) {
+                    const retryHtml = `
+                    <div class="col-span-full py-12 text-center bg-gray-50 rounded-2xl border border-gray-100">
+                        <iconify-icon icon="solar:wifi-router-minimalistic-broken" width="48" class="text-red-400 mb-3"></iconify-icon>
+                        <p class="text-gray-800 font-semibold mb-1">Impossible de charger les produits</p>
+                        <p class="text-gray-500 text-sm mb-4">Veuillez vérifier votre connexion réseau.</p>
+                        <button onclick="window.ProductManager.fetchFreshData()" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-gray-800 transition-colors">
+                            Réessayer
+                        </button>
+                    </div>`;
+                    if (null) null.innerHTML = retryHtml;
+                    if (container) container.innerHTML = retryHtml;
+                    return;
+                }
 
                 const isLoading = window.ProductManager && window.ProductManager.loading;
                 if (isLoading) {
@@ -298,10 +328,34 @@ const UI = {
              // Handled by noMsg below usually
         }
 
+        const currentCurrency = window.CurrencyManager?.currentCurrency || 'USD';
+        const signature = `${sortBy}_${currentFilter}_${currentCurrency}_` + displayList.map(p => `${p.id}_${p.price}_${p.stock ?? 0}`).join('|');
+
+        if (!append && container.dataset.renderedSignature === signature) {
+            // Exactement les mêmes produits affichés : on met juste à jour le bouton Voir plus sans toucher au DOM
+            const voirPlus = document.getElementById('voirPlusContainer');
+            if (voirPlus) {
+                const finalRenderedIds = new Set(
+                    [...container.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
+                );
+                const notYetRenderedCount = filtered.filter(p => !finalRenderedIds.has(String(p.id))).length;
+                const hasMore = (notYetRenderedCount > 0) || (window.ProductManager && ProductManager.hasMore());
+                voirPlus.classList.toggle('hidden', !hasMore);
+            }
+            return;
+        }
+
+        if (!append) {
+            container.dataset.renderedSignature = signature;
+        }
+
+        const isInitialRender = !append && !container.querySelector('[data-product-id]');
+        const animationClass = isInitialRender ? 'animate-fade-in' : '';
+
         const html = displayList.map((p, idx) =>
             window.buildProductCardHTML(p, {
-                animationClass: 'animate-fade-in',
-                delay: `${idx * 0.05}s`,
+                animationClass: animationClass,
+                delay: isInitialRender ? `${idx * 0.05}s` : '0s',
                 imageLoading: !append && idx === 0 ? 'eager' : 'lazy',
                 prioritizeImage: !append && idx === 0,
                 prioritizeAvatar: !append && idx === 0
@@ -448,9 +502,13 @@ const uiBootstrap = () => {
     }
 
     // Subscribe to updates so any pre-auth cache dispatch is caught
+    let earlyFrame = null;
     const earlyRender = () => {
         if (!window._isFetchingHome && window.ProductManager) {
-            UI.renderHomeGrid();
+            if (earlyFrame) cancelAnimationFrame(earlyFrame);
+            earlyFrame = requestAnimationFrame(() => {
+                UI.renderHomeGrid();
+            });
         }
     };
     window.addEventListener('productsUpdated', earlyRender);
