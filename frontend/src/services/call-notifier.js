@@ -203,7 +203,7 @@
         root.id = 'newket-global-call-ui-root';
         root.innerHTML = `
             <!-- 1. FULLSCREEN CALL OVERLAY (Identique à delivery-tracking.js) -->
-            <div id="dt-global-call-fullscreen" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[99999] flex flex-col justify-between p-6 sm:p-8 text-white select-none transition-opacity duration-200">
+            <div id="dt-global-call-fullscreen" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[99999] flex flex-col justify-between px-6 sm:px-8 text-white select-none transition-opacity duration-200" style="padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.75rem)); padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
                 <!-- Top Bar: Privacy & Bouton Réduire PiP -->
                 <div class="flex items-center justify-between w-full max-w-xl mx-auto pt-2">
                     <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md">
@@ -261,7 +261,7 @@
             </div>
 
             <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté - Identique Dashboard) -->
-            <div id="dt-global-call-pip" class="hidden fixed z-[99999] top-5 right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200">
+            <div id="dt-global-call-pip" class="hidden fixed z-[99999] right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
                 <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                 <div id="dt-global-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                     <!-- Avatar miniature avec point vert direct -->
@@ -679,7 +679,8 @@
 
         const toast = document.createElement('div');
         toast.id = 'dt-chat-toast-pill';
-        toast.className = 'fixed z-[99999] top-5 right-4 w-[330px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
+        toast.className = 'fixed z-[99999] right-4 w-[330px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
+        toast.style.top = 'max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))';
 
         toast.innerHTML = `
             <div class="flex items-center gap-3 min-w-0 flex-1">

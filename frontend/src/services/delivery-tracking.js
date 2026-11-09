@@ -1393,7 +1393,7 @@
             wrap.id = 'newket-call-ui-root';
             wrap.innerHTML = `
                 <!-- 1. FULLSCREEN CALL OVERLAY -->
-                <div id="dt-call-fullscreen" class="hidden fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[9999] flex flex-col justify-between p-6 sm:p-8 text-white select-none transition-opacity duration-200">
+                <div id="dt-call-fullscreen" class="hidden fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[99999] flex flex-col justify-between px-6 sm:px-8 text-white select-none transition-opacity duration-200" style="padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.75rem)); padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
                     <!-- Top Bar: Privacy & Bouton Réduire PiP -->
                     <div class="flex items-center justify-between w-full max-w-xl mx-auto pt-2">
                         <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md">
@@ -1450,7 +1450,7 @@
                 </div>
 
                 <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
-                <div id="dt-call-pip" class="hidden fixed z-[9999] top-5 right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200">
+                <div id="dt-call-pip" class="hidden fixed z-[99999] right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
                     <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                     <div id="dt-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                         <!-- Avatar miniature avec point vert direct -->
