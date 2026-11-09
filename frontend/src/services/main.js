@@ -925,23 +925,8 @@ const setupIOSLiquidGlassButtons = () => {
         const isIOS = !!(window.Capacitor?.isNativePlatform?.() && window.Capacitor.getPlatform?.() === 'ios');
         if (!isIOS) return;
 
-        // 1. Header Buttons (Menu Burger & Recherche)
-        const headerButtons = [
-            document.getElementById('mobileMenuBtn'),
-            document.getElementById('mobileHeaderSearchBtn')
-        ].filter(Boolean);
-
-        headerButtons.forEach((btn) => {
-            btn.classList.add('liquid-glass-btn');
-            // haptic disabled
-        });
-
+        // 1. Header Buttons (Menu Burger & Recherche) : style épuré sans boîte glassmorphic
         // 2. Dashboard Buttons : Sur iOS Capacitor, les boutons de la topbar sont 100% natifs Swift UIKit (NativeHeaderButtons).
-        // On ne stylise en Liquid Glass Web QUE les boutons internes aux tiroirs/menus latéraux (hors topbar).
-        const drawerLogoutBtns = Array.from(document.querySelectorAll('#mobileMenu [data-logout-safe], aside [data-logout-safe]'));
-        drawerLogoutBtns.forEach((btn) => {
-            btn.classList.add('liquid-glass-btn-danger');
-        });
 
         // 3. Bottom Nav Gesture Glissement au doigt (Swipe / Drag interactif)
         setupIOSLiquidGlassDragGesture();
