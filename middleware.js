@@ -88,6 +88,10 @@ function parseUrlTarget(rawUrl) {
             const cleanSlug = rawSlug.replace(/_Shop_NewKet$/i, '').replace(/\/NewKet$/i, '');
             if (cleanSlug) return { type: 'shop', slug: cleanSlug };
         }
+
+        // Cas Parrainage : /signup/:code
+        const signupMatch = pathname.match(/^\/signup\/([^/?#]+)/i);
+        if (signupMatch) return { type: 'referral', code: decodeURIComponent(signupMatch[1]).trim() };
     } catch (_) {}
     return null;
 }
@@ -102,7 +106,7 @@ async function fetchProductData(productId) {
             ? `id=eq.${encodeURIComponent(productId)}`
             : `name=ilike.*${encodeURIComponent(productId.replace(/[-_]/g, ' ')) }*`;
 
-        const queryUrl = `${SUPABASE_URL}/rest/v1/products?${filter}&select=id,name,price,image,images,description,supplier_email&limit=1`;
+        const queryUrl = `${SUPABASE_URL}/rest/v1/products?${filter}&select=id,name,price,old_price,is_promo,image,images,description,supplier_email&limit=1`;
         const res = await fetch(queryUrl, {
             headers: {
                 apikey: SUPABASE_ANON_KEY,
@@ -114,6 +118,27 @@ async function fetchProductData(productId) {
         return Array.isArray(list) && list[0] ? list[0] : null;
     } catch (e) {
         console.warn('[OG-Product] Supabase fetch error:', e);
+        return null;
+    }
+}
+
+/**
+ * Récupère un utilisateur par son code de parrainage depuis Supabase REST
+ */
+async function fetchReferralUser(code) {
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/users?referral_code=eq.${encodeURIComponent(code)}&select=name,company_name,avatar&limit=1`;
+        const res = await fetch(url, {
+            headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            },
+        });
+        if (!res.ok) return null;
+        const list = await res.json();
+        return Array.isArray(list) && list[0] ? list[0] : null;
+    } catch (e) {
+        console.warn('[OG-Referral] Supabase fetch error:', e);
         return null;
     }
 }
@@ -233,8 +258,12 @@ export default async function middleware(request) {
     if (target?.type === 'product' && target.id) {
         const product = await fetchProductData(target.id);
         if (product) {
+            const isPromo = product.is_promo === true;
             const priceFormatted = formatPrice(product.price);
-            const title = `${product.name} — ${priceFormatted} | NewKet`;
+            const oldPriceFormatted = isPromo && product.old_price ? formatPrice(product.old_price) : null;
+            const title = isPromo && oldPriceFormatted
+                ? `🔥 PROMO : ${product.name} — ${priceFormatted} (au lieu de ${oldPriceFormatted}) | NewKet`
+                : `${product.name} — ${priceFormatted} | NewKet`;
             const description = product.description
                 ? product.description.slice(0, 180)
                 : `Achetez ${product.name} sur NewKet, la marketplace N°1 à Kinshasa & en RDC. Paiement Mobile Money sécurisé, livraison rapide.`;
@@ -275,6 +304,18 @@ export default async function middleware(request) {
                 type: 'website',
             });
         }
+    }
+
+    if (target?.type === 'referral' && target.code) {
+        const referee = await fetchReferralUser(target.code);
+        const inviterName = referee ? (referee.company_name || referee.name || 'un membre NewKet') : 'un membre NewKet';
+        return renderOpenGraphResponse({
+            title: `Rejoins NewKet et profite avec le code ${target.code} ! 🎁`,
+            description: `${inviterName} t'invite sur NewKet, la marketplace N°1 à Kinshasa. Paiement Mobile Money sécurisé, livraison rapide en RDC.`,
+            imageUrl: referee?.avatar || DEFAULT_OG_IMAGE,
+            canonicalUrl: `https://newket.vercel.app/src/pages/login?signup=1&ref=${encodeURIComponent(target.code)}`,
+            type: 'website',
+        });
     }
 
     // ── FALLBACK PRERENDER.IO POUR LES AUTRES PAGES (INDEX, CATALOGUE...) ─────
