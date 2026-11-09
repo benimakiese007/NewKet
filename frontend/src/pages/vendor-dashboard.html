@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="is-dashboard">
 
 <head>
@@ -2084,15 +2084,25 @@
                         }, 250);
                     });
 
-                    // Re-render when orders are re-normalized (e.g. after products load)
+                    // Re-render on live updates (order status changes, etc.) — but NEVER use
+                    // these events to lift the initial skeleton. The skeleton is controlled
+                    // exclusively by _fetchVendorOrdersSafe / _fetchVendorProductsSafe which
+                    // set __newketVendorOrdersReady / __newketVendorProductsReady only after
+                    // the real network fetch completes. Using ordersUpdated/productsUpdated here
+                    // to set those flags caused a race: productsUpdated triggers ordersUpdated
+                    // (OrderManager re-normalises) → skeleton lifted while orders still loading.
                     window.addEventListener('ordersUpdated', () => {
-                        window.__newketVendorOrdersReady = true;
-                        scheduleRerender();
+                        // Only re-render if the initial fetch already completed (flags already true).
+                        if (window.__newketVendorOrdersReady && window.__newketVendorProductsReady) {
+                            scheduleRerender();
+                        }
                     });
 
                     window.addEventListener('productsUpdated', () => {
-                        window.__newketVendorProductsReady = true;
-                        scheduleRerender();
+                        // Only re-render if the initial fetch already completed (flags already true).
+                        if (window.__newketVendorOrdersReady && window.__newketVendorProductsReady) {
+                            scheduleRerender();
+                        }
                     });
                 })();
 
@@ -2107,12 +2117,13 @@
                     window.__newketVendorOrdersReady = false;
                     window.__newketVendorProductsReady = false;
 
-                    // If managers are already warm (e.g. init ran before DOMContentLoaded), don't get stuck in skeleton.
-                    try {
-                        if (window.OrderManager && OrderManager._initialized === true && !OrderManager._fetchPromise) {
-                            window.__newketVendorOrdersReady = true;
-                        }
-                    } catch (e) {}
+                    // NOTE: We intentionally do NOT pre-set __newketVendorOrdersReady here either.
+                    // Even if OrderManager has a warm cache, _fetchVendorOrdersSafe always calls
+                    // OrderManager.init({ force: true }) which resets the cache and re-fetches from
+                    // the API. Pre-setting the flag here causes a race: if products load first,
+                    // renderVendorDashboard() runs while orders are still mid-fetch → shows 0 FC
+                    // for ~2 seconds until the real data arrives. The flag is set by _fetchVendorOrdersSafe
+                    // once the actual fetch resolves, so the skeleton stays until data is truly ready.
                     // NOTE: We intentionally do NOT pre-set __newketVendorProductsReady here.
                     // The local ProductManager cache may contain all products (not just this vendor's).
                     // We must wait for fetchVendorProducts() to complete so the count is exact.
@@ -2743,14 +2754,18 @@
 
                     setText('vendorConversionRate', (stats.conversionRate || 0) + '%');
                     setText('vendorAvgOrder', CurrencyManager.formatPrice(stats.averageOrderValue || 0));
-                    setText('vendorOrders', stats.uniqueCustomers || 0);
 
+                    // For unique visitors: use cache if fresh, else show local fallback immediately
+                    // and silently update once the async API responds (no visible flash).
                     if (window.ApiClient && typeof ApiClient.get === 'function') {
                         const cacheKey = '__cachedVendorShopMetrics_30';
                         const cachedMetrics = window[cacheKey];
                         if (cachedMetrics && Date.now() - cachedMetrics.timestamp < 60000) {
+                            // Cache fresh — show cached value directly, no flash
                             setText('vendorOrders', cachedMetrics.data?.unique_visitors ?? stats.uniqueCustomers ?? 0);
                         } else {
+                            // No fresh cache — show local fallback immediately so we never show 0 as a lie
+                            setText('vendorOrders', stats.uniqueCustomers || 0);
                             ApiClient.get('/analytics/vendor/shop-metrics?days=30', {
                                 suppressNetworkError: true,
                                 suppressErrorLogging: true
@@ -2763,6 +2778,8 @@
                                 // Keep the local fallback already displayed above.
                             });
                         }
+                    } else {
+                        setText('vendorOrders', stats.uniqueCustomers || 0);
                     }
 
                     // Prefer the exact list returned by the API (stored in __vendorOwnProducts).

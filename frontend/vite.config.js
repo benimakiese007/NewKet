@@ -25,9 +25,18 @@ function getHtmlPages(dir, baseDir = '') {
   return results;
 }
 
+function getCurrentVersion() {
+  try {
+    const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8'));
+    return pkg.version || process.env.npm_package_version || 'local';
+  } catch (_) {
+    return process.env.npm_package_version || 'local';
+  }
+}
+
 const buildVersion = process.env.VERCEL_DEPLOYMENT_ID
   || process.env.VERCEL_GIT_COMMIT_SHA
-  || `${process.env.npm_package_version || 'local'}-${Date.now()}`;
+  || `${getCurrentVersion()}-${Date.now()}`;
 
 export default defineConfig({
   plugins: [
