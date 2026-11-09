@@ -106,7 +106,7 @@ async function fetchProductData(productId) {
             ? `id=eq.${encodeURIComponent(productId)}`
             : `name=ilike.*${encodeURIComponent(productId.replace(/[-_]/g, ' ')) }*`;
 
-        const queryUrl = `${SUPABASE_URL}/rest/v1/products?${filter}&select=id,name,price,old_price,is_promo,image,images,description,supplier_email&limit=1`;
+        const queryUrl = `${SUPABASE_URL}/rest/v1/products?${filter}&is_archived=neq.true&select=id,name,price,old_price,is_promo,image,images,description,supplier_email&limit=1`;
         const res = await fetch(queryUrl, {
             headers: {
                 apikey: SUPABASE_ANON_KEY,
@@ -233,7 +233,7 @@ function renderOpenGraphResponse({ title, description, imageUrl, canonicalUrl, p
         status: 200,
         headers: {
             'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+            'Cache-Control': 'no-store',
             'X-NewKet-Preview': type,
         },
     });
