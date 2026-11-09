@@ -604,10 +604,19 @@ const ComponentLoader = {
         } // end else (standard page)
 
         if (!isMinimalPage && !isRoleChoicePage && !isAdminPage && !isDashboardPage) {
-            if (isHomePage) {
+            const isNativeApp = isIOSCapacitor() || isAndroidCapacitor();
+            if (isNativeApp) {
+                // Sur application mobile native (iOS / Android Capacitor) : AUCUN grand footer web
+                document.querySelector('footer')?.remove();
+                document.getElementById('footer-placeholder')?.remove();
+            } else if (isHomePage) {
                 componentsToLoad.push(
                     this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)
                 );
+            } else {
+                // Sur les pages secondaires Web / PWA : aucun footer
+                document.querySelector('footer')?.remove();
+                document.getElementById('footer-placeholder')?.remove();
             }
 
             // La navbar standard est pré-injectée dans le DOM par Vite (0ms FOUC pour Web, PWA et Android).

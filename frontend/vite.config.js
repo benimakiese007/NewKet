@@ -47,9 +47,11 @@ export default defineConfig({
       enforce: 'pre',
       transformIndexHtml(html, ctx) {
         const path = ctx.path || '';
+        const filename = ctx.filename || '';
         const isMinimalPage = path.includes('/login') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding') || path.includes('/lens');
-        const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
+        const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/') || filename.includes('/admin/') || filename.includes('\\admin\\');
         const isDashboardPage = path.includes('-dashboard') || path.includes('/customer-dashboard') || path.includes('/vendor-dashboard');
+        const isHomePage = (path === '/' || path === '/index.html' || path.endsWith('/index.html') || filename.endsWith('index.html')) && !isAdminPage;
 
         // Inject build version meta tag into every page
         html = html.replace(
@@ -90,10 +92,20 @@ export default defineConfig({
             headerHtml = headerHtml.replace(/{{ACCOUNT_PATH}}/g, 'login');
             newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml);
 
-            let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
-            footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
-            footerHtml = footerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
-            newHtml = newHtml.replace('<div id="footer-placeholder"></div>', footerHtml);
+
+
+
+            if (isHomePage) {
+  
+  
+  
+              let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
+              footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+              footerHtml = footerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
+              newHtml = newHtml.replace('<div id="footer-placeholder"></div>', footerHtml);
+            } else {
+              newHtml = newHtml.replace('<div id="footer-placeholder"></div>', '');
+            }
 
             // Pre-render mobile bottom navigation so it appears immediately with 0ms delay / no FOUC
             let bottomNavHtml = readFileSync(resolve(__dirname, 'src/partials/mobile-bottom-nav.html'), 'utf8');

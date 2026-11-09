@@ -1486,6 +1486,16 @@ html.dark .header-brand-image {
    ========================================== */
 
 /* Make footer load on all pages by ensuring placeholder is visible */
+/* Sur apps mobiles natives Capacitor : ZÉRO grand footer web */
+html.is-ios-capacitor footer,
+html.is-android-capacitor footer,
+html.is-capacitor footer,
+html.is-ios-capacitor #footer-placeholder,
+html.is-android-capacitor #footer-placeholder,
+html.is-capacitor #footer-placeholder {
+    display: none !important;
+}
+
 #footer-placeholder:empty {
     display: none;
 }

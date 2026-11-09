@@ -128,6 +128,9 @@
         
         // Desactive sur Capacitor (evite le double splash screen sur iOS/Android)
         // N'apparait que sur PWA installee (standalone) au premier lancement de session
+        if (isCapacitor) {
+            document.documentElement.classList.add('is-capacitor');
+        }
         if (isCapacitor || !isStandalone || isAlreadySeen) {
             document.documentElement.classList.add('skip-splash');
         }
