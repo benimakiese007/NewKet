@@ -1298,16 +1298,16 @@ body.search-focused .main-header {
   box-shadow: none !important;
 }
 
-.newket-header-shell .header-icon-button {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.newket-header-shell .header-icon-button:hover {
-  background: rgba(255, 255, 255, 0.1);
+.newket-header-shell .header-icon-button,
+.newket-header-shell .header-icon-button:hover,
+.newket-header-shell .header-icon-button:active,
+.newket-header-shell .header-icon-button:focus {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  outline: none !important;
 }
 
 /* 🍏 Liquid Glass & Rubber-Band Button pour iOS Capacitor (Menu, Recherche, Déconnexion) */
@@ -1356,11 +1356,7 @@ body.search-focused .main-header {
   background: rgba(239, 68, 68, 0.32) !important;
 }
 
-.newket-header-shell .header-icon-button:hover {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 14px 28px rgba(1, 50, 32, 0.24);
-}
+
 
 .newket-header-shell .header-icon-button iconify-icon,
 .newket-header-shell #mobileMenuBtn iconify-icon,
