@@ -53,6 +53,14 @@ async function initPushNotifications() {
         // 2b. Créer les canaux de notification Android (Oreo 8.0+)
         try {
             await PushNotifications.createChannel({
+                id: 'calls',
+                name: 'Appels Vocaux',
+                description: 'Appels vocaux entrants entre acheteurs et vendeurs',
+                importance: 5, // Notification tête haute (heads-up) avec sonnerie et vibreur prioritaire
+                visibility: 1,
+                vibration: true,
+            });
+            await PushNotifications.createChannel({
                 id: 'chat',
                 name: 'Messages et Discussions',
                 description: 'Messages instantanés avec acheteurs et vendeurs',
@@ -76,7 +84,7 @@ async function initPushNotifications() {
                 visibility: 1,
                 vibration: true,
             });
-            console.log('[NewKet Push] Canaux Android créés avec succès (chat, orders, default).');
+            console.log('[NewKet Push] Canaux Android créés avec succès (calls, chat, orders, default).');
         } catch (chanErr) {
             console.warn('[NewKet Push] Enregistrement des canaux non-bloquant :', chanErr?.message);
         }
