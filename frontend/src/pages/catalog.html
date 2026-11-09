@@ -1,7 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
+<script>
+    /* Platform detection — synchronous, before first render */
+    (function () {
+        var proto = window.location.protocol;
+        var ua = navigator.userAgent;
+        var isCapacitor = proto === 'capacitor:';
+        if (isCapacitor) {
+            var html = document.documentElement;
+            html.classList.add('is-native-app');
+            if (/iPhone|iPad|iPod/.test(ua)) html.classList.add('is-ios-capacitor');
+            else if (/Android/.test(ua))    html.classList.add('is-android-capacitor');
+        }
+    })();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="/manifest.json">

@@ -1,7 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="is-dashboard">
 
 <head>
+<script>
+    /* Platform detection — synchronous, before first render */
+    (function () {
+        var proto = window.location.protocol;
+        var ua = navigator.userAgent;
+        var isCapacitor = proto === 'capacitor:';
+        if (isCapacitor) {
+            var html = document.documentElement;
+            html.classList.add('is-native-app');
+            if (/iPhone|iPad|iPod/.test(ua)) html.classList.add('is-ios-capacitor');
+            else if (/Android/.test(ua))    html.classList.add('is-android-capacitor');
+        }
+    })();
+</script>
     <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
@@ -540,7 +554,7 @@
                     </div>
                 </div>
 
-                <div class="glass-panel p-6 w-full">
+                <div id="customerDevicePushCard" class="glass-panel p-6 w-full hidden">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div class="min-w-0">
                             <div class="flex items-center gap-3">
@@ -1672,7 +1686,18 @@
         async function refreshCustomerDevicePushStatus() {
             const toggle = document.getElementById('customerDevicePushToggle');
             const status = document.getElementById('customerDevicePushStatus');
+            const card = document.getElementById('customerDevicePushCard');
             if (!toggle || !status) return;
+
+            // Sur les apps natives (iOS/Android), la permission est gérée
+            // par l'OS au premier lancement — le toggle ici est redondant.
+            if (window.AppNotifications?._isNative?.()) {
+                if (card) card.classList.add('hidden');
+                return;
+            }
+
+            // Révéler la carte (cachée par défaut pour éviter le flash)
+            if (card) card.classList.remove('hidden');
 
             if (!window.AppNotifications) {
                 toggle.disabled = true;
