@@ -81,6 +81,13 @@ export default async function middleware(request) {
             },
         });
 
+        // Si Prerender.io renvoie une erreur (503, 401, quota dépassé, etc.),
+        // on bascule gracieusement vers la page HTML native au lieu d'envoyer l'erreur aux robots WhatsApp/Facebook
+        if (!prerendered.ok) {
+            console.warn(`[Prerender] Service returned HTTP ${prerendered.status}. Falling back to native SPA shell.`);
+            return; // pass through -> le bot reçoit la page HTML normale en 200 OK avec les balises OG
+        }
+
         const html = await prerendered.text();
 
         return new Response(html, {

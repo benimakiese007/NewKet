@@ -1195,6 +1195,10 @@ window.NewKetShare = async function ({ title, text, url } = {}) {
     if (shareUrl && shareUrl.startsWith('/')) {
         shareUrl = `${window.location.origin}${shareUrl}`;
     }
+    if (typeof shareUrl === 'string') {
+        shareUrl = shareUrl.replace(/^capacitor:\/\/localhost(?::\d+)?/i, 'https://newket.vercel.app')
+                           .replace(/^https?:\/\/localhost(?::\d+)?/i, 'https://newket.vercel.app');
+    }
     const shareTitle = title || document.title || 'NewKet';
     const shareText = text || '';
 
