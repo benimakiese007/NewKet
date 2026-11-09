@@ -1299,10 +1299,15 @@ body.search-focused .main-header {
 }
 
 .newket-header-shell .header-icon-button {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 24px rgba(1, 50, 32, 0.18);
-  backdrop-filter: blur(10px);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.newket-header-shell .header-icon-button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* 🍏 Liquid Glass & Rubber-Band Button pour iOS Capacitor (Menu, Recherche, Déconnexion) */
