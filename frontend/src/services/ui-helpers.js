@@ -284,9 +284,9 @@ function buildShopShareUrl({ shopName, shopSlug } = {}) {
     const providedSlug = String(shopSlug || '').trim();
     const slug = providedSlug || buildShopSlug(shopName);
 
-    // On Capacitor (native), return the physical file path instead of a pretty URL
+    // On Capacitor (native), return the physical file path with origin so it forms a valid absolute URL for native sharing & linking
     if (window.Capacitor && (window.Capacitor.isNativePlatform?.() || window.Capacitor.isNative)) {
-        return '/src/pages/shop.html?shop=' + encodeURIComponent(slug);
+        return `${window.location.origin}/src/pages/shop.html?shop=${encodeURIComponent(slug)}`;
     }
 
     const url = new URL(`/boutique/${encodeURIComponent(slug)}`, window.location.origin);

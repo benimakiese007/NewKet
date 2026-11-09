@@ -1191,7 +1191,10 @@ window.addEventListener('componentsLoaded', setupIOSLiquidGlassButtons);
  * 3. Fallback universel : copie automatique dans le presse-papier + notification toast
  */
 window.NewKetShare = async function ({ title, text, url } = {}) {
-    const shareUrl = url || window.location.href;
+    let shareUrl = url || window.location.href;
+    if (shareUrl && shareUrl.startsWith('/')) {
+        shareUrl = `${window.location.origin}${shareUrl}`;
+    }
     const shareTitle = title || document.title || 'NewKet';
     const shareText = text || '';
 
