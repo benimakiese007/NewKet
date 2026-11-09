@@ -533,6 +533,11 @@ const ComponentLoader = {
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
         const isAchatPage = currentPath.includes('/achat');
 
+        if (isDashboardPage || isAdminPage) {
+            document.documentElement.classList.add('is-dashboard');
+            document.getElementById('mobileBottomNav')?.remove();
+        }
+
         // The role-choice flow is intentionally isolated: while a role is
         // pending, no navigation must give access to the rest of the app.
         if (!isAdminPage && !isRoleChoicePage && !isAchatPage) {

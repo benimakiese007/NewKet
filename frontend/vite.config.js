@@ -49,6 +49,7 @@ export default defineConfig({
         const path = ctx.path || '';
         const isMinimalPage = path.includes('/login') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding') || path.includes('/lens');
         const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
+        const isDashboardPage = path.includes('-dashboard') || path.includes('/customer-dashboard') || path.includes('/vendor-dashboard');
 
         // Inject build version meta tag into every page
         html = html.replace(
@@ -79,7 +80,7 @@ export default defineConfig({
             let minimalHtml = readFileSync(resolve(__dirname, 'src/partials/header-minimal.html'), 'utf8');
             minimalHtml = minimalHtml.replace(/\{\{ROOT\}\}/g, rootPath);
             newHtml = newHtml.replace('<div id="header-placeholder"></div>', minimalHtml);
-          } else {
+          } else if (!isDashboardPage) {
             // Render the main header as part of the initial HTML response. The
             // ComponentLoader still refreshes its auth-dependent links later,
             // but visitors no longer see an empty header until JavaScript runs.

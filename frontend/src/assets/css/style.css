@@ -11734,9 +11734,9 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.is-android-capacitor #app-body,
   html.is-android-capacitor .customer-main-content,
   html.is-android-capacitor .vendor-main-content,
-  html.is-android-capacitor .customer-dashboard-main,
-  html.is-android-capacitor .vendor-dashboard-main,
-  html.is-android-capacitor .dashboard-main-offset,
+
+
+
   html.is-android-capacitor #collection {
     padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
   }
@@ -11757,7 +11757,11 @@ html.dark .liquid-glass-nav .nav-item.active span {
   html.plt-ios #mobileBottomNav,
   html.capacitor-ios #mobileBottomNav,
   body.is-ios-capacitor #mobileBottomNav,
-  html.is-ios-capacitor #mobileBottomNav {
+  html.is-ios-capacitor #mobileBottomNav,
+  html.is-dashboard #mobileBottomNav,
+  body.is-dashboard #mobileBottomNav,
+  .customer-dashboard-main ~ #mobileBottomNav,
+  .vendor-dashboard-main ~ #mobileBottomNav {
     display: none !important;
   }
 
