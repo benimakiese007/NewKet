@@ -440,6 +440,27 @@
         }
         .btn-retry:hover { background: rgba(255,255,255,0.12); }
 
+        /* -- Pastille de statut de recherche (sans emojis) -- */
+        .search-status-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            padding: 6px 16px;
+            margin: 0 auto 1.25rem auto;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            width: fit-content;
+        }
+        .search-status-pill iconify-icon {
+            color: #10b981;
+        }
+
         /* -- Skeletons loaders pour les resultats instantanes ------------ */
         .skeleton-card {
             background: #1a1a1a;
@@ -549,8 +570,12 @@
     <!-- ── Résultats ─────────────────────────────────────────────────── -->
     <div id="results-section">
         <div class="results-header">
-            <h2>Produits similaires</h2>
+            <h2 id="results-heading">Produits similaires</h2>
             <a id="see-all-link" href="/catalog?lens=true">Voir tout →</a>
+        </div>
+        <div id="search-status-pill" class="search-status-pill" style="display:none;">
+            <iconify-icon icon="line-md:loading-twotone-loop" width="16"></iconify-icon>
+            <span id="search-status-text">Analyse des formes et textures...</span>
         </div>
         <div id="results-grid" class="results-grid"></div>
         <button class="btn-retry" id="btn-retry">
@@ -560,7 +585,7 @@
     </div>
 
     <script type="module">
-        import { generateEmbedding } from '/src/services/clip-embedder.js';
+        import { generateEmbedding, preloadModel } from '/src/services/clip-embedder.js';
         import { searchByEmbedding } from '/src/services/lens.js';
 
         const uploadZone       = document.getElementById('upload-zone');
@@ -574,6 +599,12 @@
         const scannerPhoto     = document.getElementById('scanner-photo');
         const resultsGrid      = document.getElementById('results-grid');
         const seeAllLink       = document.getElementById('see-all-link');
+        const resultsHeading   = document.getElementById('results-heading');
+        const searchStatusPill = document.getElementById('search-status-pill');
+        const searchStatusText = document.getElementById('search-status-text');
+
+        // Pré-chargement fantôme immédiat en arrière-plan (0 attente lors du clic)
+        preloadModel();
 
         // URL de production (Render)
         const YOLO_URL = 'https://newket.onrender.com/analyze';
@@ -725,15 +756,76 @@
             resultsSection.classList.add('active');
         }
 
-        async function onDotClick(obj, file, dataUrl) {
-            detectionZone.classList.remove('active');
-            // Affichage direct de la page de resultats avec skeletons (0ms percu)
+        let searchStepTimer = null;
+
+        function startSearchUI() {
             renderSkeletons(6);
+            if (resultsHeading) resultsHeading.textContent = 'Produits similaires';
+            if (searchStatusPill && searchStatusText) {
+                searchStatusPill.style.display = 'inline-flex';
+                searchStatusText.textContent = 'Analyse des formes et textures...';
+            }
+            if (searchStepTimer) clearTimeout(searchStepTimer);
+            searchStepTimer = setTimeout(() => {
+                if (searchStatusText) searchStatusText.textContent = 'Recherche dans les boutiques NewKet...';
+            }, 1800);
+        }
+
+        function endSearchUI() {
+            if (searchStepTimer) clearTimeout(searchStepTimer);
+            if (searchStatusPill) searchStatusPill.style.display = 'none';
+        }
+
+        async function fetchPopularFallback() {
+            try {
+                const supabaseUrl = 'https://kuygjocnnlvjtoaquicq.supabase.co';
+                const supabaseAnon = 'sb_publishable_iMlPI6QIA0U0qqRfLp5_WA_-443VkDx';
+                const res = await fetch(`${supabaseUrl}/rest/v1/products?select=id,name,image,price&is_archived=eq.false&limit=12&order=pinned.desc,rating.desc`, {
+                    headers: { 'apikey': supabaseAnon, 'Authorization': `Bearer ${supabaseAnon}` }
+                });
+                if (!res.ok) throw new Error('Erreur fallback');
+                return await res.json();
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function executeSearchWithSafety(searchTask) {
+            startSearchUI();
+
+            // Timeout de sécurité réseau à 7 secondes (filet de sécurité)
+            let timedOut = false;
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => {
+                    timedOut = true;
+                    reject(new Error('TIMEOUT_SAFETY'));
+                }, 7000);
+            });
 
             try {
-                const croppedBlob = await cropImage(file, obj.box);
-                const vector      = await generateEmbedding(croppedBlob);
-                const results     = await searchByEmbedding(vector);
+                const results = await Promise.race([searchTask(), timeoutPromise]);
+                endSearchUI();
+                return results;
+            } catch (err) {
+                endSearchUI();
+                if (err.message === 'TIMEOUT_SAFETY' || timedOut) {
+                    console.warn('[Lens] Délai réseau de 7s dépassé, chargement de la sélection');
+                    if (resultsHeading) resultsHeading.textContent = 'Sélection du moment';
+                    return await fetchPopularFallback();
+                }
+                throw err;
+            }
+        }
+
+        async function onDotClick(obj, file, dataUrl) {
+            detectionZone.classList.remove('active');
+
+            try {
+                const results = await executeSearchWithSafety(async () => {
+                    const croppedBlob = await cropImage(file, obj.box);
+                    const vector      = await generateEmbedding(croppedBlob);
+                    return await searchByEmbedding(vector);
+                });
 
                 sessionStorage.setItem('lensResults', JSON.stringify(results));
                 sessionStorage.setItem('lensScanImage', dataUrl);
@@ -752,12 +844,13 @@
 
         async function searchWholeImage(file, dataUrl) {
             detectionZone.classList.remove('active');
-            // Affichage direct de la page de resultats avec skeletons (0ms percu)
-            renderSkeletons(6);
 
             try {
-                const vector  = await generateEmbedding(file);
-                const results = await searchByEmbedding(vector);
+                const results = await executeSearchWithSafety(async () => {
+                    const vector  = await generateEmbedding(file);
+                    return await searchByEmbedding(vector);
+                });
+
                 sessionStorage.setItem('lensResults', JSON.stringify(results));
                 sessionStorage.setItem('lensScanImage', dataUrl);
                 seeAllLink.href = '/catalog?q=Recherche+visuelle&lens=true';
