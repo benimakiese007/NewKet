@@ -50,6 +50,37 @@ async function initPushNotifications() {
         // 2. Enregistrer le device auprès de FCM
         await PushNotifications.register();
 
+        // 2b. Créer les canaux de notification Android (Oreo 8.0+)
+        try {
+            await PushNotifications.createChannel({
+                id: 'chat',
+                name: 'Messages et Discussions',
+                description: 'Messages instantanés avec acheteurs et vendeurs',
+                importance: 5, // Notification tête haute (heads-up) avec son & vibreur
+                visibility: 1,
+                vibration: true,
+            });
+            await PushNotifications.createChannel({
+                id: 'orders',
+                name: 'Commandes et Livraisons',
+                description: 'Alertes de livraison et changements de statut',
+                importance: 4,
+                visibility: 1,
+                vibration: true,
+            });
+            await PushNotifications.createChannel({
+                id: 'default',
+                name: 'Général',
+                description: 'Alertes générales et offres',
+                importance: 3,
+                visibility: 1,
+                vibration: true,
+            });
+            console.log('[NewKet Push] Canaux Android créés avec succès (chat, orders, default).');
+        } catch (chanErr) {
+            console.warn('[NewKet Push] Enregistrement des canaux non-bloquant :', chanErr?.message);
+        }
+
         // 3. Récupérer le token FCM et le sauvegarder dans Supabase
         PushNotifications.addListener('registration', async (token) => {
             console.log('[NewKet Push] FCM Token reçu:', token.value);

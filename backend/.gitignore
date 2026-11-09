@@ -1,2 +1,4 @@
 
 google-credentials.json
+config/firebase-service-account.json
+config/*.json

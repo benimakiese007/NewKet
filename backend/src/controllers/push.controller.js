@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import WebPushService from '../services/webPushService.js';
+import FcmService from '../services/fcmService.js';
 
 async function resolveUserRole(userId, userEmail) {
     if (!userId && !userEmail) return 'customer';
@@ -22,7 +23,8 @@ async function resolveUserRole(userId, userEmail) {
 export const getPushPublicKey = async (req, res, next) => {
     res.json({
         enabled: WebPushService.isConfigured(),
-        publicKey: WebPushService.getPublicKey()
+        publicKey: WebPushService.getPublicKey(),
+        fcm_enabled: FcmService.isConfigured()
     });
 };
 
@@ -74,14 +76,33 @@ export const sendCallRing = async (req, res, next) => {
             return res.status(400).json({ error: 'Champs requis manquants (target_user_id, order_id).' });
         }
 
-        const result = await WebPushService.sendCallRingNotification({
-            targetUserId: target_user_id,
-            callerName: caller_name,
-            callerAvatar: caller_avatar,
-            orderId: order_id
-        });
+        // Envoi en parallèle : Web Push (PWA/navigateur) + FCM (app native)
+        const [webResult, fcmResult] = await Promise.allSettled([
+            WebPushService.sendCallRingNotification({
+                targetUserId: target_user_id,
+                callerName: caller_name,
+                callerAvatar: caller_avatar,
+                orderId: order_id
+            }),
+            FcmService.sendToUser(target_user_id, {
+                title: `📞 Appel de ${caller_name || 'NewKet'}`,
+                body: 'Appel entrant sur votre commande',
+                tag: `call-${order_id}`,
+                channelId: 'calls',
+                data: {
+                    type: 'incoming-call',
+                    order_id,
+                    caller_name: caller_name || '',
+                    caller_avatar: caller_avatar || '',
+                    url: `/customer-dashboard#purchases?order_id=${encodeURIComponent(order_id)}&open_chat=1`,
+                }
+            })
+        ]);
 
-        res.json({ success: true, sent: result.sent });
+        const webSent = webResult.value?.sent ?? 0;
+        const fcmSent = fcmResult.value?.sent ?? 0;
+
+        res.json({ success: true, sent: webSent + fcmSent, web_sent: webSent, fcm_sent: fcmSent });
     } catch (error) {
         console.error('[PushController] sendCallRing error:', error);
         next(error);
@@ -95,17 +116,33 @@ export const sendChatMessage = async (req, res, next) => {
             return res.status(400).json({ error: 'Champs requis manquants (target_user_id, order_id).' });
         }
 
-        const result = await WebPushService.sendChatMessageNotification({
-            targetUserId: target_user_id,
-            senderName: sender_name,
-            senderAvatar: sender_avatar,
-            messageType: message_type || 'text',
-            text: text || '',
-            duration: duration || '',
-            orderId: order_id
-        });
+        // Envoi en parallèle : Web Push (PWA/navigateur) + FCM (app native Android/iOS)
+        const [webResult, fcmResult] = await Promise.allSettled([
+            WebPushService.sendChatMessageNotification({
+                targetUserId: target_user_id,
+                senderName: sender_name,
+                senderAvatar: sender_avatar,
+                messageType: message_type || 'text',
+                text: text || '',
+                duration: duration || '',
+                orderId: order_id
+            }),
+            FcmService.sendChatMessage({
+                targetUserId: target_user_id,
+                senderName: sender_name,
+                senderAvatar: sender_avatar,
+                messageType: message_type || 'text',
+                text: text || '',
+                duration: duration || '',
+                orderId: order_id
+            })
+        ]);
 
-        res.json({ success: true, sent: result.sent });
+        const webSent = webResult.value?.sent ?? 0;
+        const fcmSent = fcmResult.value?.sent ?? 0;
+
+        console.log(`[PushController] Chat push — Web: ${webSent}, FCM: ${fcmSent}`);
+        res.json({ success: true, sent: webSent + fcmSent, web_sent: webSent, fcm_sent: fcmSent });
     } catch (error) {
         console.error('[PushController] sendChatMessage error:', error);
         next(error);

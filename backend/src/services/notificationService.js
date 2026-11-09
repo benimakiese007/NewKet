@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import EmailService from './emailService.js';
 import { enqueuePushNotification } from './push-queue.service.js';
+import FcmService from './fcmService.js';
 
 function getFrontendBaseUrl() {
     return (process.env.FRONTEND_URL || 'https://newket.vercel.app').replace(/\/+$/, '');
@@ -16,6 +17,7 @@ async function createDbNotification(payload) {
         return null;
     }
 
+    // Web Push (PWA / navigateur)
     try {
         const job = await enqueuePushNotification(payload);
         if (job?.id) {
@@ -23,6 +25,27 @@ async function createDbNotification(payload) {
         }
     } catch (err) {
         console.error('[NotificationService] Web push error:', err);
+    }
+
+    // FCM Push (App native Android / iOS)
+    const targetUserId = payload.user_id || null;
+    if (targetUserId && FcmService.isConfigured()) {
+        try {
+            const role = payload.target_role === 'supplier' ? 'vendor' : 'buyer';
+            const url = role === 'vendor'
+                ? '/vendor-dashboard#notifications'
+                : '/customer-dashboard#notifications';
+
+            await FcmService.sendGeneral({
+                targetUserId,
+                title: payload.title || 'NewKet',
+                body: payload.message || '',
+                url: payload.url || url,
+                type: payload.type || 'info',
+            });
+        } catch (err) {
+            console.error('[NotificationService] FCM push error:', err);
+        }
     }
 
     return payload;
