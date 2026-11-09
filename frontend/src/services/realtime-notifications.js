@@ -431,7 +431,7 @@ const AppNotifications = {
                     }, 30 * 60 * 1000);
                 }
             })
-            .catch(err => console.error('[NewKet] SW registration failed', err));
+            .catch(err => console.error('[NewKet] SW registration failed', err?.message || err?.name || err));
     },
 
     promptInstall() {
@@ -648,6 +648,14 @@ const AppNotifications = {
         if (this._isNative()) return false;
         if (!this.isDevicePushSupported() || Notification.permission !== 'granted') return false;
         if (!window.ApiClient) return false;
+
+        // Le endpoint /push/subscribe requiert une session utilisateur (requireAuth).
+        // Ne pas tenter l'enregistrement pour un visiteur non connecté.
+        const hasToken = Boolean(
+            window.getSupabaseAccessToken?.() ||
+            window.localStorage?.getItem('sb-kuygjocnnlvjtoaquicq-auth-token')
+        );
+        if (!hasToken) return false;
 
         const publicKey = await this._getPushPublicKey();
         if (!publicKey) return false;

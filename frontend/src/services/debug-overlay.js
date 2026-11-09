@@ -14,8 +14,19 @@ const origError = console.error;
 function addLog(level, args) {
     const time = new Date().toLocaleTimeString();
     const text = args.map(a => {
-        if (typeof a === 'object') {
-            try { return JSON.stringify(a); } catch (_) { return String(a); }
+        if (a instanceof Error) {
+            return `${a.name || 'Error'}: ${a.message}`;
+        }
+        if (typeof a === 'object' && a !== null) {
+            try {
+                const s = JSON.stringify(a);
+                if (s === '{}' && (a.message || a.name)) {
+                    return `${a.name || 'Error'}: ${a.message}`;
+                }
+                return s;
+            } catch (_) {
+                return String(a);
+            }
         }
         return String(a);
     }).join(' ');

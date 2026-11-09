@@ -109,6 +109,7 @@ const ConfigManager = {
 
         // 10 s — pour garantir que la bascule maintenance est visible en < 15 s max.
         this._maintenancePollTimer = window.setInterval(() => {
+            if (typeof document !== 'undefined' && document.hidden) return;
             this._fetchRemoteSettings('poll').catch((err) => {
                 console.warn('[NewKet] Maintenance poll failed:', err?.message || err);
             });
