@@ -32,8 +32,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 1.25rem;
-            background: linear-gradient(to bottom, rgba(0,0,0,.8), transparent);
+            padding: calc(env(safe-area-inset-top, 0px) + 0.85rem) 1.25rem 0.85rem 1.25rem;
+            background: linear-gradient(to bottom, rgba(0,0,0,.85), transparent);
         }
         .btn-back {
             display: flex;
@@ -348,7 +348,7 @@
         #results-section {
             display: none;
             flex-direction: column;
-            padding: 5rem 1rem 2rem;
+            padding: calc(env(safe-area-inset-top, 0px) + 4.5rem) 1rem 2rem;
             gap: 1rem;
         }
         #results-section.active { display: flex; }
