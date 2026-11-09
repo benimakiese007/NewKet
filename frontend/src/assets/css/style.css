@@ -1970,7 +1970,7 @@ body.mobile-menu-open {
 .product-image {
   position: relative;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #f8fafc;
   aspect-ratio: 1 / 1;
   width: 100%;
 }
@@ -2008,14 +2008,14 @@ body.mobile-menu-open {
   display: block;
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-  object-fit: cover;
-  object-position: top center; /* Show top of product for portrait photos */
+  -o-object-fit: contain;
+  object-fit: contain;
+  object-position: center;
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .product-card:hover .product-image img {
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 
 .wishlist-btn {

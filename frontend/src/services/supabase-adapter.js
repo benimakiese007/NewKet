@@ -185,8 +185,14 @@ window.SupabaseAdapter = {
             canvas.width = targetWidth;
             canvas.height = targetHeight;
 
-            const ctx = canvas.getContext('2d', { alpha: false });
+            const isMimeJpeg = profile.mimeType === 'image/jpeg';
+            const ctx = canvas.getContext('2d', { alpha: !isMimeJpeg });
             if (!ctx) return file;
+
+            if (isMimeJpeg) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, targetWidth, targetHeight);
+            }
 
             ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
 
