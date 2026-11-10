@@ -8,12 +8,32 @@ dotenv.config();
 
 const router = express.Router();
 
-// Rate limiter strict pour les analytics
-// Limite a 20 increments par IP par 15 minutes pour empecher le spam de vues
+// Rate limiter analytics — session-based pour eviter les faux positifs CGNAT
+// En RDC, des centaines d'users partagent la meme IP publique (Airtel/Vodacom/Orange)
+// => on cle par session_id quand disponible, sinon par user_id, sinon par IP
+const _analyticsKeyGen = (req) => {
+    const sid = req.body?.session_id || req.query?.session_id;
+    if (sid && typeof sid === 'string' && sid.length >= 8) return `session:${sid}`;
+    if (req.user?.id) return `user:${req.user.id}`;
+    return req.ip;
+};
+
+// Limiter pour les evenements individuels (conserve pour compatibilite)
 const analyticsLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20,
+    max: 300, // 300 events/15min par session (au lieu de 20 par IP)
+    keyGenerator: _analyticsKeyGen,
     message: { error: 'Trop de requetes analytics. Reessayez plus tard.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Limiter separe pour le batch endpoint (plus strict car chaque req = N events)
+const analyticsBatchLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 60, // 60 batchs/15min par session = jusqu'a 1500 events
+    keyGenerator: _analyticsKeyGen,
+    message: { error: 'Trop de requetes analytics batch. Reessayez plus tard.' },
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -578,6 +598,76 @@ router.post('/events', analyticsLimiter, async (req, res) => {
     } catch (error) {
         console.error('[Analytics] Error recording event:', error);
         return res.status(500).json({ error: 'Failed to record analytics event.' });
+    }
+});
+
+/**
+ * Batch analytics events
+ * POST /api/analytics/events/batch
+ * Body: { events: [ { event_type, session_id, path, ... }, ... ] }
+ * Max 25 events par batch — un seul insert Supabase pour reduire les requetes
+ */
+router.post('/events/batch', analyticsBatchLimiter, async (req, res) => {
+    const allowedTypes = new Set(['page_view', 'click', 'heartbeat', 'admin_action']);
+    const rawEvents = req.body?.events;
+
+    if (!Array.isArray(rawEvents) || rawEvents.length === 0) {
+        return res.status(400).json({ error: 'events doit etre un tableau non vide.' });
+    }
+
+    // Cap a 25 events par batch pour eviter les abus
+    const events = rawEvents.slice(0, 25);
+
+    const ipHash = hashIp(getClientIp(req));
+    const userAgent = typeof req.headers['user-agent'] === 'string'
+        ? req.headers['user-agent'].slice(0, 300)
+        : null;
+
+    const rows = [];
+    const skipped = [];
+
+    for (let i = 0; i < events.length; i++) {
+        const ev = events[i];
+        if (!ev || typeof ev !== 'object') { skipped.push(i); continue; }
+
+        const eventType = sanitizeText(ev.event_type, 32);
+        if (!eventType || !allowedTypes.has(eventType)) { skipped.push(i); continue; }
+
+        const activeMsRaw = Number(ev.active_ms);
+        const activeMs = Number.isFinite(activeMsRaw)
+            ? Math.max(0, Math.min(60 * 60 * 1000, Math.round(activeMsRaw)))
+            : null;
+
+        rows.push({
+            event_type: eventType,
+            user_id: req.user?.id && isValidUuid(req.user.id) ? req.user.id : null,
+            user_role: sanitizeText(req.user?.app_metadata?.role || req.user?.user_metadata?.role || ev.user_role, 32),
+            session_id: sanitizeText(ev.session_id, 128),
+            path: sanitizePath(ev.path),
+            page_title: sanitizeText(ev.page_title, 180),
+            target: sanitizeText(ev.target, 180),
+            active_ms: activeMs,
+            metadata: sanitizeMetadata(ev.metadata),
+            ip_hash: ipHash,
+            user_agent: userAgent,
+        });
+    }
+
+    if (rows.length === 0) {
+        return res.status(400).json({ error: 'Aucun evenement valide dans le batch.', skipped });
+    }
+
+    try {
+        const { error } = await supabase
+            .from('analytics_events')
+            .insert(rows);
+
+        if (error) throw error;
+
+        return res.json({ success: true, inserted: rows.length, skipped: skipped.length });
+    } catch (error) {
+        console.error('[Analytics] Error recording batch events:', error);
+        return res.status(500).json({ error: 'Failed to record analytics batch.' });
     }
 });
 

@@ -8,6 +8,14 @@ const BehaviorTracking = {
     _baseMetaCache: null,
     _baseMetaCacheTs: 0,
 
+    // --- Queue / Batch ---
+    // Les events sont mis en file et envoyés en batch toutes les 30s ou dès 10 events.
+    // Réduit drastiquement le nb de requêtes HTTP (10x→100x moins de hits API).
+    _queue: [],
+    _flushTimer: null,
+    _FLUSH_INTERVAL_MS: 30_000, // flush automatique toutes les 30s
+    _FLUSH_BATCH_SIZE: 10,      // flush immédiat si la queue atteint 10 events
+
     init() {
         if (this._initialized) return;
         if (!window.ApiClient) return;
@@ -26,6 +34,8 @@ const BehaviorTracking = {
         this.bindVisibility();
         this.startHeartbeat();
         this.bindAppInstalled();
+        this._startFlushTimer();
+        this._bindPageExit();
     },
 
     async _maybeDisableInDevIfApiDown() {
@@ -305,7 +315,8 @@ const BehaviorTracking = {
                 ...(payload.metadata || {}),
             };
 
-            window.ApiClient.post('/analytics/events', {
+            // Empiler l'event dans la queue — pas d'envoi immédiat
+            this._queue.push({
                 event_type: eventType,
                 session_id: this.getOrCreateSessionId(),
                 path: `${window.location.pathname}${window.location.search || ''}${window.location.hash || ''}`,
@@ -314,28 +325,104 @@ const BehaviorTracking = {
                 active_ms: payload.active_ms || null,
                 metadata: mergedMeta,
                 user_role: window.AuthManager?.role || localStorage.getItem('newketRole') || 'guest',
-            }, {
+            });
+
+            // Flush immédiat si la queue est pleine
+            if (this._queue.length >= this._FLUSH_BATCH_SIZE) {
+                this._flush();
+            }
+
+            try {
+                window.NewKetGoogleAnalytics?.trackBehaviorEvent?.(eventType, payload, mergedMeta);
+            } catch (_) {}
+        } catch (_) {}
+    },
+
+    // Démarre le timer de flush périodique (toutes les 30s)
+    _startFlushTimer() {
+        if (this._flushTimer) return;
+        this._flushTimer = setInterval(() => {
+            this._flush();
+        }, this._FLUSH_INTERVAL_MS);
+    },
+
+    // Écoute la fermeture / mise en arrière-plan de la page
+    // sendBeacon est garanti même si la page se ferme — pas de perte d'events
+    _bindPageExit() {
+        const onExit = () => this._flushBeacon();
+
+        try {
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    this._flushBeacon();
+                }
+            });
+            window.addEventListener('beforeunload', onExit);
+            window.addEventListener('pagehide', onExit);
+        } catch (_) {}
+    },
+
+    // Flush via fetch (normal, mid-session)
+    _flush() {
+        try {
+            if (this._analyticsDisabled) { this._queue = []; return; }
+            if (this._queue.length === 0) return;
+            if (this._analyticsCooldownUntil && Date.now() < this._analyticsCooldownUntil) {
+                this._queue = []; // vider la queue pendant le cooldown
+                return;
+            }
+
+            const batch = this._queue.splice(0, 25); // max 25 par batch
+
+            window.ApiClient.post('/analytics/events/batch', { events: batch }, {
                 suppressErrorLogging: true,
                 suppressToast: true,
             }).catch((err) => {
-                // If backend rate-limits, stop sending analytics for the same window
-                // to avoid flooding the console and the API.
                 const status = Number(err?.status || err?.data?.status || 0);
                 if (status === 429) {
                     this._analyticsCooldownUntil = Date.now() + (15 * 60 * 1000);
                     return;
                 }
-
-                // If the deployment does not expose this optional endpoint,
-                // disable behavior tracking for the rest of the page session.
-                if (status === 404 || status === 405 || status === 501) {
+                // Si la route batch n'existe pas (vieux backend), fallback sur l'ancien endpoint
+                if (status === 404 || status === 405) {
+                    this._flushLegacy(batch);
+                    return;
+                }
+                if (status === 501) {
                     this._analyticsDisabled = true;
                 }
             });
+        } catch (_) {}
+    },
 
-            try {
-                window.NewKetGoogleAnalytics?.trackBehaviorEvent?.(eventType, payload, mergedMeta);
-            } catch (_) {}
+    // Flush via sendBeacon (fermeture de page — fire & forget garanti par le browser)
+    _flushBeacon() {
+        try {
+            if (this._analyticsDisabled) { this._queue = []; return; }
+            if (this._queue.length === 0) return;
+
+            const batch = this._queue.splice(0, 25);
+            const url = '/api/analytics/events/batch';
+            const data = JSON.stringify({ events: batch });
+
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(url, new Blob([data], { type: 'application/json' }));
+            } else {
+                // Fallback si sendBeacon non dispo (très rare)
+                this._flushLegacy(batch);
+            }
+        } catch (_) {}
+    },
+
+    // Fallback : envoie les events 1 par 1 via l'ancien endpoint (vieux backend sans /batch)
+    _flushLegacy(events) {
+        try {
+            if (!Array.isArray(events) || events.length === 0) return;
+            const ev = events[0]; // envoyer seulement le premier pour pas spammer
+            window.ApiClient.post('/analytics/events', ev, {
+                suppressErrorLogging: true,
+                suppressToast: true,
+            }).catch(() => {});
         } catch (_) {}
     },
 
