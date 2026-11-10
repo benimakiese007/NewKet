@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <script>
@@ -90,6 +90,7 @@
             const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
             let resolvedOrderId = null;
             let statusPollTimer = null;
+            let latestServerStatus = null;
 
             const MAX_STATUS_POLLS = 20;
             const BASE_POLL_DELAY_MS = 2000;
@@ -167,7 +168,7 @@
                 if (statusDescription) statusDescription.innerHTML = 'Le paiement a peut-être été effectué mais la confirmation prend plus de temps que prévu. <strong>Consultez vos commandes</strong> dans quelques minutes.';
             }
 
-            function setSuccessUI() {
+            function setSuccessUI(serverStatus = latestServerStatus) {
                 clearStatusPollTimer();
                 if (pageTitle) pageTitle.textContent = 'Paiement accepté | NewKet';
                 if (statusTitle) { statusTitle.textContent = 'PAIEMENT ACCEPTÉ !'; statusTitle.style.color = '#111827'; }
@@ -183,21 +184,25 @@
                 window.dispatchEvent(new CustomEvent('ordersUpdated'));
 
                 // Déclenchement automatique et instantané de la Live Activity
-                if (serverStatus?.order) {
-                    const orderToTrack = serverStatus.order;
-                    const triggerTracking = () => {
-                        if (window.LiveOrderTracker?.trackOrder) {
-                            window.LiveOrderTracker.trackOrder(orderToTrack).catch(err => {
-                                console.log('[PaymentSuccess] Auto Live Tracking :', err?.message);
-                            });
+                try {
+                    const orderToTrack = serverStatus?.order || latestServerStatus?.order;
+                    if (orderToTrack) {
+                        const triggerTracking = () => {
+                            if (window.LiveOrderTracker?.trackOrder) {
+                                window.LiveOrderTracker.trackOrder(orderToTrack).catch(err => {
+                                    console.log('[PaymentSuccess] Auto Live Tracking :', err?.message);
+                                });
+                            }
+                        };
+                        if (window.LiveOrderTracker) {
+                            triggerTracking();
+                        } else {
+                            window.addEventListener('load', triggerTracking, { once: true });
+                            setTimeout(triggerTracking, 1000);
                         }
-                    };
-                    if (window.LiveOrderTracker) {
-                        triggerTracking();
-                    } else {
-                        window.addEventListener('load', triggerTracking, { once: true });
-                        setTimeout(triggerTracking, 1000);
                     }
+                } catch (laErr) {
+                    console.warn('[PaymentSuccess] Live tracking setup warning:', laErr?.message);
                 }
 
                 // Redirect after animation (3s) → #purchases?filter=paid
@@ -231,11 +236,12 @@
             async function refreshStatus(attempt = 0) {
                 if (!txRef) { setFailureUI(); return; }
                 const serverStatus = await loadServerStatus();
+                latestServerStatus = serverStatus;
                 resolvedOrderId = serverStatus?.order?.id || resolvedOrderId || null;
                 if (!serverStatus) { setPendingUI(); scheduleStatusRetry(attempt); return; }
                 const os = normalizeState(serverStatus?.order?.status);
                 const ps = normalizeState(serverStatus?.order?.payment_status || serverStatus?.payment?.status);
-                if (isPaidState(os, ps)) { setSuccessUI(); return; }
+                if (isPaidState(os, ps)) { setSuccessUI(serverStatus); return; }
                 if (isTerminalFailureState(os, ps, rawStatus)) { setFailureUI(); return; }
                 setPendingUI();
                 scheduleStatusRetry(attempt);
