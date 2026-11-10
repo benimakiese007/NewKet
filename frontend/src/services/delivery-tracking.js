@@ -1572,7 +1572,7 @@
                 </div>
 
                 <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
-                <div id="dt-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
+                <div id="dt-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(4.75rem, calc(env(safe-area-inset-top) + 4rem));">
                     <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                     <div id="dt-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                         <!-- Avatar miniature avec point vert direct -->
@@ -1653,15 +1653,33 @@
             if (this.callState === 'idle') {
                 fullEl.classList.add('hidden');
                 pipEl.classList.add('hidden');
+                window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
+                try {
+                    window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+                    window.ComponentsLoader?.syncNativeTabBarVisibility?.();
+                } catch (_) {}
                 return;
             }
 
             if (mode === 'pip') {
                 fullEl.classList.add('hidden');
                 pipEl.classList.remove('hidden');
+                // En mode PiP, rétablir la barre d'onglets et les boutons Liquid Glass
+                window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
+                try {
+                    window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+                    window.ComponentsLoader?.syncNativeTabBarVisibility?.();
+                } catch (_) {}
             } else {
                 pipEl.classList.add('hidden');
                 fullEl.classList.remove('hidden');
+                // En mode Plein Écran : masquer complètement le Liquid Glass natif iOS (premier plan absolu)
+                try {
+                    window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+                    window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+                    window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+                } catch (_) {}
+                window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
             }
         }
 
@@ -1831,6 +1849,12 @@
             const pipEl = document.getElementById('dt-call-pip');
             if (fullEl) fullEl.classList.add('hidden');
             if (pipEl) pipEl.classList.add('hidden');
+
+            window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
+            try {
+                window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+                window.ComponentsLoader?.syncNativeTabBarVisibility?.();
+            } catch (_) {}
 
             if (this.localStream) {
                 this.localStream.getTracks().forEach(track => track.stop());

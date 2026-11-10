@@ -1255,6 +1255,12 @@ const ComponentLoader = {
 
         const isAnyWebOverlayOpen = () => {
             if (window.SidebarManager?.state?.isDrawerOpen) return true;
+            const callFull = document.getElementById('dt-call-fullscreen');
+            if (callFull && !callFull.classList.contains('hidden')) return true;
+            const globalCallFull = document.getElementById('dt-global-call-fullscreen');
+            if (globalCallFull && !globalCallFull.classList.contains('hidden')) return true;
+            const chatToast = document.getElementById('dt-chat-toast-pill');
+            if (chatToast) return true;
             const menu = document.getElementById('mobileMenu');
             if (menu && (menu.classList.contains('active') || document.body.classList.contains('mobile-menu-open') || document.documentElement.classList.contains('mobile-menu-open') || menu.getAttribute('aria-hidden') === 'false' || menu.style.visibility === 'visible' || menu.style.opacity === '1')) return true;
             const cart = document.getElementById('cartSlideOver');
@@ -1294,8 +1300,11 @@ const ComponentLoader = {
         const _hideButtons = () => {
             const isModal = isAnyWebModalOpen();
             const isSuccessOverlay = document.getElementById('orderSuccessOverlay') || document.getElementById('paymentSuccessOverlay');
-            // 🍏 Les modales web disposent de leur propre croix interne (Xmark in-modal) : jamais de X natif parasite dans l'en-tête
-            if (isModal || isSuccessOverlay) {
+            const isCallOverlay = (document.getElementById('dt-call-fullscreen') && !document.getElementById('dt-call-fullscreen').classList.contains('hidden')) ||
+                                  (document.getElementById('dt-global-call-fullscreen') && !document.getElementById('dt-global-call-fullscreen').classList.contains('hidden'));
+            const isToast = !!document.getElementById('dt-chat-toast-pill');
+            // 🍏 Les modales web, plein écran d'appel et toasts masquent les boutons natifs Liquid Glass sans X natif parasite
+            if (isModal || isSuccessOverlay || isCallOverlay || isToast) {
                 _isOverlayActive = true;
                 _lastCloseConfigKey = 'modal_no_native_close';
                 plugin.update({ showLeft: false, showRight: false }).catch(() => {});

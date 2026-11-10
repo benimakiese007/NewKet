@@ -109,9 +109,21 @@
         if (mode === 'pip') {
             fullEl.classList.add('hidden');
             pipEl.classList.remove('hidden');
+            window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
+            try {
+                window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+                window.ComponentsLoader?.syncNativeTabBarVisibility?.();
+            } catch (_) {}
         } else {
             pipEl.classList.add('hidden');
             fullEl.classList.remove('hidden');
+            // En mode Plein Écran : masquer le Liquid Glass natif iOS (premier plan absolu)
+            try {
+                window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+            } catch (_) {}
+            window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
         }
     }
 
@@ -263,7 +275,7 @@
             </div>
 
             <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté - Identique Dashboard) -->
-            <div id="dt-global-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
+            <div id="dt-global-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(4.75rem, calc(env(safe-area-inset-top) + 4rem));">
                 <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                 <div id="dt-global-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                     <!-- Avatar miniature avec point vert direct -->
@@ -301,6 +313,14 @@
                 </div>
             </div>
         `;
+
+        // Masquer immédiatement les boutons natifs iOS pour que l'appel soit en premier plan absolu
+        try {
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+            window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+            window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+        } catch (_) {}
+        window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
 
         document.body.appendChild(root);
 
@@ -380,6 +400,11 @@
         const root = document.getElementById('newket-global-call-ui-root');
         if (root) root.remove();
         _stopRingTone();
+        window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
+        try {
+            window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+            window.ComponentsLoader?.syncNativeTabBarVisibility?.();
+        } catch (_) {}
     }
 
     // ── WebRTC Engine (fonctionne sur toutes les pages, sans redirection) ─────
@@ -753,6 +778,14 @@
             const el = _activeChatToast;
             setTimeout(() => {
                 try { el.remove(); } catch (_) {}
+                // Rétablir les boutons natifs d'en-tête si aucun appel plein écran n'est ouvert
+                const isCallFull = (document.getElementById('dt-call-fullscreen') && !document.getElementById('dt-call-fullscreen').classList.contains('hidden')) ||
+                                   (document.getElementById('dt-global-call-fullscreen') && !document.getElementById('dt-global-call-fullscreen').classList.contains('hidden'));
+                if (!isCallFull) {
+                    try {
+                        window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+                    } catch (_) {}
+                }
             }, 300);
             _activeChatToast = null;
         }
@@ -760,6 +793,12 @@
 
     function _showChatMessageToast(payload) {
         _dismissChatMessageToast();
+
+        // Masquer temporairement les boutons d'en-tête natifs iOS pour laisser flotter le toast sans chevauchement
+        try {
+            window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+            window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+        } catch (_) {}
 
         const senderName = payload.senderName || (payload.role === 'vendor' ? 'Vendeur' : 'Client');
         const senderAvatar = payload.senderAvatar || '';
@@ -773,7 +812,7 @@
 
         const toast = document.createElement('div');
         toast.id = 'dt-chat-toast-pill';
-        toast.className = 'fixed right-4 w-[330px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
+        toast.className = 'fixed left-1/2 -translate-x-1/2 w-[340px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
         toast.style.cssText = 'z-index: 2147483647 !important; isolation: isolate; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));';
 
         toast.innerHTML = `
