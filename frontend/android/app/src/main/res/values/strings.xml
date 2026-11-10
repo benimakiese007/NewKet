@@ -4,5 +4,7 @@
     <string name="title_activity_main">NewKet</string>
     <string name="package_name">cd.newket.app</string>
     <string name="custom_url_scheme">cd.newket.app</string>
-    <string name="widget_description">Accès rapide aux boutiques, notifications, favoris et panier NewKet.</string>
+    <string name="widget_description">Accès rapide aux boutiques, notifications, favoris et panier (Carré 2x2).</string>
+    <string name="widget_bar_name">NewKet - Barre Rapide</string>
+    <string name="widget_bar_description">Barre horizontale 4x1 d\'accès rapide aux boutiques, notifications, favoris et panier.</string>
 </resources>

@@ -44,7 +44,7 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <!-- NewKet Home Screen Widget (Accès Rapide) -->
+        <!-- NewKet Home Screen Widget (Accès Rapide Carré 2x2 & Responsive) -->
         <receiver
             android:name=".NewKetWidgetProvider"
             android:exported="true"
@@ -55,6 +55,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/newket_widget_info" />
+        </receiver>
+
+        <!-- NewKet Home Screen Widget (Barre Horizontale 4x1 / 4x2 style iOS Medium) -->
+        <receiver
+            android:name=".NewKetBarWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_bar_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/newket_widget_bar_info" />
         </receiver>
 
     </application>
