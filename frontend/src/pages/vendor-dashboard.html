@@ -1706,7 +1706,8 @@
                 }
 
                 function isVendorOrdersDataPending() {
-                    return window.__newketVendorOrdersReady !== true;
+                    // Les commandes sont en attente tant que le flag n'est pas levé OU que OrderManager n'a pas fini son initialisation réelle
+                    return window.__newketVendorOrdersReady !== true || !window.OrderManager || window.OrderManager._initialized !== true;
                 }
 
                 function isVendorProductsDataPending() {
@@ -2092,17 +2093,17 @@
                     // to set those flags caused a race: productsUpdated triggers ordersUpdated
                     // (OrderManager re-normalises) → skeleton lifted while orders still loading.
                     window.addEventListener('ordersUpdated', () => {
-                        // Only re-render if the initial fetch already completed (flags already true).
-                        if (window.__newketVendorOrdersReady && window.__newketVendorProductsReady) {
-                            scheduleRerender();
+                        if (window.OrderManager && window.OrderManager._initialized === true) {
+                            window.__newketVendorOrdersReady = true;
                         }
+                        scheduleRerender();
                     });
 
                     window.addEventListener('productsUpdated', () => {
-                        // Only re-render if the initial fetch already completed (flags already true).
-                        if (window.__newketVendorOrdersReady && window.__newketVendorProductsReady) {
-                            scheduleRerender();
+                        if (window.ProductManager && Array.isArray(window.__vendorOwnProducts)) {
+                            window.__newketVendorProductsReady = true;
                         }
+                        scheduleRerender();
                     });
                 })();
 
@@ -2131,6 +2132,22 @@
                     initVendorDashboard();
                     initVendorResidenceMap();
 
+                    // Preload shop metrics early in parallel so unique visitors count is ready simultaneously
+                    if (window.ApiClient && typeof ApiClient.get === 'function') {
+                        ApiClient.get('/analytics/vendor/shop-metrics?days=30', {
+                            suppressNetworkError: true,
+                            suppressErrorLogging: true
+                        }).then((metrics) => {
+                            if (metrics?.success) {
+                                window['__cachedVendorShopMetrics_30'] = { data: metrics, timestamp: Date.now() };
+                                const vOrdersEl = document.getElementById('vendorOrders');
+                                if (vOrdersEl && !isVendorOrdersDataPending() && !isVendorProductsDataPending()) {
+                                    vOrdersEl.textContent = Number(metrics.unique_visitors) || 0;
+                                }
+                            }
+                        }).catch(() => {});
+                    }
+
                     // Force fetch all products for this specific vendor, bypassing pagination limits
                     const _fetchVendorProductsSafe = () => {
                         const email = localStorage.getItem('newketUserEmail');
@@ -2148,13 +2165,13 @@
                                 (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                             });
                         } else {
-                            // ProductManager pas encore chargé — réessayer dans 500ms (max 10 fois)
+                            // ProductManager pas encore chargé — réessayer dans 300ms (max 15 fois)
                             if (!_fetchVendorProductsSafe._retries) _fetchVendorProductsSafe._retries = 0;
                             _fetchVendorProductsSafe._retries++;
-                            if (_fetchVendorProductsSafe._retries < 10) {
-                                setTimeout(_fetchVendorProductsSafe, 500);
+                            if (_fetchVendorProductsSafe._retries < 15) {
+                                setTimeout(_fetchVendorProductsSafe, 300);
                             } else {
-                                // Après 10 tentatives, forcer l'arrêt du skeleton pour ne pas bloquer l'UI
+                                // Après 15 tentatives, forcer l'arrêt du skeleton pour ne pas bloquer l'UI
                                 window.__newketVendorProductsReady = true;
                                 (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                             }
@@ -2166,16 +2183,20 @@
                     // The dashboard can boot before AuthManager finishes, which otherwise leaves
                     // the orders cache empty until the user clicks "Synchroniser".
                     const _fetchVendorOrdersSafe = () => {
-                        const hasAuth = !!(window.AuthManager && (AuthManager.role || localStorage.getItem('newketRole')));
+                        const hasAuth = !!(window.AuthManager?.role || localStorage.getItem('newketRole'));
                         const canLoadOrders = window.OrderManager && typeof OrderManager.init === 'function' && window.ApiClient && hasAuth;
                         if (canLoadOrders) {
                             OrderManager.init({ force: true })
                                 .then(() => {
-                                    window.__newketVendorOrdersReady = true;
+                                    if (window.OrderManager && window.OrderManager._initialized === true) {
+                                        window.__newketVendorOrdersReady = true;
+                                    }
                                     (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                                 })
                                 .catch(() => {
-                                    window.__newketVendorOrdersReady = true;
+                                    if (window.OrderManager && window.OrderManager._initialized === true) {
+                                        window.__newketVendorOrdersReady = true;
+                                    }
                                     (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
                                 });
                             return;
@@ -2184,7 +2205,7 @@
                         if (!_fetchVendorOrdersSafe._retries) _fetchVendorOrdersSafe._retries = 0;
                         _fetchVendorOrdersSafe._retries++;
                         if (_fetchVendorOrdersSafe._retries < 20) {
-                            setTimeout(_fetchVendorOrdersSafe, 500);
+                            setTimeout(_fetchVendorOrdersSafe, 250);
                         } else {
                             window.__newketVendorOrdersReady = true;
                             (window.scheduleVendorRerender || (typeof renderVendorDashboard === 'function' ? renderVendorDashboard : null))?.();
@@ -10102,6 +10123,11 @@ async function openOrderModal(id) {
                     (currentUserEmail && o.vendor_email === currentUserEmail)
                 );
 
+                if (!window.OrderManager || window.OrderManager._initialized !== true) {
+                    orderSelect.innerHTML = '<option value="">Chargement de vos ventes...</option>';
+                    return;
+                }
+
                 orderSelect.innerHTML = '';
                 const listToDisplay = vendorSales.length > 0 ? vendorSales : allOrders;
 
@@ -10154,7 +10180,7 @@ async function openOrderModal(id) {
                 }
             });
 
-            setTimeout(populateVendorOrdersDropdown, 1500);
+            populateVendorOrdersDropdown();
             window.addEventListener('ordersUpdated', populateVendorOrdersDropdown);
 
             // Écoute Broadcast robuste de la télécommande Admin (attente de Supabase)

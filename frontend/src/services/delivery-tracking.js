@@ -1029,7 +1029,30 @@
                 const offer = await this.peerConnection.createOffer();
                 await this.peerConnection.setLocalDescription(offer);
 
+                console.log('[NewKet Audio] 📞 Offre SDP créée localement, diffusion sur le canal order...');
                 this._sendCallSignal({ type: 'offer', offer });
+
+                // Notifier l'appelé sur son canal personnel avec l'offre SDP embarquée
+                if (this.peerUserId) {
+                    console.log('[NewKet Audio] 📲 Transmission du ring personnel avec l\'offre SDP...');
+                    this._sendUserRingSignal(this.peerUserId, offer);
+
+                    // Heartbeat de sonnerie : répéter incoming-call toutes les 2.5s pendant 30s max
+                    // pour garantir la réception même si l'appelé rafraîchit sa page ou navigue
+                    this._stopCallHeartbeat();
+                    let ringAttempts = 0;
+                    this.callHeartbeatInterval = setInterval(() => {
+                        ringAttempts++;
+                        if (this.callState !== 'calling' || ringAttempts >= 12) {
+                            this._stopCallHeartbeat();
+                            return;
+                        }
+                        if (this.peerUserId && this.peerConnection?.localDescription) {
+                            console.log(`[NewKet Audio] 💓 Heartbeat sonnerie #${ringAttempts} vers l'appelé (survie refresh/navigation)...`);
+                            this._sendUserRingSignal(this.peerUserId, this.peerConnection.localDescription);
+                        }
+                    }, 2500);
+                }
             } catch (err) {
                 console.warn('[DeliveryTracker] Micro access error:', err.message);
                 alert('Veuillez autoriser l\'accès au micro pour effectuer l\'appel audio.');
@@ -1039,26 +1062,46 @@
 
         async acceptCall() {
             if (this.callState !== 'incoming') return;
+
+            console.log('[NewKet Audio] 📲 Décrochage en cours...');
             this.callState = 'connected';
             this._broadcastCallState('connected');
-            this._startCallTimer();
-            this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
+            this._stopCallHeartbeat();
 
             try {
+                console.log('[NewKet Audio] 🎙️ Demande micro au récepteur...');
                 this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                console.log('[NewKet Audio] ✅ Micro récepteur autorisé !');
                 this._createPeerConnection();
 
                 this.localStream.getTracks().forEach(track => {
                     this.peerConnection.addTrack(track, this.localStream);
                 });
 
+                if (!this.pendingOffer) {
+                    console.warn('[NewKet Audio] ⚠️ Pas d\'offre en attente, demande à l\'appelant de renvoyer...');
+                    this._sendCallSignal({ type: 'request-offer' });
+                    // Démarrer le timer et UI même sans offer — le setRemoteDescription arrivera via l'écoute du canal
+                    this._startCallTimer();
+                    this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
+                    return;
+                }
+
+                console.log('[NewKet Audio] 📥 Application de l\'offre distante...');
                 await this.peerConnection.setRemoteDescription(new RTCSessionDescription(this.pendingOffer));
                 const answer = await this.peerConnection.createAnswer();
                 await this.peerConnection.setLocalDescription(answer);
 
+                console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant...');
                 this._sendCallSignal({ type: 'answer', answer });
+
+                // Démarrer le timer ici (côté récepteur) — l'appelant démarrera le sien à réception de answer
+                this._startCallTimer();
+                this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
+                console.log('[NewKet Audio] ⏱️ Chronomètre récepteur démarré !');
+
             } catch (err) {
-                console.warn('[DeliveryTracker] Accept call error:', err.message);
+                console.warn('[NewKet Audio] Erreur décrochage:', err.message);
                 this.endCall();
             }
         }
@@ -1158,6 +1201,7 @@
             };
 
             this.peerConnection.ontrack = (event) => {
+                console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU côté dashboard ! Branchement haut-parleur...');
                 this.remoteStream = event.streams[0];
                 let audioEl = document.getElementById('dt-remote-audio');
                 if (!audioEl) {
@@ -1167,6 +1211,7 @@
                     document.body.appendChild(audioEl);
                 }
                 audioEl.srcObject = this.remoteStream;
+                audioEl.play().catch(e => console.warn('[NewKet Audio] Lecture audio restreinte:', e?.message));
             };
         }
 
@@ -1191,7 +1236,7 @@
          * même s'il n'est pas sur son dashboard (et donc pas abonné au canal order).
          * @param {string} targetUserId - UUID de l'utilisateur à notifier
          */
-        _sendUserRingSignal(targetUserId) {
+        _sendUserRingSignal(targetUserId, offer = null) {
             try {
                 const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
                 if (!client || !targetUserId) {
@@ -1208,9 +1253,12 @@
                             callerName: this.myName,
                             callerAvatar: this.myAvatar,
                             orderId: this.orderId,
-                            role: this.role
+                            role: this.role,
+                            offer: offer,
+                            pendingOffer: offer,
+                            timestamp: Date.now()
                         };
-                        console.log('[DeliveryTracker] Canal user-ring SUBSCRIBED, diffusion incoming-call vers', targetUserId, payload);
+                        console.log('[NewKet Audio] Canal user-ring SUBSCRIBED, diffusion incoming-call vers', targetUserId, { hasOffer: Boolean(offer) });
                         
                         ch.send({
                             type: 'broadcast',
@@ -1329,7 +1377,7 @@
 
 
 
-        _handleCallSignal(data) {
+        async _handleCallSignal(data) {
             if (!data || data.role === this.role) return;
 
             const callerName = data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client');
@@ -1350,6 +1398,7 @@
                     this._playRingtone();
                 }
             } else if (data.type === 'offer') {
+                console.log('[NewKet Audio] 📥 Offre reçue par le récepteur sur canal order');
                 this.pendingOffer = data.offer;
                 if (this.callState === 'idle') {
                     this.callState = 'incoming';
@@ -1357,14 +1406,23 @@
                     this._showCallOverlay('Appel entrant...', `Le ${data.role === 'vendor' ? 'vendeur' : 'client'} souhaite vous parler`, false, true, callerName, callerAvatar || this.peerAvatar);
                     this._playRingtone();
                 }
+            } else if (data.type === 'request-offer' && this.peerConnection && this.peerConnection.localDescription) {
+                console.log('[NewKet Audio] 🔄 Renvoi de l\'offre locale demandée par le récepteur');
+                this._sendCallSignal({ type: 'offer', offer: this.peerConnection.localDescription });
             } else if (data.type === 'answer' && this.peerConnection) {
-                this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                console.log('[NewKet Audio] 🤝 Réponse answer reçue par l\'appelant ! Connexion en cours...');
+                try {
+                    await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                } catch (e) {
+                    console.warn('[NewKet Audio] Erreur setRemoteDescription answer:', e);
+                }
                 this.callState = 'connected';
                 if (callerAvatar) this.peerAvatar = callerAvatar;
                 if (callerName) this.peerName = callerName;
                 this._broadcastCallState('connected');
                 this._startCallTimer();
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
+                console.log('[NewKet Audio] ⏱️ Chronomètre appelant démarré avec succès');
             } else if (data.type === 'candidate' && this.peerConnection) {
                 this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
             } else if (data.type === 'hangup') {
@@ -1391,9 +1449,10 @@
 
             const wrap = document.createElement('div');
             wrap.id = 'newket-call-ui-root';
+            wrap.style.cssText = 'position: relative; z-index: 2147483647 !important; isolation: isolate;';
             wrap.innerHTML = `
                 <!-- 1. FULLSCREEN CALL OVERLAY -->
-                <div id="dt-call-fullscreen" class="hidden fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[99999] flex flex-col justify-between px-6 sm:px-8 text-white select-none transition-opacity duration-200" style="padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.75rem)); padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
+                <div id="dt-call-fullscreen" class="hidden fixed inset-0 bg-gray-950/95 backdrop-blur-xl flex flex-col justify-between px-6 sm:px-8 text-white select-none transition-opacity duration-200" style="z-index: 2147483647 !important; padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.75rem)); padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
                     <!-- Top Bar: Privacy & Bouton Réduire PiP -->
                     <div class="flex items-center justify-between w-full max-w-xl mx-auto pt-2">
                         <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md">
@@ -1450,7 +1509,7 @@
                 </div>
 
                 <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
-                <div id="dt-call-pip" class="hidden fixed z-[99999] right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
+                <div id="dt-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
                     <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                     <div id="dt-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                         <!-- Avatar miniature avec point vert direct -->
@@ -1689,7 +1748,15 @@
             this._updateMuteUI();
         }
 
+        _stopCallHeartbeat() {
+            if (this.callHeartbeatInterval) {
+                clearInterval(this.callHeartbeatInterval);
+                this.callHeartbeatInterval = null;
+            }
+        }
+
         _resetCallState() {
+            this._stopCallHeartbeat();
             this.callState = 'idle';
             this.callViewMode = 'fullscreen';
             this.isMuted = false;

@@ -534,13 +534,14 @@ const ComponentLoader = {
         const isAchatPage = currentPath.includes('/achat');
 
         if (isDashboardPage || isAdminPage) {
+            document.getElementById('header-placeholder')?.remove();
             document.documentElement.classList.add('is-dashboard');
             document.getElementById('mobileBottomNav')?.remove();
         }
 
         // The role-choice flow is intentionally isolated: while a role is
         // pending, no navigation must give access to the rest of the app.
-        if (!isAdminPage && !isRoleChoicePage && !isAchatPage) {
+        if (!isAdminPage && !isRoleChoicePage && !isAchatPage && !isDashboardPage) {
             this.ensurePlaceholder('header-placeholder', 'start');
         }
 
@@ -586,7 +587,7 @@ const ComponentLoader = {
 
         const componentsToLoad = [];
 
-        if (isAdminPage || isAchatPage) {
+        if (isAdminPage || isAchatPage || isDashboardPage) {
             // Admin pages handled by admin-layout; achat.html has its dedicated header nav
             // Do not inject duplicate standard header.
         } else if (isRoleChoicePage) {

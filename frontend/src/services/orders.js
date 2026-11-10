@@ -52,11 +52,13 @@ const OrderManager = {
             console.error('[OrderManager] ApiClient introuvable.');
             return;
         }
-        if (!window.AuthManager || !window.AuthManager.role) {
+        const effectiveRole = window.AuthManager?.role || localStorage.getItem('newketRole');
+        if (!effectiveRole) {
             if (!this._authRetryBound) {
                 this._authRetryBound = true;
                 const retryInit = () => {
-                    if (window.AuthManager && window.AuthManager.role) {
+                    const r = window.AuthManager?.role || localStorage.getItem('newketRole');
+                    if (r) {
                         this.init({ force: true }).catch(err => console.error('[OrderManager] Deferred init error:', err));
                     }
                 };

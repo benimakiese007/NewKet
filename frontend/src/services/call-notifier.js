@@ -201,9 +201,10 @@
 
         root = document.createElement('div');
         root.id = 'newket-global-call-ui-root';
+        root.style.cssText = 'position: relative; z-index: 2147483647 !important; isolation: isolate;';
         root.innerHTML = `
             <!-- 1. FULLSCREEN CALL OVERLAY (Identique à delivery-tracking.js) -->
-            <div id="dt-global-call-fullscreen" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-[99999] flex flex-col justify-between px-6 sm:px-8 text-white select-none transition-opacity duration-200" style="padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.75rem)); padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
+            <div id="dt-global-call-fullscreen" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl flex flex-col justify-between px-6 sm:px-8 text-white select-none transition-opacity duration-200" style="z-index: 2147483647 !important; padding-top: max(1.5rem, calc(env(safe-area-inset-top) + 0.75rem)); padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));">
                 <!-- Top Bar: Privacy & Bouton Réduire PiP -->
                 <div class="flex items-center justify-between w-full max-w-xl mx-auto pt-2">
                     <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-emerald-400 text-xs font-semibold backdrop-blur-md">
@@ -261,7 +262,7 @@
             </div>
 
             <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté - Identique Dashboard) -->
-            <div id="dt-global-call-pip" class="hidden fixed z-[99999] right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
+            <div id="dt-global-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));">
                 <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                 <div id="dt-global-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                     <!-- Avatar miniature avec point vert direct -->
@@ -388,7 +389,7 @@
 
         const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
         if (!client) {
-            console.warn('[CallNotifier] Supabase client non disponible');
+            console.warn('[NewKet Audio] Supabase client non disponible');
             return;
         }
 
@@ -410,40 +411,55 @@
         // Transition UI vers l'état connecté (identique au dashboard)
         _switchToInCallUI();
 
-        // Rejoindre le canal order pour les signaux WebRTC
+        // Rejoindre le canal order pour les signaux WebRTC avec attente asynchrone garantie
         const orderId = data.orderId || '';
-        if (orderId) {
+        const subscribePromise = new Promise((resolve) => {
+            if (!orderId) return resolve(false);
             _orderChannel = client.channel(`order-tracking:${orderId}`);
             _orderChannel.subscribe((status) => {
+                console.log('[NewKet Audio] 📡 Statut canal order-tracking:', status);
                 if (status === 'SUBSCRIBED') {
                     _listenOrderSignals(data);
+                    resolve(true);
                 }
             });
-        } else {
-            _listenOrderSignals(data);
-        }
+            // Timeout de sécurité 3.5s au cas où
+            setTimeout(() => resolve(false), 3500);
+        });
 
         // Établir la connexion audio WebRTC
         try {
+            console.log('[NewKet Audio] 🎙️ Demande d\'autorisation micro...');
             _localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            console.log('[NewKet Audio] ✅ Micro autorisé avec succès !');
             _createPeerConn();
 
             _localStream.getTracks().forEach(track => {
                 _peerConnection.addTrack(track, _localStream);
             });
 
-            if (data.pendingOffer) {
-                await _peerConnection.setRemoteDescription(new RTCSessionDescription(data.pendingOffer));
+            // Attendre la souscription confirmée au canal
+            await subscribePromise;
+            console.log('[NewKet Audio] 📡 Canal prêt pour échanger les signaux SDP');
+
+            const pendingOffer = data.pendingOffer || data.offer;
+            if (pendingOffer) {
+                console.log('[NewKet Audio] 📥 Application de l\'offre SDP distante reçue...');
+                await _peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer));
                 const answer = await _peerConnection.createAnswer();
                 await _peerConnection.setLocalDescription(answer);
+                console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant...');
                 _sendOrderSignal({ type: 'answer', answer });
+                _sendOrderSignal({ type: 'call-accepted' });
                 _callState = 'connected';
             } else {
+                console.log('[NewKet Audio] ❓ Aucune offre distante immédiate, demande en cours (request-offer)...');
+                _sendOrderSignal({ type: 'request-offer' });
                 _callState = 'connected';
             }
 
         } catch (err) {
-            console.warn('[CallNotifier] Erreur micro:', err.message);
+            console.warn('[NewKet Audio] Erreur micro:', err.message);
             _endCallWebRTC();
         }
     }
@@ -455,11 +471,13 @@
 
         _peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
+                console.log('[NewKet Audio] 🧊 Candidat ICE généré, envoi...');
                 _sendOrderSignal({ type: 'candidate', candidate: event.candidate });
             }
         };
 
         _peerConnection.ontrack = (event) => {
+            console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU ! Branchement haut-parleur...');
             _remoteStream = event.streams[0];
             let audioEl = document.getElementById('nk-notifier-remote-audio');
             if (!audioEl) {
@@ -469,6 +487,7 @@
                 document.body.appendChild(audioEl);
             }
             audioEl.srcObject = _remoteStream;
+            audioEl.play().catch(e => console.warn('[NewKet Audio] Lecture audio restreinte:', e?.message));
         };
     }
 
@@ -483,7 +502,7 @@
                 callerAvatar: _myAvatar,
                 ...payload
             }
-        }).catch(err => console.warn('[CallNotifier] signal send error:', err));
+        }).catch(err => console.warn('[NewKet Audio] Échec envoi signal:', err));
     }
 
     function _listenOrderSignals(data) {
@@ -493,19 +512,24 @@
 
             if (payload.type === 'offer' && _peerConnection && !_peerConnection.remoteDescription) {
                 try {
+                    console.log('[NewKet Audio] 📥 Offre reçue suite à demande ou retard');
                     await _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.offer));
                     const answer = await _peerConnection.createAnswer();
                     await _peerConnection.setLocalDescription(answer);
+                    console.log('[NewKet Audio] 📤 Envoi de la réponse answer');
                     _sendOrderSignal({ type: 'answer', answer });
-                } catch (e) { console.warn('[CallNotifier] offer handling error:', e); }
+                    _sendOrderSignal({ type: 'call-accepted' });
+                } catch (e) { console.warn('[NewKet Audio] Erreur traitement offer:', e); }
 
             } else if (payload.type === 'candidate' && _peerConnection) {
                 _peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(() => {});
 
             } else if (payload.type === 'answer' && _peerConnection) {
+                console.log('[NewKet Audio] 🤝 Réponse answer reçue dans call-notifier !');
                 _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer)).catch(() => {});
 
             } else if (payload.type === 'hangup') {
+                console.log('[NewKet Audio] 🔴 Appel terminé par l\'interlocuteur');
                 _endCallWebRTC();
             }
         });
@@ -679,8 +703,8 @@
 
         const toast = document.createElement('div');
         toast.id = 'dt-chat-toast-pill';
-        toast.className = 'fixed z-[99999] right-4 w-[330px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
-        toast.style.top = 'max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem))';
+        toast.className = 'fixed right-4 w-[330px] max-w-[92vw] min-h-[58px] rounded-full bg-gray-950/80 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 text-white flex items-center justify-between px-3.5 py-2 select-none cursor-pointer transform -translate-y-4 opacity-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]';
+        toast.style.cssText = 'z-index: 2147483647 !important; isolation: isolate; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.5rem));';
 
         toast.innerHTML = `
             <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -713,10 +737,35 @@
             </button>
         `;
 
-        // Click sur la capsule -> ouvrir le chat
+        // Click sur la capsule -> ouvrir le chat approprié (Vendeur vs Client)
         toast.addEventListener('click', () => {
             _dismissChatMessageToast();
-            if (orderId) {
+            if (!orderId) return;
+
+            // Détecter si l'utilisateur est sur ou appartient à l'espace vendeur
+            const isVendorContext = 
+                payload.role === 'customer' || // Si l'émetteur est le client, le récepteur est le vendeur !
+                window.location.pathname.includes('vendor-dashboard') ||
+                localStorage.getItem('nk_user_role') === 'vendor' ||
+                localStorage.getItem('nk_user_role') === 'supplier';
+
+            try {
+                localStorage.setItem('nk_auto_open_order_id', orderId);
+                localStorage.setItem('nk_auto_open_chat', '1');
+            } catch (_) {}
+
+            if (isVendorContext) {
+                if (window.location.pathname.includes('vendor-dashboard')) {
+                    if (typeof window.openOrderModal === 'function') {
+                        window.openOrderModal(orderId);
+                        return;
+                    }
+                    window.location.hash = `orders?order_id=${encodeURIComponent(orderId)}&open_chat=1`;
+                    window.location.reload();
+                    return;
+                }
+                window.location.href = `/vendor-dashboard#orders?order_id=${encodeURIComponent(orderId)}&open_chat=1`;
+            } else {
                 if (window.location.pathname.includes('customer-dashboard')) {
                     if (typeof window.openOrderModal === 'function') {
                         window.openOrderModal(orderId);
