@@ -1572,7 +1572,7 @@
                 </div>
 
                 <!-- 2. FLOATING PERSISTENT TOAST PILL (PiP Minimisé Draggable & Aimanté) -->
-                <div id="dt-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(4.75rem, calc(env(safe-area-inset-top) + 4rem));">
+                <div id="dt-call-pip" class="hidden fixed right-4 w-[280px] max-w-[92vw] h-[54px] rounded-full bg-gray-950/95 backdrop-blur-md border border-white/10 shadow-2xl text-white flex items-center justify-between px-2.5 select-none touch-none cursor-grab active:cursor-grabbing transition-transform duration-200" style="z-index: 2147483647 !important; top: max(4.75rem, calc(env(safe-area-inset-top) + 4rem)); touch-action: none !important;">
                     <!-- Zone Gauche + Milieu : Cliquable pour ré-agrandir en plein écran -->
                     <div id="dt-pip-expand-zone" class="flex items-center gap-2.5 min-w-0 flex-1 h-full pl-1 cursor-pointer">
                         <!-- Avatar miniature avec point vert direct -->
@@ -1685,10 +1685,13 @@
 
         _setupPipDragAndSnap(pipEl) {
             if (!pipEl) return;
+            pipEl.style.touchAction = 'none';
 
             const onPointerDown = (e) => {
                 // Ne pas déclencher de drag si on clique sur les boutons de commande
                 if (e.target.closest('button')) return;
+                // Empêcher le scroll natif de la page lors du drag sur mobile
+                if (e.cancelable) e.preventDefault();
 
                 this.pipDrag.isDragging = true;
                 this.pipDrag.hasMoved = false;
@@ -1701,11 +1704,13 @@
 
                 // Désactiver temporairement la transition CSS pendant le drag
                 pipEl.style.transition = 'none';
-                pipEl.setPointerCapture?.(e.pointerId);
+                try { pipEl.setPointerCapture?.(e.pointerId); } catch (_) {}
             };
 
             const onPointerMove = (e) => {
                 if (!this.pipDrag.isDragging) return;
+                // Bloquer tout défilement parasite de l'arrière-plan
+                if (e.cancelable) e.preventDefault();
 
                 const dx = e.clientX - this.pipDrag.startX;
                 const dy = e.clientY - this.pipDrag.startY;
@@ -1730,7 +1735,7 @@
             const onPointerUp = (e) => {
                 if (!this.pipDrag.isDragging) return;
                 this.pipDrag.isDragging = false;
-                pipEl.releasePointerCapture?.(e.pointerId);
+                try { pipEl.releasePointerCapture?.(e.pointerId); } catch (_) {}
 
                 // Réactiver transition pour animation d'aimantation fluide
                 pipEl.style.transition = 'left 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), top 0.25s ease-out';
@@ -1759,8 +1764,8 @@
                 }, 100);
             };
 
-            pipEl.addEventListener('pointerdown', onPointerDown);
-            window.addEventListener('pointermove', onPointerMove);
+            pipEl.addEventListener('pointerdown', onPointerDown, { passive: false });
+            window.addEventListener('pointermove', onPointerMove, { passive: false });
             window.addEventListener('pointerup', onPointerUp);
         }
 
