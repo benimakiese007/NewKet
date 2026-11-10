@@ -1097,8 +1097,7 @@
                 if (!this.pendingOffer) {
                     console.warn('[NewKet Audio] ⚠️ Pas d\'offre en attente, demande à l\'appelant de renvoyer...');
                     this._sendCallSignal({ type: 'request-offer' });
-                    this._startCallTimer();
-                    this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
+                    this._showCallOverlay('Connexion...', 'Synchronisation audio...', true, false, this.peerName, this.peerAvatar);
                     return;
                 }
 
@@ -1180,7 +1179,7 @@
         }
 
         _startCallTimer() {
-            this._stopCallTimer();
+            if (this.callDurationInterval) return; // Déjà actif, préserve la synchronisation parfaite
             this.callDurationSeconds = 0;
             this._updateTimerDisplay();
 
@@ -1232,6 +1231,9 @@
 
             this.peerConnection.oniceconnectionstatechange = () => {
                 console.log('[NewKet Audio] 📶 Statut connexion ICE:', this.peerConnection.iceConnectionState);
+                if (this.peerConnection.iceConnectionState === 'connected') {
+                    this._startCallTimer();
+                }
             };
 
             this.peerConnection.onconnectionstatechange = () => {
@@ -1240,6 +1242,7 @@
 
             this.peerConnection.ontrack = (event) => {
                 console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU côté dashboard ! Branchement haut-parleur...');
+                this._startCallTimer();
                 this.remoteStream = event.streams[0];
                 let audioEl = document.getElementById('dt-remote-audio');
                 if (!audioEl) {

@@ -535,6 +535,9 @@
 
         _peerConnection.oniceconnectionstatechange = () => {
             console.log('[NewKet Audio] 📶 Notifier Statut connexion ICE:', _peerConnection.iceConnectionState);
+            if (_peerConnection.iceConnectionState === 'connected') {
+                _startCallTimer();
+            }
         };
 
         _peerConnection.onconnectionstatechange = () => {
@@ -543,6 +546,7 @@
 
         _peerConnection.ontrack = (event) => {
             console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU ! Branchement haut-parleur...');
+            _startCallTimer();
             _remoteStream = event.streams[0];
             let audioEl = document.getElementById('nk-notifier-remote-audio');
             if (!audioEl) {
@@ -662,7 +666,7 @@
     }
 
     function _startCallTimer() {
-        _stopCallTimer();
+        if (_callTimerInterval) return; // Déjà actif, préserve la synchronisation parfaite
         _callDurationSecs = 0;
         _callTimerInterval = setInterval(() => {
             _callDurationSecs++;
