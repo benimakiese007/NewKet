@@ -1019,7 +1019,15 @@
             }
 
             try {
-                this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                this.pendingIceCandidates = [];
+                this.localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: false
+                });
                 this._createPeerConnection();
 
                 this.localStream.getTracks().forEach(track => {
@@ -1069,8 +1077,16 @@
             this._stopCallHeartbeat();
 
             try {
-                console.log('[NewKet Audio] 🎙️ Demande micro au récepteur...');
-                this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                this.pendingIceCandidates = [];
+                console.log('[NewKet Audio] 🎙️ Demande micro au récepteur (avec annulation d\'écho)...');
+                this.localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: false
+                });
                 console.log('[NewKet Audio] ✅ Micro récepteur autorisé !');
                 this._createPeerConnection();
 
@@ -1081,7 +1097,6 @@
                 if (!this.pendingOffer) {
                     console.warn('[NewKet Audio] ⚠️ Pas d\'offre en attente, demande à l\'appelant de renvoyer...');
                     this._sendCallSignal({ type: 'request-offer' });
-                    // Démarrer le timer et UI même sans offer — le setRemoteDescription arrivera via l'écoute du canal
                     this._startCallTimer();
                     this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
                     return;
@@ -1089,6 +1104,16 @@
 
                 console.log('[NewKet Audio] 📥 Application de l\'offre distante...');
                 await this.peerConnection.setRemoteDescription(new RTCSessionDescription(this.pendingOffer));
+
+                // Flusher les candidats ICE arrivés avant le setRemoteDescription
+                if (this.pendingIceCandidates && this.pendingIceCandidates.length > 0) {
+                    console.log(`[NewKet Audio] 🧊 Traitement de ${this.pendingIceCandidates.length} candidat(s) ICE en attente...`);
+                    for (const cand of this.pendingIceCandidates) {
+                        await this.peerConnection.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                    }
+                    this.pendingIceCandidates = [];
+                }
+
                 const answer = await this.peerConnection.createAnswer();
                 await this.peerConnection.setLocalDescription(answer);
 
@@ -1187,9 +1212,14 @@
         }
 
         _createPeerConnection() {
-            // Free public Google STUN server for ICE candidate resolution
             const configuration = {
-                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun.cloudflare.com:3478' },
+                    { urls: 'stun:stun.services.mozilla.com' }
+                ]
             };
 
             this.peerConnection = new RTCPeerConnection(configuration);
@@ -1200,6 +1230,14 @@
                 }
             };
 
+            this.peerConnection.oniceconnectionstatechange = () => {
+                console.log('[NewKet Audio] 📶 Statut connexion ICE:', this.peerConnection.iceConnectionState);
+            };
+
+            this.peerConnection.onconnectionstatechange = () => {
+                console.log('[NewKet Audio] 🔗 Statut PeerConnection:', this.peerConnection.connectionState);
+            };
+
             this.peerConnection.ontrack = (event) => {
                 console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU côté dashboard ! Branchement haut-parleur...');
                 this.remoteStream = event.streams[0];
@@ -1208,10 +1246,23 @@
                     audioEl = document.createElement('audio');
                     audioEl.id = 'dt-remote-audio';
                     audioEl.autoplay = true;
+                    audioEl.setAttribute('playsinline', 'true');
+                    audioEl.playsInline = true;
+                    audioEl.volume = 1.0;
                     document.body.appendChild(audioEl);
                 }
                 audioEl.srcObject = this.remoteStream;
-                audioEl.play().catch(e => console.warn('[NewKet Audio] Lecture audio restreinte:', e?.message));
+                audioEl.play().catch(e => {
+                    console.warn('[NewKet Audio] Lecture audio restreinte:', e?.message);
+                    // Tentative de reprise lors du premier toucher de l'utilisateur
+                    const unlockAudio = () => {
+                        audioEl.play().catch(() => {});
+                        document.removeEventListener('touchstart', unlockAudio);
+                        document.removeEventListener('click', unlockAudio);
+                    };
+                    document.addEventListener('touchstart', unlockAudio, { once: true });
+                    document.addEventListener('click', unlockAudio, { once: true });
+                });
             };
         }
 
@@ -1413,6 +1464,13 @@
                 console.log('[NewKet Audio] 🤝 Réponse answer reçue par l\'appelant ! Connexion en cours...');
                 try {
                     await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                    if (this.pendingIceCandidates && this.pendingIceCandidates.length > 0) {
+                        console.log(`[NewKet Audio] 🧊 Traitement de ${this.pendingIceCandidates.length} candidat(s) ICE en attente chez l'appelant...`);
+                        for (const cand of this.pendingIceCandidates) {
+                            await this.peerConnection.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                        }
+                        this.pendingIceCandidates = [];
+                    }
                 } catch (e) {
                     console.warn('[NewKet Audio] Erreur setRemoteDescription answer:', e);
                 }
@@ -1424,7 +1482,12 @@
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
                 console.log('[NewKet Audio] ⏱️ Chronomètre appelant démarré avec succès');
             } else if (data.type === 'candidate' && this.peerConnection) {
-                this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
+                if (this.peerConnection.remoteDescription && this.peerConnection.remoteDescription.type) {
+                    this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
+                } else {
+                    if (!this.pendingIceCandidates) this.pendingIceCandidates = [];
+                    this.pendingIceCandidates.push(data.candidate);
+                }
             } else if (data.type === 'hangup') {
                 this._resetCallState();
             }
@@ -1757,6 +1820,7 @@
 
         _resetCallState() {
             this._stopCallHeartbeat();
+            this.pendingIceCandidates = [];
             this.callState = 'idle';
             this.callViewMode = 'fullscreen';
             this.isMuted = false;
@@ -1778,7 +1842,10 @@
             }
 
             const audioEl = document.getElementById('dt-remote-audio');
-            if (audioEl) audioEl.remove();
+            if (audioEl) {
+                try { audioEl.pause(); audioEl.srcObject = null; } catch (_) {}
+                audioEl.remove();
+            }
         }
 
         /**

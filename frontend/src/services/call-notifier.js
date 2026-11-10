@@ -16,6 +16,7 @@
 
     // ── WebRTC state (géré directement ici, sans delivery-tracking.js) ────────
     let _peerConnection = null;
+    let _pendingIceCandidates = [];
     let _localStream = null;
     let _remoteStream = null;
     let _orderChannel = null;      // Canal Supabase order pour les signaux WebRTC
@@ -429,8 +430,16 @@
 
         // Établir la connexion audio WebRTC
         try {
-            console.log('[NewKet Audio] 🎙️ Demande d\'autorisation micro...');
-            _localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            _pendingIceCandidates = [];
+            console.log('[NewKet Audio] 🎙️ Demande d\'autorisation micro (avec annulation d\'écho)...');
+            _localStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+                video: false
+            });
             console.log('[NewKet Audio] ✅ Micro autorisé avec succès !');
             _createPeerConn();
 
@@ -446,6 +455,16 @@
             if (pendingOffer) {
                 console.log('[NewKet Audio] 📥 Application de l\'offre SDP distante reçue...');
                 await _peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer));
+
+                // Flusher les candidats ICE arrivés avant le setRemoteDescription
+                if (_pendingIceCandidates && _pendingIceCandidates.length > 0) {
+                    console.log(`[NewKet Audio] 🧊 Traitement de ${_pendingIceCandidates.length} candidat(s) ICE en attente dans call-notifier...`);
+                    for (const cand of _pendingIceCandidates) {
+                        await _peerConnection.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                    }
+                    _pendingIceCandidates = [];
+                }
+
                 const answer = await _peerConnection.createAnswer();
                 await _peerConnection.setLocalDescription(answer);
                 console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant...');
@@ -466,7 +485,13 @@
 
     function _createPeerConn() {
         _peerConnection = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun.cloudflare.com:3478' },
+                { urls: 'stun:stun.services.mozilla.com' }
+            ]
         });
 
         _peerConnection.onicecandidate = (event) => {
@@ -474,6 +499,14 @@
                 console.log('[NewKet Audio] 🧊 Candidat ICE généré, envoi...');
                 _sendOrderSignal({ type: 'candidate', candidate: event.candidate });
             }
+        };
+
+        _peerConnection.oniceconnectionstatechange = () => {
+            console.log('[NewKet Audio] 📶 Notifier Statut connexion ICE:', _peerConnection.iceConnectionState);
+        };
+
+        _peerConnection.onconnectionstatechange = () => {
+            console.log('[NewKet Audio] 🔗 Notifier Statut PeerConnection:', _peerConnection.connectionState);
         };
 
         _peerConnection.ontrack = (event) => {
@@ -484,10 +517,22 @@
                 audioEl = document.createElement('audio');
                 audioEl.id = 'nk-notifier-remote-audio';
                 audioEl.autoplay = true;
+                audioEl.setAttribute('playsinline', 'true');
+                audioEl.playsInline = true;
+                audioEl.volume = 1.0;
                 document.body.appendChild(audioEl);
             }
             audioEl.srcObject = _remoteStream;
-            audioEl.play().catch(e => console.warn('[NewKet Audio] Lecture audio restreinte:', e?.message));
+            audioEl.play().catch(e => {
+                console.warn('[NewKet Audio] Lecture audio restreinte:', e?.message);
+                const unlock = () => {
+                    audioEl.play().catch(() => {});
+                    document.removeEventListener('touchstart', unlock);
+                    document.removeEventListener('click', unlock);
+                };
+                document.addEventListener('touchstart', unlock, { once: true });
+                document.addEventListener('click', unlock, { once: true });
+            });
         };
     }
 
@@ -514,6 +559,14 @@
                 try {
                     console.log('[NewKet Audio] 📥 Offre reçue suite à demande ou retard');
                     await _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.offer));
+
+                    if (_pendingIceCandidates && _pendingIceCandidates.length > 0) {
+                        for (const cand of _pendingIceCandidates) {
+                            await _peerConnection.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                        }
+                        _pendingIceCandidates = [];
+                    }
+
                     const answer = await _peerConnection.createAnswer();
                     await _peerConnection.setLocalDescription(answer);
                     console.log('[NewKet Audio] 📤 Envoi de la réponse answer');
@@ -522,11 +575,24 @@
                 } catch (e) { console.warn('[NewKet Audio] Erreur traitement offer:', e); }
 
             } else if (payload.type === 'candidate' && _peerConnection) {
-                _peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(() => {});
+                if (_peerConnection.remoteDescription && _peerConnection.remoteDescription.type) {
+                    _peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(() => {});
+                } else {
+                    if (!_pendingIceCandidates) _pendingIceCandidates = [];
+                    _pendingIceCandidates.push(payload.candidate);
+                }
 
             } else if (payload.type === 'answer' && _peerConnection) {
                 console.log('[NewKet Audio] 🤝 Réponse answer reçue dans call-notifier !');
-                _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer)).catch(() => {});
+                try {
+                    await _peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer));
+                    if (_pendingIceCandidates && _pendingIceCandidates.length > 0) {
+                        for (const cand of _pendingIceCandidates) {
+                            await _peerConnection.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                        }
+                        _pendingIceCandidates = [];
+                    }
+                } catch (e) { console.warn('[NewKet Audio] Erreur setRemoteDescription answer:', e); }
 
             } else if (payload.type === 'hangup') {
                 console.log('[NewKet Audio] 🔴 Appel terminé par l\'interlocuteur');
@@ -622,6 +688,7 @@
     }
 
     function _endCallWebRTC() {
+        _pendingIceCandidates = [];
         _sendOrderSignal({ type: 'hangup' });
         _stopCallTimer();
 
@@ -634,7 +701,10 @@
             _localStream = null;
         }
         const audioEl = document.getElementById('nk-notifier-remote-audio');
-        if (audioEl) audioEl.remove();
+        if (audioEl) {
+            try { audioEl.pause(); audioEl.srcObject = null; } catch (_) {}
+            audioEl.remove();
+        }
 
         if (_orderChannel) {
             try {
