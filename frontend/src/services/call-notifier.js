@@ -268,9 +268,15 @@
                     </button>
 
                     <!-- Mute Button (Masqué lors de la sonnerie, visible en appel) -->
-                    <button id="dt-global-btn-mute" type="button" class="hidden px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer">
+                    <button id="dt-global-btn-mute" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer">
                         <iconify-icon id="dt-global-mute-icon" icon="solar:muted-bold" width="20"></iconify-icon>
                         <span id="dt-global-mute-text">Muet</span>
+                    </button>
+
+                    <!-- Speaker Button (Haut-parleur) -->
+                    <button id="dt-global-btn-speaker" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 text-emerald-400 border border-emerald-500/40 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/10">
+                        <iconify-icon id="dt-global-speaker-icon" icon="solar:volume-loud-bold" width="20"></iconify-icon>
+                        <span id="dt-global-speaker-text">Haut-parleur</span>
                     </button>
 
                     <!-- Decline / Hangup Button -->
@@ -312,6 +318,10 @@
                     <!-- Muet mini -->
                     <button id="dt-global-pip-btn-mute" type="button" class="hidden w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 flex items-center justify-center transition-all cursor-pointer" title="Couper le micro">
                         <iconify-icon id="dt-global-pip-mute-icon" icon="solar:microphone-bold" width="16"></iconify-icon>
+                    </button>
+                    <!-- Haut-parleur mini -->
+                    <button id="dt-global-pip-btn-speaker" type="button" class="hidden w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 active:scale-95 flex items-center justify-center transition-all cursor-pointer" title="Haut-parleur">
+                        <iconify-icon id="dt-global-pip-speaker-icon" icon="solar:volume-loud-bold" width="16"></iconify-icon>
                     </button>
                     <!-- Raccrocher mini -->
                     <button id="dt-global-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Raccrocher">
@@ -390,6 +400,11 @@
             e.stopPropagation();
             _toggleMuteWebRTC();
         });
+        root.querySelector('#dt-global-btn-speaker')?.addEventListener('click', _toggleSpeakerWebRTC);
+        root.querySelector('#dt-global-pip-btn-speaker')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            _toggleSpeakerWebRTC();
+        });
 
         _playRingTone();
 
@@ -403,6 +418,7 @@
 
     function _dismissCallUI() {
         _activeIncomingData = null;
+        _callStartTime = null;
         _callState = 'idle';
         const root = document.getElementById('newket-global-call-ui-root');
         if (root) root.remove();
@@ -541,7 +557,20 @@
         };
 
         _peerConnection.onconnectionstatechange = () => {
-            console.log('[NewKet Audio] 🔗 Notifier Statut PeerConnection:', _peerConnection.connectionState);
+            if (!_peerConnection) return;
+            const state = _peerConnection.connectionState;
+            console.log('[NewKet Audio] 🔗 Notifier Statut PeerConnection:', state);
+            if (state === 'failed' || state === 'closed') {
+                console.warn('[NewKet Audio] 🔴 Connexion WebRTC échouée/fermée, arrêt immédiat...');
+                _endCallWebRTC();
+            } else if (state === 'disconnected') {
+                setTimeout(() => {
+                    if (_peerConnection && (_peerConnection.connectionState === 'disconnected' || _peerConnection.connectionState === 'failed')) {
+                        console.warn('[NewKet Audio] 🔴 Déconnexion prolongée, arrêt de l\'appel...');
+                        _endCallWebRTC();
+                    }
+                }, 3500);
+            }
         };
 
         _peerConnection.ontrack = (event) => {
@@ -654,22 +683,30 @@
         if (btnAnswerFull) btnAnswerFull.classList.add('hidden');
         if (btnMuteFull) btnMuteFull.classList.remove('hidden');
 
+        const btnSpeakerFull = document.getElementById('dt-global-btn-speaker');
+        const btnSpeakerPip = document.getElementById('dt-global-pip-btn-speaker');
+
         if (btnAnswerPip) btnAnswerPip.classList.add('hidden');
         if (btnMutePip) btnMutePip.classList.remove('hidden');
+        if (btnSpeakerFull) btnSpeakerFull.classList.remove('hidden');
+        if (btnSpeakerPip) btnSpeakerPip.classList.remove('hidden');
 
         if (timerPip) timerPip.textContent = '00:00';
         if (timerFull) timerFull.textContent = '00:00';
 
-        _startCallTimer();
         _updateMuteUI();
+        _updateSpeakerUI();
         _setViewMode('pip');
     }
 
-    function _startCallTimer() {
-        if (_callTimerInterval) return; // Déjà actif, préserve la synchronisation parfaite
-        _callDurationSecs = 0;
-        _callTimerInterval = setInterval(() => {
-            _callDurationSecs++;
+    let _callStartTime = null;
+
+    function _startCallTimer(startTime = null) {
+        if (startTime) _callStartTime = startTime;
+        if (!_callStartTime) _callStartTime = Date.now();
+
+        const tick = () => {
+            _callDurationSecs = Math.max(0, Math.floor((Date.now() - _callStartTime) / 1000));
             const m = String(Math.floor(_callDurationSecs / 60)).padStart(2, '0');
             const s = String(_callDurationSecs % 60).padStart(2, '0');
             const formatted = `${m}:${s}`;
@@ -677,7 +714,12 @@
             const pipTimerEl = document.getElementById('dt-global-pip-timer');
             if (fullTimerEl) fullTimerEl.textContent = formatted;
             if (pipTimerEl) pipTimerEl.textContent = formatted;
-        }, 1000);
+        };
+
+        tick();
+        if (!_callTimerInterval) {
+            _callTimerInterval = setInterval(tick, 1000);
+        }
     }
 
     function _stopCallTimer() {
@@ -1024,3 +1066,18 @@
         _init();
     }
 })();
+
+// Détection de fermeture ou rechargement de page pour clore l'appel instantanément chez l'interlocuteur
+if (typeof window !== 'undefined' && !window.__nk_cn_unload_wired) {
+    window.__nk_cn_unload_wired = true;
+    const notifyHangupOnUnload = () => {
+        try {
+            if (_callState !== 'idle' && _orderChannel) {
+                _sendOrderSignal({ type: 'hangup', reason: 'page_closed' });
+                _endCallWebRTC();
+            }
+        } catch (_) {}
+    };
+    window.addEventListener('beforeunload', notifyHangupOnUnload);
+    window.addEventListener('pagehide', notifyHangupOnUnload);
+}

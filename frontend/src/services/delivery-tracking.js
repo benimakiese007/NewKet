@@ -1116,11 +1116,11 @@
                 const answer = await this.peerConnection.createAnswer();
                 await this.peerConnection.setLocalDescription(answer);
 
-                console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant...');
-                this._sendCallSignal({ type: 'answer', answer });
-
-                // Démarrer le timer ici (côté récepteur) — l'appelant démarrera le sien à réception de answer
-                this._startCallTimer();
+                const callStart = Date.now();
+                this.callStartTime = callStart;
+                console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant avec timestamp de synchronisation...');
+                this._sendCallSignal({ type: 'answer', answer, callStartTime: callStart });
+                this._startCallTimer(callStart);
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
                 console.log('[NewKet Audio] ⏱️ Chronomètre récepteur démarré !');
 
@@ -1151,6 +1151,54 @@
             }
         }
 
+        toggleSpeaker() {
+            this.isSpeakerOn = this.isSpeakerOn === undefined ? false : !this.isSpeakerOn;
+            const audioEl = document.getElementById('dt-remote-audio');
+            if (audioEl) {
+                audioEl.muted = !this.isSpeakerOn;
+                if (this.isSpeakerOn) audioEl.volume = 1.0;
+            }
+            try {
+                if (window.Capacitor?.Plugins?.NativeAudioRouter?.setSpeaker) {
+                    window.Capacitor.Plugins.NativeAudioRouter.setSpeaker({ enabled: this.isSpeakerOn });
+                }
+            } catch (_) {}
+            this._updateSpeakerUI();
+        }
+
+        _updateSpeakerUI() {
+            const isSpeaker = this.isSpeakerOn !== false;
+            const btnSpeaker = document.getElementById('dt-btn-speaker');
+            const speakerIcon = document.getElementById('dt-speaker-icon');
+            const speakerText = document.getElementById('dt-speaker-text');
+            const pipSpeakerBtn = document.getElementById('dt-pip-btn-speaker');
+            const pipSpeakerIcon = document.getElementById('dt-pip-speaker-icon');
+
+            if (btnSpeaker) {
+                btnSpeaker.classList.toggle('bg-emerald-500/20', isSpeaker);
+                btnSpeaker.classList.toggle('border-emerald-500/40', isSpeaker);
+                btnSpeaker.classList.toggle('text-emerald-400', isSpeaker);
+                btnSpeaker.classList.toggle('bg-gray-800', !isSpeaker);
+                btnSpeaker.classList.toggle('border-gray-700', !isSpeaker);
+                btnSpeaker.classList.toggle('text-gray-400', !isSpeaker);
+            }
+            if (speakerIcon) {
+                speakerIcon.setAttribute('icon', isSpeaker ? 'solar:volume-loud-bold' : 'solar:volume-cross-bold');
+            }
+            if (speakerText) {
+                speakerText.textContent = isSpeaker ? 'Haut-parleur' : 'Son Coupé';
+            }
+            if (pipSpeakerBtn) {
+                pipSpeakerBtn.classList.toggle('bg-emerald-500/20', isSpeaker);
+                pipSpeakerBtn.classList.toggle('text-emerald-400', isSpeaker);
+                pipSpeakerBtn.classList.toggle('bg-white/10', !isSpeaker);
+                pipSpeakerBtn.classList.toggle('text-gray-400', !isSpeaker);
+            }
+            if (pipSpeakerIcon) {
+                pipSpeakerIcon.setAttribute('icon', isSpeaker ? 'solar:volume-loud-bold' : 'solar:volume-cross-bold');
+            }
+        }
+
         _updateMuteUI() {
             // Fullscreen mute button
             const muteBtnText = document.getElementById('dt-mute-text');
@@ -1178,15 +1226,19 @@
             }
         }
 
-        _startCallTimer() {
-            if (this.callDurationInterval) return; // Déjà actif, préserve la synchronisation parfaite
-            this.callDurationSeconds = 0;
-            this._updateTimerDisplay();
+        _startCallTimer(startTime = null) {
+            if (startTime) this.callStartTime = startTime;
+            if (!this.callStartTime) this.callStartTime = Date.now();
 
-            this.callDurationInterval = setInterval(() => {
-                this.callDurationSeconds++;
+            const tick = () => {
+                this.callDurationSeconds = Math.max(0, Math.floor((Date.now() - this.callStartTime) / 1000));
                 this._updateTimerDisplay();
-            }, 1000);
+            };
+
+            tick();
+            if (!this.callDurationInterval) {
+                this.callDurationInterval = setInterval(tick, 1000);
+            }
         }
 
         _stopCallTimer() {
@@ -1237,7 +1289,20 @@
             };
 
             this.peerConnection.onconnectionstatechange = () => {
-                console.log('[NewKet Audio] 🔗 Statut PeerConnection:', this.peerConnection.connectionState);
+                if (!this.peerConnection) return;
+                const state = this.peerConnection.connectionState;
+                console.log('[NewKet Audio] 🔗 Statut PeerConnection:', state);
+                if (state === 'failed' || state === 'closed') {
+                    console.warn('[NewKet Audio] 🔴 Connexion WebRTC interrompue, fermeture automatique...');
+                    this.endCall();
+                } else if (state === 'disconnected') {
+                    setTimeout(() => {
+                        if (this.peerConnection && (this.peerConnection.connectionState === 'disconnected' || this.peerConnection.connectionState === 'failed')) {
+                            console.warn('[NewKet Audio] 🔴 Déconnexion prolongée de l\'interlocuteur, arrêt de l\'appel...');
+                            this.endCall();
+                        }
+                    }, 3500);
+                }
             };
 
             this.peerConnection.ontrack = (event) => {
@@ -1480,8 +1545,9 @@
                 this.callState = 'connected';
                 if (callerAvatar) this.peerAvatar = callerAvatar;
                 if (callerName) this.peerName = callerName;
+                this.callStartTime = data.callStartTime || Date.now();
                 this._broadcastCallState('connected');
-                this._startCallTimer();
+                this._startCallTimer(this.callStartTime);
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
                 console.log('[NewKet Audio] ⏱️ Chronomètre appelant démarré avec succès');
             } else if (data.type === 'candidate' && this.peerConnection) {
@@ -1561,9 +1627,15 @@
                         </button>
 
                         <!-- Mute Button -->
-                        <button id="dt-btn-mute" type="button" class="hidden px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all">
-                            <iconify-icon icon="solar:muted-bold" width="20"></iconify-icon>
+                        <button id="dt-btn-mute" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer">
+                            <iconify-icon id="dt-mute-icon" icon="solar:muted-bold" width="20"></iconify-icon>
                             <span id="dt-mute-text">Muet</span>
+                        </button>
+
+                        <!-- Speaker Button (Haut-parleur) -->
+                        <button id="dt-btn-speaker" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 text-emerald-400 border border-emerald-500/40 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/10">
+                            <iconify-icon id="dt-speaker-icon" icon="solar:volume-loud-bold" width="20"></iconify-icon>
+                            <span id="dt-speaker-text">Haut-parleur</span>
                         </button>
 
                         <!-- End Call Button -->
@@ -1601,8 +1673,12 @@
                             <iconify-icon icon="solar:phone-bold" width="16"></iconify-icon>
                         </button>
                         <!-- Muet mini -->
-                        <button id="dt-pip-btn-mute" type="button" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 flex items-center justify-center transition-all" title="Couper le micro">
+                        <button id="dt-pip-btn-mute" type="button" class="hidden w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 flex items-center justify-center transition-all cursor-pointer" title="Couper le micro">
                             <iconify-icon id="dt-pip-mute-icon" icon="solar:microphone-bold" width="16"></iconify-icon>
+                        </button>
+                        <!-- Haut-parleur mini -->
+                        <button id="dt-pip-btn-speaker" type="button" class="hidden w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 active:scale-95 flex items-center justify-center transition-all cursor-pointer" title="Haut-parleur">
+                            <iconify-icon id="dt-pip-speaker-icon" icon="solar:volume-loud-bold" width="16"></iconify-icon>
                         </button>
                         <!-- Raccrocher mini -->
                         <button id="dt-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all" title="Raccrocher">
@@ -1628,6 +1704,11 @@
             wrap.querySelector('#dt-btn-answer')?.addEventListener('click', () => this.acceptCall());
             wrap.querySelector('#dt-btn-hangup')?.addEventListener('click', () => this.endCall());
             wrap.querySelector('#dt-btn-mute')?.addEventListener('click', () => this.toggleMute());
+            wrap.querySelector('#dt-btn-speaker')?.addEventListener('click', () => this.toggleSpeaker());
+            wrap.querySelector('#dt-pip-btn-speaker')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleSpeaker();
+            });
 
             // Boutons d'actions Pilule PiP
             wrap.querySelector('#dt-pip-btn-answer')?.addEventListener('click', (e) => {
@@ -1803,8 +1884,16 @@
             // Boutons Fullscreen
             const btnAnswer = document.getElementById('dt-btn-answer');
             const btnMute = document.getElementById('dt-btn-mute');
+            const btnSpeaker = document.getElementById('dt-btn-speaker');
+            const pipBtnMute = document.getElementById('dt-pip-btn-mute');
+            const pipBtnSpeaker = document.getElementById('dt-pip-btn-speaker');
+
             if (btnAnswer) btnAnswer.classList.toggle('hidden', !isIncoming);
             if (btnMute) btnMute.classList.toggle('hidden', !isConnected);
+            if (btnSpeaker) btnSpeaker.classList.toggle('hidden', !isConnected);
+            if (pipBtnMute) pipBtnMute.classList.toggle('hidden', !isConnected);
+            if (pipBtnSpeaker) pipBtnSpeaker.classList.toggle('hidden', !isConnected);
+            this._updateSpeakerUI();
 
             // 2. Mise à jour PiP (Pilule)
             const pipPeerName = document.getElementById('dt-pip-peer-name');
@@ -1847,6 +1936,7 @@
         _resetCallState() {
             this._stopCallHeartbeat();
             this.pendingIceCandidates = [];
+            this.callStartTime = null;
             this.callState = 'idle';
             this.callViewMode = 'fullscreen';
             this.isMuted = false;
@@ -2248,3 +2338,17 @@
     window.DeliveryTracker = DeliveryTracker;
     window.deliveryTrackerInstance = new DeliveryTracker();
 })();
+
+// Détection de fermeture ou rechargement de page pour clore l'appel instantanément chez l'interlocuteur
+if (typeof window !== 'undefined' && !window.__nk_dt_unload_wired) {
+    window.__nk_dt_unload_wired = true;
+    const notifyHangupOnUnload = () => {
+        try {
+            if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.callState !== 'idle') {
+                window.deliveryTrackerInstance.endCall();
+            }
+        } catch (_) {}
+    };
+    window.addEventListener('beforeunload', notifyHangupOnUnload);
+    window.addEventListener('pagehide', notifyHangupOnUnload);
+}
