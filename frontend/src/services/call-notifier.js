@@ -826,8 +826,9 @@
 
             if (isVendorContext) {
                 if (window.location.pathname.includes('vendor-dashboard')) {
-                    if (typeof window.openOrderModal === 'function') {
-                        window.openOrderModal(orderId);
+                    const openFn = window.openOrderDetailModal || window.openOrderModal;
+                    if (typeof openFn === 'function') {
+                        openFn(orderId);
                         return;
                     }
                     window.location.hash = `orders?order_id=${encodeURIComponent(orderId)}&open_chat=1`;
@@ -837,12 +838,9 @@
                 window.location.href = `/vendor-dashboard#orders?order_id=${encodeURIComponent(orderId)}&open_chat=1`;
             } else {
                 if (window.location.pathname.includes('customer-dashboard')) {
-                    if (typeof window.openOrderModal === 'function') {
-                        window.openOrderModal(orderId);
-                        return;
-                    }
-                    if (typeof window.goToAchatOrder === 'function') {
-                        window.goToAchatOrder(orderId);
+                    const openFn = window.openOrderModal || window.goToAchatOrder;
+                    if (typeof openFn === 'function') {
+                        openFn(orderId);
                         return;
                     }
                     window.location.hash = `purchases?order_id=${encodeURIComponent(orderId)}&open_chat=1`;

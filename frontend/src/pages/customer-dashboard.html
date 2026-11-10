@@ -5119,8 +5119,28 @@
                     if (typeof openOrderModal === 'function' && (hasLoadedOrders || attempts >= 8)) {
                         clearInterval(checkInterval);
                         modalOpened = true;
-                        try { localStorage.removeItem('nk_auto_open_order_id'); } catch (_) {}
+                        const shouldOpenChat = params.get('open_chat') === '1' || localStorage.getItem('nk_auto_open_chat') === '1';
+                        try {
+                            localStorage.removeItem('nk_auto_open_order_id');
+                            localStorage.removeItem('nk_auto_open_chat');
+                        } catch (_) {}
                         openOrderModal(orderId);
+
+                        if (shouldOpenChat) {
+                            let chatAttempts = 0;
+                            const chatInterval = setInterval(() => {
+                                chatAttempts++;
+                                const chatInput = document.getElementById('dt-chat-input');
+                                const chatContainer = document.getElementById('dt-chat-messages');
+                                if (chatInput || chatContainer) {
+                                    clearInterval(chatInterval);
+                                    chatContainer?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    setTimeout(() => chatInput?.focus(), 300);
+                                } else if (chatAttempts >= 30) {
+                                    clearInterval(chatInterval);
+                                }
+                            }, 200);
+                        }
                     } else if (attempts >= 50) {
                         clearInterval(checkInterval);
                         if (!modalOpened && typeof openOrderModal === 'function') {

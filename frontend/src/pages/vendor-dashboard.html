@@ -9782,19 +9782,50 @@ async function openOrderModal(id) {
             }
         });
 
-        // Décrocher automatique : ouvre la modale si le vendeur arrive depuis le toast d'appel (?order=...)
+        // Ouverture automatique de la modale de commande et du chat (via URL ?order_id=... ou hash #orders?order_id=... ou localStorage)
         (function autoOpenOrderFromQuery() {
             try {
-                const params = new URLSearchParams(window.location.search);
-                const orderId = params.get('order') || params.get('order_id');
-                if (!orderId) return;
+                const rawSearch = window.location.search || (window.location.hash.includes('?') ? '?' + window.location.hash.split('?')[1] : '');
+                const params = new URLSearchParams(rawSearch);
+                let orderId = params.get('order') || params.get('order_id');
+                const shouldOpenChat = params.get('open_chat') === '1' || localStorage.getItem('nk_auto_open_chat') === '1';
+
+                if (!orderId) {
+                    try {
+                        orderId = localStorage.getItem('nk_auto_open_order_id');
+                    } catch (_) {}
+                }
+                if (!orderId || !orderId.trim()) return;
+                orderId = orderId.trim();
 
                 let attempts = 0;
                 const checkInterval = setInterval(() => {
                     attempts++;
-                    if (typeof openOrderDetailModal === 'function') {
+                    const openFn = window.openOrderDetailModal || (typeof openOrderDetailModal === 'function' ? openOrderDetailModal : null);
+                    if (openFn) {
                         clearInterval(checkInterval);
-                        openOrderDetailModal(orderId);
+                        try {
+                            localStorage.removeItem('nk_auto_open_order_id');
+                            localStorage.removeItem('nk_auto_open_chat');
+                        } catch (_) {}
+                        openFn(orderId);
+
+                        // Si redirection vers le chat : faire défiler jusqu'au chat et focus
+                        if (shouldOpenChat) {
+                            let chatAttempts = 0;
+                            const chatInterval = setInterval(() => {
+                                chatAttempts++;
+                                const chatInput = document.getElementById('dt-chat-input');
+                                const chatContainer = document.getElementById('dt-chat-messages');
+                                if (chatInput || chatContainer) {
+                                    clearInterval(chatInterval);
+                                    chatContainer?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    setTimeout(() => chatInput?.focus(), 300);
+                                } else if (chatAttempts >= 30) {
+                                    clearInterval(chatInterval);
+                                }
+                            }, 200);
+                        }
                     } else if (attempts >= 50) {
                         clearInterval(checkInterval);
                     }
