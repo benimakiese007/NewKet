@@ -44,11 +44,11 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <!-- NewKet Home Screen Widget (Accès Rapide Carré 2x2 & Responsive) -->
+        <!-- Widget 1: Accès Rapide Carré (2x2) -->
         <receiver
             android:name=".NewKetWidgetProvider"
             android:exported="true"
-            android:label="@string/app_name">
+            android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -57,7 +57,7 @@
                 android:resource="@xml/newket_widget_info" />
         </receiver>
 
-        <!-- NewKet Home Screen Widget (Barre Horizontale 4x1 / 4x2 style iOS Medium) -->
+        <!-- Widget 2: Barre Horizontale Rapide (4x1 / 4x2 style iOS Medium) -->
         <receiver
             android:name=".NewKetBarWidgetProvider"
             android:exported="true"
@@ -68,6 +68,32 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/newket_widget_bar_info" />
+        </receiver>
+
+        <!-- Widget 3: Produit Sponsorisé Star Plein-Cadre (2x2 style iOS Small) -->
+        <receiver
+            android:name=".NewKetSmallProductWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_small_product_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/newket_widget_small_product_info" />
+        </receiver>
+
+        <!-- Widget 4: Vitrine Produits Sponsorisés (4x4 style iOS Large) -->
+        <receiver
+            android:name=".NewKetLargeWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_large_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/newket_widget_large_info" />
         </receiver>
 
     </application>

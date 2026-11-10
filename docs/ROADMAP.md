@@ -94,4 +94,24 @@ Ce document liste les prochaines grandes fonctionnalités (features) prévues po
 *Priorité : À implémenter après stabilisation des fonctionnalités core.*
 
 ---
+
+## 12. Scalabilité Analytics & Télémétrie Haute Charge (10 000+ utilisateurs)
+**Objectif :** Éviter les erreurs 429 (Too Many Requests) et garantir la capture fidèle de toutes les métriques sans saturer le serveur lors des pics de trafic.
+
+**Problème identifié :**
+Le rate limiter actuel sur `/api/analytics/events` bride à 20 requêtes par 15 minutes par IP (`analyticsLimiter`). Sur les réseaux mobiles en RDC (CGNAT : plusieurs utilisateurs partageant la même IP publique cellulaire) ou lors d'une session active avec suivi en direct, cette limite est franchie trop vite, générant des erreurs 429 et des pertes d'événements de tracking.
+
+**Solutions retenues :**
+1. **Batching côté Frontend (Méthode standard e-commerce) :**
+   * Regrouper les événements (`page_view`, `click`, `heartbeat`) dans un tampon (buffer mémoire local).
+   * Envoi groupé par paquet (`POST /api/analytics/events/batch`) toutes les 30 à 60 secondes ou au déchargement de la page (`navigator.sendBeacon`).
+   * Division par 10 à 20 du nombre de requêtes HTTP entrantes sur le backend Express / Vercel.
+2. **Identification par Session / Utilisateur plutôt que par IP brute :**
+   * Baser le rate-limiting sur le couple `sessionId` / `userId` (ou empreinte de session) pour éviter que des centaines d'utilisateurs sur une même antenne 4G (Airtel, Vodacom, Orange) ne partagent et ne saturent le même quota IP.
+3. **Ajustement réaliste des seuils de protection :**
+   * Rehausser le plafond du rate limiter pour les événements de télémétrie (ex: 300 à 600 requêtes / 15 min par session active) au lieu du seuil anti-bruteforce actuel de 20 requêtes / 15 min.
+
+*Priorité : Préparation montée en charge / scaling.*
+
+---
 *Note technique : Conformément aux directives de sécurité et de simplification, NewKet ne gère pas de système de "Wallet" (portefeuille interne) stockant l'argent des utilisateurs sur la plateforme à long terme. Tous les flux passent directement par le système de paiement et le séquestre.*

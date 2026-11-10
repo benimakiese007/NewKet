@@ -4,7 +4,17 @@
     <string name="title_activity_main">NewKet</string>
     <string name="package_name">cd.newket.app</string>
     <string name="custom_url_scheme">cd.newket.app</string>
+    
+    <!-- Widgets Home Screen (Identiques à iOS) -->
+    <string name="widget_name">NewKet - Raccourcis Rapides (2x2)</string>
     <string name="widget_description">Accès rapide aux boutiques, notifications, favoris et panier (Carré 2x2).</string>
-    <string name="widget_bar_name">NewKet - Barre Rapide</string>
-    <string name="widget_bar_description">Barre horizontale 4x1 d\'accès rapide aux boutiques, notifications, favoris et panier.</string>
+
+    <string name="widget_bar_name">NewKet - Barre Rapide (4x1)</string>
+    <string name="widget_bar_description">Barre horizontale 4x1 d\'accès rapide aux boutiques, notifications, favoris et panier (style iOS Medium).</string>
+
+    <string name="widget_small_product_name">NewKet - Produit Sponsorisé (2x2)</string>
+    <string name="widget_small_product_description">Photo en plein écran et prix en direct du produit sponsorisé star (style iOS Small).</string>
+
+    <string name="widget_large_name">NewKet - Vitrine Produits (4x4)</string>
+    <string name="widget_large_description">Vitrine des 4 produits sponsorisés avec photos, prix et barre de raccourcis (style iOS Large).</string>
 </resources>
