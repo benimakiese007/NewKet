@@ -140,7 +140,7 @@ window.SupabaseAdapter = {
         if (!this._shouldOptimizeImage(file)) return null;
 
         const bucketProfiles = {
-            'product-images': { maxWidth: 1600, maxHeight: 1600, quality: 0.78, mimeType: 'image/webp' },
+            'product-images': { maxWidth: 1800, maxHeight: 1800, quality: 0.88, mimeType: 'image/webp' },
             'vendor-covers': { maxWidth: 1800, maxHeight: 900, quality: 0.8, mimeType: 'image/webp' },
             'user-assets': { maxWidth: 1200, maxHeight: 1200, quality: 0.82, mimeType: 'image/webp' },
             'vendor-docs': { maxWidth: 1600, maxHeight: 1600, quality: 0.8, mimeType: 'image/jpeg' },
@@ -572,9 +572,9 @@ window.SupabaseAdapter = {
 
                 const fullUploadFile = await this._resizeImageForUpload(file, profile);
                 const thumbProfile = {
-                    maxWidth: 360,
-                    maxHeight: 360,
-                    quality: Math.min(profile.quality, 0.7),
+                    maxWidth: 640,
+                    maxHeight: 640,
+                    quality: 0.85,
                     mimeType: profile.mimeType
                 };
                 const thumbUploadFile = await this._resizeImageForUpload(file, thumbProfile, { suffix: '__thumb' });
