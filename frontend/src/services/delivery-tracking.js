@@ -1117,13 +1117,11 @@
                 const answer = await this.peerConnection.createAnswer();
                 await this.peerConnection.setLocalDescription(answer);
 
-                const callStart = Date.now();
-                this.callStartTime = callStart;
-                console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant avec timestamp de synchronisation...');
-                this._sendCallSignal({ type: 'answer', answer, callStartTime: callStart });
-                this._startCallTimer(callStart);
+                console.log('[NewKet Audio] 📤 Envoi de la réponse answer vers l\'appelant...');
+                this._sendCallSignal({ type: 'answer', answer });
+                this._startCallTimer(0);
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
-                console.log('[NewKet Audio] ⏱️ Chronomètre récepteur démarré !');
+                console.log('[NewKet Audio] ⏱️ Chronomètre récepteur démarré strictement à 00:00');
 
             } catch (err) {
                 console.warn('[NewKet Audio] Erreur décrochage:', err.message);
@@ -1228,19 +1226,15 @@
             }
         }
 
-        _startCallTimer(startTime = null) {
-            if (startTime) this.callStartTime = startTime;
-            if (!this.callStartTime) this.callStartTime = Date.now();
+        _startCallTimer(initialSecs = 0) {
+            this._stopCallTimer();
+            this.callDurationSeconds = typeof initialSecs === 'number' ? initialSecs : 0;
+            this._updateTimerDisplay();
 
-            const tick = () => {
-                this.callDurationSeconds = Math.max(0, Math.floor((Date.now() - this.callStartTime) / 1000));
+            this.callDurationInterval = setInterval(() => {
+                this.callDurationSeconds++;
                 this._updateTimerDisplay();
-            };
-
-            tick();
-            if (!this.callDurationInterval) {
-                this.callDurationInterval = setInterval(tick, 1000);
-            }
+            }, 1000);
         }
 
         _stopCallTimer() {
@@ -1248,14 +1242,19 @@
                 clearInterval(this.callDurationInterval);
                 this.callDurationInterval = null;
             }
-            this.callDurationSeconds = 0;
-            this._updateTimerDisplay();
+            if (this.durationSyncInterval) {
+                clearInterval(this.durationSyncInterval);
+                this.durationSyncInterval = null;
+            }
         }
 
-        _updateTimerDisplay() {
-            const minutes = String(Math.floor(this.callDurationSeconds / 60)).padStart(2, '0');
-            const seconds = String(this.callDurationSeconds % 60).padStart(2, '0');
-            const formatted = `${minutes}:${seconds}`;
+        _updateTimerDisplay(customText = null) {
+            let formatted = customText;
+            if (!formatted) {
+                const minutes = String(Math.floor(this.callDurationSeconds / 60)).padStart(2, '0');
+                const seconds = String(this.callDurationSeconds % 60).padStart(2, '0');
+                formatted = `${minutes}:${seconds}`;
+            }
 
             const fullTimerEl = document.getElementById('dt-call-timer');
             const pipTimerEl = document.getElementById('dt-pip-timer');
@@ -1285,9 +1284,6 @@
 
             this.peerConnection.oniceconnectionstatechange = () => {
                 console.log('[NewKet Audio] 📶 Statut connexion ICE:', this.peerConnection.iceConnectionState);
-                if (this.peerConnection.iceConnectionState === 'connected') {
-                    this._startCallTimer();
-                }
             };
 
             this.peerConnection.onconnectionstatechange = () => {
@@ -1309,7 +1305,9 @@
 
             this.peerConnection.ontrack = (event) => {
                 console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU côté dashboard ! Branchement haut-parleur...');
-                this._startCallTimer();
+                if (this.callState === 'connected' && !this.callDurationInterval) {
+                    this._startCallTimer(0);
+                }
                 this.remoteStream = event.streams[0];
                 let audioEl = document.getElementById('dt-remote-audio');
                 if (!audioEl) {
@@ -1548,11 +1546,28 @@
                 this.callState = 'connected';
                 if (callerAvatar) this.peerAvatar = callerAvatar;
                 if (callerName) this.peerName = callerName;
-                this.callStartTime = data.callStartTime || Date.now();
                 this._broadcastCallState('connected');
-                this._startCallTimer(this.callStartTime);
+                this._startCallTimer(0);
                 this._showCallOverlay('En communication', 'Appel vocal actif', true, false, this.peerName, this.peerAvatar);
-                console.log('[NewKet Audio] ⏱️ Chronomètre appelant démarré avec succès');
+                console.log('[NewKet Audio] ⏱️ Chronomètre appelant démarré strictement à 00:00');
+
+                // L'appelant est le Master de synchronisation : émet un top départ et un heartbeat régulier
+                this._sendCallSignal({ type: 'call-start-sync', duration: 0 });
+                if (this.durationSyncInterval) clearInterval(this.durationSyncInterval);
+                this.durationSyncInterval = setInterval(() => {
+                    if (this.callState === 'connected') {
+                        this._sendCallSignal({ type: 'call-duration-sync', duration: this.callDurationSeconds });
+                    }
+                }, 2000);
+            } else if ((data.type === 'call-duration-sync' || data.type === 'call-start-sync') && this.callState === 'connected') {
+                if (typeof data.duration === 'number') {
+                    if (!this.callDurationInterval) {
+                        this._startCallTimer(data.duration);
+                    } else if (Math.abs(this.callDurationSeconds - data.duration) >= 1) {
+                        this.callDurationSeconds = data.duration;
+                        this._updateTimerDisplay();
+                    }
+                }
             } else if (data.type === 'candidate' && this.peerConnection) {
                 if (this.peerConnection.remoteDescription && this.peerConnection.remoteDescription.type) {
                     this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(() => {});
@@ -1925,8 +1940,10 @@
             }
 
             if (pipBtnAnswer) pipBtnAnswer.classList.toggle('hidden', !isIncoming);
-            if (!isConnected && pipTimer) {
-                pipTimer.textContent = isIncoming ? 'Appel entrant...' : 'Sonnerie...';
+            if (!isConnected) {
+                this._stopCallTimer();
+                const ringingText = isIncoming ? 'Appel entrant...' : 'Sonnerie...';
+                this._updateTimerDisplay(ringingText);
             }
 
             // Affichage dans le mode courant (ou plein écran par défaut)

@@ -419,8 +419,8 @@
 
     function _dismissCallUI() {
         _activeIncomingData = null;
-        _callStartTime = null;
         _callState = 'idle';
+        _stopCallTimer();
         const root = document.getElementById('newket-global-call-ui-root');
         if (root) root.remove();
         _stopRingTone();
@@ -520,6 +520,7 @@
                 _sendOrderSignal({ type: 'answer', answer });
                 _sendOrderSignal({ type: 'call-accepted' });
                 _callState = 'connected';
+                _startCallTimer(0);
             } else {
                 console.log('[NewKet Audio] ❓ Aucune offre distante immédiate, demande en cours (request-offer)...');
                 _sendOrderSignal({ type: 'request-offer' });
@@ -552,9 +553,6 @@
 
         _peerConnection.oniceconnectionstatechange = () => {
             console.log('[NewKet Audio] 📶 Notifier Statut connexion ICE:', _peerConnection.iceConnectionState);
-            if (_peerConnection.iceConnectionState === 'connected') {
-                _startCallTimer();
-            }
         };
 
         _peerConnection.onconnectionstatechange = () => {
@@ -576,7 +574,9 @@
 
         _peerConnection.ontrack = (event) => {
             console.log('[NewKet Audio] 🔊 FLUX AUDIO DISTANT REÇU ! Branchement haut-parleur...');
-            _startCallTimer();
+            if (_callState === 'connected' && !_callTimerInterval) {
+                _startCallTimer(0);
+            }
             _remoteStream = event.streams[0];
             let audioEl = document.getElementById('nk-notifier-remote-audio');
             if (!audioEl) {
@@ -661,6 +661,26 @@
                     }
                 } catch (e) { console.warn('[NewKet Audio] Erreur setRemoteDescription answer:', e); }
 
+                _callState = 'connected';
+                _startCallTimer(0);
+                _sendOrderSignal({ type: 'call-start-sync', duration: 0 });
+                if (_durationSyncInterval) clearInterval(_durationSyncInterval);
+                _durationSyncInterval = setInterval(() => {
+                    if (_callState === 'connected') {
+                        _sendOrderSignal({ type: 'call-duration-sync', duration: _callDurationSecs });
+                    }
+                }, 2000);
+
+            } else if ((payload.type === 'call-duration-sync' || payload.type === 'call-start-sync') && _callState === 'connected') {
+                if (typeof payload.duration === 'number') {
+                    if (!_callTimerInterval) {
+                        _startCallTimer(payload.duration);
+                    } else if (Math.abs(_callDurationSecs - payload.duration) >= 1) {
+                        _callDurationSecs = payload.duration;
+                        _updateTimerDisplay();
+                    }
+                }
+
             } else if (payload.type === 'hangup') {
                 console.log('[NewKet Audio] 🔴 Appel terminé par l\'interlocuteur');
                 _endCallWebRTC();
@@ -701,27 +721,17 @@
         _setViewMode('pip');
     }
 
-    let _callStartTime = null;
+    let _durationSyncInterval = null;
 
-    function _startCallTimer(startTime = null) {
-        if (startTime) _callStartTime = startTime;
-        if (!_callStartTime) _callStartTime = Date.now();
+    function _startCallTimer(initialSecs = 0) {
+        _stopCallTimer();
+        _callDurationSecs = typeof initialSecs === 'number' ? initialSecs : 0;
+        _updateTimerDisplay();
 
-        const tick = () => {
-            _callDurationSecs = Math.max(0, Math.floor((Date.now() - _callStartTime) / 1000));
-            const m = String(Math.floor(_callDurationSecs / 60)).padStart(2, '0');
-            const s = String(_callDurationSecs % 60).padStart(2, '0');
-            const formatted = `${m}:${s}`;
-            const fullTimerEl = document.getElementById('dt-global-call-timer');
-            const pipTimerEl = document.getElementById('dt-global-pip-timer');
-            if (fullTimerEl) fullTimerEl.textContent = formatted;
-            if (pipTimerEl) pipTimerEl.textContent = formatted;
-        };
-
-        tick();
-        if (!_callTimerInterval) {
-            _callTimerInterval = setInterval(tick, 1000);
-        }
+        _callTimerInterval = setInterval(() => {
+            _callDurationSecs++;
+            _updateTimerDisplay();
+        }, 1000);
     }
 
     function _stopCallTimer() {
@@ -729,7 +739,23 @@
             clearInterval(_callTimerInterval);
             _callTimerInterval = null;
         }
-        _callDurationSecs = 0;
+        if (_durationSyncInterval) {
+            clearInterval(_durationSyncInterval);
+            _durationSyncInterval = null;
+        }
+    }
+
+    function _updateTimerDisplay(customText = null) {
+        let formatted = customText;
+        if (!formatted) {
+            const m = String(Math.floor(_callDurationSecs / 60)).padStart(2, '0');
+            const s = String(_callDurationSecs % 60).padStart(2, '0');
+            formatted = `${m}:${s}`;
+        }
+        const fullTimerEl = document.getElementById('dt-global-call-timer');
+        const pipTimerEl = document.getElementById('dt-global-pip-timer');
+        if (fullTimerEl) fullTimerEl.textContent = formatted;
+        if (pipTimerEl) pipTimerEl.textContent = formatted;
     }
 
     function _updateMuteUI() {
