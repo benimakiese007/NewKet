@@ -293,7 +293,7 @@ body.role-customer .header-shell-main {
 }
 
 .dashboard-main-offset {
-    padding-top: var(--dashboard-topbar-height) !important;
+    padding-top: calc(var(--dashboard-topbar-height) + env(safe-area-inset-top, 0px)) !important;
 }
 
 /* Shared admin page breathing room below the header bar.
