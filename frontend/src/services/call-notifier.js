@@ -127,6 +127,23 @@
         } else {
             pipEl.classList.add('hidden');
             fullEl.classList.remove('hidden');
+
+            // Si l'appel est déjà connecté, s'assurer que l'UI plein écran affiche bien EN COMMUNICATION et masque Décrocher
+            if (_callState === 'connected') {
+                const fullTitle = document.getElementById('dt-global-call-title');
+                const fullSubtitle = document.getElementById('dt-global-call-subtitle');
+                const btnAnswerFull = document.getElementById('dt-global-btn-answer');
+                const btnMuteFull = document.getElementById('dt-global-btn-mute');
+                const btnSpeakerFull = document.getElementById('dt-global-btn-speaker');
+                if (fullTitle) fullTitle.textContent = 'EN COMMUNICATION';
+                if (fullSubtitle) fullSubtitle.textContent = 'Appel vocal actif';
+                if (btnAnswerFull) btnAnswerFull.classList.add('hidden');
+                if (btnMuteFull) btnMuteFull.classList.remove('hidden');
+                if (btnSpeakerFull) btnSpeakerFull.classList.remove('hidden');
+                _updateMuteUI();
+                _updateSpeakerUI();
+            }
+
             // En mode Plein Écran : masquer le Liquid Glass natif iOS (premier plan absolu)
             try {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
@@ -218,9 +235,16 @@
     // ── Construction de l'interface identique au Dashboard ──────────────────
     function _buildDashboardStyleCallUI(data) {
         let root = document.getElementById('newket-global-call-ui-root');
-        if (root) root.remove();
+        if (root) {
+            // Si un appel est déjà en cours ou connecté, ne jamais détruire l'interface !
+            if (_callState !== 'idle') {
+                return;
+            }
+            root.remove();
+        }
 
         _activeIncomingData = data;
+        _callState = 'incoming'; // Verrouiller immédiatement l'état dès l'affichage !
 
         const callerName = _cleanDisplayName(data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client'));
         const callerAvatar = data.callerAvatar || '';
@@ -377,6 +401,7 @@
                 autoDismissTimer = null;
             }
             _stopRingTone();
+            _switchToInCallUI(); // Transition UI immédiate : masque Décrocher, affiche Muet/Haut-parleur, passe en PiP
             _acceptCallWebRTC(data);
         };
 
@@ -443,7 +468,10 @@
     // ── WebRTC Engine (fonctionne sur toutes les pages, sans redirection) ─────
 
     async function _acceptCallWebRTC(data) {
-        if (_callState === 'connected') return;
+        if (_callState === 'connected') {
+            _switchToInCallUI();
+            return;
+        }
         _callState = 'incoming';
 
         const client = window.supabaseClient || (window.Supabase && window.Supabase.client);
@@ -457,11 +485,11 @@
         try {
             const { data: { user } } = await client.auth.getUser();
             const { data: profile } = await client.from('users')
-                .select('username, avatar_url')
+                .select('name, username, company_name, avatar')
                 .eq('id', user?.id)
-                .single();
-            _myName = profile?.username || user?.email || 'Utilisateur';
-            _myAvatar = profile?.avatar_url || '';
+                .maybeSingle();
+            _myName = _cleanDisplayName(profile?.company_name || profile?.name || profile?.username || user?.email || 'Utilisateur');
+            _myAvatar = profile?.avatar || '';
         } catch (_) {
             _myName = 'Utilisateur';
             _myAvatar = '';
@@ -678,7 +706,7 @@
                     if (_callState === 'connected') {
                         _sendOrderSignal({ type: 'call-duration-sync', duration: _callDurationSecs });
                     }
-                }, 2000);
+                }, 1000); // Synchronisation chaque seconde
 
             } else if ((payload.type === 'call-duration-sync' || payload.type === 'call-start-sync') && _callState === 'connected') {
                 if (typeof payload.duration === 'number') {
@@ -1072,9 +1100,9 @@
                 .on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
                     console.log('[NewKet CallNotifier] incoming-call reçu sur', channelName, payload);
 
-                    // Si l'utilisateur est DÉJÀ en cours d'appel (calling, incoming ou connected), IGNORER le heartbeat de sonnerie !
-                    if (_callState !== 'idle') {
-                        console.log('[NewKet CallNotifier] incoming-call ignoré (appel déjà en cours, état:', _callState, ')');
+                    // Si l'utilisateur est DÉJÀ en cours d'appel (incoming ou connected), OU si l'UI d'appel existe déjà, IGNORER le heartbeat de sonnerie !
+                    if (_callState !== 'idle' || document.getElementById('newket-global-call-ui-root')) {
+                        console.log('[NewKet CallNotifier] incoming-call ignoré (appel déjà en cours ou UI active, état:', _callState, ')');
                         return;
                     }
                     if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.callState && window.deliveryTrackerInstance.callState !== 'idle') {

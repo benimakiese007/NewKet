@@ -159,7 +159,10 @@
          */
         _buildUI() {
             const isVendor = this.role === 'vendor';
-            const peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
+            let peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
+            if (typeof peerLabel === 'string' && peerLabel.includes('@')) {
+                peerLabel = peerLabel.split('@')[0];
+            }
 
             this.dom.container.innerHTML = `
                 <div class="delivery-tracker-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
@@ -1559,7 +1562,7 @@
                     if (this.callState === 'connected') {
                         this._sendCallSignal({ type: 'call-duration-sync', duration: this.callDurationSeconds });
                     }
-                }, 2000);
+                }, 1000); // Synchronisation chaque seconde
             } else if (data.type === 'call-accepted') {
                 this._stopCallHeartbeat();
             } else if ((data.type === 'call-duration-sync' || data.type === 'call-start-sync') && this.callState === 'connected') {
@@ -1598,7 +1601,10 @@
             if (existingWrap) existingWrap.remove();
 
             const isVendor = this.role === 'vendor';
-            const peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
+            let peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
+            if (typeof peerLabel === 'string' && peerLabel.includes('@')) {
+                peerLabel = peerLabel.split('@')[0];
+            }
 
             const wrap = document.createElement('div');
             wrap.id = 'newket-call-ui-root';
