@@ -24,6 +24,7 @@
     let _callTimerInterval = null;
     let _callDurationSecs = 0;
     let _isMuted = false;
+    let _isSpeakerOn = false; // Haut-parleur OFF par défaut (comme WhatsApp / Téléphone)
     let _myRole = null;            // rôle de l'utilisateur courant (opposé de data.role)
     let _myName = null;
     let _myAvatar = null;
@@ -274,8 +275,8 @@
                     </button>
 
                     <!-- Speaker Button (Haut-parleur) -->
-                    <button id="dt-global-btn-speaker" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 text-emerald-400 border border-emerald-500/40 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/10">
-                        <iconify-icon id="dt-global-speaker-icon" icon="solar:volume-loud-bold" width="20"></iconify-icon>
+                    <button id="dt-global-btn-speaker" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-400 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer">
+                        <iconify-icon id="dt-global-speaker-icon" icon="solar:volume-small-bold" width="20"></iconify-icon>
                         <span id="dt-global-speaker-text">Haut-parleur</span>
                     </button>
 
@@ -320,8 +321,8 @@
                         <iconify-icon id="dt-global-pip-mute-icon" icon="solar:microphone-bold" width="16"></iconify-icon>
                     </button>
                     <!-- Haut-parleur mini -->
-                    <button id="dt-global-pip-btn-speaker" type="button" class="hidden w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 active:scale-95 flex items-center justify-center transition-all cursor-pointer" title="Haut-parleur">
-                        <iconify-icon id="dt-global-pip-speaker-icon" icon="solar:volume-loud-bold" width="16"></iconify-icon>
+                    <button id="dt-global-pip-btn-speaker" type="button" class="hidden w-8 h-8 rounded-full bg-white/10 text-gray-400 hover:bg-white/20 active:scale-95 flex items-center justify-center transition-all cursor-pointer" title="Haut-parleur">
+                        <iconify-icon id="dt-global-pip-speaker-icon" icon="solar:volume-small-bold" width="16"></iconify-icon>
                     </button>
                     <!-- Raccrocher mini -->
                     <button id="dt-global-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all cursor-pointer" title="Raccrocher">
@@ -584,6 +585,7 @@
                 audioEl.autoplay = true;
                 audioEl.setAttribute('playsinline', 'true');
                 audioEl.playsInline = true;
+                audioEl.muted = false; // toujours audible — pas de haut-parleur forcé sur web
                 audioEl.volume = 1.0;
                 document.body.appendChild(audioEl);
             }
@@ -765,6 +767,56 @@
         _updateMuteUI();
     }
 
+    function _toggleSpeakerWebRTC() {
+        _isSpeakerOn = !_isSpeakerOn;
+        const audioEl = document.getElementById('nk-notifier-remote-audio');
+        if (audioEl) {
+            // Audio joue toujours — le haut-parleur contrôle uniquement l'acheminement physique sur natif
+            audioEl.muted = false;
+            audioEl.volume = 1.0;
+        }
+        try {
+            if (window.Capacitor?.Plugins?.NativeAudioRouter?.setSpeaker) {
+                window.Capacitor.Plugins.NativeAudioRouter.setSpeaker({ enabled: _isSpeakerOn });
+            }
+        } catch (_) {}
+        _updateSpeakerUI();
+    }
+
+    function _updateSpeakerUI() {
+        const isSpeaker = _isSpeakerOn === true; // false par défaut
+
+        const btnSpeakerFull = document.getElementById('dt-global-btn-speaker');
+        const speakerIconFull = document.getElementById('dt-global-speaker-icon');
+        const speakerTextFull = document.getElementById('dt-global-speaker-text');
+        const btnSpeakerPip = document.getElementById('dt-global-pip-btn-speaker');
+        const speakerIconPip = document.getElementById('dt-global-pip-speaker-icon');
+
+        if (btnSpeakerFull) {
+            btnSpeakerFull.classList.toggle('bg-emerald-500/20', isSpeaker);
+            btnSpeakerFull.classList.toggle('border-emerald-500/40', isSpeaker);
+            btnSpeakerFull.classList.toggle('text-emerald-400', isSpeaker);
+            btnSpeakerFull.classList.toggle('bg-gray-800', !isSpeaker);
+            btnSpeakerFull.classList.toggle('border-gray-700', !isSpeaker);
+            btnSpeakerFull.classList.toggle('text-gray-400', !isSpeaker);
+        }
+        if (speakerIconFull) {
+            speakerIconFull.setAttribute('icon', isSpeaker ? 'solar:volume-loud-bold' : 'solar:volume-small-bold');
+        }
+        if (speakerTextFull) {
+            speakerTextFull.textContent = 'Haut-parleur';
+        }
+        if (btnSpeakerPip) {
+            btnSpeakerPip.classList.toggle('bg-emerald-500/20', isSpeaker);
+            btnSpeakerPip.classList.toggle('text-emerald-400', isSpeaker);
+            btnSpeakerPip.classList.toggle('bg-white/10', !isSpeaker);
+            btnSpeakerPip.classList.toggle('text-gray-400', !isSpeaker);
+        }
+        if (speakerIconPip) {
+            speakerIconPip.setAttribute('icon', isSpeaker ? 'solar:volume-loud-bold' : 'solar:volume-small-bold');
+        }
+    }
+
     function _endCallWebRTC() {
         _pendingIceCandidates = [];
         _sendOrderSignal({ type: 'hangup' });
@@ -794,6 +846,7 @@
 
         _callState = 'idle';
         _isMuted = false;
+        _isSpeakerOn = false; // Reset haut-parleur OFF pour le prochain appel
         _dismissCallUI();
     }
 

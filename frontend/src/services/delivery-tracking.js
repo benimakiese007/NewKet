@@ -59,6 +59,7 @@
             this.callDurationSeconds = 0;
             this.callDurationInterval = null;
             this.isMuted = false;
+            this.isSpeakerOn = false; // Haut-parleur OFF par défaut (comme WhatsApp / Téléphone)
 
             // PiP Drag & Snap state
             this.pipDrag = {
@@ -1152,11 +1153,12 @@
         }
 
         toggleSpeaker() {
-            this.isSpeakerOn = this.isSpeakerOn === undefined ? false : !this.isSpeakerOn;
+            this.isSpeakerOn = !this.isSpeakerOn;
             const audioEl = document.getElementById('dt-remote-audio');
             if (audioEl) {
-                audioEl.muted = !this.isSpeakerOn;
-                if (this.isSpeakerOn) audioEl.volume = 1.0;
+                // Audio joue toujours — le haut-parleur contrôle uniquement l'acheminement physique sur natif
+                audioEl.muted = false;
+                audioEl.volume = 1.0;
             }
             try {
                 if (window.Capacitor?.Plugins?.NativeAudioRouter?.setSpeaker) {
@@ -1167,7 +1169,7 @@
         }
 
         _updateSpeakerUI() {
-            const isSpeaker = this.isSpeakerOn !== false;
+            const isSpeaker = this.isSpeakerOn === true; // false par défaut
             const btnSpeaker = document.getElementById('dt-btn-speaker');
             const speakerIcon = document.getElementById('dt-speaker-icon');
             const speakerText = document.getElementById('dt-speaker-text');
@@ -1186,7 +1188,7 @@
                 speakerIcon.setAttribute('icon', isSpeaker ? 'solar:volume-loud-bold' : 'solar:volume-cross-bold');
             }
             if (speakerText) {
-                speakerText.textContent = isSpeaker ? 'Haut-parleur' : 'Son Coupé';
+                speakerText.textContent = isSpeaker ? 'Haut-parleur' : 'Haut-parleur';
             }
             if (pipSpeakerBtn) {
                 pipSpeakerBtn.classList.toggle('bg-emerald-500/20', isSpeaker);
@@ -1316,6 +1318,7 @@
                     audioEl.autoplay = true;
                     audioEl.setAttribute('playsinline', 'true');
                     audioEl.playsInline = true;
+                    audioEl.muted = false; // toujours audible — pas de haut-parleur forcé sur web
                     audioEl.volume = 1.0;
                     document.body.appendChild(audioEl);
                 }
@@ -1632,9 +1635,9 @@
                             <span id="dt-mute-text">Muet</span>
                         </button>
 
-                        <!-- Speaker Button (Haut-parleur) -->
-                        <button id="dt-btn-speaker" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 text-emerald-400 border border-emerald-500/40 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-500/10">
-                            <iconify-icon id="dt-speaker-icon" icon="solar:volume-loud-bold" width="20"></iconify-icon>
+                        <!-- Speaker Button (Haut-parleur) — gris/OFF par défaut, vert actif au clic -->
+                        <button id="dt-btn-speaker" type="button" class="hidden px-5 sm:px-6 py-4 rounded-full bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-400 border border-gray-700 font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer">
+                            <iconify-icon id="dt-speaker-icon" icon="solar:volume-small-bold" width="20"></iconify-icon>
                             <span id="dt-speaker-text">Haut-parleur</span>
                         </button>
 
@@ -1676,9 +1679,9 @@
                         <button id="dt-pip-btn-mute" type="button" class="hidden w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-200 flex items-center justify-center transition-all cursor-pointer" title="Couper le micro">
                             <iconify-icon id="dt-pip-mute-icon" icon="solar:microphone-bold" width="16"></iconify-icon>
                         </button>
-                        <!-- Haut-parleur mini -->
-                        <button id="dt-pip-btn-speaker" type="button" class="hidden w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 active:scale-95 flex items-center justify-center transition-all cursor-pointer" title="Haut-parleur">
-                            <iconify-icon id="dt-pip-speaker-icon" icon="solar:volume-loud-bold" width="16"></iconify-icon>
+                        <!-- Haut-parleur mini — gris/OFF par défaut -->
+                        <button id="dt-pip-btn-speaker" type="button" class="hidden w-8 h-8 rounded-full bg-white/10 text-gray-400 hover:bg-white/20 active:scale-95 flex items-center justify-center transition-all cursor-pointer" title="Haut-parleur">
+                            <iconify-icon id="dt-pip-speaker-icon" icon="solar:volume-small-bold" width="16"></iconify-icon>
                         </button>
                         <!-- Raccrocher mini -->
                         <button id="dt-pip-btn-hangup" type="button" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shadow transition-all" title="Raccrocher">
@@ -1854,6 +1857,11 @@
         }
 
         _showCallOverlay(title, subtitle, isConnected = false, isIncoming = false, customPeerName = null, customPeerAvatar = null) {
+            // Garantir que le DOM d'appel existe toujours (peut avoir été retiré lors d'une navigation/destroy)
+            if (!document.getElementById('dt-call-fullscreen')) {
+                this._buildCallUI();
+            }
+
             const name = customPeerName || this.peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
             const avatarUrl = customPeerAvatar || this.peerAvatar || '';
 
@@ -1940,6 +1948,7 @@
             this.callState = 'idle';
             this.callViewMode = 'fullscreen';
             this.isMuted = false;
+            this.isSpeakerOn = false; // Reset haut-parleur OFF pour le prochain appel
             this._stopCallTimer();
             this._broadcastCallState('idle');
 
