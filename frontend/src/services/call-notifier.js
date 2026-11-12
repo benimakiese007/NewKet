@@ -40,6 +40,15 @@
     };
 
 
+    function _cleanDisplayName(name) {
+        if (!name) return 'Utilisateur';
+        const str = String(name).trim();
+        if (str.includes('@')) {
+            return str.split('@')[0];
+        }
+        return str;
+    }
+
     function _escapeHtml(str) {
         if (!str) return '';
         return String(str)
@@ -213,7 +222,7 @@
 
         _activeIncomingData = data;
 
-        const callerName = data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client');
+        const callerName = _cleanDisplayName(data.callerName || (data.role === 'vendor' ? 'Vendeur' : 'Client'));
         const callerAvatar = data.callerAvatar || '';
         const orderId = data.orderId || '';
 
@@ -1062,6 +1071,17 @@
             ringChannel
                 .on('broadcast', { event: 'incoming-call' }, ({ payload }) => {
                     console.log('[NewKet CallNotifier] incoming-call reçu sur', channelName, payload);
+
+                    // Si l'utilisateur est DÉJÀ en cours d'appel (calling, incoming ou connected), IGNORER le heartbeat de sonnerie !
+                    if (_callState !== 'idle') {
+                        console.log('[NewKet CallNotifier] incoming-call ignoré (appel déjà en cours, état:', _callState, ')');
+                        return;
+                    }
+                    if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.callState && window.deliveryTrackerInstance.callState !== 'idle') {
+                        console.log('[NewKet CallNotifier] incoming-call ignoré (deliveryTracker déjà actif)');
+                        return;
+                    }
+
                     // Si on est sur le dashboard et qu'une instance deliveryTracker est déjà active sur cette commande
                     const isTracked = isOnDashboard && window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === payload?.orderId;
                     if (isTracked) return;
@@ -1160,3 +1180,168 @@ if (typeof window !== 'undefined' && !window.__nk_cn_unload_wired) {
     window.addEventListener('beforeunload', notifyHangupOnUnload);
     window.addEventListener('pagehide', notifyHangupOnUnload);
 }
+
+// ── Garde-fou Anti-Coupure d'Appel (Blocage de navigation externe & Toast Premier Plan) ──
+(function setupCallNavigationGuard() {
+    let _activeBlockingToast = null;
+    let _blockingToastTimeout = null;
+
+    function _dismissCallBlockingToast() {
+        if (_blockingToastTimeout) {
+            clearTimeout(_blockingToastTimeout);
+            _blockingToastTimeout = null;
+        }
+        if (_activeBlockingToast) {
+            _activeBlockingToast.classList.add('opacity-0', '-translate-y-4');
+            const el = _activeBlockingToast;
+            setTimeout(() => {
+                try { el.remove(); } catch (_) {}
+                const isCallFull = (document.getElementById('dt-call-fullscreen') && !document.getElementById('dt-call-fullscreen').classList.contains('hidden')) ||
+                                   (document.getElementById('dt-global-call-fullscreen') && !document.getElementById('dt-global-call-fullscreen').classList.contains('hidden'));
+                if (!isCallFull) {
+                    try {
+                        window.dispatchEvent(new CustomEvent('nativeOverlayClose'));
+                        window.ComponentsLoader?.syncNativeHeaderButtonsVisibility?.();
+                        window.ComponentsLoader?.syncNativeTabBarVisibility?.();
+                    } catch (_) {}
+                }
+            }, 300);
+            _activeBlockingToast = null;
+        }
+    }
+
+    function _showCallBlockingToast() {
+        _dismissCallBlockingToast();
+
+        // 1. Masquer immédiatement les boutons Liquid Glass natifs iOS pour passer AU-DESSUS de tout
+        try {
+            window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+            window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
+            window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+        } catch (_) {}
+        window.dispatchEvent(new CustomEvent('nativeOverlayOpen'));
+
+        // 2. Feedback haptique d'avertissement Taptic Engine
+        try {
+            window.Capacitor?.Plugins?.Haptics?.notification?.({ type: 'WARNING' })?.catch(() => {});
+        } catch (_) {}
+
+        // 3. Construction du Toast au premier plan absolu (z-index maximal 2147483647)
+        const toast = document.createElement('div');
+        toast.id = 'nk-call-blocking-toast';
+        toast.className = 'fixed left-1/2 -translate-x-1/2 w-[92vw] max-w-[420px] rounded-3xl bg-gray-950/95 backdrop-blur-2xl border-2 border-red-500/60 shadow-2xl shadow-red-950/80 text-white p-3.5 flex items-center justify-between gap-3 select-none transform -translate-y-4 opacity-0 transition-all duration-300';
+        toast.style.cssText = 'z-index: 2147483647 !important; isolation: isolate; top: max(1.25rem, calc(env(safe-area-inset-top) + 0.75rem)); pointer-events: auto;';
+
+        toast.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <!-- Icône d'interdiction pulsante -->
+                <div class="w-10 h-10 rounded-2xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <iconify-icon icon="solar:phone-dead-bold" width="22"></iconify-icon>
+                </div>
+
+                <!-- Texte d'avertissement -->
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-black tracking-wide uppercase text-red-400 leading-tight">
+                        Appel en cours
+                    </div>
+                    <div class="text-[12px] font-semibold text-gray-200 leading-tight mt-0.5">
+                        Raccrochez pour quitter cette page.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton Raccrocher direct -->
+            <button id="nk-btn-toast-hangup" type="button" class="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-red-600/30 transition-all cursor-pointer flex-shrink-0">
+                <iconify-icon icon="solar:phone-dead-bold" width="16"></iconify-icon>
+                <span>Raccrocher</span>
+            </button>
+        `;
+
+        // Action bouton Raccrocher direct depuis le toast
+        toast.querySelector('#nk-btn-toast-hangup')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.callState !== 'idle') {
+                window.deliveryTrackerInstance.endCall();
+            }
+            const btnHangupGlobal = document.getElementById('dt-global-btn-hangup') || document.getElementById('dt-global-pip-btn-hangup');
+            if (btnHangupGlobal) btnHangupGlobal.click();
+
+            _dismissCallBlockingToast();
+        });
+
+        document.body.appendChild(toast);
+        _activeBlockingToast = toast;
+
+        // Animation d'apparition
+        requestAnimationFrame(() => {
+            toast.classList.remove('opacity-0', '-translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+        });
+
+        // Auto-dismiss après 3.8s
+        _blockingToastTimeout = setTimeout(() => {
+            _dismissCallBlockingToast();
+        }, 3800);
+    }
+
+    window.showCallBlockingToast = _showCallBlockingToast;
+
+    function _isCallActive() {
+        if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.callState && window.deliveryTrackerInstance.callState !== 'idle') {
+            return true;
+        }
+        const fullEl = document.getElementById('dt-call-fullscreen');
+        const pipEl = document.getElementById('dt-call-pip');
+        if (fullEl && !fullEl.classList.contains('hidden')) return true;
+        if (pipEl && !pipEl.classList.contains('hidden')) return true;
+
+        const gFull = document.getElementById('dt-global-call-fullscreen');
+        const gPip = document.getElementById('dt-global-call-pip');
+        if (gFull && !gFull.classList.contains('hidden')) return true;
+        if (gPip && !gPip.classList.contains('hidden')) return true;
+
+        return false;
+    }
+
+    if (typeof window !== 'undefined' && !window.__nk_call_nav_guard_wired) {
+        window.__nk_call_nav_guard_wired = true;
+
+        document.addEventListener('click', (e) => {
+            if (!_isCallActive()) return;
+
+            // Détecter si le clic cible un élément menant à une autre page
+            const anchor = e.target.closest('a[href], button[data-navigate], [data-href]');
+            if (!anchor) return;
+
+            // Ignorer les contrôles d'appel eux-mêmes !
+            if (anchor.closest('#newket-call-ui-root') || anchor.closest('#newket-global-call-ui-root') || anchor.closest('#nk-call-blocking-toast')) {
+                return;
+            }
+
+            const href = anchor.getAttribute('href') || anchor.getAttribute('data-href');
+            if (!href) return;
+
+            // Exceptions autorisées : ancres sur la même page (#leads, #dashboard, modales, javascript, tel, mailto)
+            if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:')) {
+                return;
+            }
+
+            // Vérifier si le lien pointe vers la même page courante (ex: query params ou hash)
+            try {
+                const targetUrl = new URL(href, window.location.origin);
+                if (targetUrl.pathname === window.location.pathname) {
+                    return; // Même page : navigation autorisée !
+                }
+            } catch (_) {}
+
+            // Navigation externe détectée : BLOQUER ABSOLUMENT !
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            // Déclencher le toast au premier plan absolu
+            _showCallBlockingToast();
+        }, true); // true = capture phase pour intercepter avant tout autre routeur ou listener
+    }
+})();
+

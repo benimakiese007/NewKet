@@ -1544,6 +1544,7 @@
                     console.warn('[NewKet Audio] Erreur setRemoteDescription answer:', e);
                 }
                 this.callState = 'connected';
+                this._stopCallHeartbeat(); // Arrêt immédiat de la sonnerie / heartbeat d'appel !
                 if (callerAvatar) this.peerAvatar = callerAvatar;
                 if (callerName) this.peerName = callerName;
                 this._broadcastCallState('connected');
@@ -1559,6 +1560,8 @@
                         this._sendCallSignal({ type: 'call-duration-sync', duration: this.callDurationSeconds });
                     }
                 }, 2000);
+            } else if (data.type === 'call-accepted') {
+                this._stopCallHeartbeat();
             } else if ((data.type === 'call-duration-sync' || data.type === 'call-start-sync') && this.callState === 'connected') {
                 if (typeof data.duration === 'number') {
                     if (!this.callDurationInterval) {
@@ -1877,7 +1880,10 @@
                 this._buildCallUI();
             }
 
-            const name = customPeerName || this.peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
+            let name = customPeerName || this.peerName || (this.role === 'vendor' ? 'Client' : 'Vendeur');
+            if (typeof name === 'string' && name.includes('@')) {
+                name = name.split('@')[0];
+            }
             const avatarUrl = customPeerAvatar || this.peerAvatar || '';
 
             // 1. Mise à jour Fullscreen
