@@ -69,64 +69,84 @@ struct NewKetQuickActionsProvider: TimelineProvider {
     // MARK: - Supabase Fetcher
     // limit=6 pour couvrir le widget ExtraLargePortrait (3 rangées × 2 colonnes)
     private func fetchPinnedProducts() async -> [PinnedProductWidgetModel] {
-        let endpoint = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&pinned=eq.true&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=6"
-        guard let url = URL(string: endpoint) else { return [] }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
         let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY"
-        request.setValue(anonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
-        request.timeoutInterval = 8
 
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        struct RawItem: Decodable {
+            let id: String
+            let name: String
+            let price: Double
+            let image: String?
+        }
+
+        func queryItems(urlStr: String) async -> [RawItem] {
+            guard let url = URL(string: urlStr) else { return [] }
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.setValue(anonKey, forHTTPHeaderField: "apikey")
+            request.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
+            request.timeoutInterval = 8
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    return []
+                }
+                return (try? JSONDecoder().decode([RawItem].self, from: data)) ?? []
+            } catch {
                 return []
             }
+        }
 
-            struct RawItem: Decodable {
-                let id: String
-                let name: String
-                let price: Double
-                let image: String?
+        // 1. Récupérer d'abord les produits épinglés
+        let pinnedUrl = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&pinned=eq.true&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=6"
+        var items = await queryItems(urlStr: pinnedUrl)
+
+        // 2. Si moins de 6 produits épinglés, compléter avec les produits récents pour toujours remplir la grille 3×2
+        if items.count < 6 {
+            let needed = 6 - items.count
+            let existingIds = items.map { $0.id }
+            let recentUrl = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=12"
+            let recentItems = await queryItems(urlStr: recentUrl)
+            for r in recentItems {
+                if !existingIds.contains(r.id) && items.count < 6 {
+                    items.append(r)
+                }
             }
+        }
 
-            let items = try JSONDecoder().decode([RawItem].self, from: data)
+        if items.isEmpty {
+            return Self.placeholderProducts
+        }
 
-            var models: [PinnedProductWidgetModel] = []
-            for item in items.prefix(6) {
-                let formatted = formatPriceFC(item.price)
-                var imgData: Data? = nil
+        var models: [PinnedProductWidgetModel] = []
+        for item in items.prefix(6) {
+            let formatted = formatPriceFC(item.price)
+            var imgData: Data? = nil
 
-                if let rawImg = item.image?.split(separator: ",").first.map(String.init),
-                   !rawImg.isEmpty {
-                    // Cloudinary optimization: 200x200 thumbnail JPG, ~10KB
-                    let transformed = rawImg.replacingOccurrences(
-                        of: "/image/upload/",
-                        with: "/image/upload/w_200,h_200,c_fill,q_auto,f_jpg/"
-                    )
-                    if let imgUrl = URL(string: transformed) {
-                        do {
-                            let (d, _) = try await URLSession.shared.data(from: imgUrl)
-                            imgData = d
-                        } catch {
-                            // Fallback to nil image
-                        }
+            if let rawImg = item.image?.split(separator: ",").first.map(String.init),
+               !rawImg.isEmpty {
+                // Cloudinary optimization: 300x300 thumbnail JPG
+                let transformed = rawImg.replacingOccurrences(
+                    of: "/image/upload/",
+                    with: "/image/upload/w_300,h_300,c_fill,q_auto,f_jpg/"
+                )
+                if let imgUrl = URL(string: transformed) {
+                    do {
+                        let (d, _) = try await URLSession.shared.data(from: imgUrl)
+                        imgData = d
+                    } catch {
+                        // Fallback to nil image
                     }
                 }
-
-                models.append(PinnedProductWidgetModel(
-                    id: item.id,
-                    name: item.name,
-                    formattedPrice: formatted,
-                    imageData: imgData
-                ))
             }
-            return models
-        } catch {
-            return []
+
+            models.append(PinnedProductWidgetModel(
+                id: item.id,
+                name: item.name,
+                formattedPrice: formatted,
+                imageData: imgData
+            ))
         }
+        return models
     }
 
     private func formatPriceFC(_ amount: Double) -> String {
@@ -442,6 +462,7 @@ private struct LargeSponsoredShowcaseView: View {
 // MARK: - Sponsored Product Card
 private struct SponsoredProductTile: View {
     let product: PinnedProductWidgetModel
+    var imageHeight: CGFloat = 74
 
     var body: some View {
         Link(destination: URL(string: "newket://product?id=\(product.id)") ?? URL(string: "newket://shops")!) {
@@ -458,35 +479,35 @@ private struct SponsoredProductTile: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         Image(systemName: "bag")
-                            .font(.system(size: 18, weight: .light))
+                            .font(.system(size: 22, weight: .light))
                             .foregroundColor(NewKetTheme.textMuted.opacity(0.6))
                     }
                 }
-                .frame(height: 74)
+                .frame(height: imageHeight)
                 .clipped()
                 .cornerRadius(8)
 
                 // Product Details (Separated below image)
-                VStack(alignment: .leading, spacing: 1) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(product.name)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: 11.5, weight: .semibold))
                         .foregroundColor(NewKetTheme.textPrimary)
                         .lineLimit(1)
 
                     Text(product.formattedPrice)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 11.5, weight: .bold))
                         .foregroundColor(NewKetTheme.accentMint)
                         .lineLimit(1)
                 }
                 .padding(.horizontal, 2)
                 .padding(.bottom, 2)
             }
-            .padding(5)
+            .padding(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.white)
-            .cornerRadius(11)
+            .cornerRadius(12)
             .overlay(
-                RoundedRectangle(cornerRadius: 11)
+                RoundedRectangle(cornerRadius: 12)
                     .stroke(NewKetTheme.cardBorder, lineWidth: 0.8)
             )
         }
@@ -621,11 +642,11 @@ private struct ExtraLargePortraitShowcaseView: View {
                 Array(products[i..<min(i + 2, products.count)])
             }
 
-            VStack(spacing: 7) {
+            VStack(spacing: 8) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                    HStack(spacing: 7) {
+                    HStack(spacing: 8) {
                         ForEach(row) { item in
-                            SponsoredProductTile(product: item)
+                            SponsoredProductTile(product: item, imageHeight: 125)
                         }
                         // Remplir la 2e colonne si la rangée est incomplète
                         if row.count < 2 {
@@ -637,17 +658,17 @@ private struct ExtraLargePortraitShowcaseView: View {
             }
             .padding(.horizontal, 12)
 
-            Spacer(minLength: 6)
+            Spacer(minLength: 8)
 
             // ── Barre de raccourcis (identique au Large) ────────────────
-            HStack(spacing: 5) {
+            HStack(spacing: 6) {
                 BottomQuickActionPill(icon: "bag",   label: "Boutique",    url: "newket://shops")
                 BottomQuickActionPill(icon: "bell",  label: "Notifs",      url: "newket://notifications")
                 BottomQuickActionPill(icon: "heart", label: "Favoris",     url: "newket://favorites")
                 BottomQuickActionPill(icon: "cart",  label: "Panier",      url: "newket://achat")
             }
             .padding(.horizontal, 12)
-            .padding(.bottom, 10)
+            .padding(.bottom, 12)
         }
     }
 }
