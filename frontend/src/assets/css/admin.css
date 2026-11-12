@@ -296,32 +296,6 @@ body.role-customer .header-shell-main {
     padding-top: var(--dashboard-topbar-height) !important;
 }
 
-.customer-dashboard-main {
-    padding-top: 0 !important;
-}
-
-.vendor-dashboard-main {
-    padding-top: 0 !important;
-}
-
-.vendor-dashboard-main .vendor-main-content {
-    margin-top: 0 !important;
-}
-
-@media (max-width: 639px) {
-    .customer-dashboard-main {
-        padding-top: 0 !important;
-    }
-
-    .vendor-dashboard-main {
-        padding-top: 0 !important;
-    }
-
-    .vendor-dashboard-main .vendor-main-content {
-        margin-top: 0 !important;
-    }
-}
-
 /* Shared admin page breathing room below the header bar.
    Aligné sur le layout client et vendeur (24px) */
 .admin-shell > main {
