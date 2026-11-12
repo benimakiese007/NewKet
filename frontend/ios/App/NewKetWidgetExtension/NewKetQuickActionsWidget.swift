@@ -100,14 +100,13 @@ struct NewKetQuickActionsProvider: TimelineProvider {
         let pinnedUrl = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&pinned=eq.true&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=6"
         var items = await queryItems(urlStr: pinnedUrl)
 
-        // 2. Si moins de 6 produits épinglés, compléter avec les produits récents pour toujours remplir la grille 3×2
+        // 2. Si moins de 6 produits épinglés, compléter avec les produits récents AYANT UNE IMAGE valide
         if items.count < 6 {
-            let needed = 6 - items.count
             let existingIds = items.map { $0.id }
-            let recentUrl = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&is_archived=eq.false&stock=gt.0&order=created_at.desc&limit=12"
+            let recentUrl = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/products?select=id,name,price,image,pinned,stock&is_archived=eq.false&stock=gt.0&image=not.is.null&image=neq.&order=created_at.desc&limit=16"
             let recentItems = await queryItems(urlStr: recentUrl)
             for r in recentItems {
-                if !existingIds.contains(r.id) && items.count < 6 {
+                if !existingIds.contains(r.id) && (r.image?.isEmpty == false) && items.count < 6 {
                     items.append(r)
                 }
             }
@@ -642,11 +641,11 @@ private struct ExtraLargePortraitShowcaseView: View {
                 Array(products[i..<min(i + 2, products.count)])
             }
 
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                    HStack(spacing: 8) {
+                    HStack(spacing: 7) {
                         ForEach(row) { item in
-                            SponsoredProductTile(product: item, imageHeight: 125)
+                            SponsoredProductTile(product: item, imageHeight: 96)
                         }
                         // Remplir la 2e colonne si la rangée est incomplète
                         if row.count < 2 {
@@ -658,7 +657,7 @@ private struct ExtraLargePortraitShowcaseView: View {
             }
             .padding(.horizontal, 12)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
 
             // ── Barre de raccourcis (identique au Large) ────────────────
             HStack(spacing: 6) {
@@ -668,7 +667,7 @@ private struct ExtraLargePortraitShowcaseView: View {
                 BottomQuickActionPill(icon: "cart",  label: "Panier",      url: "newket://achat")
             }
             .padding(.horizontal, 12)
-            .padding(.bottom, 12)
+            .padding(.bottom, 10)
         }
     }
 }
