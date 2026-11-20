@@ -1187,6 +1187,18 @@
                 });
             }
         } catch (_) {}
+
+        // Prise en charge du décrochage depuis l'écran natif d'appel (Android / iOS)
+        window.addEventListener('newket:native_call_answered', (e) => {
+            const orderId = e.detail?.order_id;
+            console.log('[NewKet CallNotifier] 📲 Reçu newket:native_call_answered, orderId:', orderId);
+            const answerBtn = document.getElementById('dt-global-btn-answer');
+            if (answerBtn) {
+                answerBtn.click();
+            } else if (window.deliveryTrackerInstance && typeof window.deliveryTrackerInstance.answerCall === 'function') {
+                window.deliveryTrackerInstance.answerCall();
+            }
+        });
     }
 
     if (document.readyState === 'loading') {

@@ -105,7 +105,7 @@ public class NewKetProductsFetcher {
                 // Silently fallback to placeholder items
             } finally {
                 if (conn != null) {
-                    try { conn.disconnect(); } catch (_) {}
+                    try { conn.disconnect(); } catch (Exception ignored) {}
                 }
             }
 
@@ -167,7 +167,7 @@ public class NewKetProductsFetcher {
             return null;
         } finally {
             if (conn != null) {
-                try { conn.disconnect(); } catch (_) {}
+                try { conn.disconnect(); } catch (Exception ignored) {}
             }
         }
     }
