@@ -46,6 +46,11 @@ google-credentials.json
 test-results/
 playwright-report/
 
+# Builds mobiles & artefacts
+build_artifacts/
+*.apk
+*.ipa
+
 # Fichiers temporaires Office
 ~$*
 .tmp_pdf/
