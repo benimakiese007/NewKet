@@ -154,6 +154,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
         reloadWidgetsIfNeeded()
+
+        // ─── Flush any call that was answered while the app was cold-launching ───
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            NewKetCallBridge.shared.flushPendingCallIfNeeded()
+        }
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
