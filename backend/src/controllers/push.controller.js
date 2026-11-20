@@ -89,6 +89,8 @@ export const sendCallRing = async (req, res, next) => {
                 body: 'Appel entrant sur votre commande',
                 tag: `call-${order_id}`,
                 channelId: 'calls',
+                category: 'call',
+                ttl: 60, // Ne pas faire sonner si l'appareil se reconnecte plus de 60s après l'appel
                 data: {
                     type: 'incoming-call',
                     order_id,

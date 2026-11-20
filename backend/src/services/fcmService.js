@@ -126,13 +126,14 @@ async function _sendToToken(token, payload) {
         },
         android: {
             priority: 'high',
+            ttl: payload.ttl ? payload.ttl * 1000 : undefined,
             notification: {
-                icon: 'ic_launcher',           // Icône native officielle de l'app NewKet
                 color: '#10B981',              // emerald-500 (vert NewKet)
                 channelId: payload.channelId || 'default',
                 sound: 'default',
-                clickAction: 'FLUTTER_NOTIFICATION_CLICK',
                 tag: payload.tag || undefined,
+                defaultSound: true,
+                defaultVibrateTimings: true,
             },
         },
         apns: {

@@ -165,6 +165,41 @@ public final class NativeTabCoordinator: ObservableObject {
             return
         }
 
+        // ── Guest guard: if tab is "account" and user is not logged in, redirect to login directly ──
+        if id == "account" {
+            let checkJs = """
+            (function() {
+                var userId = localStorage.getItem('newketUserId');
+                return userId ? 'logged' : 'guest';
+            })();
+            """
+            bridgeVC?.bridge?.webView?.evaluateJavaScript(checkJs) { [weak self] result, _ in
+                guard let self = self else { return }
+                let isGuest = (result as? String) == "guest"
+                let path = isGuest ? "/src/pages/login.html" : tab.path
+                self.selectedTabId = id
+                self.plugin?.notifyTabChanged(tabId: id)
+                let navJs = """
+                (function() {
+                    var target = '\(path)';
+                    var curr = window.location.pathname;
+                    var isSame = (curr === target) || (target === '/index.html' && (curr === '/' || curr === '' || curr.endsWith('/index.html')));
+                    if (!isSame) {
+                        window.location.href = target;
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                })();
+                """
+                self.bridgeVC?.bridge?.webView?.evaluateJavaScript(navJs) { _, err in
+                    if let err = err {
+                        print("[NativeTabBar] Navigation error: \(err)")
+                    }
+                }
+            }
+            return
+        }
+
         selectedTabId = id
         plugin?.notifyTabChanged(tabId: id)
 

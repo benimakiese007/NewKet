@@ -853,14 +853,22 @@ const ComponentLoader = {
         // Hides mobile search when clicking or touching outside (fixes iOS delegation bug)
         const hideSearchIfOutside = (e) => {
             const searchContainer = document.getElementById('mobileSearchContainer');
-            const searchBtn = document.getElementById('bottomNavSearchBtn');
+            const bottomSearchBtn = document.getElementById('bottomNavSearchBtn');
+            const headerSearchBtn = document.getElementById('mobileHeaderSearchBtn');
             
-            if (searchContainer && searchBtn && window.innerWidth <= 1023) {
+            if (searchContainer && window.innerWidth <= 1023) {
                 // If it's currently visible
                 if (!searchContainer.classList.contains('user-hidden-on-mobile')) {
-                    // And the click was outside both the container and the button
-                    if (!searchContainer.contains(e.target) && !searchBtn.contains(e.target)) {
+                    // And the click/touch was outside the container and outside any search toggle buttons
+                    const clickedContainer = searchContainer.contains(e.target);
+                    const clickedBottomBtn = bottomSearchBtn && bottomSearchBtn.contains(e.target);
+                    const clickedHeaderBtn = headerSearchBtn && headerSearchBtn.contains(e.target);
+
+                    if (!clickedContainer && !clickedBottomBtn && !clickedHeaderBtn) {
                         searchContainer.classList.add('user-hidden-on-mobile');
+                        window.SearchManager?.closeSearchOverlay?.();
+                        const ss = document.getElementById('searchSuggestions');
+                        if (ss) { ss.classList.remove('active'); ss.innerHTML = ''; }
                     }
                 }
             }

@@ -93,21 +93,14 @@ async function initPushNotifications() {
         PushNotifications.addListener('registration', async (token) => {
             console.log('[NewKet Push] FCM Token reçu:', token.value);
 
-            try {
-                const user = window.AuthManager?.user;
-                if (user?.id && window.supabaseClient) {
-                    await window.supabaseClient
-                        .from('users')
-                        .update({ fcm_token: token.value })
-                        .eq('id', user.id);
-                    console.log('[NewKet Push] Token FCM sauvegardé en base.');
-                }
-            } catch (e) {
-                console.warn('[NewKet Push] Erreur sauvegarde token:', e?.message);
-            }
-
-            // Exposer globalement pour usage futur
+            // Persister localement sur l'appareil
+            localStorage.setItem('newket_device_fcm_token', token.value);
             window.newketFcmToken = token.value;
+
+            // Tenter la synchronisation immédiate si l'utilisateur est déjà connecté
+            if (typeof window.syncFcmTokenToUser === 'function') {
+                await window.syncFcmTokenToUser();
+            }
         });
 
         // 4. Erreur d'enregistrement
@@ -132,6 +125,42 @@ async function initPushNotifications() {
             console.log('[NewKet Push] Action sur notification:', action);
 
             const data = action.notification?.data || {};
+
+            // Cas prioritaire : Appel entrant vocal
+            if (data.type === 'incoming-call' || data.call_id) {
+                const orderId = data.order_id || '';
+                if (orderId) {
+                    try {
+                        localStorage.setItem('nk_auto_open_order_id', orderId);
+                        localStorage.setItem('nk_auto_open_chat', '1');
+                    } catch (_) {}
+                }
+                const role = window.AuthManager?.role || localStorage.getItem('newketRole') || 'customer';
+                if (role === 'seller') {
+                    window.location.href = `/src/pages/vendor-dashboard.html${orderId ? `?order_id=${encodeURIComponent(orderId)}&open_chat=1` : ''}#orders`;
+                } else {
+                    window.location.href = `/src/pages/customer-dashboard.html${orderId ? `?order_id=${encodeURIComponent(orderId)}&open_chat=1` : ''}#purchases`;
+                }
+                return;
+            }
+
+            // Cas prioritaire : Message de chat commande
+            if (data.type === 'chat-message' || data.type === 'chat_message' || data.type === 'chat') {
+                const orderId = data.order_id || '';
+                if (orderId) {
+                    try {
+                        localStorage.setItem('nk_auto_open_order_id', orderId);
+                        localStorage.setItem('nk_auto_open_chat', '1');
+                    } catch (_) {}
+                }
+                const role = window.AuthManager?.role || localStorage.getItem('newketRole') || 'customer';
+                if (role === 'seller') {
+                    window.location.href = `/src/pages/vendor-dashboard.html${orderId ? `?order_id=${encodeURIComponent(orderId)}&open_chat=1` : ''}#orders`;
+                } else {
+                    window.location.href = `/src/pages/customer-dashboard.html${orderId ? `?order_id=${encodeURIComponent(orderId)}&open_chat=1` : ''}#purchases`;
+                }
+                return;
+            }
 
             // Navigation vers une page spécifique si précisé dans la data
             if (data.url) {
@@ -414,6 +443,31 @@ export async function authenticateDeviceOwner(reason = "Confirmez votre identit�
 // ─── EXPOSITION GLOBALE ───────────────────────────────────────────────────────
 
 /**
+ * Synchronise le token FCM de l'appareil avec le profil Supabase de l'utilisateur.
+ * Invoqué automatiquement lors de l'obtention du token FCM ou lors de la connexion/session update.
+ */
+export async function syncFcmTokenToUser(userId) {
+    const token = window.newketFcmToken || localStorage.getItem('newket_device_fcm_token');
+    const uid = userId || window.AuthManager?.user?.id || localStorage.getItem('newketUserId');
+    if (!token || !uid || !window.supabaseClient) return;
+
+    try {
+        const { error } = await window.supabaseClient
+            .from('users')
+            .update({ fcm_token: token })
+            .eq('id', uid);
+        if (error) {
+            console.warn('[NewKet Push] Échec sync FCM token:', error.message);
+        } else {
+            console.log('[NewKet Push] FCM Token synchronisé avec succès pour user:', uid);
+        }
+    } catch (e) {
+        console.warn('[NewKet Push] Erreur sync token:', e?.message);
+    }
+}
+window.syncFcmTokenToUser = syncFcmTokenToUser;
+
+/**
  * Initialise tous les plugins Capacitor.
  * Appelé par main.js après l'initialisation de l'AuthManager.
  */
@@ -422,7 +476,7 @@ export async function initCapacitorPlugins() {
 
     console.log('[NewKet] Initialisation des plugins Capacitor...');
 
-    // Push Notifications (seulement si l'utilisateur est connecté)
+    // Push Notifications
     initPushNotifications().catch(e =>
         console.warn('[NewKet] Push init non-bloquant:', e?.message)
     );

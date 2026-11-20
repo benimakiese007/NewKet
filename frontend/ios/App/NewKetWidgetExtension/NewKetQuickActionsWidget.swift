@@ -121,13 +121,22 @@ struct NewKetQuickActionsProvider: TimelineProvider {
             let formatted = formatPriceFC(item.price)
             var imgData: Data? = nil
 
-            if let rawImg = item.image?.split(separator: ",").first.map(String.init),
-               !rawImg.isEmpty {
-                // Cloudinary optimization: 300x300 thumbnail JPG
-                let transformed = rawImg.replacingOccurrences(
-                    of: "/image/upload/",
-                    with: "/image/upload/w_300,h_300,c_fill,q_auto,f_jpg/"
-                )
+            if let firstToken = item.image?.split(separator: ",").first.map(String.init),
+               !firstToken.isEmpty {
+                // Handle both formats:
+                //   1. "url_thumb||url_full"  (Supabase Storage)
+                //   2. "cloudinary_url"       (Cloudinary)
+                // Always extract the thumb URL (before "||" if present)
+                let rawImg = firstToken.split(separator: "|").first.map(String.init) ?? firstToken
+
+                // Cloudinary optimization only if applicable
+                let transformed = rawImg.contains("/image/upload/")
+                    ? rawImg.replacingOccurrences(
+                        of: "/image/upload/",
+                        with: "/image/upload/w_300,h_300,c_fill,q_auto,f_jpg/"
+                      )
+                    : rawImg  // Supabase URL: use as-is (already a thumb)
+
                 if let imgUrl = URL(string: transformed) {
                     do {
                         let (d, _) = try await URLSession.shared.data(from: imgUrl)

@@ -600,12 +600,14 @@
                 console.warn('[NewKet Audio] 🔴 Connexion WebRTC échouée/fermée, arrêt immédiat...');
                 _endCallWebRTC();
             } else if (state === 'disconnected') {
+                // Tente une reconnexion ICE automatique (ex: micro-interruption iOS, screenshot, notif)
+                try { _peerConnection.restartIce(); } catch (_) {}
                 setTimeout(() => {
                     if (_peerConnection && (_peerConnection.connectionState === 'disconnected' || _peerConnection.connectionState === 'failed')) {
                         console.warn('[NewKet Audio] 🔴 Déconnexion prolongée, arrêt de l\'appel...');
                         _endCallWebRTC();
                     }
-                }, 3500);
+                }, 8000); // 8s pour laisser le réseau se rétablir (screenshot, interruption momentanée iOS)
             }
         };
 

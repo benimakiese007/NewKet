@@ -3,17 +3,37 @@
 
 <head>
 <script>
-    /* Platform detection — synchronous, before first render */
+    /* Platform detection & Instant Guest Guard — synchronous, before first render */
     (function () {
         var proto = window.location.protocol;
         var ua = navigator.userAgent;
-        var isCapacitor = proto === 'capacitor:';
+        var isCapacitor = proto === 'capacitor:' || proto === 'ionic:';
         if (isCapacitor) {
             var html = document.documentElement;
             html.classList.add('is-native-app');
             if (/iPhone|iPad|iPod/.test(ua)) html.classList.add('is-ios-capacitor');
             else if (/Android/.test(ua))    html.classList.add('is-android-capacitor');
         }
+
+        // Instant Guest Guard: if no user session in storage, redirect immediately before painting
+        try {
+            var hasUser = !!localStorage.getItem('newketUserId');
+            if (!hasUser) {
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k && (/^sb-.*-auth-token$/i.test(k) || k === 'newketRole')) {
+                        hasUser = true;
+                        break;
+                    }
+                }
+            }
+            if (!hasUser) {
+                document.documentElement.style.display = 'none';
+                var isNative = isCapacitor || window.location.pathname.startsWith('/src/pages/');
+                var loginTarget = isNative ? '/src/pages/login.html' : '/login';
+                window.location.replace(loginTarget);
+            }
+        } catch (_) {}
     })();
 </script>
     <script src="/security-bootstrap.js"></script>

@@ -339,6 +339,22 @@ const AuthManager = {
                     }
                 }
                 // --- FIN ENREGISTREMENT SESSION ---
+
+                // --- SYNCHRONISATION TOKEN PUSH FCM ---
+                if (typeof window.syncFcmTokenToUser === 'function') {
+                    window.syncFcmTokenToUser(user.id);
+                } else {
+                    const cachedFcmToken = window.newketFcmToken || localStorage.getItem('newket_device_fcm_token');
+                    if (cachedFcmToken && window.supabaseClient) {
+                        window.supabaseClient
+                            .from('users')
+                            .update({ fcm_token: cachedFcmToken })
+                            .eq('id', user.id)
+                            .then(() => console.log('[NewKet Auth] FCM Token synchronisé à la connexion.'))
+                            .catch(e => console.warn('[NewKet Auth] Sync FCM token err:', e?.message));
+                    }
+                }
+                // --- FIN SYNC PUSH FCM ---
             } catch (err) {
                 console.error('[NewKet Auth] handleSessionUpdate error:', err);
             } finally {
@@ -386,6 +402,16 @@ const AuthManager = {
                 console.error('[NewKet Auth] Error removing admin whitelist channel during cleanup:', err);
             }
             this._adminWhitelistChannel = null;
+        }
+
+        // Détacher le token FCM de l'utilisateur déconnecté pour éviter les pushs croisés
+        const loggedOutUserId = this.user?.id || localStorage.getItem('newketUserId');
+        if (loggedOutUserId && window.supabaseClient) {
+            window.supabaseClient
+                .from('users')
+                .update({ fcm_token: null })
+                .eq('id', loggedOutUserId)
+                .catch(e => console.warn('[NewKet Auth] Clear FCM token err:', e?.message));
         }
 
         // Reset local state
