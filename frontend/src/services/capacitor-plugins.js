@@ -448,18 +448,23 @@ export async function authenticateDeviceOwner(reason = "Confirmez votre identit�
  */
 export async function syncFcmTokenToUser(userId) {
     const token = window.newketFcmToken || localStorage.getItem('newket_device_fcm_token');
+    const voipToken = window.newketVoipToken || localStorage.getItem('nk_voip_token');
     const uid = userId || window.AuthManager?.user?.id || localStorage.getItem('newketUserId');
-    if (!token || !uid || !window.supabaseClient) return;
+    if ((!token && !voipToken) || !uid || !window.supabaseClient) return;
 
     try {
+        const updateData = {};
+        if (token) updateData.fcm_token = token;
+        if (voipToken) updateData.apns_voip_token = voipToken;
+
         const { error } = await window.supabaseClient
             .from('users')
-            .update({ fcm_token: token })
+            .update(updateData)
             .eq('id', uid);
         if (error) {
-            console.warn('[NewKet Push] Échec sync FCM token:', error.message);
+            console.warn('[NewKet Push] Échec sync push tokens:', error.message);
         } else {
-            console.log('[NewKet Push] FCM Token synchronisé avec succès pour user:', uid);
+            console.log('[NewKet Push] Push tokens synchronisés avec succès pour user:', uid);
         }
     } catch (e) {
         console.warn('[NewKet Push] Erreur sync token:', e?.message);

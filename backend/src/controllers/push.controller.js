@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import WebPushService from '../services/webPushService.js';
 import FcmService from '../services/fcmService.js';
+import ApnsVoipService from '../services/apnsVoipService.js';
 
 async function resolveUserRole(userId, userEmail) {
     if (!userId && !userEmail) return 'customer';
@@ -24,7 +25,8 @@ export const getPushPublicKey = async (req, res, next) => {
     res.json({
         enabled: WebPushService.isConfigured(),
         publicKey: WebPushService.getPublicKey(),
-        fcm_enabled: FcmService.isConfigured()
+        fcm_enabled: FcmService.isConfigured(),
+        apns_voip_enabled: ApnsVoipService.isConfigured()
     });
 };
 
@@ -76,8 +78,8 @@ export const sendCallRing = async (req, res, next) => {
             return res.status(400).json({ error: 'Champs requis manquants (target_user_id, order_id).' });
         }
 
-        // Envoi en parallèle : Web Push (PWA/navigateur) + FCM (app native)
-        const [webResult, fcmResult] = await Promise.allSettled([
+        // Envoi en parallèle : Web Push (PWA/navigateur) + FCM (Android) + APNs VoIP (iOS CallKit)
+        const [webResult, fcmResult, voipResult] = await Promise.allSettled([
             WebPushService.sendCallRingNotification({
                 targetUserId: target_user_id,
                 callerName: caller_name,
@@ -98,13 +100,25 @@ export const sendCallRing = async (req, res, next) => {
                     caller_avatar: caller_avatar || '',
                     url: `/customer-dashboard#purchases?order_id=${encodeURIComponent(order_id)}&open_chat=1`,
                 }
+            }),
+            ApnsVoipService.sendCallRing(target_user_id, {
+                orderId: order_id,
+                callerName: caller_name,
+                callerAvatar: caller_avatar
             })
         ]);
 
         const webSent = webResult.value?.sent ?? 0;
         const fcmSent = fcmResult.value?.sent ?? 0;
+        const voipSent = voipResult.value?.sent ?? 0;
 
-        res.json({ success: true, sent: webSent + fcmSent, web_sent: webSent, fcm_sent: fcmSent });
+        res.json({
+            success: true,
+            sent: webSent + fcmSent + voipSent,
+            web_sent: webSent,
+            fcm_sent: fcmSent,
+            voip_sent: voipSent
+        });
     } catch (error) {
         console.error('[PushController] sendCallRing error:', error);
         next(error);
