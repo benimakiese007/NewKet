@@ -1,4 +1,4 @@
-name: Build iOS App (Unsigned)
+﻿name: Build iOS App (Unsigned)
 
 on:
   workflow_dispatch: # Permet de lancer le build manuellement depuis GitHub ou GitHub CLI
@@ -23,57 +23,57 @@ jobs:
     runs-on: macos-26
     
     steps:
-      - name: 📥 Checkout du code
+      - name: ðŸ“¥ Checkout du code
         uses: actions/checkout@v7
 
-      - name: 🍎 Setup Xcode (${{ inputs.xcode_version || '26.0' }})
+      - name: ðŸŽ Setup Xcode (${{ inputs.xcode_version || '26.0' }})
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: ${{ inputs.xcode_version || '26.0' }}
 
-      - name: 🔍 Vérification SDK iOS (doit afficher iOS 26.x pour Liquid Glass)
+      - name: ðŸ” VÃ©rification SDK iOS (doit afficher iOS 26.x pour Liquid Glass)
         run: |
           xcodebuild -showsdks | grep -E "iphoneos|iphonesimulator" || true
           xcrun --sdk iphoneos --show-sdk-version || true
           xcodebuild -version
 
-      - name: 📲 Téléchargement de la plateforme iOS (Xcode Components)
+      - name: ðŸ“² TÃ©lÃ©chargement de la plateforme iOS (Xcode Components)
         run: |
-          echo "📥 Vérification et téléchargement du runtime iOS..."
+          echo "ðŸ“¥ VÃ©rification et tÃ©lÃ©chargement du runtime iOS..."
           for i in 1 2 3; do
             echo "Tentative $i/3..."
             if xcodebuild -downloadPlatform iOS; then
-              echo "✅ Téléchargement réussi."
+              echo "âœ… TÃ©lÃ©chargement rÃ©ussi."
               break
             elif sudo xcodebuild -downloadPlatform iOS; then
-              echo "✅ Téléchargement avec sudo réussi."
+              echo "âœ… TÃ©lÃ©chargement avec sudo rÃ©ussi."
               break
             fi
-            echo "⚠️ Nouvelle tentative dans 5s..."
+            echo "âš ï¸ Nouvelle tentative dans 5s..."
             sleep 5
           done
           xcrun simctl list runtimes || true
-      - name: 🟢 Setup Node.js
+      - name: ðŸŸ¢ Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '22'
 
-      - name: 📦 Installation des dépendances
+      - name: ðŸ“¦ Installation des dÃ©pendances
         run: npm install
         working-directory: ./frontend
 
-      - name: 🔑 Création du fichier .env
+      - name: ðŸ”‘ CrÃ©ation du fichier .env
         run: |
           echo "VITE_SUPABASE_URL=https://kuygjocnnlvjtoaquicq.supabase.co" > .env
           echo "VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY" >> .env
           echo "VITE_APP_ENV=production" >> .env
         working-directory: ./frontend
 
-      - name: 🛠️ Compilation du site Web (Vite)
+      - name: ðŸ› ï¸ Compilation du site Web (Vite)
         run: npm run build
         working-directory: ./frontend
 
-      - name: 🔄 Synchronisation Capacitor iOS
+      - name: ðŸ”„ Synchronisation Capacitor iOS
         run: |
           npx cap add ios || true
           # The iOS splash assets are curated in ios/App/App/Assets.xcassets.
@@ -85,13 +85,30 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string newket" ios/App/App/Info.plist 2>/dev/null || true
-          echo "✅ URL scheme 'newket://' ajouté à Info.plist"
+          echo "âœ… URL scheme 'newket://' ajoutÃ© Ã  Info.plist"
           # Garantir UIDesignRequiresCompatibility=false pour activer Liquid Glass (iOS 26)
           /usr/libexec/PlistBuddy -c "Set :UIDesignRequiresCompatibility false" ios/App/App/Info.plist 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIDesignRequiresCompatibility bool false" ios/App/App/Info.plist 2>/dev/null || true
-          echo "✅ UIDesignRequiresCompatibility=false vérifié pour Liquid Glass"
+          # Garantir le mode background voip pour PushKit / CallKit
+          # cap sync peut ecraser UIBackgroundModes - on le force systematiquement apres sync
+          python3 - <<PYEOF
+import plistlib
+path = 'ios/App/App/Info.plist'
+with open(path, 'rb') as f:
+    p = plistlib.load(f)
+modes = p.get('UIBackgroundModes', [])
+if 'voip' not in modes:
+    modes.append('voip')
+    p['UIBackgroundModes'] = modes
+    with open(path, 'wb') as f:
+        plistlib.dump(p, f)
+    print('voip ajoute a UIBackgroundModes')
+else:
+    print('voip deja present dans UIBackgroundModes')
+PYEOF
+          echo "âœ… UIDesignRequiresCompatibility=false vÃ©rifiÃ© pour Liquid Glass"
         working-directory: ./frontend
 
-      - name: 🍎 Build Xcode (Sans signature)
+      - name: ðŸŽ Build Xcode (Sans signature)
         run: |
           # Compile App + NewKetWidgetExtension (via PBXTargetDependency)
           xcodebuild -project ios/App/App.xcodeproj \
@@ -107,33 +124,34 @@ jobs:
           # Verify and guarantee Widget Extension is embedded inside App.app/PlugIns/
           mkdir -p build_ios/Release-iphoneos/App.app/PlugIns
           if [ -d "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" ]; then
-            echo "📦 Copie de NewKetWidgetExtension.appex dans App.app/PlugIns/..."
+            echo "ðŸ“¦ Copie de NewKetWidgetExtension.appex dans App.app/PlugIns/..."
             cp -r "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" "build_ios/Release-iphoneos/App.app/PlugIns/"
           fi
 
           if [ -d "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex" ]; then
-            echo "✅ Widget Extension validé dans App.app/PlugIns/NewKetWidgetExtension.appex"
+            echo "âœ… Widget Extension validÃ© dans App.app/PlugIns/NewKetWidgetExtension.appex"
             ls -la "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex"
           else
-            echo "⚠️ Widget Extension toujours introuvable. Contenu de build_ios/Release-iphoneos/ :"
+            echo "âš ï¸ Widget Extension toujours introuvable. Contenu de build_ios/Release-iphoneos/ :"
             ls -la build_ios/Release-iphoneos/
           fi
         working-directory: ./frontend
 
-      - name: 📦 Création du fichier .ipa
+      - name: ðŸ“¦ CrÃ©ation du fichier .ipa
         run: |
           mkdir -p Payload
-          # Copier l'application compilée dans le dossier Payload
+          # Copier l'application compilÃ©e dans le dossier Payload
           # App.app/PlugIns/NewKetWidgetExtension.appex est inclus automatiquement
           cp -r build_ios/Release-iphoneos/App.app Payload/
           # Ziper le tout au format IPA
           zip -r NewKet-iOS.ipa Payload
-          echo "📦 Taille IPA: $(du -sh NewKet-iOS.ipa | cut -f1)"
+          echo "ðŸ“¦ Taille IPA: $(du -sh NewKet-iOS.ipa | cut -f1)"
         working-directory: ./frontend
 
-      - name: 📤 Mise à disposition de l'IPA
+      - name: ðŸ“¤ Mise Ã  disposition de l'IPA
         uses: actions/upload-artifact@v7
         with:
           name: NewKet-iOS-App
           path: frontend/NewKet-iOS.ipa
           retention-days: 7
+
