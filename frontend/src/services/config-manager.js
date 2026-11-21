@@ -77,7 +77,9 @@ const ConfigManager = {
                     ? await window.ApiClient.get('/settings', {
                         cacheKey: 'global-settings',
                         cacheTtlMs: 30_000,
-                        suppressToast: true
+                        suppressToast: true,
+                        suppressNetworkError: true,
+                        suppressErrorLogging: true
                     })
                     : await window.SupabaseAdapter.fetch('settings');
 

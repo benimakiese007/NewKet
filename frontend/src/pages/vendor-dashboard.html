@@ -8055,9 +8055,9 @@ async function openOrderModal(id) {
             let order = OrderManager.getOrders().find(o => o.id === id);
             if (!order) return;
             currentSelectedOrder = order;
-            if (releaseCountdownTimer) {
-                clearInterval(releaseCountdownTimer);
-                releaseCountdownTimer = null;
+            if (window.releaseCountdownTimer) {
+                clearInterval(window.releaseCountdownTimer);
+                window.releaseCountdownTimer = null;
             }
 
             try {
@@ -8229,7 +8229,7 @@ async function openOrderModal(id) {
                     }
                 };
                 updateReleaseCountdown();
-                releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 1000);
+                window.releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 1000);
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
@@ -8788,9 +8788,9 @@ async function openOrderModal(id) {
         // ========================================================================
 
         function closeOrderModal() {
-            if (releaseCountdownTimer) {
-                clearInterval(releaseCountdownTimer);
-                releaseCountdownTimer = null;
+            if (window.releaseCountdownTimer) {
+                clearInterval(window.releaseCountdownTimer);
+                window.releaseCountdownTimer = null;
             }
             if (window._returnCountdownTimer) {
                 clearInterval(window._returnCountdownTimer);

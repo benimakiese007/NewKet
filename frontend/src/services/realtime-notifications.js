@@ -457,8 +457,13 @@ const AppNotifications = {
 
     async _getServiceWorkerRegistration() {
         if (!('serviceWorker' in navigator)) return null;
-        const existing = await navigator.serviceWorker.getRegistration('/');
-        return existing || navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+        try {
+            const existing = await navigator.serviceWorker.getRegistration('/');
+            return existing || await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+        } catch (err) {
+            console.warn('[NewKet] SW getRegistration failed:', err?.message || err);
+            return null;
+        }
     },
 
     async _getPushPublicKey() {
@@ -671,11 +676,17 @@ const AppNotifications = {
             });
         }
 
-        await window.ApiClient.post('/push/subscribe', { subscription: subscription.toJSON() }, {
-            suppressToast: true
-        });
-
-        return true;
+        try {
+            await window.ApiClient.post('/push/subscribe', { subscription: subscription.toJSON() }, {
+                suppressToast: true,
+                suppressNetworkError: true,
+                suppressErrorLogging: true
+            });
+            return true;
+        } catch (e) {
+            console.warn("[Push] Impossible de synchroniser l'abonnement push:", e?.message);
+            return false;
+        }
     },
 
     async enableDeviceNotifications() {

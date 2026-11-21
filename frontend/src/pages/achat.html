@@ -741,8 +741,10 @@ html.is-ios-capacitor #achatWebBackBtn,
             };
 
             if (order.status !== 'READY_FOR_PAYMENT') {
-                btn.disabled = true;
-                btn.innerHTML = '<iconify-icon icon="solar:info-circle-bold" width="20"></iconify-icon> Paiement indisponible';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<iconify-icon icon="solar:info-circle-bold" width="20"></iconify-icon> Paiement indisponible';
+                }
                 return;
             }
 
@@ -831,7 +833,7 @@ html.is-ios-capacitor #achatWebBackBtn,
                 window.switchCurrency(window.CurrencyManager.currentCurrency);
             }
 
-            btn.addEventListener('click', async () => {
+            btn?.addEventListener('click', async () => {
                 btn.disabled = true;
                 const stickyBtn = document.getElementById('btnSticky');
                 if(stickyBtn) stickyBtn.disabled = true;
