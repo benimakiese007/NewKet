@@ -62,6 +62,7 @@ public class CallForegroundService extends Service {
 
         Log.d(TAG, "Foreground service démarré — appel de " + callerName + " (commande: " + orderId + ")");
         Log.d(TAG, "--- SDK version : " + Build.VERSION.SDK_INT + " | Modèle : " + Build.MODEL + " ---");
+        CallDiagnosticLogger.log(this, "🛡️ ForegroundService démarré pour " + callerName + " (#" + orderId + ")");
 
         // ── PendingIntent flags ───────────────────────────────────────
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
@@ -123,8 +124,10 @@ public class CallForegroundService extends Service {
                 startForeground(CallNotificationActionReceiver.NOTIFICATION_ID, notification);
             }
             Log.d(TAG, ">>> ETAPE 1 OK : startForeground() réussi avec FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK.");
+            CallDiagnosticLogger.log(this, "✅ startForeground() OK (MediaPlayback)");
         } catch (Exception e) {
             Log.e(TAG, ">>> ETAPE 1 ERREUR : startForeground() a échoué : " + e.getMessage(), e);
+            CallDiagnosticLogger.log(this, "❌ startForeground() ÉCHEC: " + e.getMessage());
         }
 
         // ── Vérification USE_FULL_SCREEN_INTENT ───────────────────────
@@ -132,6 +135,7 @@ public class CallForegroundService extends Service {
             android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             boolean canFsi = nm != null && nm.canUseFullScreenIntent();
             Log.d(TAG, ">>> INFO Android 14 : canUseFullScreenIntent() = " + canFsi);
+            CallDiagnosticLogger.log(this, "ℹ️ canUseFullScreenIntent: " + canFsi);
         }
 
         // ── Lancer IncomingCallActivity ───────────────────────────────
@@ -139,12 +143,16 @@ public class CallForegroundService extends Service {
         try {
             startActivity(callIntent);
             Log.d(TAG, ">>> ETAPE 2 OK : startActivity(IncomingCallActivity) appelé sans exception.");
+            CallDiagnosticLogger.log(this, "🎉 startActivity(IncomingCallActivity) OK");
         } catch (android.content.ActivityNotFoundException e) {
             Log.e(TAG, ">>> ETAPE 2 ERREUR ActivityNotFound : IncomingCallActivity introuvable dans le manifest ! " + e.getMessage(), e);
+            CallDiagnosticLogger.log(this, "❌ ActivityNotFoundException: " + e.getMessage());
         } catch (SecurityException e) {
             Log.e(TAG, ">>> ETAPE 2 ERREUR Security : permission refusée pour lancer l'activité. " + e.getMessage(), e);
+            CallDiagnosticLogger.log(this, "❌ SecurityException (Samsung BAL): " + e.getMessage());
         } catch (Exception e) {
             Log.e(TAG, ">>> ETAPE 2 ERREUR inattendue : " + e.getClass().getSimpleName() + " — " + e.getMessage(), e);
+            CallDiagnosticLogger.log(this, "❌ Exception startActivity: " + e.getMessage());
         }
 
         // ── Sonnerie ──────────────────────────────────────────────────

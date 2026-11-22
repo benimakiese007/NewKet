@@ -412,6 +412,17 @@ export function initDebugOverlay() {
 
     panel.querySelector('#nk-dbg-copy-all').addEventListener('click', async () => {
         const s = getDiagnosticState();
+
+        let nativeCallLogs = '';
+        try {
+            const { registerPlugin } = await import('@capacitor/core');
+            const AppUpdate = registerPlugin('AppUpdate');
+            const res = await AppUpdate.getCallLogs();
+            if (res && res.logs) {
+                nativeCallLogs = res.logs;
+            }
+        } catch (_) {}
+
         const fullText = [
             `=== NewKet Diagnostic (v${s.pkgVer}) ===`,
             `Date: ${new Date().toISOString()}`,
@@ -422,6 +433,9 @@ export function initDebugOverlay() {
             `Supabase Client: ${s.sbOk ? 'OK' : 'NULL'}`,
             `Produits: ${s.prodCount} total (${s.pubCount} publics)`,
             `Rôle Auth: ${s.authRole}`,
+            ``,
+            `--- APPELS NATIFS (MOUCHARD ANDROID) ---`,
+            nativeCallLogs ? nativeCallLogs.trim() : 'Aucun log natif enregistré ou non-disponible sur cette plateforme.',
             ``,
             `--- OTA ---`,
             `Statut: ${s.ota.status || 'idle'}`,

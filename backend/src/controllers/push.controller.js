@@ -90,14 +90,16 @@ export const sendCallRing = async (req, res, next) => {
                 title: `📞 Appel de ${caller_name || 'NewKet'}`,
                 body: 'Appel entrant sur votre commande',
                 tag: `call-${order_id}`,
-                channelId: 'calls',
+                channelId: 'calls_v2',
                 category: 'call',
                 ttl: 60, // Ne pas faire sonner si l'appareil se reconnecte plus de 60s après l'appel
+                dataOnly: true, // VITAL Android : message Data-Only pour réveiller onMessageReceived en arrière-plan
                 data: {
                     type: 'incoming-call',
                     order_id,
                     caller_name: caller_name || '',
                     caller_avatar: caller_avatar || '',
+                    channel_id: 'calls_v2',
                     url: `/customer-dashboard#purchases?order_id=${encodeURIComponent(order_id)}&open_chat=1`,
                 }
             }),

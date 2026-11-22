@@ -118,23 +118,13 @@ async function _revokeInvalidToken(token) {
 async function _sendToToken(token, payload) {
     const messaging = getMessaging(firebaseApp);
 
+    const isDataOnly = Boolean(payload.dataOnly);
+
     const message = {
         token,
-        notification: {
-            title: payload.title || 'NewKet',
-            body: payload.body || '',
-        },
         android: {
             priority: 'high',
             ttl: payload.ttl ? payload.ttl * 1000 : undefined,
-            notification: {
-                color: '#10B981',              // emerald-500 (vert NewKet)
-                channelId: payload.channelId || 'default',
-                sound: 'default',
-                tag: payload.tag || undefined,
-                defaultSound: true,
-                defaultVibrateTimings: true,
-            },
         },
         apns: {
             headers: {
@@ -156,6 +146,25 @@ async function _sendToToken(token, payload) {
             )
             : {},
     };
+
+    // Pour les notifications standard, inclure le bloc notification système.
+    // Pour les appels vocaux (dataOnly = true), NE PAS inclure ce bloc afin que
+    // l'application réveille son service natif (onMessageReceived) en arrière-plan
+    // sans être interceptée par le système Android.
+    if (!isDataOnly) {
+        message.notification = {
+            title: payload.title || 'NewKet',
+            body: payload.body || '',
+        };
+        message.android.notification = {
+            color: '#10B981',              // emerald-500 (vert NewKet)
+            channelId: payload.channelId || 'default',
+            sound: 'default',
+            tag: payload.tag || undefined,
+            defaultSound: true,
+            defaultVibrateTimings: true,
+        };
+    }
 
     try {
         const response = await messaging.send(message);

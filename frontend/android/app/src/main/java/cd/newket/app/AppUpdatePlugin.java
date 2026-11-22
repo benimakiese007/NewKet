@@ -54,6 +54,19 @@ public class AppUpdatePlugin extends Plugin {
     // ── 1. Vérification de la permission d'installation ─────────────────────
 
     @PluginMethod
+    public void getCallLogs(PluginCall call) {
+        JSObject result = new JSObject();
+        result.put("logs", CallDiagnosticLogger.getLogs(getContext()));
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void clearCallLogs(PluginCall call) {
+        CallDiagnosticLogger.clearLogs(getContext());
+        call.resolve();
+    }
+
+    @PluginMethod
     public void getNativeVersion(PluginCall call) {
         JSObject result = new JSObject();
         try {

@@ -26,6 +26,7 @@ public class IncomingCallActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CallDiagnosticLogger.log(this, "🌟🌟🌟 IncomingCallActivity.onCreate() — ÉCRAN PLEIN ÉCRAN AFFICHÉ !");
 
         // 1. Allumer l'écran et passer par dessus le lock screen
         configureWindowForLockScreen();

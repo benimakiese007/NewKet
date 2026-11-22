@@ -27,6 +27,7 @@ public class NewKetFirebaseMessagingService extends MessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         Map<String, String> data = remoteMessage.getData();
         Log.d(TAG, "FCM message reçu, data: " + data);
+        CallDiagnosticLogger.log(this, "📩 FCM reçu (data-size=" + data.size() + ") type=" + data.get("type"));
 
         String type = data.get("type");
         if ("incoming-call".equals(type) || data.containsKey("call_id")) {
@@ -102,6 +103,7 @@ public class NewKetFirebaseMessagingService extends MessagingService {
         if (nm != null) {
             nm.notify(CallNotificationActionReceiver.NOTIFICATION_ID, builder.build());
             Log.d(TAG, "Notification d'appel postée avec FullScreenIntent direct.");
+            CallDiagnosticLogger.log(this, "🚀 Notification postée (id=" + CallNotificationActionReceiver.NOTIFICATION_ID + ") avec FullScreenIntent");
         }
 
         // 4. Démarrer le Foreground Service pour maintenir la sonnerie et le processus actif
@@ -118,8 +120,10 @@ public class NewKetFirebaseMessagingService extends MessagingService {
                 startService(serviceIntent);
             }
             Log.d(TAG, "CallForegroundService démarré.");
+            CallDiagnosticLogger.log(this, "▶️ CallForegroundService démarré");
         } catch (Exception e) {
             Log.e(TAG, "Erreur démarrage foreground service : " + e.getMessage(), e);
+            CallDiagnosticLogger.log(this, "❌ Erreur startForegroundService: " + e.getMessage());
         }
     }
 
