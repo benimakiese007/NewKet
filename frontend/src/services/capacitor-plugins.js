@@ -53,10 +53,18 @@ async function initPushNotifications() {
         // 2b. Créer les canaux de notification Android (Oreo 8.0+)
         try {
             await PushNotifications.createChannel({
-                id: 'calls',
+                id: 'calls_v2',
                 name: 'Appels Vocaux',
                 description: 'Appels vocaux entrants entre acheteurs et vendeurs',
                 importance: 5, // Notification tête haute (heads-up) avec sonnerie et vibreur prioritaire
+                visibility: 1,
+                vibration: true,
+            });
+            await PushNotifications.createChannel({
+                id: 'calls',
+                name: 'Appels Vocaux (Ancien)',
+                description: 'Appels vocaux entrants entre acheteurs et vendeurs',
+                importance: 5,
                 visibility: 1,
                 vibration: true,
             });
