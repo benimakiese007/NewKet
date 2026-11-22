@@ -47,14 +47,14 @@ public class NewKetFirebaseMessagingService extends MessagingService {
         if (orderId == null) orderId = "";
         String callerAvatar = data.get("caller_avatar");
 
-        Log.d(TAG, "Déclenchement appel entrant natif plein écran pour " + callerName + " (Commande: " + orderId + ")");
+        Log.d(TAG, "Déclenchement appel entrant pour " + callerName + " (Commande: " + orderId + ")");
 
         // 1. S'assurer que le canal d'appel haute priorité existe
         createCallNotificationChannel();
 
         // 2. Intent plein écran vers IncomingCallActivity
         Intent fullScreenIntent = new Intent(this, IncomingCallActivity.class);
-        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         fullScreenIntent.putExtra("caller_name", callerName);
         fullScreenIntent.putExtra("order_id", orderId);
         fullScreenIntent.putExtra("caller_avatar", callerAvatar);
@@ -82,7 +82,27 @@ public class NewKetFirebaseMessagingService extends MessagingService {
                 this, 2, declineIntent, pendingFlags
         );
 
-        // 4. Construction de la notification avec FullScreenIntent
+        // 4. Vérification Android 14+ : USE_FULL_SCREEN_INTENT peut être refusée
+        boolean canUseFullScreenIntent = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // API 34
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) {
+                canUseFullScreenIntent = nm.canUseFullScreenIntent();
+            }
+        }
+
+        if (!canUseFullScreenIntent) {
+            Log.w(TAG, "USE_FULL_SCREEN_INTENT non accordée (Android 14+) — lancement direct de l'activité.");
+            // Fallback : lancer directement l'activité d'appel (fonctionne si app en background)
+            try {
+                fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(fullScreenIntent);
+            } catch (Exception e) {
+                Log.e(TAG, "Impossible de lancer IncomingCallActivity directement", e);
+            }
+        }
+
+        // 5. Construction de la notification (toujours affichée, avec ou sans fullscreen)
         Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CALL_CHANNEL_ID)
@@ -97,16 +117,21 @@ public class NewKetFirebaseMessagingService extends MessagingService {
                 .setSound(ringtoneUri)
                 .setVibrate(new long[]{0, 1000, 1000, 1000, 1000})
                 .setColor(0xFF10B981) // Emerald NewKet
-                .setFullScreenIntent(fullScreenPendingIntent, true)
                 .addAction(R.drawable.ic_call_decline, "Refuser", declinePendingIntent)
                 .addAction(R.drawable.ic_call_answer, "Décrocher", answerPendingIntent);
+
+        // Ajouter FullScreenIntent seulement si la permission est accordée
+        if (canUseFullScreenIntent) {
+            builder.setFullScreenIntent(fullScreenPendingIntent, true);
+            Log.d(TAG, "FullScreenIntent activé — écran d'appel plein écran.");
+        }
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
             notificationManager.notify(CallNotificationActionReceiver.NOTIFICATION_ID, builder.build());
         }
 
-        // 5. Démarrer la sonnerie et le vibreur au niveau service également
+        // 6. Démarrer la sonnerie et le vibreur au niveau service également
         CallRingtoneHelper.getInstance().startRingtoneAndVibration(this);
     }
 
