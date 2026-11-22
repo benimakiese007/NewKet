@@ -57,7 +57,7 @@ import WebKit
 
         let data       = payload.dictionaryPayload
         let aps        = data["aps"] as? [String: Any] ?? [:]
-        let custom     = data["data"] as? [String: Any] ?? data
+        let custom     = data["data"] as? [String: Any] ?? (data as? [String: Any] ?? [:])
 
         // Extract fields — backend sends these in the notification payload
         let pushType   = custom["type"] as? String ?? ""
@@ -117,8 +117,7 @@ import WebKit
     /// Minimal provider config needed to satisfy the Apple VoIP push requirement
     /// for non-call push types that still trigger this delegate.
     private static func minimalConfig() -> CXProviderConfiguration {
-        let c = CXProviderConfiguration()
-        c.localizedName = "NewKet"
+        let c = CXProviderConfiguration(localizedName: "NewKet")
         c.supportedHandleTypes = [.generic]
         return c
     }

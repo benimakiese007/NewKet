@@ -29,8 +29,7 @@ import AVFoundation
     // MARK: - Init
 
     private override init() {
-        let config = CXProviderConfiguration()
-        config.localizedName          = "NewKet"
+        let config = CXProviderConfiguration(localizedName: "NewKet")
         config.supportsVideo          = false
         config.maximumCallsPerCallGroup = 1
         config.maximumCallGroups      = 1
