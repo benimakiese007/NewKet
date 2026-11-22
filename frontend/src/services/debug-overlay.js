@@ -276,12 +276,12 @@ export function initDebugOverlay() {
     panel = document.createElement('div');
     panel.id = 'nk-debug-panel';
     panel.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 10000000;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 2147483647 !important;
         background: rgba(0, 0, 0, 0.65);
         display: none;
         flex-direction: column;
@@ -722,11 +722,11 @@ function toggleDebugPanel(force) {
     isOpen = typeof force === 'boolean' ? force : !isOpen;
     if (panel) {
         if (isOpen) {
-            // Masquer la tabbar HTML (Android / Web)
+            // Masquer la tabbar HTML (Android / Web) — forcer via style inline !important
             const htmlNav = document.getElementById('mobileBottomNav');
             if (htmlNav) {
                 htmlNav.dataset.debugHidden = '1';
-                htmlNav.style.display = 'none';
+                htmlNav.setAttribute('style', (htmlNav.getAttribute('style') || '') + '; display: none !important; visibility: hidden !important; pointer-events: none !important;');
             }
 
             // Sur iOS : masquer aussi la NativeTabBar native
@@ -734,15 +734,22 @@ function toggleDebugPanel(force) {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
             } catch (_) {}
 
-            panel.style.bottom = '0px';
-            panel.style.display = 'flex';
+            panel.style.removeProperty('bottom');
+            panel.style.setProperty('display', 'flex', 'important');
         } else {
             panel.style.display = 'none';
 
             // Restaurer la tabbar HTML (Android / Web)
             const htmlNav = document.getElementById('mobileBottomNav');
             if (htmlNav && htmlNav.dataset.debugHidden === '1') {
-                htmlNav.style.display = '';
+                // Supprimer les styles forcés et restaurer le style original
+                const currentStyle = htmlNav.getAttribute('style') || '';
+                const cleaned = currentStyle
+                    .replace(/;?\s*display\s*:[^;]*/gi, '')
+                    .replace(/;?\s*visibility\s*:[^;]*/gi, '')
+                    .replace(/;?\s*pointer-events\s*:[^;]*/gi, '')
+                    .trim();
+                htmlNav.setAttribute('style', cleaned);
                 delete htmlNav.dataset.debugHidden;
             }
 
