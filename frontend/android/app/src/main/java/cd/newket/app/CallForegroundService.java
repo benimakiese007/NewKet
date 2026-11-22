@@ -60,6 +60,7 @@ public class CallForegroundService extends Service {
         String callerAvatar = intent.getStringExtra("caller_avatar");
 
         Log.d(TAG, "Foreground service démarré — appel de " + callerName + " (commande: " + orderId + ")");
+        Log.d(TAG, "--- SDK version : " + Build.VERSION.SDK_INT + " | Modèle : " + Build.MODEL + " ---");
 
         // ── PendingIntent flags ───────────────────────────────────────
         int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
@@ -113,21 +114,38 @@ public class CallForegroundService extends Service {
                 .build();
 
         // ── startForeground avant de lancer l'activité ────────────────
-        // IMPORTANT : startForeground() doit être appelé en premier.
-        // Après ça, on a le droit de faire startActivity() même depuis
-        // le background sur Samsung One UI.
-        startForeground(CallNotificationActionReceiver.NOTIFICATION_ID, notification);
+        Log.d(TAG, ">>> ETAPE 1 : Appel de startForeground() avec notificationId=" + CallNotificationActionReceiver.NOTIFICATION_ID);
+        try {
+            startForeground(CallNotificationActionReceiver.NOTIFICATION_ID, notification);
+            Log.d(TAG, ">>> ETAPE 1 OK : startForeground() réussi — service maintenant visible par Android.");
+        } catch (Exception e) {
+            Log.e(TAG, ">>> ETAPE 1 ERREUR : startForeground() a échoué : " + e.getMessage(), e);
+        }
+
+        // ── Vérification USE_FULL_SCREEN_INTENT ───────────────────────
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            boolean canFsi = nm != null && nm.canUseFullScreenIntent();
+            Log.d(TAG, ">>> INFO Android 14 : canUseFullScreenIntent() = " + canFsi);
+        }
 
         // ── Lancer IncomingCallActivity ───────────────────────────────
+        Log.d(TAG, ">>> ETAPE 2 : Lancement de IncomingCallActivity depuis le foreground service...");
         try {
             startActivity(callIntent);
-            Log.d(TAG, "IncomingCallActivity lancée avec succès depuis le foreground service.");
+            Log.d(TAG, ">>> ETAPE 2 OK : startActivity(IncomingCallActivity) appelé sans exception.");
+        } catch (android.content.ActivityNotFoundException e) {
+            Log.e(TAG, ">>> ETAPE 2 ERREUR ActivityNotFound : IncomingCallActivity introuvable dans le manifest ! " + e.getMessage(), e);
+        } catch (SecurityException e) {
+            Log.e(TAG, ">>> ETAPE 2 ERREUR Security : permission refusée pour lancer l'activité. " + e.getMessage(), e);
         } catch (Exception e) {
-            Log.e(TAG, "Échec du lancement de IncomingCallActivity : " + e.getMessage(), e);
+            Log.e(TAG, ">>> ETAPE 2 ERREUR inattendue : " + e.getClass().getSimpleName() + " — " + e.getMessage(), e);
         }
 
         // ── Sonnerie ──────────────────────────────────────────────────
+        Log.d(TAG, ">>> ETAPE 3 : Démarrage sonnerie + vibration...");
         CallRingtoneHelper.getInstance().startRingtoneAndVibration(this);
+        Log.d(TAG, ">>> ETAPE 3 OK : sonnerie démarrée.");
 
         return START_NOT_STICKY;
     }

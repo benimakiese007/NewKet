@@ -52,18 +52,23 @@ public class NewKetFirebaseMessagingService extends MessagingService {
         createCallNotificationChannel();
 
         // Déléguer entièrement au CallForegroundService.
-        // Un foreground service peut lancer des activités depuis le background
-        // sur tous les constructeurs (y compris Samsung One UI).
         Intent serviceIntent = new Intent(this, CallForegroundService.class);
         serviceIntent.setAction(CallForegroundService.ACTION_START);
         serviceIntent.putExtra("caller_name", callerName);
         serviceIntent.putExtra("order_id", orderId);
         serviceIntent.putExtra("caller_avatar", callerAvatar);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Log.d(TAG, ">>> FCM : startForegroundService() en cours...");
+                startForegroundService(serviceIntent);
+            } else {
+                Log.d(TAG, ">>> FCM : startService() en cours (Android < 8)...");
+                startService(serviceIntent);
+            }
+            Log.d(TAG, ">>> FCM : CallForegroundService démarré avec succès.");
+        } catch (Exception e) {
+            Log.e(TAG, ">>> FCM ERREUR : impossible de démarrer CallForegroundService : " + e.getMessage(), e);
         }
     }
 
