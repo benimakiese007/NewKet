@@ -2,6 +2,7 @@ package cd.newket.app;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 public class NewKetFirebaseMessagingService extends MessagingService {
     private static final String TAG = "NewKetFcmService";
-    static final String CALL_CHANNEL_ID = "calls"; // accessible par CallForegroundService
+    static final String CALL_CHANNEL_ID = "calls_v2"; // v2 pour forcer la réinitialisation sur Samsung One UI
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -46,12 +47,64 @@ public class NewKetFirebaseMessagingService extends MessagingService {
         if (orderId == null) orderId = "";
         String callerAvatar = data.get("caller_avatar");
 
-        Log.d(TAG, "Appel entrant FCM — démarrage du CallForegroundService pour " + callerName);
+        Log.d(TAG, "Appel entrant FCM reçu pour " + callerName + " (commande: " + orderId + ")");
 
-        // S'assurer que le canal de notification haute priorité existe
+        // 1. S'assurer que le canal de notification haute priorité v2 existe
         createCallNotificationChannel();
 
-        // Déléguer entièrement au CallForegroundService.
+        // 2. PendingIntents pour l'écran et les actions
+        int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        Intent fullScreenIntent = new Intent(this, IncomingCallActivity.class);
+        fullScreenIntent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK |
+            Intent.FLAG_ACTIVITY_CLEAR_TOP |
+            Intent.FLAG_ACTIVITY_SINGLE_TOP
+        );
+        fullScreenIntent.putExtra("caller_name", callerName);
+        fullScreenIntent.putExtra("order_id", orderId);
+        fullScreenIntent.putExtra("caller_avatar", callerAvatar);
+        PendingIntent fullScreenPI = PendingIntent.getActivity(this, 0, fullScreenIntent, pendingFlags);
+
+        Intent answerIntent = new Intent(this, CallNotificationActionReceiver.class);
+        answerIntent.setAction(CallNotificationActionReceiver.ACTION_ANSWER_CALL);
+        answerIntent.putExtra("order_id", orderId);
+        answerIntent.putExtra("caller_name", callerName);
+        PendingIntent answerPI = PendingIntent.getBroadcast(this, 1, answerIntent, pendingFlags);
+
+        Intent declineIntent = new Intent(this, CallNotificationActionReceiver.class);
+        declineIntent.setAction(CallNotificationActionReceiver.ACTION_DECLINE_CALL);
+        PendingIntent declinePI = PendingIntent.getBroadcast(this, 2, declineIntent, pendingFlags);
+
+        // 3. Poster immédiatement la notification avec fullScreenIntent depuis le hook FCM
+        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CALL_CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("📞 Appel de " + callerName)
+                .setContentText("Appel vocal en direct • Commande #" + orderId)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setSound(ringtoneUri)
+                .setVibrate(new long[]{0, 1000, 1000, 1000, 1000})
+                .setColor(0xFF10B981)
+                .setContentIntent(fullScreenPI)
+                .setFullScreenIntent(fullScreenPI, true)
+                .addAction(R.drawable.ic_call_decline, "Refuser", declinePI)
+                .addAction(R.drawable.ic_call_answer, "Décrocher", answerPI);
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) {
+            nm.notify(CallNotificationActionReceiver.NOTIFICATION_ID, builder.build());
+            Log.d(TAG, "Notification d'appel postée avec FullScreenIntent direct.");
+        }
+
+        // 4. Démarrer le Foreground Service pour maintenir la sonnerie et le processus actif
         Intent serviceIntent = new Intent(this, CallForegroundService.class);
         serviceIntent.setAction(CallForegroundService.ACTION_START);
         serviceIntent.putExtra("caller_name", callerName);
@@ -60,24 +113,29 @@ public class NewKetFirebaseMessagingService extends MessagingService {
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d(TAG, ">>> FCM : startForegroundService() en cours...");
                 startForegroundService(serviceIntent);
             } else {
-                Log.d(TAG, ">>> FCM : startService() en cours (Android < 8)...");
                 startService(serviceIntent);
             }
-            Log.d(TAG, ">>> FCM : CallForegroundService démarré avec succès.");
+            Log.d(TAG, "CallForegroundService démarré.");
         } catch (Exception e) {
-            Log.e(TAG, ">>> FCM ERREUR : impossible de démarrer CallForegroundService : " + e.getMessage(), e);
+            Log.e(TAG, "Erreur démarrage foreground service : " + e.getMessage(), e);
         }
     }
 
     private void createCallNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager == null) return;
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
 
-            NotificationChannel existing = notificationManager.getNotificationChannel(CALL_CHANNEL_ID);
+            // Supprimer l'ancien canal 'calls' s'il existe pour nettoyer les réglages obsolètes
+            try {
+                if (nm.getNotificationChannel("calls") != null) {
+                    nm.deleteNotificationChannel("calls");
+                }
+            } catch (Exception ignored) {}
+
+            NotificationChannel existing = nm.getNotificationChannel(CALL_CHANNEL_ID);
             if (existing == null) {
                 NotificationChannel channel = new NotificationChannel(
                         CALL_CHANNEL_ID,
@@ -88,6 +146,7 @@ public class NewKetFirebaseMessagingService extends MessagingService {
                 channel.enableVibration(true);
                 channel.setVibrationPattern(new long[]{0, 1000, 1000, 1000, 1000});
                 channel.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                channel.setBypassDnd(true);
 
                 Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
                 AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -96,7 +155,8 @@ public class NewKetFirebaseMessagingService extends MessagingService {
                         .build();
                 channel.setSound(soundUri, audioAttributes);
 
-                notificationManager.createNotificationChannel(channel);
+                nm.createNotificationChannel(channel);
+                Log.d(TAG, "Canal de notification " + CALL_CHANNEL_ID + " créé avec succès.");
             }
         }
     }

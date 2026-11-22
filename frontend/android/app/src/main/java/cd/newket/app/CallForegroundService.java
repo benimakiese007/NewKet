@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -116,8 +117,12 @@ public class CallForegroundService extends Service {
         // ── startForeground avant de lancer l'activité ────────────────
         Log.d(TAG, ">>> ETAPE 1 : Appel de startForeground() avec notificationId=" + CallNotificationActionReceiver.NOTIFICATION_ID);
         try {
-            startForeground(CallNotificationActionReceiver.NOTIFICATION_ID, notification);
-            Log.d(TAG, ">>> ETAPE 1 OK : startForeground() réussi — service maintenant visible par Android.");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(CallNotificationActionReceiver.NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            } else {
+                startForeground(CallNotificationActionReceiver.NOTIFICATION_ID, notification);
+            }
+            Log.d(TAG, ">>> ETAPE 1 OK : startForeground() réussi avec FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK.");
         } catch (Exception e) {
             Log.e(TAG, ">>> ETAPE 1 ERREUR : startForeground() a échoué : " + e.getMessage(), e);
         }

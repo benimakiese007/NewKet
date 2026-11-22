@@ -23,6 +23,13 @@ public class CallNotificationActionReceiver extends BroadcastReceiver {
         // 1. Arrêter la sonnerie et le vibreur immédiatement
         CallRingtoneHelper.getInstance().stopRingtoneAndVibration();
 
+        // 1b. Arrêter le Foreground Service s'il tournait
+        try {
+            Intent stopService = new Intent(context, CallForegroundService.class);
+            stopService.setAction(CallForegroundService.ACTION_STOP);
+            context.startService(stopService);
+        } catch (Exception ignored) {}
+
         // 2. Supprimer la notification
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {

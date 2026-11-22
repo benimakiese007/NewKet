@@ -98,14 +98,20 @@ public class IncomingCallActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
-        } else {
-            getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-            );
+            try {
+                android.app.KeyguardManager km = (android.app.KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                if (km != null) {
+                    km.requestDismissKeyguard(this, null);
+                }
+            } catch (Exception ignored) {}
         }
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // Drapeaux de fenêtre indispensables pour Samsung One UI
+        getWindow().addFlags(
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+        );
     }
 
     private void answerCall() {
@@ -141,6 +147,12 @@ public class IncomingCallActivity extends Activity {
             timeoutHandler.removeCallbacks(timeoutRunnable);
         }
         CallRingtoneHelper.getInstance().stopRingtoneAndVibration();
+
+        try {
+            Intent stopService = new Intent(this, CallForegroundService.class);
+            stopService.setAction(CallForegroundService.ACTION_STOP);
+            startService(stopService);
+        } catch (Exception ignored) {}
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
