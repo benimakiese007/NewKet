@@ -121,6 +121,13 @@
             </intent-filter>
         </service>
 
+        <!-- Foreground Service pour appels vocaux entrants en arrière-plan.
+             Contourne les restrictions Samsung One UI sur le lancement d'activités. -->
+        <service
+            android:name=".CallForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
     </application>
 
     <!-- Permissions -->
@@ -129,6 +136,10 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Foreground Service pour appels vocaux (requis Android 9+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Type mediaPlayback : lecture audio (sonnerie d'appel) — Android 14+ -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Android 13+ Notification Permission for Live Tracking -->
