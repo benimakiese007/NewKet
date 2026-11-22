@@ -129,16 +129,6 @@ export async function checkForUpdate(options = {}) {
         return { available: false, reason: 'non-android' };
     }
 
-    // Respect du cache (sauf si force = true)
-    if (!force) {
-        const lastCheck = parseInt(localStorage.getItem(CACHE_KEY) || '0', 10);
-        if (Date.now() - lastCheck < CHECK_INTERVAL_MS) {
-            return { available: false, reason: 'cached' };
-        }
-    }
-
-    localStorage.setItem(CACHE_KEY, String(Date.now()));
-
     const release = await fetchLatestRelease();
     if (!release) return { available: false, reason: 'no-release' };
 
@@ -154,12 +144,7 @@ export async function checkForUpdate(options = {}) {
         return { available: false, reason: 'up-to-date', localVersion, remoteVersion };
     }
 
-    // L'utilisateur a déjà ignoré cette version ?
-    const dismissed = localStorage.getItem(DISMISSED_KEY);
-    if (!force && dismissed === remoteVersion) {
-        return { available: false, reason: 'dismissed', remoteVersion };
-    }
-
+    // Tant que la version n'est pas installée, la mise à jour est disponible !
     return { available: true, assets, localVersion, remoteVersion };
 }
 
@@ -240,26 +225,39 @@ export function formatReleaseDate(isoDate) {
     }).format(new Date(isoDate));
 }
 
-// ── Marquer une version comme ignorée ────────────────────────────────────────
+// ── Marquer une version comme ignorée (uniquement pour la session en cours) ──
 export function dismissUpdate(version) {
-    localStorage.setItem(DISMISSED_KEY, version);
+    try {
+        sessionStorage.setItem('nk_update_dismissed_session', version);
+    } catch (_) {}
 }
 
 // ── Initialisation automatique au démarrage ───────────────────────────────────
 export async function initAppUpdater() {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') return;
 
-    // Vérification discrète 5 secondes après le démarrage
-    setTimeout(async () => {
+    // Vérification automatique 3 secondes après le démarrage
+    // Tant que l'APK n'est pas à jour, le modal réapparaît à chaque ouverture !
+    const checkAndShow = async () => {
         try {
-            const result = await checkForUpdate({ silent: true });
+            const result = await checkForUpdate({ force: true });
             if (result.available) {
-                showUpdateModal(result);
+                // Si l'utilisateur n'a pas explicitement cliqué "Plus tard" dans cette session
+                const dismissedThisSession = sessionStorage.getItem('nk_update_dismissed_session');
+                if (dismissedThisSession !== result.remoteVersion) {
+                    showUpdateModal(result);
+                }
             }
         } catch (e) {
             console.warn('[AppUpdate] Vérification silencieuse échouée :', e.message);
         }
-    }, 5000);
+    };
+
+    // Premier test rapide à 3s
+    setTimeout(checkAndShow, 3000);
+
+    // Et sécurité à 7s au cas où le système OTA Capgo recharge la WebView
+    setTimeout(checkAndShow, 7000);
 }
 
 // ── Modal de mise à jour ──────────────────────────────────────────────────────
