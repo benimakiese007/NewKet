@@ -227,6 +227,12 @@ const UI = {
         if (!product) return false;
         if (filter === 'all') return true;
         if (filter === 'Promos') return product.isPromo === true;
+        if (filter === 'Femme' || filter === 'Mode Femme') {
+            return ['Femme', 'Mode Femme', 'Collections Femme'].includes(product.category);
+        }
+        if (filter === 'Homme' || filter === 'Mode Homme') {
+            return ['Homme', 'Mode Homme', 'Style Homme'].includes(product.category);
+        }
         return product.category === filter;
     },
 

@@ -1618,15 +1618,17 @@ html.is-capacitor #footer-placeholder {
 
     .search-category-btn {
         padding: 0 10px !important;
-        font-size: 10px !important;
+        font-size: 11px !important;
     }
 
     .search-category-btn span {
-        display: none; /* Hide category text on mobile, keep icon */
+        display: inline-block !important; /* Visible on mobile */
+        font-size: 11px !important;
+        font-weight: 700 !important;
     }
 
     .search-category-btn iconify-icon {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
