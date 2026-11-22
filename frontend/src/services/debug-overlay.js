@@ -52,6 +52,16 @@ let pill = null;
 let panel = null;
 let isOpen = false;
 
+function getPlatform() {
+    if (typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.getPlatform === 'function') {
+        return window.Capacitor.getPlatform(); // 'android', 'ios', 'web'
+    }
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent || '' : '';
+    if (/android/i.test(ua)) return 'android';
+    if (/iphone|ipad|ipod/i.test(ua)) return 'ios';
+    return 'web';
+}
+
 function getDiagnosticState() {
     const ota = window._otaState || {};
     const metaVer = document.querySelector('meta[name="newket-version"]')?.content || '';
@@ -62,8 +72,11 @@ function getDiagnosticState() {
     const pubCount = window.ProductManager?.getPublicProducts?.()?.length ?? 'N/A';
     const sbOk = !!window.supabaseClient;
     const authRole = window.AuthManager?.role || 'visiteur';
+    const platform = getPlatform();
+    const isAndroid = platform === 'android';
+    const isIos = platform === 'ios';
 
-    return { pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole, ota };
+    return { pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole, ota, platform, isAndroid, isIos };
 }
 
 function getOtaColor(status) {
@@ -78,6 +91,7 @@ function updatePanel() {
     const hasProducts = s.pubCount > 0;
     const pillColor = hasProducts && (otaOk || !s.isCap) ? '#10b981' : s.ota.status === 'error' ? '#ef4444' : '#f59e0b';
 
+    // Pastille universelle propre pour tous les supports (iOS, Android, Web)
     pill.innerHTML = `
         <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${pillColor}; margin-right:6px;"></span>
         <b>v${s.pkgVer}</b> | Prd: ${s.pubCount}/${s.prodCount} | OTA: ${s.ota.status || '?'}
@@ -86,13 +100,46 @@ function updatePanel() {
     if (panel && isOpen) {
         const infoEl = panel.querySelector('#nk-debug-info');
         const logsEl = panel.querySelector('#nk-debug-logs');
+        const apkBtn = panel.querySelector('#nk-dbg-check-apk');
+        if (apkBtn) {
+            apkBtn.style.display = s.isAndroid ? 'inline-block' : 'none';
+        }
+
         if (infoEl) {
             const otaStatusColor = getOtaColor(s.ota.status);
+
+            let platformSection = '';
+            if (s.isAndroid) {
+                platformSection = `
+                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
+                        <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 NATIVE ANDROID (APK)</div>
+                        <div><b>Version APK native :</b> <span style="color:#38bdf8; font-weight:bold;">v${window.__NATIVE_APK_VERSION__ || '1.0.75'}</span></div>
+                        <div><b>Dernière release :</b> <span style="color:#a78bfa;">${window.__REMOTE_APK_VERSION__ || 'v1.0.75'}</span></div>
+                        <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:2px;"></div>
+                    </div>
+                `;
+            } else if (s.isIos) {
+                platformSection = `
+                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
+                        <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🍏 NATIVE APPLE (iOS)</div>
+                        <div><b>Canal natif :</b> <span style="color:#38bdf8; font-weight:bold;">TestFlight / App Store</span></div>
+                        <div><b>MàJ bundle :</b> <span style="color:#10b981;">OTA Supabase actif</span></div>
+                    </div>
+                `;
+            } else {
+                platformSection = `
+                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
+                        <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:2px;">🌐 PLATEFORME : WEB / PWA</div>
+                        <div><b>Hôte :</b> ${window.location.hostname}</div>
+                    </div>
+                `;
+            }
+
             infoEl.innerHTML = `
                 <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
                     <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">📱 APP</div>
                     <div><b>Version bundle :</b> ${s.pkgVer}</div>
-                    <div><b>Capacitor :</b> ${s.isCap ? '✅ OUI' : '❌ NON'} (${window.location.protocol}//${window.location.hostname})</div>
+                    <div><b>Plateforme :</b> ${s.platform.toUpperCase()} (${s.isCap ? 'Natif Capacitor' : 'Navigateur Web'})</div>
                     <div><b>Supabase Client :</b> ${s.sbOk ? '✅ OK' : '❌ NULL'}</div>
                     <div><b>BackendReady :</b> ${s.bReady ? '✅ true' : '❌ false'}</div>
                     <div><b>Produits :</b> ${s.prodCount} total (${s.pubCount} publics)</div>
@@ -113,6 +160,7 @@ function updatePanel() {
                     ${s.ota.error ? `<div style="color:#f87171; font-weight:bold;">❌ Erreur : ${s.ota.error}</div>` : ''}
                     ${s.ota.lastChecked ? `<div style="opacity:0.5; font-size:10px;">Vérifié : ${new Date(s.ota.lastChecked).toLocaleTimeString()}</div>` : ''}
                 </div>
+                ${platformSection}
             `;
         }
         if (logsEl) {
@@ -220,6 +268,7 @@ export function initDebugOverlay() {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px;">
                 <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
                 <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
+                    <button id="nk-dbg-check-apk" style="background:#10b981; color:#0f172a; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap;">🚀 MàJ APK</button>
                     <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
                     <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
                     <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:6px; padding:4px 6px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 OTA</button>
@@ -237,6 +286,39 @@ export function initDebugOverlay() {
     `;
 
     panel.querySelector('#nk-dbg-close').addEventListener('click', () => toggleDebugPanel(false));
+
+    panel.querySelector('#nk-dbg-check-apk')?.addEventListener('click', async () => {
+        const btn = panel.querySelector('#nk-dbg-check-apk');
+        const feedback = panel.querySelector('#nk-dbg-apk-feedback');
+        btn.disabled = true;
+        btn.textContent = '⏳ Check...';
+        if (feedback) feedback.textContent = 'Appel API GitHub Releases...';
+
+        try {
+            const { checkForUpdate, showUpdateModal } = await import('./app-update.js');
+            const res = await checkForUpdate({ force: true });
+            if (res.available) {
+                btn.textContent = '🚀 Dispo !';
+                if (feedback) feedback.textContent = `Nouvelle version ${res.remoteVersion} prête !`;
+                toggleDebugPanel(false);
+                showUpdateModal(res);
+            } else if (res.reason === 'up-to-date') {
+                btn.textContent = '✅ À jour';
+                if (feedback) feedback.textContent = `Votre APK (${res.localVersion || '1.0.75'}) est à jour.`;
+            } else {
+                btn.textContent = 'ℹ️ ' + (res.reason || 'OK');
+                if (feedback) feedback.textContent = 'Statut : ' + res.reason;
+            }
+        } catch (err) {
+            btn.textContent = '❌ Erreur';
+            if (feedback) feedback.textContent = err.message;
+        } finally {
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = '🚀 MàJ APK';
+            }, 3000);
+        }
+    });
 
     panel.querySelector('#nk-dbg-copy-all').addEventListener('click', async () => {
         const s = getDiagnosticState();

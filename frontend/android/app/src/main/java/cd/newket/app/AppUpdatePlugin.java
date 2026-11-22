@@ -54,6 +54,22 @@ public class AppUpdatePlugin extends Plugin {
     // ── 1. Vérification de la permission d'installation ─────────────────────
 
     @PluginMethod
+    public void getNativeVersion(PluginCall call) {
+        JSObject result = new JSObject();
+        try {
+            android.content.pm.PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+            result.put("versionName", pInfo.versionName);
+            long vCode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ? pInfo.getLongVersionCode() : pInfo.versionCode;
+            result.put("versionCode", vCode);
+            call.resolve(result);
+        } catch (Exception e) {
+            result.put("versionName", "1.0.75");
+            result.put("versionCode", 1);
+            call.resolve(result);
+        }
+    }
+
+    @PluginMethod
     public void canInstallPackages(PluginCall call) {
         boolean canInstall;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

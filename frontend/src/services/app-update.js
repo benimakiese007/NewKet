@@ -44,13 +44,14 @@ function compareVersions(v1, v2) {
 
 // ── Version locale actuelle (depuis package.json via import.meta.env ou meta) ─
 function getLocalVersion() {
+    if (window.__NATIVE_APK_VERSION__) return window.__NATIVE_APK_VERSION__;
     // 1. Meta tag injecté par Vite (préféré)
     const metaTag = document.querySelector('meta[name="app-version"]');
     if (metaTag?.content) return metaTag.content;
     // 2. Variable globale exposée par le build
     if (window.__APP_VERSION__) return window.__APP_VERSION__;
     // 3. Fallback localStorage (défini au précédent lancement de l'app)
-    return localStorage.getItem('nk_app_version') || '1.0.0';
+    return localStorage.getItem('nk_app_version') || '1.0.75';
 }
 
 // ── Appel à l'API GitHub Releases ─────────────────────────────────────────────
@@ -232,7 +233,11 @@ export function dismissUpdate(version) {
     } catch (_) {}
 }
 
-// ── Initialisation automatique au démarrage ───────────────────────────────────
+// ── Exposer globalement ───────────────────────────────────────────────────────
+if (typeof window !== 'undefined') {
+    window.checkAppUpdate = (force = true) => checkForUpdate({ force });
+    window.showAppUpdateModal = (info) => showUpdateModal(info);
+}
 export async function initAppUpdater() {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') return;
 
