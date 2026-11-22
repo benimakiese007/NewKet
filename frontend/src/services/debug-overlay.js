@@ -267,7 +267,7 @@ export function initDebugOverlay() {
     `;
 
     panel.innerHTML = `
-        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px 16px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px;">
                 <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
                 <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
@@ -647,13 +647,26 @@ function toggleDebugPanel(force) {
     isOpen = typeof force === 'boolean' ? force : !isOpen;
     if (panel) {
         if (isOpen) {
+            // Sur iOS : masquer temporairement la NativeTabBar pour libérer tout l'écran sans chevauchement
+            try {
+                window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+            } catch (_) {}
+
             const bNavHeight = getBottomNavHeight();
             panel.style.bottom = bNavHeight > 0 ? `${bNavHeight}px` : '0px';
             panel.style.display = 'flex';
         } else {
             panel.style.display = 'none';
+
+            // Sur iOS : restaurer la NativeTabBar quand le panneau de debug se ferme
+            try {
+                if (window.ComponentsLoader && typeof window.ComponentsLoader.syncNativeTabBarVisibility === 'function') {
+                    window.ComponentsLoader.syncNativeTabBarVisibility();
+                } else {
+                    window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+                }
+            } catch (_) {}
         }
-        // La tabbar (mobileBottomNav) reste visible et active au bas de l'écran sur tous les supports
         updatePanel();
     }
 }
