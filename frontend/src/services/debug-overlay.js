@@ -75,7 +75,7 @@ function getPlatform() {
 function getDiagnosticState() {
     const ota = window._otaState || {};
     const metaVer = document.querySelector('meta[name="newket-version"]')?.content || '';
-    const pkgVer = ota.localVersion || (metaVer ? metaVer.split('-')[0] : (window.newketVersion || '1.0.42'));
+    const pkgVer = metaVer ? metaVer.split('-')[0] : (ota.localVersion || '1.0.78');
     const isCap = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
     const bReady = window.newketBackendReady;
     const prodCount = window.ProductManager?.products?.length ?? 'N/A';
@@ -122,9 +122,9 @@ function updatePanel() {
             if (s.isAndroid) {
                 platformSection = `
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
-                        <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 NATIVE ANDROID (APK)</div>
-                        <div><b>Version APK native :</b> <span style="color:#38bdf8; font-weight:bold;">v${window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.75'}</span></div>
-                        <div><b>Dernière release :</b> <span style="color:#a78bfa;">${window.__REMOTE_APK_VERSION__ || 'v1.0.75'}</span></div>
+                        <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 COQUE ANDROID (APK)</div>
+                        <div><b>APK installé :</b> <span style="color:#38bdf8; font-weight:bold;">v${window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.76'}</span></div>
+                        <div><b>Dernière release GitHub :</b> <span style="color:#a78bfa;">${window.__REMOTE_APK_VERSION__ || 'v1.0.76'}</span></div>
                         <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:2px;"></div>
                     </div>
                 `;
@@ -394,7 +394,7 @@ export function initDebugOverlay() {
                 showUpdateModal(res);
             } else if (res.reason === 'up-to-date') {
                 btn.textContent = '✅ À jour';
-                if (feedback) feedback.textContent = `Votre APK (${res.localVersion || '1.0.75'}) est à jour.`;
+                if (feedback) feedback.textContent = `Votre APK (${res.localVersion || '1.0.76'}) est à jour.`;
             } else {
                 btn.textContent = 'ℹ️ ' + (res.reason || 'OK');
                 if (feedback) feedback.textContent = 'Statut : ' + res.reason;
