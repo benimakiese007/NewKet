@@ -3,8 +3,18 @@
  * Displays real-time state: version, backendReady, products count, Supabase status, and live console logs.
  */
 
-const MAX_LOGS = 60;
+const MAX_LOGS = 120;
 const logs = [];
+let isLogsExpanded = false;
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 
 // Intercept console messages
 const origLog = console.log;
@@ -164,12 +174,26 @@ function updatePanel() {
             `;
         }
         if (logsEl) {
-            logsEl.innerHTML = logs.map(l => {
-                const color = l.level === 'error' ? '#f87171' : l.level === 'warn' ? '#fbbf24' : '#e2e8f0';
-                return `<div style="color:${color}; margin-bottom:4px; font-size:11px; font-family:monospace; word-break:break-word;">
-                    <span style="opacity:0.6;">[${l.time}]</span> [${l.level.toUpperCase()}] ${l.text}
-                </div>`;
-            }).join('');
+            const countEl = panel.querySelector('#nk-dbg-logs-count');
+            if (countEl) countEl.textContent = String(logs.length);
+
+            if (logs.length === 0) {
+                logsEl.innerHTML = `<div style="color:#64748b; font-size:11px; text-align:center; padding:24px 0; font-family:monospace;">Aucun log pour le moment...</div>`;
+            } else {
+                logsEl.innerHTML = logs.map(l => {
+                    const badgeBg = l.level === 'error' ? 'rgba(239,68,68,0.25)' : l.level === 'warn' ? 'rgba(245,158,11,0.25)' : 'rgba(148,163,184,0.15)';
+                    const badgeColor = l.level === 'error' ? '#fca5a5' : l.level === 'warn' ? '#fcd34d' : '#94a3b8';
+                    const textColor = l.level === 'error' ? '#fecaca' : l.level === 'warn' ? '#fef08a' : '#f1f5f9';
+                    const fontSize = isLogsExpanded ? '12px' : '11px';
+                    return `
+                        <div style="margin-bottom:5px; padding:4px 8px; border-radius:6px; background:rgba(255,255,255,0.03); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:${fontSize}; line-height:1.5; word-break:break-word;">
+                            <span style="color:#64748b; font-size:10px;">${l.time}</span>
+                            <span style="display:inline-block; margin:0 4px; padding:1px 5px; border-radius:4px; font-size:9px; font-weight:800; background:${badgeBg}; color:${badgeColor};">${l.level.toUpperCase()}</span>
+                            <span style="color:${textColor};">${escapeHtml(l.text)}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
     }
 }
@@ -278,15 +302,66 @@ export function initDebugOverlay() {
                     <button id="nk-dbg-close" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:6px; padding:4px 8px; font-size:11px; font-weight:bold; cursor:pointer; line-height:1;" title="Fermer">✕</button>
                 </div>
             </div>
-            <!-- Bouton pour demander toutes les autorisations natives (Localisation, Caméra, Micro, Face ID, Notifs) -->
-            <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:10px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
-                <span>🛡️ Déclencher toutes les autorisations</span>
-            </button>
-            <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
-            <div style="font-size:11px; font-weight:bold; color:#94a3b8; margin-bottom:6px;">Console Logs (temps réel) :</div>
-            <div id="nk-debug-logs" style="flex:1; overflow-y:auto; background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); max-height:350px;"></div>
+            <!-- Section Diagnostic Récapitulative -->
+            <div id="nk-debug-info-wrap">
+                <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:10px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span>🛡️ Déclencher toutes les autorisations</span>
+                </button>
+                <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
+            </div>
+
+            <!-- Barre d'outils des Logs (Agrandir + Effacer) -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:11px; font-weight:800; color:#94a3b8; letter-spacing:0.04em;">CONSOLE LOGS</span>
+                    <span id="nk-dbg-logs-count" style="background:rgba(255,255,255,0.1); color:#38bdf8; font-size:9px; font-weight:700; padding:1px 6px; border-radius:999px;">0</span>
+                </div>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button id="nk-dbg-toggle-expand" style="background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:4px 9px; font-size:10px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(0,0,0,0.2); transition:all 0.15s ease;" title="Agrandir / Réduire les logs">
+                        <span id="nk-dbg-expand-icon">⤢</span>
+                        <span id="nk-dbg-expand-text">Agrandir</span>
+                    </button>
+                    <button id="nk-dbg-clear-logs" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer; transition:all 0.15s ease;" title="Vider les logs">🗑️</button>
+                </div>
+            </div>
+
+            <div id="nk-debug-logs" style="flex:1; overflow-y:auto; background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); max-height:300px; -webkit-overflow-scrolling:touch;"></div>
         </div>
     `;
+
+    function setLogsExpanded(expanded) {
+        isLogsExpanded = expanded;
+        const infoWrap = panel.querySelector('#nk-debug-info-wrap');
+        const logsEl = panel.querySelector('#nk-debug-logs');
+        const expandBtn = panel.querySelector('#nk-dbg-toggle-expand');
+        const expandIcon = panel.querySelector('#nk-dbg-expand-icon');
+        const expandText = panel.querySelector('#nk-dbg-expand-text');
+
+        if (infoWrap) {
+            infoWrap.style.display = isLogsExpanded ? 'none' : 'block';
+        }
+        if (logsEl) {
+            logsEl.style.maxHeight = isLogsExpanded ? 'calc(75vh - 70px)' : '300px';
+            logsEl.style.height = isLogsExpanded ? 'calc(75vh - 70px)' : 'auto';
+        }
+        if (expandBtn) {
+            expandBtn.style.background = isLogsExpanded ? '#0284c7' : '#1e293b';
+            expandBtn.style.color = isLogsExpanded ? '#ffffff' : '#38bdf8';
+            expandBtn.style.borderColor = isLogsExpanded ? '#38bdf8' : 'rgba(56,189,248,0.3)';
+        }
+        if (expandIcon) expandIcon.textContent = isLogsExpanded ? '⤡' : '⤢';
+        if (expandText) expandText.textContent = isLogsExpanded ? 'Réduire' : 'Agrandir';
+        updatePanel();
+    }
+
+    panel.querySelector('#nk-dbg-toggle-expand')?.addEventListener('click', () => {
+        setLogsExpanded(!isLogsExpanded);
+    });
+
+    panel.querySelector('#nk-dbg-clear-logs')?.addEventListener('click', () => {
+        logs.length = 0;
+        updatePanel();
+    });
 
     panel.addEventListener('click', (e) => {
         if (e.target === panel) toggleDebugPanel(false);
