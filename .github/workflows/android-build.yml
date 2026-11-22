@@ -11,6 +11,21 @@ on:
         options:
           - 'debug'
           - 'release'
+      publish_release:
+        description: 'Publier une GitHub Release (release uniquement)'
+        required: false
+        default: false
+        type: boolean
+      tag_name:
+        description: 'Tag de la release (ex: v1.0.73) — requis si publish_release=true'
+        required: false
+        default: ''
+        type: string
+      release_notes:
+        description: 'Notes de mise à jour (Markdown) affichées dans la release'
+        required: false
+        default: 'Améliorations de performance et corrections de bugs.'
+        type: string
 
 jobs:
   build-android:
@@ -72,24 +87,62 @@ jobs:
       - name: Permissions Gradle wrapper
         run: chmod +x frontend/android/gradlew
 
+      # ── Build Debug ───────────────────────────────────────────────────────────
       - name: Build APK Debug
         if: inputs.build_type == 'debug'
         run: ./gradlew assembleDebug --no-daemon --stacktrace
         working-directory: ./frontend/android
 
-      - name: Build APK Release (non signe)
+      # ── Préparation du Keystore pour le build Release ─────────────────────────
+      # Le keystore n'est JAMAIS stocké dans le dépôt. Il est reconstruit depuis
+      # le secret GitHub ANDROID_KEYSTORE_BASE64 dans un fichier temporaire.
+      - name: Restauration du Keystore depuis les secrets GitHub
+        if: inputs.build_type == 'release'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend/android/newket-release.jks
+          cat > frontend/android/keystore.properties << 'EOF'
+          storeFile=newket-release.jks
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Build APK Release signé
         if: inputs.build_type == 'release'
         run: ./gradlew assembleRelease --no-daemon --stacktrace
         working-directory: ./frontend/android
 
-      - name: Localisation de l APK
+      # Supprimer le keystore immédiatement après le build (sécurité)
+      - name: Nettoyage sécurisé du Keystore temporaire
+        if: inputs.build_type == 'release'
         run: |
-          echo "APKs generes :"
-          find frontend/android/app/build/outputs/apk -name "*.apk" | while read f; do
-            echo "  $f ($(du -sh "$f" | cut -f1))"
-          done
+          rm -f frontend/android/newket-release.jks
+          rm -f frontend/android/keystore.properties
 
-      - name: Upload APK Debug
+      # ── Nommage et SHA-256 (release uniquement) ──────────────────────────────
+      - name: Localisation et renommage de l'APK Release
+        if: inputs.build_type == 'release'
+        run: |
+          TAG="${{ inputs.tag_name }}"
+          if [ -z "$TAG" ]; then
+            TAG="v$(date +'%Y%m%d-%H%M')"
+          fi
+          APK_SRC=$(find frontend/android/app/build/outputs/apk/release -name "*.apk" | head -1)
+          APK_DEST="NewKet-${TAG}.apk"
+          cp "$APK_SRC" "$APK_DEST"
+          echo "APK_PATH=$APK_DEST" >> $GITHUB_ENV
+          echo "APK_TAG=$TAG"       >> $GITHUB_ENV
+          echo "APK generé : $APK_DEST ($(du -sh "$APK_DEST" | cut -f1))"
+
+      - name: Calcul du SHA-256 de l'APK Release
+        if: inputs.build_type == 'release'
+        run: |
+          sha256sum "${{ env.APK_PATH }}" | awk '{print $1}' > "${{ env.APK_PATH }}.sha256"
+          echo "SHA256=$(cat ${{ env.APK_PATH }}.sha256)" >> $GITHUB_ENV
+          echo "Empreinte SHA-256 : $(cat ${{ env.APK_PATH }}.sha256)"
+
+      # ── Upload artefact (toujours, pour les deux types de build) ─────────────
+      - name: Upload APK Debug (artefact)
         if: inputs.build_type == 'debug'
         uses: actions/upload-artifact@v4
         with:
@@ -97,10 +150,49 @@ jobs:
           path: frontend/android/app/build/outputs/apk/debug/*.apk
           retention-days: 7
 
-      - name: Upload APK Release
+      - name: Upload APK Release signé (artefact)
         if: inputs.build_type == 'release'
         uses: actions/upload-artifact@v4
         with:
-          name: NewKet-Android-Release
-          path: frontend/android/app/build/outputs/apk/release/*.apk
-          retention-days: 7
+          name: NewKet-Android-Release-${{ inputs.tag_name || 'draft' }}
+          path: |
+            ${{ env.APK_PATH }}
+            ${{ env.APK_PATH }}.sha256
+          retention-days: 30
+
+      # ── Création de la GitHub Release (optionnel, sur autorisation explicite) ─
+      - name: Création de la GitHub Release officielle
+        if: inputs.build_type == 'release' && inputs.publish_release == true && inputs.tag_name != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag_name }}
+          name: "NewKet ${{ inputs.tag_name }}"
+          body: |
+            ## 🚀 NewKet ${{ inputs.tag_name }}
+
+            ${{ inputs.release_notes }}
+
+            ---
+            **Empreinte SHA-256** : `${{ env.SHA256 }}`
+
+            > Mise à jour disponible directement depuis l'application NewKet → Paramètres → Mise à jour.
+          files: |
+            ${{ env.APK_PATH }}
+            ${{ env.APK_PATH }}.sha256
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Résumé du build
+        run: |
+          echo "## 📦 Build Android terminé" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Paramètre | Valeur |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | ${{ inputs.build_type }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | ${{ inputs.tag_name || 'N/A' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release publiée | ${{ inputs.publish_release }} |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.build_type }}" = "release" ]; then
+            echo "| SHA-256 | \`${{ env.SHA256 }}\` |" >> $GITHUB_STEP_SUMMARY
+          fi

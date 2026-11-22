@@ -18,6 +18,8 @@
 </script><script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Version de l'application - lue par app-update.js -->
+    <meta name="app-version" content="1.0.72">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -418,6 +420,54 @@
                     </div>
                 </div>
                 <!-- ─── Fin section RGPD ──────────────────────────────────────────────── -->
+
+                <!-- ─── Section Mise à jour de l'application ─────────────────────────── -->
+                <!-- Visible uniquement sur Android natif (is-android-capacitor) -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden nk-android-only" style="display:none">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-black flex items-center justify-center">
+                            <iconify-icon icon="solar:refresh-bold" class="text-white" width="16"></iconify-icon>
+                        </div>
+                        <h2 class="text-base font-semibold text-gray-900">Mise à jour de l'application</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+
+                        <!-- Version actuelle -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Version actuelle</p>
+                                <p id="nk-settings-local-version" class="text-xs text-gray-400 mt-0.5">—</p>
+                            </div>
+                            <span id="nk-settings-status-badge" class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-500 font-medium">
+                                —
+                            </span>
+                        </div>
+
+                        <!-- Résultat de la dernière vérification -->
+                        <div id="nk-settings-update-result" class="hidden rounded-xl bg-gray-50 border border-gray-100 p-4">
+                            <p id="nk-settings-update-message" class="text-sm text-gray-700"></p>
+                        </div>
+
+                        <!-- Barre de progression (cachée par défaut) -->
+                        <div id="nk-settings-progress-wrap" class="hidden">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Téléchargement en cours...</span>
+                                <span id="nk-settings-progress-pct">0%</span>
+                            </div>
+                            <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="nk-settings-progress-bar" class="h-full bg-black rounded-full transition-all duration-200" style="width:0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bouton de recherche -->
+                        <button id="nk-settings-check-btn"
+                            class="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-black text-white text-sm font-semibold hover:bg-gray-800 active:scale-95 transition-all">
+                            <iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon>
+                            Rechercher une mise à jour
+                        </button>
+                    </div>
+                </div>
+                <!-- ─── Fin section Mise à jour ──────────────────────────────────────── -->
 
             </div>
         </div>
@@ -905,6 +955,103 @@
             };
 
             SettingsPage.init();
+
+            // === Section Mise à jour in-app (Android uniquement) ===
+            (function() {
+                const isAndroid = document.documentElement.classList.contains('is-android-capacitor');
+                if (!isAndroid) return;
+
+                // Afficher la section uniquement sur Android
+                document.querySelectorAll('.nk-android-only').forEach(el => el.style.display = '');
+
+                const checkBtn    = document.getElementById('nk-settings-check-btn');
+                const badge       = document.getElementById('nk-settings-status-badge');
+                const localVerEl  = document.getElementById('nk-settings-local-version');
+                const resultWrap  = document.getElementById('nk-settings-update-result');
+                const resultMsg   = document.getElementById('nk-settings-update-message');
+                const progWrap    = document.getElementById('nk-settings-progress-wrap');
+                const progBar     = document.getElementById('nk-settings-progress-bar');
+                const progPct     = document.getElementById('nk-settings-progress-pct');
+
+                // Afficher la version locale
+                const localVer = localStorage.getItem('nk_app_version')
+                    || document.querySelector('meta[name="app-version"]')?.content
+                    || window.__APP_VERSION__
+                    || '—';
+                if (localVerEl) localVerEl.textContent = localVer;
+
+                function setBadge(text, style) {
+                    if (!badge) return;
+                    badge.textContent = text;
+                    badge.className = `text-xs px-3 py-1 rounded-full font-medium ${style}`;
+                }
+
+                function showResult(message, type = 'info') {
+                    if (!resultWrap || !resultMsg) return;
+                    resultWrap.classList.remove('hidden');
+                    resultMsg.textContent = message;
+                    resultWrap.className = `rounded-xl p-4 border ${
+                        type === 'success' ? 'bg-green-50 border-green-100 text-green-700' :
+                        type === 'error'   ? 'bg-red-50 border-red-100 text-red-700' :
+                        'bg-gray-50 border-gray-100 text-gray-700'
+                    }`;
+                }
+
+                if (checkBtn) {
+                    checkBtn.addEventListener('click', async () => {
+                        checkBtn.disabled = true;
+                        checkBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="16" class="animate-spin"></iconify-icon> Vérification...';
+                        setBadge('Vérification...', 'bg-gray-100 text-gray-500');
+                        resultWrap?.classList.add('hidden');
+
+                        try {
+                            const { checkForUpdate, downloadAndInstall, showUpdateModal, formatSize } = await import('/src/services/app-update.js');
+                            const result = await checkForUpdate({ force: true });
+
+                            if (result.available) {
+                                setBadge('Mise à jour disponible !', 'bg-amber-100 text-amber-700');
+                                showResult(`Nouvelle version ${result.remoteVersion} disponible.`, 'info');
+                                checkBtn.innerHTML = '<iconify-icon icon="solar:download-linear" width="16"></iconify-icon> Télécharger la mise à jour';
+                                checkBtn.disabled = false;
+
+                                // Remplacer le bouton par le flow de téléchargement
+                                checkBtn.onclick = async () => {
+                                    checkBtn.disabled = true;
+                                    progWrap?.classList.remove('hidden');
+
+                                    try {
+                                        await downloadAndInstall(result.assets, ({ progress, downloadedBytes, totalBytes }) => {
+                                            if (progBar) progBar.style.width = progress + '%';
+                                            if (progPct) progPct.textContent = progress + '%';
+                                        });
+                                        checkBtn.textContent = 'Installation lancée ✓';
+                                    } catch (err) {
+                                        progWrap?.classList.add('hidden');
+                                        checkBtn.disabled = false;
+                                        showResult('Erreur : ' + err.message, 'error');
+                                        checkBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon> Réessayer';
+                                    }
+                                };
+                            } else if (result.reason === 'up-to-date') {
+                                setBadge('À jour ✓', 'bg-green-100 text-green-700');
+                                showResult(`Vous utilisez déjà la dernière version de NewKet (${result.localVersion}).`, 'success');
+                                checkBtn.disabled = false;
+                                checkBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon> Vérifier à nouveau';
+                            } else {
+                                setBadge('—', 'bg-gray-100 text-gray-500');
+                                showResult('Impossible de vérifier pour le moment. Réessayez plus tard.', 'info');
+                                checkBtn.disabled = false;
+                                checkBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon> Réessayer';
+                            }
+                        } catch (e) {
+                            setBadge('Erreur', 'bg-red-100 text-red-600');
+                            showResult('Erreur réseau. Vérifiez votre connexion.', 'error');
+                            checkBtn.disabled = false;
+                            checkBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="16"></iconify-icon> Réessayer';
+                        }
+                    });
+                }
+            })();
 
             // === Live Activity Test Buttons ===
             (function() {

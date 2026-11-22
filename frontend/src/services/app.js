@@ -196,6 +196,13 @@ const handleDeepLinkRoute = (rawUrl) => {
     }
 };
 
+// ── Mise à jour Android in-app via GitHub Releases ───────────────────────────
+// Vérification discrète (non bloquante) uniquement sur Android natif.
+// Sur iOS et web, ce module ne fait rien.
+import('./app-update.js')
+    .then(({ initAppUpdater }) => initAppUpdater())
+    .catch(e => console.warn('[AppUpdate] Init échouée :', e?.message));
+
 const setupDeepLinkRouter = async () => {
     try {
         const CapApp = window.Capacitor?.Plugins?.App;

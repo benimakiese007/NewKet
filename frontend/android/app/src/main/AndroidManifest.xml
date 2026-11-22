@@ -136,6 +136,9 @@
     <!-- Biometric Authentication (Empreinte digitale / Reconnaissance faciale) -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
+    <!-- Mise à jour in-app depuis GitHub Releases (Android 8.0+ / API 26+) -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <!-- Caméra (Capture directe photos de produits & documents KYC) -->
     <uses-permission android:name="android.permission.CAMERA" />
 
