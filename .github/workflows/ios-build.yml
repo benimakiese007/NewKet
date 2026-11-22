@@ -1,7 +1,7 @@
-﻿name: Build iOS App (Unsigned)
+name: Build iOS App (Unsigned)
 
 on:
-  workflow_dispatch: # Permet de lancer le build manuellement depuis GitHub ou GitHub CLI
+  workflow_dispatch:
     inputs:
       xcode_version:
         description: 'Version de Xcode (ex: 26.0, 16.2, 16.1, 16.0)'
