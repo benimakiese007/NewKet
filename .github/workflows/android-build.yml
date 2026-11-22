@@ -99,9 +99,12 @@ jobs:
       - name: Restauration du Keystore depuis les secrets GitHub
         if: inputs.build_type == 'release'
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend/android/newket-release.jks
+          # Déposer le keystore dans frontend/android/app/ (là où Gradle le résout par défaut)
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > frontend/android/app/newket-release.jks
+          # keystore.properties est lu depuis frontend/android/ (rootProject)
+          # storeFile est relatif au dossier app/ donc on remonte d'un niveau
           cat > frontend/android/keystore.properties << 'EOF'
-          storeFile=newket-release.jks
+          storeFile=../app/newket-release.jks
           storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
           keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -116,7 +119,7 @@ jobs:
       - name: Nettoyage sécurisé du Keystore temporaire
         if: inputs.build_type == 'release'
         run: |
-          rm -f frontend/android/newket-release.jks
+          rm -f frontend/android/app/newket-release.jks
           rm -f frontend/android/keystore.properties
 
       # ── Nommage et SHA-256 (release uniquement) ──────────────────────────────
