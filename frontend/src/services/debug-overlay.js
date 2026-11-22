@@ -253,9 +253,12 @@ export function initDebugOverlay() {
     panel.id = 'nk-debug-panel';
     panel.style.cssText = `
         position: fixed;
-        inset: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         z-index: 10000000;
-        background: rgba(0, 0, 0, 0.75);
+        background: rgba(0, 0, 0, 0.65);
         display: none;
         flex-direction: column;
         justify-content: flex-end;
@@ -264,7 +267,7 @@ export function initDebugOverlay() {
     `;
 
     panel.innerHTML = `
-        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:20px 20px calc(24px + env(safe-area-inset-bottom, 20px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15);">
+        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px 16px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px;">
                 <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
                 <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
@@ -284,6 +287,10 @@ export function initDebugOverlay() {
             <div id="nk-debug-logs" style="flex:1; overflow-y:auto; background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); max-height:350px;"></div>
         </div>
     `;
+
+    panel.addEventListener('click', (e) => {
+        if (e.target === panel) toggleDebugPanel(false);
+    });
 
     panel.querySelector('#nk-dbg-close').addEventListener('click', () => toggleDebugPanel(false));
 
@@ -628,15 +635,25 @@ export function initDebugOverlay() {
     updatePanel();
 }
 
+function getBottomNavHeight() {
+    const nav = document.getElementById('mobileBottomNav');
+    if (nav && window.getComputedStyle(nav).display !== 'none') {
+        return nav.offsetHeight || 62;
+    }
+    return 0;
+}
+
 function toggleDebugPanel(force) {
     isOpen = typeof force === 'boolean' ? force : !isOpen;
     if (panel) {
-        panel.style.display = isOpen ? 'flex' : 'none';
-        // Hide mobile bottom nav to prevent overlap
-        const bottomNav = document.getElementById('mobileBottomNav');
-        if (bottomNav) {
-            bottomNav.style.display = isOpen ? 'none' : '';
+        if (isOpen) {
+            const bNavHeight = getBottomNavHeight();
+            panel.style.bottom = bNavHeight > 0 ? `${bNavHeight}px` : '0px';
+            panel.style.display = 'flex';
+        } else {
+            panel.style.display = 'none';
         }
+        // La tabbar (mobileBottomNav) reste visible et active au bas de l'écran sur tous les supports
         updatePanel();
     }
 }
