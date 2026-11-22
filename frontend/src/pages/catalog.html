@@ -28,7 +28,7 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Catalogue Produits — NewKet | Acheter en Ligne à Kinshasa, RDC</title>
     <meta name="description" content="Explorez le catalogue NewKet : mode, électronique, accessoires, maroquinerie. La plus grande sélection de produits en ligne en RDC. Livraison à Kinshasa et partout en République Démocratique du Congo.">
-    <link rel="canonical" href="https://newket.market/catalog">
+    <link rel="canonical" href="https://newket.vercel.app/catalog">
     
     <!-- Open Graph -->
     <meta property="og:title" content="Catalogue Produits — NewKet | Acheter en Ligne en RDC">
@@ -40,7 +40,7 @@
     <meta property="og:image:alt" content="Catalogue NewKet">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://newket.vercel.app/Images/og-newket.png">
-    <meta property="og:url" content="https://newket.vercel.app/src/pages/catalog">
+    <meta property="og:url" content="https://newket.vercel.app/catalog">
     <meta property="og:locale" content="fr_CD">
 
     <!-- Structured Data -->
@@ -52,12 +52,12 @@
         "@type": "ListItem",
         "position": 1,
         "name": "Accueil",
-        "item": "https://newket.market/"
+        "item": "https://newket.vercel.app/"
       },{
         "@type": "ListItem",
         "position": 2,
         "name": "Catalogue",
-        "item": "https://newket.market/catalog"
+        "item": "https://newket.vercel.app/catalog"
       }]
     }
     </script>
@@ -437,7 +437,7 @@
             height: 100vh;
             background-color: rgba(0, 0, 0, 0.95);
             z-index: 99999;
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -448,6 +448,7 @@
             -webkit-backdrop-filter: blur(10px);
         }
         #lens-scanner-overlay.active {
+            display: flex;
             opacity: 1;
             visibility: visible;
         }
@@ -526,7 +527,7 @@
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
 
     <!-- LENS SCANNER OVERLAY (Fullscreen) -->
-    <div id="lens-scanner-overlay">
+    <div id="lens-scanner-overlay" aria-hidden="true" style="display: none;">
         <div class="lens-scanner-container">
             <img id="lens-scanner-img" class="lens-scanner-img" src="" alt="Scan in progress" />
             <div class="lens-scanner-frame">
@@ -825,8 +826,10 @@
                 let foundCategory = false;
                 document.querySelectorAll('.category-filter').forEach(cb => {
                     if (cb.value === categoryParam || 
-                        (categoryParam === 'Collections Femme' && cb.value === 'Femme') ||
-                        (categoryParam === 'Style Homme' && cb.value === 'Homme')) {
+                        ((categoryParam === 'Collections Femme' || categoryParam === 'Mode Femme') && cb.value === 'Femme') ||
+                        ((categoryParam === 'Style Homme' || categoryParam === 'Mode Homme') && cb.value === 'Homme') ||
+                        (categoryParam === 'High-Tech & Gadgets' && (cb.value === 'Tech & Gadgets' || cb.value === 'HIGH-TECH')) ||
+                        (categoryParam === 'Maison, Déco & Meubles' && cb.value === 'Art de vivre')) {
                         cb.checked = true;
                         foundCategory = true;
                     }
@@ -969,8 +972,14 @@
                 : (document.getElementById('searchInput')?.value || urlParams.get('q') || '').trim().toLowerCase();
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeCategories = [...selectedCategories];
-            if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme');
-            if (selectedCategories.includes('Homme')) activeCategories.push('Style Homme');
+            if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme', 'Mode Femme');
+            if (selectedCategories.includes('Homme')) activeCategories.push('Style Homme', 'Mode Homme');
+            if (selectedCategories.includes('Tech & Gadgets') || selectedCategories.includes('HIGH-TECH')) {
+                activeCategories.push('High-Tech & Gadgets', 'Électronique', 'Gaming', 'Tablettes', 'Photo', 'Drones');
+            }
+            if (selectedCategories.includes('Art de vivre')) {
+                activeCategories.push('Maison, Déco & Meubles', 'Maison');
+            }
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
             const activePromo = document.querySelector('.promo-filter:checked') !== null;
@@ -1109,6 +1118,8 @@
 
             if (dataUrl && scannerImg && overlay) {
                 scannerImg.src = dataUrl;
+                overlay.style.display = 'flex';
+                overlay.setAttribute('aria-hidden', 'false');
                 overlay.classList.add('active');
             }
 
@@ -1147,7 +1158,11 @@
 
                 if (overlay) {
                     overlay.classList.remove('active');
-                    setTimeout(() => { sessionStorage.removeItem('lensScanImage'); }, 400);
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        overlay.setAttribute('aria-hidden', 'true');
+                        sessionStorage.removeItem('lensScanImage');
+                    }, 400);
                 }
             }
         }
@@ -1166,8 +1181,14 @@
 
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeCategories = [...selectedCategories];
-            if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme');
-            if (selectedCategories.includes('Homme')) activeCategories.push('Style Homme');
+            if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme', 'Mode Femme');
+            if (selectedCategories.includes('Homme')) activeCategories.push('Style Homme', 'Mode Homme');
+            if (selectedCategories.includes('Tech & Gadgets') || selectedCategories.includes('HIGH-TECH')) {
+                activeCategories.push('High-Tech & Gadgets', 'Électronique', 'Gaming', 'Tablettes', 'Photo', 'Drones');
+            }
+            if (selectedCategories.includes('Art de vivre')) {
+                activeCategories.push('Maison, Déco & Meubles', 'Maison');
+            }
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
             const activePromo = document.querySelector('.promo-filter:checked') !== null;

@@ -270,7 +270,7 @@ export default async function middleware(request) {
             const image = product.image
                 || (Array.isArray(product.images) && product.images[0])
                 || DEFAULT_OG_IMAGE;
-            const canonicalUrl = `https://newket.vercel.app/src/pages/product.html?id=${encodeURIComponent(product.id)}`;
+            const canonicalUrl = `https://newket.vercel.app/product?id=${encodeURIComponent(product.id)}`;
 
             return renderOpenGraphResponse({
                 title,
@@ -294,7 +294,7 @@ export default async function middleware(request) {
                 : `Découvrez tous les articles de la boutique ${shopName} sur NewKet. Produits authentiques, paiement Mobile Money, livraison à Kinshasa.`;
             // Ordre de priorité convenu : Bannière de couverture -> Logo/Avatar -> Bannière NewKet
             const image = vendor.cover_image || vendor.avatar || DEFAULT_OG_IMAGE;
-            const canonicalUrl = `https://newket.vercel.app/src/pages/shop.html?shop=${encodeURIComponent(target.slug)}`;
+            const canonicalUrl = `https://newket.vercel.app/shop?shop=${encodeURIComponent(target.slug)}`;
 
             return renderOpenGraphResponse({
                 title,

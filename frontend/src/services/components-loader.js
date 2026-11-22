@@ -36,7 +36,7 @@ const HEADER_HTML = `
                 <!-- Right Icons (Mobile) — col droite -->
                 <div class="flex items-center gap-2 justify-end sm:hidden">
                     <!-- Offline Network Status Icon (Mobile) -->
-                    <div class="network-status-icon hidden flex items-center justify-center text-red-500 bg-red-500/20 h-8 w-8 rounded-lg border border-red-500/30" title="Vous êtes hors ligne">
+                    <div class="network-status-icon hidden flex items-center justify-center text-red-500 bg-red-500/20 h-8 w-8 rounded-lg border border-red-500/30" style="display:none;" title="Vous êtes hors ligne">
                         <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
                     </div>
 
@@ -132,7 +132,7 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Offline Network Status Icon (Desktop) -->
-                <div class="network-status-icon hidden flex items-center gap-2 text-red-500 bg-red-500/20 h-10 px-3 rounded-xl border border-red-500/30" title="Vous êtes hors ligne">
+                <div class="network-status-icon hidden flex items-center gap-2 text-red-500 bg-red-500/20 h-10 px-3 rounded-xl border border-red-500/30" style="display:none;" title="Vous êtes hors ligne">
                     <iconify-icon icon="mdi:wifi-off" width="20"></iconify-icon>
                     <span class="text-[10px] font-black uppercase tracking-widest text-white">Hors ligne</span>
                 </div>
@@ -268,7 +268,7 @@ const HEADER_HTML = `
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-rounded-linear" width="20"></iconify-icon> Homme
                 </a>
-                <a href="{{ROOT}}catalog?category=Tech & Gadgets"
+                <a href="{{ROOT}}catalog?category=Tech%20%26%20Gadgets"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
                 </a>
@@ -276,7 +276,7 @@ const HEADER_HTML = `
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon> HIGH-TECH
                 </a>
-                <a href="{{ROOT}}catalog?category=Art de vivre"
+                <a href="{{ROOT}}catalog?category=Art%20de%20vivre"
                     class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:sofa-linear" width="20"></iconify-icon> Art de vivre
                 </a>
@@ -939,8 +939,10 @@ const ComponentLoader = {
             document.querySelectorAll('.network-status-icon').forEach(el => {
                 if (isOnline) {
                     el.classList.add('hidden');
+                    el.style.display = 'none';
                 } else {
                     el.classList.remove('hidden');
+                    el.style.display = '';
                 }
             });
 
