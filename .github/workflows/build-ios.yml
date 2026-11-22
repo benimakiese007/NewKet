@@ -4,113 +4,88 @@ on:
   workflow_dispatch:
     inputs:
       xcode_version:
-        description: 'Version de Xcode (ex: 26.0, 16.2, 16.1, 16.0)'
+        description: 'Version de Xcode (ex: latest-stable, 16.2, 16.1, 16.0)'
         required: true
         default: 'latest-stable'
         type: choice
         options:
-          - '26.0'
+          - 'latest-stable'
           - '16.2'
           - '16.1'
           - '16.0'
-          - 'latest-stable'
 
 jobs:
   build-ios:
-    # macos-26 est le runner GitHub natif pour Xcode 26 + iOS 26 SDK (Liquid Glass).
-    # Si macos-26 n'est pas encore disponible sur ton plan GitHub, repasse sur macos-15
-    # et ajoute manuellement DEVELOPER_DIR pour pointer vers Xcode 26.
     runs-on: macos-15
     
     steps:
-      - name: ðŸ“¥ Checkout du code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: ðŸŽ Setup Xcode (${{ inputs.xcode_version || '26.0' }})
+      - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: ${{ inputs.xcode_version || 'latest-stable' }}
 
-      - name: ðŸ” VÃ©rification SDK iOS (doit afficher iOS 26.x pour Liquid Glass)
+      - name: Verification SDK iOS
         run: |
           xcodebuild -showsdks | grep -E "iphoneos|iphonesimulator" || true
           xcrun --sdk iphoneos --show-sdk-version || true
           xcodebuild -version
 
-      - name: ðŸ“² TÃ©lÃ©chargement de la plateforme iOS (Xcode Components)
+      - name: Telechargement de la plateforme iOS (Xcode Components)
         run: |
-          echo "ðŸ“¥ VÃ©rification et tÃ©lÃ©chargement du runtime iOS..."
+          echo "Verification et telechargement du runtime iOS..."
           for i in 1 2 3; do
             echo "Tentative $i/3..."
             if xcodebuild -downloadPlatform iOS; then
-              echo "âœ… TÃ©lÃ©chargement rÃ©ussi."
+              echo "Telechargement reussi."
               break
             elif sudo xcodebuild -downloadPlatform iOS; then
-              echo "âœ… TÃ©lÃ©chargement avec sudo rÃ©ussi."
+              echo "Telechargement avec sudo reussi."
               break
             fi
-            echo "âš ï¸ Nouvelle tentative dans 5s..."
+            echo "Nouvelle tentative dans 5s..."
             sleep 5
           done
           xcrun simctl list runtimes || true
-      - name: ðŸŸ¢ Setup Node.js
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: ðŸ“¦ Installation des dÃ©pendances
+      - name: Installation des dependances
         run: npm install
         working-directory: ./frontend
 
-      - name: ðŸ”‘ CrÃ©ation du fichier .env
+      - name: Creation du fichier .env
         run: |
           echo "VITE_SUPABASE_URL=https://kuygjocnnlvjtoaquicq.supabase.co" > .env
           echo "VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzNDM2NjYsImV4cCI6MjA4NjkxOTY2Nn0.1qyGb91CbLeSRNWKUNGiToJYGr8lsI-DeddWTnMv3SY" >> .env
           echo "VITE_APP_ENV=production" >> .env
         working-directory: ./frontend
 
-      - name: ðŸ› ï¸ Compilation du site Web (Vite)
+      - name: Compilation du site Web (Vite)
         run: npm run build
         working-directory: ./frontend
 
-      - name: ðŸ”„ Synchronisation Capacitor iOS
+      - name: Synchronisation Capacitor iOS
         run: |
           npx cap add ios || true
-          # The iOS splash assets are curated in ios/App/App/Assets.xcassets.
-          # Do not regenerate them here: Capacitor Assets would replace the
-          # fixed-size launch logo with its generic, small splash composition.
           npx cap sync ios
-          # Inject custom URL scheme "newket://" for Google OAuth deep-link redirect
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/App/App/Info.plist 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string newket" ios/App/App/Info.plist 2>/dev/null || true
-          echo "âœ… URL scheme 'newket://' ajoutÃ© Ã  Info.plist"
-          # Garantir UIDesignRequiresCompatibility=false pour activer Liquid Glass (iOS 26)
+          echo "URL scheme newket:// ajoute a Info.plist"
           /usr/libexec/PlistBuddy -c "Set :UIDesignRequiresCompatibility false" ios/App/App/Info.plist 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIDesignRequiresCompatibility bool false" ios/App/App/Info.plist 2>/dev/null || true
-          # Garantir le mode background voip pour PushKit / CallKit
-          # cap sync peut ecraser UIBackgroundModes - on le force systematiquement apres sync
-          python3 - <<PYEOF
-import plistlib
-path = 'ios/App/App/Info.plist'
-with open(path, 'rb') as f:
-    p = plistlib.load(f)
-modes = p.get('UIBackgroundModes', [])
-if 'voip' not in modes:
-    modes.append('voip')
-    p['UIBackgroundModes'] = modes
-    with open(path, 'wb') as f:
-        plistlib.dump(p, f)
-    print('voip ajoute a UIBackgroundModes')
-else:
-    print('voip deja present dans UIBackgroundModes')
-PYEOF
-          echo "âœ… UIDesignRequiresCompatibility=false vÃ©rifiÃ© pour Liquid Glass"
+          python3 -c "import plistlib; p_path='ios/App/App/Info.plist'; f=open(p_path,'rb'); d=plistlib.load(f); f.close(); modes=d.get('UIBackgroundModes',[]); modes.append('voip') if 'voip' not in modes else None; d['UIBackgroundModes']=modes; f=open(p_path,'wb'); plistlib.dump(d,f); f.close(); print('voip configure dans UIBackgroundModes')"
+          echo "UIDesignRequiresCompatibility=false verifie pour Liquid Glass"
         working-directory: ./frontend
 
-      - name: ðŸŽ Build Xcode (Sans signature)
+      - name: Build Xcode (Sans signature)
         run: |
-          # Compile App + NewKetWidgetExtension (via PBXTargetDependency)
           xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
@@ -121,37 +96,32 @@ PYEOF
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             build
-          # Verify and guarantee Widget Extension is embedded inside App.app/PlugIns/
           mkdir -p build_ios/Release-iphoneos/App.app/PlugIns
           if [ -d "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" ]; then
-            echo "ðŸ“¦ Copie de NewKetWidgetExtension.appex dans App.app/PlugIns/..."
+            echo "Copie de NewKetWidgetExtension.appex dans App.app/PlugIns/..."
             cp -r "build_ios/Release-iphoneos/NewKetWidgetExtension.appex" "build_ios/Release-iphoneos/App.app/PlugIns/"
           fi
 
           if [ -d "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex" ]; then
-            echo "âœ… Widget Extension validÃ© dans App.app/PlugIns/NewKetWidgetExtension.appex"
+            echo "Widget Extension valide dans App.app/PlugIns/NewKetWidgetExtension.appex"
             ls -la "build_ios/Release-iphoneos/App.app/PlugIns/NewKetWidgetExtension.appex"
           else
-            echo "âš ï¸ Widget Extension toujours introuvable. Contenu de build_ios/Release-iphoneos/ :"
+            echo "Widget Extension toujours introuvable. Contenu de build_ios/Release-iphoneos/ :"
             ls -la build_ios/Release-iphoneos/
           fi
         working-directory: ./frontend
 
-      - name: ðŸ“¦ CrÃ©ation du fichier .ipa
+      - name: Creation du fichier .ipa
         run: |
           mkdir -p Payload
-          # Copier l'application compilÃ©e dans le dossier Payload
-          # App.app/PlugIns/NewKetWidgetExtension.appex est inclus automatiquement
           cp -r build_ios/Release-iphoneos/App.app Payload/
-          # Ziper le tout au format IPA
           zip -r NewKet-iOS.ipa Payload
-          echo "ðŸ“¦ Taille IPA: $(du -sh NewKet-iOS.ipa | cut -f1)"
+          echo "Taille IPA: $(du -sh NewKet-iOS.ipa | cut -f1)"
         working-directory: ./frontend
 
-      - name: ðŸ“¤ Mise Ã  disposition de l'IPA
+      - name: Mise a disposition de l IPA
         uses: actions/upload-artifact@v4
         with:
           name: NewKet-iOS-App
           path: frontend/NewKet-iOS.ipa
           retention-days: 7
-
