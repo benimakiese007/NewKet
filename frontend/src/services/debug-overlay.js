@@ -722,16 +722,29 @@ function toggleDebugPanel(force) {
     isOpen = typeof force === 'boolean' ? force : !isOpen;
     if (panel) {
         if (isOpen) {
-            // Sur iOS : masquer temporairement la NativeTabBar pour libérer tout l'écran sans chevauchement
+            // Masquer la tabbar HTML (Android / Web)
+            const htmlNav = document.getElementById('mobileBottomNav');
+            if (htmlNav) {
+                htmlNav.dataset.debugHidden = '1';
+                htmlNav.style.display = 'none';
+            }
+
+            // Sur iOS : masquer aussi la NativeTabBar native
             try {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
             } catch (_) {}
 
-            const bNavHeight = getBottomNavHeight();
-            panel.style.bottom = bNavHeight > 0 ? `${bNavHeight}px` : '0px';
+            panel.style.bottom = '0px';
             panel.style.display = 'flex';
         } else {
             panel.style.display = 'none';
+
+            // Restaurer la tabbar HTML (Android / Web)
+            const htmlNav = document.getElementById('mobileBottomNav');
+            if (htmlNav && htmlNav.dataset.debugHidden === '1') {
+                htmlNav.style.display = '';
+                delete htmlNav.dataset.debugHidden;
+            }
 
             // Sur iOS : restaurer la NativeTabBar quand le panneau de debug se ferme
             try {
