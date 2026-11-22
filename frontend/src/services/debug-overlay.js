@@ -277,21 +277,29 @@ export function initDebugOverlay() {
     panel.id = 'nk-debug-panel';
     panel.style.cssText = `
         position: fixed !important;
+        inset: 0 !important;
         top: 0 !important;
         left: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
         z-index: 2147483647 !important;
-        background: rgba(0, 0, 0, 0.65);
+        background: rgba(0, 0, 0, 0.65) !important;
         display: none;
-        flex-direction: column;
-        justify-content: flex-end;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        align-items: stretch !important;
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
     `;
 
     panel.innerHTML = `
-        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 16px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); width:100%; box-sizing:border-box;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px;">
                 <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
                 <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
@@ -734,10 +742,13 @@ function toggleDebugPanel(force) {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
             } catch (_) {}
 
-            panel.style.removeProperty('bottom');
             panel.style.setProperty('display', 'flex', 'important');
+            panel.style.setProperty('bottom', '0px', 'important');
+            panel.style.setProperty('top', '0px', 'important');
+            panel.style.setProperty('height', '100dvh', 'important');
+            panel.style.setProperty('justify-content', 'flex-end', 'important');
         } else {
-            panel.style.display = 'none';
+            panel.style.setProperty('display', 'none', 'important');
 
             // Restaurer la tabbar HTML (Android / Web)
             const htmlNav = document.getElementById('mobileBottomNav');
