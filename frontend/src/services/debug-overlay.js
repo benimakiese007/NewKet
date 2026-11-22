@@ -113,7 +113,7 @@ function updatePanel() {
                 platformSection = `
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
                         <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 NATIVE ANDROID (APK)</div>
-                        <div><b>Version APK native :</b> <span style="color:#38bdf8; font-weight:bold;">v${window.__NATIVE_APK_VERSION__ || '1.0.75'}</span></div>
+                        <div><b>Version APK native :</b> <span style="color:#38bdf8; font-weight:bold;">v${window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.75'}</span></div>
                         <div><b>Dernière release :</b> <span style="color:#a78bfa;">${window.__REMOTE_APK_VERSION__ || 'v1.0.75'}</span></div>
                         <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:2px;"></div>
                     </div>

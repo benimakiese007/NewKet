@@ -45,13 +45,15 @@ function compareVersions(v1, v2) {
 // ── Version locale actuelle (depuis package.json via import.meta.env ou meta) ─
 function getLocalVersion() {
     if (window.__NATIVE_APK_VERSION__) return window.__NATIVE_APK_VERSION__;
+    const stored = localStorage.getItem('nk_native_apk_version');
+    if (stored) return stored;
     // 1. Meta tag injecté par Vite (préféré)
     const metaTag = document.querySelector('meta[name="app-version"]');
     if (metaTag?.content) return metaTag.content;
     // 2. Variable globale exposée par le build
     if (window.__APP_VERSION__) return window.__APP_VERSION__;
-    // 3. Fallback localStorage (défini au précédent lancement de l'app)
-    return localStorage.getItem('nk_app_version') || '1.0.75';
+    // 3. Fallback
+    return '1.0.75';
 }
 
 // ── Appel à l'API GitHub Releases ─────────────────────────────────────────────
@@ -240,6 +242,16 @@ if (typeof window !== 'undefined') {
 }
 export async function initAppUpdater() {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') return;
+
+    // Récupérer la vraie version native de l'APK au démarrage
+    try {
+        const { AppUpdate } = await importPlugin();
+        const nativeInfo = await AppUpdate.getNativeVersion();
+        if (nativeInfo?.versionName) {
+            window.__NATIVE_APK_VERSION__ = nativeInfo.versionName;
+            localStorage.setItem('nk_native_apk_version', nativeInfo.versionName);
+        }
+    } catch (_) {}
 
     // Vérification automatique 3 secondes après le démarrage
     // Tant que l'APK n'est pas à jour, le modal réapparaît à chaque ouverture !
