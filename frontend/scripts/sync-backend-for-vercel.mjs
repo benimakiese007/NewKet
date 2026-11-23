@@ -15,8 +15,10 @@ if (!fs.existsSync(backendSrc)) {
   throw new Error(`Backend source folder not found: ${backendSrc}`);
 }
 
-fs.rmSync(apiBackendRoot, { recursive: true, force: true });
+try {
+  fs.rmSync(apiBackendRoot, { recursive: true, force: true, maxRetries: 3 });
+} catch (_) {}
 fs.mkdirSync(apiBackendRoot, { recursive: true });
-fs.cpSync(backendSrc, apiBackendSrc, { recursive: true });
+fs.cpSync(backendSrc, apiBackendSrc, { recursive: true, force: true });
 
 console.log(`[sync-backend-for-vercel] Copied ${backendSrc} -> ${apiBackendSrc}`);
