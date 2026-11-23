@@ -120,14 +120,38 @@ function updatePanel() {
 
             let platformSection = '';
             if (s.isAndroid) {
+                const nativeVer = window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.78';
+                const remoteVer = window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.78';
                 platformSection = `
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
                         <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 COQUE ANDROID (APK)</div>
-                        <div><b>APK installé :</b> <span style="color:#38bdf8; font-weight:bold;">v${window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.76'}</span></div>
-                        <div><b>Dernière release GitHub :</b> <span style="color:#a78bfa;">${window.__REMOTE_APK_VERSION__ || 'v1.0.76'}</span></div>
+                        <div><b>APK installé :</b> <span id="nk-dbg-native-apk-val" style="color:#38bdf8; font-weight:bold;">v${nativeVer}</span></div>
+                        <div><b>Dernière release GitHub :</b> <span id="nk-dbg-remote-apk-val" style="color:#a78bfa;">${remoteVer.startsWith('v') ? remoteVer : 'v' + remoteVer}</span></div>
                         <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:2px;"></div>
                     </div>
                 `;
+
+                // Rafraîchir dynamiquement depuis le PackageManager natif Android
+                (async () => {
+                    try {
+                        const { registerPlugin } = await import('@capacitor/core');
+                        const AppUpdate = registerPlugin('AppUpdate');
+                        const nativeInfo = await AppUpdate.getNativeVersion();
+                        if (nativeInfo?.versionName) {
+                            window.__NATIVE_APK_VERSION__ = nativeInfo.versionName;
+                            localStorage.setItem('nk_native_apk_version', nativeInfo.versionName);
+                            const el = document.getElementById('nk-dbg-native-apk-val');
+                            if (el) el.textContent = 'v' + nativeInfo.versionName;
+                        }
+                    } catch (_) {}
+                    try {
+                        const storedRemote = localStorage.getItem('nk_remote_apk_version');
+                        if (storedRemote) {
+                            const el = document.getElementById('nk-dbg-remote-apk-val');
+                            if (el) el.textContent = storedRemote.startsWith('v') ? storedRemote : 'v' + storedRemote;
+                        }
+                    } catch (_) {}
+                })();
             } else if (s.isIos) {
                 platformSection = `
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
@@ -394,7 +418,11 @@ export function initDebugOverlay() {
                 showUpdateModal(res);
             } else if (res.reason === 'up-to-date') {
                 btn.textContent = '✅ À jour';
-                if (feedback) feedback.textContent = `Votre APK (${res.localVersion || '1.0.76'}) est à jour.`;
+                if (feedback) feedback.textContent = `Votre APK (${res.localVersion || '1.0.78'}) est à jour.`;
+                const elNat = document.getElementById('nk-dbg-native-apk-val');
+                if (elNat && res.localVersion) elNat.textContent = 'v' + res.localVersion;
+                const elRem = document.getElementById('nk-dbg-remote-apk-val');
+                if (elRem && res.remoteVersion) elRem.textContent = res.remoteVersion.startsWith('v') ? res.remoteVersion : 'v' + res.remoteVersion;
             } else {
                 btn.textContent = 'ℹ️ ' + (res.reason || 'OK');
                 if (feedback) feedback.textContent = 'Statut : ' + res.reason;
@@ -433,6 +461,8 @@ export function initDebugOverlay() {
             `Supabase Client: ${s.sbOk ? 'OK' : 'NULL'}`,
             `Produits: ${s.prodCount} total (${s.pubCount} publics)`,
             `Rôle Auth: ${s.authRole}`,
+            s.isAndroid ? `APK installé: v${window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.78'}` : null,
+            s.isAndroid ? `Dernière release GitHub: ${window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.78'}` : null,
             ``,
             `--- APPELS NATIFS (MOUCHARD ANDROID) ---`,
             nativeCallLogs ? nativeCallLogs.trim() : 'Aucun log natif enregistré ou non-disponible sur cette plateforme.',

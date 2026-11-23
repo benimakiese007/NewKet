@@ -43,7 +43,7 @@ function compareVersions(v1, v2) {
 }
 
 // ── Version locale actuelle (depuis package.json via import.meta.env ou meta) ─
-function getLocalVersion() {
+export function getLocalVersion() {
     if (window.__NATIVE_APK_VERSION__) return window.__NATIVE_APK_VERSION__;
     const stored = localStorage.getItem('nk_native_apk_version');
     if (stored) return stored;
@@ -73,7 +73,12 @@ async function fetchLatestRelease() {
             return null;
         }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        const data = await res.json();
+        if (data?.tag_name) {
+            window.__REMOTE_APK_VERSION__ = data.tag_name;
+            try { localStorage.setItem('nk_remote_apk_version', data.tag_name); } catch (_) {}
+        }
+        return data;
     } catch (e) {
         clearTimeout(timeout);
         if (e.name === 'AbortError') {
@@ -250,6 +255,8 @@ export async function initAppUpdater() {
         if (nativeInfo?.versionName) {
             window.__NATIVE_APK_VERSION__ = nativeInfo.versionName;
             localStorage.setItem('nk_native_apk_version', nativeInfo.versionName);
+            const el = document.getElementById('nk-dbg-native-apk-val');
+            if (el) el.textContent = 'v' + nativeInfo.versionName;
         }
     } catch (_) {}
 

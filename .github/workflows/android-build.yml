@@ -118,11 +118,11 @@ jobs:
           RAW_TAG="${{ inputs.tag_name }}"
           CLEAN_VER="${RAW_TAG#v}"
           if [ -z "$CLEAN_VER" ]; then
-            CLEAN_VER="1.0.76"
+            CLEAN_VER="1.0.78"
           fi
           VCODE=$(echo "$CLEAN_VER" | awk -F. '{print $3}' | sed 's/[^0-9]//g')
           if [ -z "$VCODE" ]; then
-            VCODE=76
+            VCODE=78
           fi
           echo "Building APK with versionName=$CLEAN_VER and versionCode=$VCODE"
           ./gradlew assembleRelease -PappVersionName="$CLEAN_VER" -PappVersionCode="$VCODE" --no-daemon --stacktrace
