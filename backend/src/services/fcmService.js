@@ -33,6 +33,20 @@ const __dirname = path.dirname(__filename);
 
 let initError = null;
 
+function _normalizePemKey(raw) {
+    if (!raw || typeof raw !== 'string') return raw;
+    const header = '-----BEGIN PRIVATE KEY-----';
+    const footer = '-----END PRIVATE KEY-----';
+    if (raw.includes(header) && raw.includes(footer)) {
+        let body = raw.replace(header, '').replace(footer, '');
+        // Retirer toutes les séquences d'échappement (\n, \\n) et tous les espaces/retours
+        body = body.replace(/\\\\n/g, '').replace(/\\n/g, '').replace(/\s+/g, '');
+        const lines = body.match(/.{1,64}/g) || [];
+        return header + '\n' + lines.join('\n') + '\n' + footer + '\n';
+    }
+    return raw.replace(/\\n/g, '\n');
+}
+
 function _initFirebase() {
     // Éviter la double initialisation (ex: hot-reload en dev)
     if (getApps().length > 0) {
@@ -59,9 +73,9 @@ function _initFirebase() {
                 raw = raw.slice(1, -1).replace(/\\"/g, '"');
             }
             const parsed = JSON.parse(raw);
-            // VITAL Vercel : restaurer les vrais sauts de ligne dans la clé privée PEM
+            // VITAL Vercel : normaliser la clé privée PEM (RFC 7468) quelle que soit l'altération subie par l'env
             if (parsed.private_key && typeof parsed.private_key === 'string') {
-                parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+                parsed.private_key = _normalizePemKey(parsed.private_key);
             }
             credential = cert(parsed);
             console.log('[FCM] Initialisé via variable d\'environnement FIREBASE_SERVICE_ACCOUNT (projet:', parsed.project_id, ')');
