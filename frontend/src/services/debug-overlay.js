@@ -784,7 +784,31 @@ export function initDebugOverlay() {
             const data = await res.json().catch(() => ({}));
             console.log('[Debug] 📩 Réponse serveur FCM:', res.status, JSON.stringify(data));
 
-            btn.textContent = '🔒 Verrouille vite ! (3s)';
+            if (!res.ok) {
+                btn.textContent = '❌ Erreur ' + res.status;
+                btn.style.background = '#dc2626';
+                alert('Erreur serveur (' + res.status + '): ' + (data.error || 'Échec'));
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = '🔔 FCM (3s)';
+                    btn.style.background = '#b45309';
+                }, 3000);
+                return;
+            }
+
+            if (data.fcm_sent === 0) {
+                btn.textContent = '⚠️ 0 push FCM envoyé';
+                btn.style.background = '#ea580c';
+                alert('⚠️ Le serveur a répondu 200 OK mais fcm_sent=0 (le service FCM du backend n\'a pas trouvé de token actif ou n\'est pas initialisé).');
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = '🔔 FCM (3s)';
+                    btn.style.background = '#b45309';
+                }, 3000);
+                return;
+            }
+
+            btn.textContent = '🔒 ' + data.fcm_sent + ' push envoyé ! Verrouille !';
             btn.style.background = '#10b981';
 
             // Fermer le panneau après 1s pour que l'utilisateur soit sur l'écran et puisse verrouiller
@@ -794,9 +818,9 @@ export function initDebugOverlay() {
 
             setTimeout(() => {
                 btn.disabled = false;
-                btn.textContent = '🔔 Réveil FCM (3s)';
+                btn.textContent = '🔔 FCM (3s)';
                 btn.style.background = '#b45309';
-            }, 5000);
+            }, 6000);
 
         } catch (err) {
             console.error('[Debug] ❌ Erreur déclenchement FCM:', err);
