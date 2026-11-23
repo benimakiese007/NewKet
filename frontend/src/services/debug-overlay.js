@@ -7,6 +7,22 @@ const MAX_LOGS = 120;
 const logs = [];
 let isLogsExpanded = false;
 
+let _overlayAppUpdate = null;
+async function getAppUpdatePlugin() {
+    if (_overlayAppUpdate) return _overlayAppUpdate;
+    if (window.Capacitor?.Plugins?.AppUpdate) {
+        _overlayAppUpdate = window.Capacitor.Plugins.AppUpdate;
+        return _overlayAppUpdate;
+    }
+    try {
+        const { registerPlugin } = await import('@capacitor/core');
+        _overlayAppUpdate = registerPlugin('AppUpdate');
+    } catch (_) {
+        _overlayAppUpdate = window.Capacitor?.Plugins?.AppUpdate;
+    }
+    return _overlayAppUpdate;
+}
+
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -131,27 +147,27 @@ function updatePanel() {
                     </div>
                 `;
 
-                // Rafraîchir dynamiquement depuis le PackageManager natif Android
-                (async () => {
-                    try {
-                        const { registerPlugin } = await import('@capacitor/core');
-                        const AppUpdate = registerPlugin('AppUpdate');
-                        const nativeInfo = await AppUpdate.getNativeVersion();
-                        if (nativeInfo?.versionName) {
-                            window.__NATIVE_APK_VERSION__ = nativeInfo.versionName;
-                            localStorage.setItem('nk_native_apk_version', nativeInfo.versionName);
-                            const el = document.getElementById('nk-dbg-native-apk-val');
-                            if (el) el.textContent = 'v' + nativeInfo.versionName;
+                // Rafraîchir dynamiquement depuis le PackageManager natif Android (une seule fois)
+                if (!window.__NATIVE_APK_VERSION__ && !window.__fetchingNativeVersion) {
+                    window.__fetchingNativeVersion = true;
+                    (async () => {
+                        try {
+                            const AppUpdate = await getAppUpdatePlugin();
+                            if (AppUpdate) {
+                                const nativeInfo = await AppUpdate.getNativeVersion();
+                                if (nativeInfo?.versionName) {
+                                    window.__NATIVE_APK_VERSION__ = nativeInfo.versionName;
+                                    localStorage.setItem('nk_native_apk_version', nativeInfo.versionName);
+                                    const el = document.getElementById('nk-dbg-native-apk-val');
+                                    if (el) el.textContent = 'v' + nativeInfo.versionName;
+                                }
+                            }
+                        } catch (_) {}
+                        finally {
+                            window.__fetchingNativeVersion = false;
                         }
-                    } catch (_) {}
-                    try {
-                        const storedRemote = localStorage.getItem('nk_remote_apk_version');
-                        if (storedRemote) {
-                            const el = document.getElementById('nk-dbg-remote-apk-val');
-                            if (el) el.textContent = storedRemote.startsWith('v') ? storedRemote : 'v' + storedRemote;
-                        }
-                    } catch (_) {}
-                })();
+                    })();
+                }
             } else if (s.isIos) {
                 platformSection = `
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
@@ -443,11 +459,12 @@ export function initDebugOverlay() {
 
         let nativeCallLogs = '';
         try {
-            const { registerPlugin } = await import('@capacitor/core');
-            const AppUpdate = registerPlugin('AppUpdate');
-            const res = await AppUpdate.getCallLogs();
-            if (res && res.logs) {
-                nativeCallLogs = res.logs;
+            const AppUpdate = await getAppUpdatePlugin();
+            if (AppUpdate) {
+                const res = await AppUpdate.getCallLogs();
+                if (res && res.logs) {
+                    nativeCallLogs = res.logs;
+                }
             }
         } catch (_) {}
 

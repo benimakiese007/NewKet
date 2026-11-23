@@ -213,10 +213,20 @@ export async function downloadAndInstall(assets, onProgress) {
 }
 
 // ── Import dynamique du plugin Capacitor (évite les erreurs sur web) ──────────
+let _cachedAppUpdate = null;
 async function importPlugin() {
-    const { registerPlugin } = await import('@capacitor/core');
-    const AppUpdate = registerPlugin('AppUpdate');
-    return { AppUpdate };
+    if (_cachedAppUpdate) return { AppUpdate: _cachedAppUpdate };
+    if (window.Capacitor?.Plugins?.AppUpdate) {
+        _cachedAppUpdate = window.Capacitor.Plugins.AppUpdate;
+        return { AppUpdate: _cachedAppUpdate };
+    }
+    try {
+        const { registerPlugin } = await import('@capacitor/core');
+        _cachedAppUpdate = registerPlugin('AppUpdate');
+    } catch (_) {
+        _cachedAppUpdate = window.Capacitor?.Plugins?.AppUpdate;
+    }
+    return { AppUpdate: _cachedAppUpdate };
 }
 
 // ── Formatage de la taille en Mo ─────────────────────────────────────────────
