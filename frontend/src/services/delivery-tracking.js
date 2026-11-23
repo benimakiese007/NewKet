@@ -1001,10 +1001,30 @@
             if (this.peerUserId) {
                 (async () => {
                     try {
-                        const sessionData = await window.supabaseClient?.auth?.getSession();
-                        const token = sessionData?.data?.session?.access_token;
+                        // Récupération du token : d'abord via getSession(), sinon via localStorage (fallback Capacitor)
+                        let token = null;
+                        try {
+                            const sessionData = await window.supabaseClient?.auth?.getSession();
+                            token = sessionData?.data?.session?.access_token || null;
+                        } catch (_) {}
+
+                        // Fallback : token stocké en localStorage par Supabase (clé standard)
+                        if (!token) {
+                            try {
+                                const sbKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+                                if (sbKey) {
+                                    const parsed = JSON.parse(localStorage.getItem(sbKey) || '{}');
+                                    token = parsed?.access_token || null;
+                                }
+                            } catch (_) {}
+                        }
+
+                        console.log('[NewKet CallRing] 🔔 Push FCM call-ring — token:', token ? 'OK' : 'MANQUANT', '| target:', this.peerUserId, '| order:', this.orderId);
+
                         if (token) {
-                            fetch(_getApiUrl('/api/push/call-ring'), {
+                            const url = _getApiUrl('/api/push/call-ring');
+                            console.log('[NewKet CallRing] 📡 Envoi vers:', url);
+                            const res = await fetch(url, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -1016,9 +1036,15 @@
                                     caller_avatar: this.myAvatar,
                                     order_id: this.orderId
                                 })
-                            }).catch(() => {});
+                            });
+                            const json = await res.json().catch(() => ({}));
+                            console.log('[NewKet CallRing] ✅ Réponse call-ring:', res.status, JSON.stringify(json));
+                        } else {
+                            console.warn('[NewKet CallRing] ❌ Token introuvable — push FCM non envoyé');
                         }
-                    } catch (_) {}
+                    } catch (err) {
+                        console.warn('[NewKet CallRing] ❌ Erreur fetch call-ring:', err?.message);
+                    }
                 })();
             }
 

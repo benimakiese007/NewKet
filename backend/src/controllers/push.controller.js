@@ -114,6 +114,17 @@ export const sendCallRing = async (req, res, next) => {
         const fcmSent = fcmResult.value?.sent ?? 0;
         const voipSent = voipResult.value?.sent ?? 0;
 
+        // Log détaillé pour diagnostiquer les push FCM
+        console.log('[PushController] call-ring résultat:', {
+            target_user_id,
+            fcm_configured: FcmService.isConfigured(),
+            fcm_sent: fcmSent,
+            fcm_error: fcmResult.status === 'rejected' ? fcmResult.reason?.message : null,
+            web_sent: webSent,
+            web_error: webResult.status === 'rejected' ? webResult.reason?.message : null,
+            voip_sent: voipSent,
+        });
+
         res.json({
             success: true,
             sent: webSent + fcmSent + voipSent,
