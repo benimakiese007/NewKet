@@ -35,16 +35,14 @@ let initError = null;
 
 function _normalizePemKey(raw) {
     if (!raw || typeof raw !== 'string') return raw;
-    const header = '-----BEGIN PRIVATE KEY-----';
-    const footer = '-----END PRIVATE KEY-----';
-    if (raw.includes(header) && raw.includes(footer)) {
-        let body = raw.replace(header, '').replace(footer, '');
-        // Retirer toutes les séquences d'échappement (\n, \\n) et tous les espaces/retours
-        body = body.replace(/\\\\n/g, '').replace(/\\n/g, '').replace(/\s+/g, '');
+    let clean = raw.replace(/\r/g, '').replace(/\\n/g, '\n');
+    const match = clean.match(/-----[^-]+-----(.+?)-----[^-]+-----/s);
+    if (match) {
+        let body = match[1].replace(/\\\\n/g, '').replace(/\\n/g, '').replace(/\s+/g, '');
         const lines = body.match(/.{1,64}/g) || [];
-        return header + '\n' + lines.join('\n') + '\n' + footer + '\n';
+        return '-----BEGIN PRIVATE KEY-----\n' + lines.join('\n') + '\n-----END PRIVATE KEY-----\n';
     }
-    return raw.replace(/\\n/g, '\n');
+    return clean;
 }
 
 function _initFirebase() {
@@ -73,14 +71,20 @@ function _initFirebase() {
                 raw = raw.slice(1, -1).replace(/\\"/g, '"');
             }
             const parsed = JSON.parse(raw);
+            const origKey = parsed.private_key;
             // VITAL Vercel : normaliser la clé privée PEM (RFC 7468) quelle que soit l'altération subie par l'env
             if (parsed.private_key && typeof parsed.private_key === 'string') {
                 parsed.private_key = _normalizePemKey(parsed.private_key);
             }
-            credential = cert(parsed);
-            console.log('[FCM] Initialisé via variable d\'environnement FIREBASE_SERVICE_ACCOUNT (projet:', parsed.project_id, ')');
+            try {
+                credential = cert(parsed);
+                console.log('[FCM] Initialisé via variable d\'environnement FIREBASE_SERVICE_ACCOUNT (projet:', parsed.project_id, ')');
+            } catch (certErr) {
+                initError = `certErr: ${certErr.message} | origLen=${origKey?.length} | normLen=${parsed?.private_key?.length} | first25=${JSON.stringify(origKey?.slice(0, 25))} | last25=${JSON.stringify(origKey?.slice(-25))} | normFirst25=${JSON.stringify(parsed?.private_key?.slice(0, 25))} | proj=${parsed?.project_id} | email=${parsed?.client_email}`;
+                console.error('[FCM] certErr:', initError);
+            }
         } catch (e) {
-            initError = 'Erreur parsing/cert: ' + e.message;
+            initError = initError || ('Erreur parsing/cert: ' + e.message);
             console.error('[FCM] Impossible de parser FIREBASE_SERVICE_ACCOUNT :', e.message);
         }
     }
