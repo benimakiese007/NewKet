@@ -1199,6 +1199,17 @@
                 window.deliveryTrackerInstance.answerCall();
             }
         });
+
+        // Déclencheur de test manuel de l'UI d'appel plein écran & PiP (depuis le panneau Diag)
+        window.addEventListener('newket:trigger_test_call', (e) => {
+            console.log('[NewKet CallNotifier] 🧪 Déclenchement test UI appel entrant...');
+            _buildDashboardStyleCallUI({
+                callerName: e.detail?.callerName || 'Test Livreur NewKet',
+                callerAvatar: e.detail?.callerAvatar || '',
+                orderId: e.detail?.orderId || 'TEST-9999',
+                role: 'vendor'
+            });
+        });
     }
 
     if (document.readyState === 'loading') {

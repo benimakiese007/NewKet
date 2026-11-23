@@ -145,7 +145,35 @@ function updatePanel() {
                         <div><b>Dernière release GitHub :</b> <span id="nk-dbg-remote-apk-val" style="color:#a78bfa;">${remoteVer.startsWith('v') ? remoteVer : 'v' + remoteVer}</span></div>
                         <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:2px;"></div>
                     </div>
+                    <div style="margin-top:8px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em;">📡 MOUCHARD APPELS NATIFS</div>
+                            <button id="nk-dbg-refresh-mouchard-btn" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:4px; padding:1px 6px; font-size:9px; font-weight:700; cursor:pointer;">🔄 Rafraîchir</button>
+                        </div>
+                        <div id="nk-dbg-call-logs-box" style="background:#020617; padding:6px; border-radius:8px; font-family:monospace; font-size:10px; color:#a5f3fc; max-height:130px; overflow-y:auto; white-space:pre-wrap; border:1px solid rgba(56,189,248,0.2); line-height:1.4;">${window.__NATIVE_CALL_LOGS__ || 'Aucun événement natif enregistré pour l\'instant.'}</div>
+                    </div>
                 `;
+
+                // Rafraîchir les logs du mouchard natif Android
+                if (!window.__fetchingCallLogs) {
+                    window.__fetchingCallLogs = true;
+                    (async () => {
+                        try {
+                            const AppUpdate = await getAppUpdatePlugin();
+                            if (AppUpdate) {
+                                const res = await AppUpdate.getCallLogs();
+                                if (res?.logs) {
+                                    window.__NATIVE_CALL_LOGS__ = res.logs.trim();
+                                    const box = document.getElementById('nk-dbg-call-logs-box');
+                                    if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
+                                }
+                            }
+                        } catch (_) {}
+                        finally {
+                            setTimeout(() => { window.__fetchingCallLogs = false; }, 3000);
+                        }
+                    })();
+                }
 
                 // Rafraîchir dynamiquement depuis le PackageManager natif Android (une seule fois)
                 if (!window.__NATIVE_APK_VERSION__ && !window.__fetchingNativeVersion) {
@@ -352,9 +380,17 @@ export function initDebugOverlay() {
             </div>
             <!-- Section Diagnostic Récapitulative -->
             <div id="nk-debug-info-wrap">
-                <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:10px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
+                <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:8px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
                     <span>🛡️ Déclencher toutes les autorisations</span>
                 </button>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px;">
+                    <button id="nk-dbg-test-call-ui" style="background:#0f766e; color:#fff; border:1px solid #14b8a6; border-radius:10px; padding:8px 6px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="Tester l'interface appel plein écran">
+                        <span>📞 Test UI Appel</span>
+                    </button>
+                    <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:10px; padding:8px 6px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="Envoyer un vrai push FCM avec 3s de délai pour verrouiller l'écran">
+                        <span>🔔 Réveil FCM (3s)</span>
+                    </button>
+                </div>
                 <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
             </div>
 
@@ -575,6 +611,112 @@ export function initDebugOverlay() {
             if (infoEl) infoEl.innerHTML = `<div style="color:#f87171;">❌ Erreur OTA History: ${err.message}</div>`;
             btn.textContent = origText;
             btn.disabled = false;
+        }
+    });
+
+    // ── Bouton 1 : Test UI Appel Plein Écran & PiP In-App ───────────────────────
+    panel.querySelector('#nk-dbg-test-call-ui')?.addEventListener('click', () => {
+        console.log('[Debug] 📞 Déclenchement test UI appel plein écran...');
+        toggleDebugPanel(false);
+        window.dispatchEvent(new CustomEvent('newket:trigger_test_call', {
+            detail: {
+                callerName: 'Livreur Test NewKet',
+                callerAvatar: '',
+                orderId: 'CMD-TEST-78',
+                role: 'vendor'
+            }
+        }));
+    });
+
+    // ── Bouton 2 : Test Réveil FCM (Compte à rebours 3s pour verrouiller l'écran) ──
+    panel.querySelector('#nk-dbg-test-fcm-call')?.addEventListener('click', async () => {
+        const btn = panel.querySelector('#nk-dbg-test-fcm-call');
+        btn.disabled = true;
+
+        try {
+            const client = window.supabaseClient || window.Supabase?.client;
+            const session = await client?.auth?.getSession();
+            const user = session?.data?.session?.user;
+            const token = session?.data?.session?.access_token || null;
+
+            if (!user || !user.id) {
+                alert('Vous devez être connecté pour recevoir un push FCM.');
+                btn.disabled = false;
+                return;
+            }
+
+            let count = 3;
+            btn.textContent = `⏳ Verrouille (${count}s)...`;
+            console.log(`[Debug] 🔔 Test réveil FCM dans 3s pour user ${user.id}. Verrouille ton écran maintenant !`);
+
+            const timer = setInterval(async () => {
+                count--;
+                if (count > 0) {
+                    btn.textContent = `⏳ Verrouille (${count}s)...`;
+                } else {
+                    clearInterval(timer);
+                    btn.textContent = '🚀 Envoi du Push...';
+
+                    const isCap = typeof window !== 'undefined' && (window.location?.protocol === 'capacitor:' || !!window.Capacitor?.isNativePlatform?.());
+                    const apiBase = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (isCap ? 'https://newket.vercel.app/api' : '/api');
+                    const url = apiBase.replace(/\/$/, '') + '/push/call-ring';
+
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                target_user_id: user.id,
+                                caller_name: 'Test Réveil Écran',
+                                order_id: 'TEST-REVEIL',
+                                caller_avatar: ''
+                            })
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        console.log('[Debug] 📩 Résultat envoi push test:', res.status, JSON.stringify(data));
+                        btn.textContent = '✅ Push envoyé !';
+                    } catch (e) {
+                        console.error('[Debug] ❌ Erreur push test:', e);
+                        btn.textContent = '❌ Erreur envoi';
+                    }
+
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.textContent = '🔔 Réveil FCM (3s)';
+                    }, 4000);
+                }
+            }, 1000);
+        } catch (err) {
+            alert('Erreur: ' + err.message);
+            btn.disabled = false;
+            btn.textContent = '🔔 Réveil FCM (3s)';
+        }
+    });
+
+    // ── Rafraîchir manuellement le mouchard d'appels natifs ──────────────────
+    panel.addEventListener('click', async (e) => {
+        if (e.target && (e.target.id === 'nk-dbg-refresh-mouchard-btn' || e.target.closest('#nk-dbg-refresh-mouchard-btn'))) {
+            const btn = panel.querySelector('#nk-dbg-refresh-mouchard-btn');
+            const box = panel.querySelector('#nk-dbg-call-logs-box');
+            if (btn) btn.textContent = '⏳ ...';
+            try {
+                const AppUpdate = await getAppUpdatePlugin();
+                if (AppUpdate) {
+                    const res = await AppUpdate.getCallLogs();
+                    if (res?.logs) {
+                        window.__NATIVE_CALL_LOGS__ = res.logs.trim();
+                        if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
+                        console.log('[NewKet CallDiag] 📱 Logs natifs rechargés:\n' + window.__NATIVE_CALL_LOGS__);
+                    }
+                }
+            } catch (err) {
+                if (box) box.textContent = 'Erreur: ' + err.message;
+            } finally {
+                if (btn) btn.textContent = '🔄 Rafraîchir';
+            }
         }
     });
 
