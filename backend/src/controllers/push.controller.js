@@ -26,6 +26,7 @@ export const getPushPublicKey = async (req, res, next) => {
         enabled: WebPushService.isConfigured(),
         publicKey: WebPushService.getPublicKey(),
         fcm_enabled: FcmService.isConfigured(),
+        fcm_diagnostic: FcmService.getDiagnosticInfo(),
         apns_voip_enabled: ApnsVoipService.isConfigured()
     });
 };

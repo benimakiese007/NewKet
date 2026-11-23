@@ -42,9 +42,23 @@ function _initFirebase() {
     // 1. Priorité : variable d'environnement (utile pour Vercel/production)
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
         try {
-            const parsed = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+            let raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+            // Décodage base64 si la chaîne ne commence pas par '{'
+            if (!raw.startsWith('{') && !raw.startsWith('[')) {
+                try {
+                    const decoded = Buffer.from(raw, 'base64').toString('utf8');
+                    if (decoded.trim().startsWith('{')) {
+                        raw = decoded.trim();
+                    }
+                } catch (_) {}
+            }
+            // Retirer d'éventuels guillemets englobants
+            if (raw.startsWith('"') && raw.endsWith('"')) {
+                raw = raw.slice(1, -1).replace(/\\"/g, '"').replace(/\\n/g, '\n');
+            }
+            const parsed = JSON.parse(raw);
             credential = cert(parsed);
-            console.log('[FCM] Initialisé via variable d\'environnement FIREBASE_SERVICE_ACCOUNT');
+            console.log('[FCM] Initialisé via variable d\'environnement FIREBASE_SERVICE_ACCOUNT (projet:', parsed.project_id, ')');
         } catch (e) {
             console.error('[FCM] Impossible de parser FIREBASE_SERVICE_ACCOUNT :', e.message);
         }
@@ -193,6 +207,37 @@ const FcmService = {
 
     isConfigured() {
         return isConfigured;
+    },
+
+    getDiagnosticInfo() {
+        const hasEnv = Boolean(process.env.FIREBASE_SERVICE_ACCOUNT);
+        let parseError = null;
+        let projectId = null;
+        if (hasEnv) {
+            try {
+                let raw = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+                if (!raw.startsWith('{') && !raw.startsWith('[')) {
+                    try {
+                        const decoded = Buffer.from(raw, 'base64').toString('utf8');
+                        if (decoded.trim().startsWith('{')) raw = decoded.trim();
+                    } catch (_) {}
+                }
+                if (raw.startsWith('"') && raw.endsWith('"')) {
+                    raw = raw.slice(1, -1).replace(/\\"/g, '"').replace(/\\n/g, '\n');
+                }
+                const parsed = JSON.parse(raw);
+                projectId = parsed?.project_id || null;
+            } catch (e) {
+                parseError = e.message;
+            }
+        }
+        return {
+            configured: isConfigured,
+            has_env: hasEnv,
+            env_length: process.env.FIREBASE_SERVICE_ACCOUNT ? process.env.FIREBASE_SERVICE_ACCOUNT.length : 0,
+            project_id: projectId,
+            parse_error: parseError
+        };
     },
 
     /**
