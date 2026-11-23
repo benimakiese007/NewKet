@@ -136,8 +136,8 @@ function updatePanel() {
 
             let platformSection = '';
             if (s.isAndroid) {
-                const nativeVer = window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.78';
-                const remoteVer = window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.78';
+                const nativeVer = window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.79';
+                const remoteVer = window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.79';
                 platformSection = `
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
                         <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 COQUE ANDROID (APK)</div>

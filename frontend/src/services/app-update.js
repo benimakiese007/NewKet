@@ -53,7 +53,7 @@ export function getLocalVersion() {
     // 2. Variable globale exposée par le build
     if (window.__APP_VERSION__) return window.__APP_VERSION__;
     // 3. Fallback
-    return '1.0.78';
+    return '1.0.79';
 }
 
 // ── Appel à l'API GitHub Releases ─────────────────────────────────────────────
