@@ -367,8 +367,8 @@ export function initDebugOverlay() {
     `;
 
     panel.innerHTML = `
-        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px calc(16px + env(safe-area-inset-bottom, 16px)); max-height:85vh; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); width:100%; box-sizing:border-box;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px;">
+        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px calc(24px + env(safe-area-inset-bottom, 20px)); max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); width:100%; box-sizing:border-box;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px; position:sticky; top:0; background:#0f172a; z-index:10;">
                 <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
                 <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
                     <button id="nk-dbg-check-apk" style="background:#10b981; color:#0f172a; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap;">🚀 MàJ APK</button>
@@ -409,7 +409,8 @@ export function initDebugOverlay() {
                 </div>
             </div>
 
-            <div id="nk-debug-logs" style="flex:1; overflow-y:auto; background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); max-height:300px; -webkit-overflow-scrolling:touch;"></div>
+            <div id="nk-debug-logs" style="background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); min-height:160px; max-height:280px; overflow-y:auto; -webkit-overflow-scrolling:touch; margin-bottom:8px;"></div>
+        </div>
         </div>
     `;
 
@@ -628,68 +629,84 @@ export function initDebugOverlay() {
         }));
     });
 
-    // ── Bouton 2 : Test Réveil FCM (Compte à rebours 3s pour verrouiller l'écran) ──
+    // ── Bouton 2 : Test Réveil FCM (Envoi immédiat au serveur avec délai 3.5s) ──
     panel.querySelector('#nk-dbg-test-fcm-call')?.addEventListener('click', async () => {
         const btn = panel.querySelector('#nk-dbg-test-fcm-call');
         btn.disabled = true;
 
         try {
             const client = window.supabaseClient || window.Supabase?.client;
-            const session = await client?.auth?.getSession();
-            const user = session?.data?.session?.user;
-            const token = session?.data?.session?.access_token || null;
+            let token = null;
+            let userId = null;
 
-            if (!user || !user.id) {
+            try {
+                const sessionData = await client?.auth?.getSession();
+                token = sessionData?.data?.session?.access_token || null;
+                userId = sessionData?.data?.session?.user?.id || null;
+            } catch (_) {}
+
+            if (!token || !userId) {
+                try {
+                    const sbKey = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+                    if (sbKey) {
+                        const parsed = JSON.parse(localStorage.getItem(sbKey) || '{}');
+                        token = token || parsed?.access_token || null;
+                        userId = userId || parsed?.user?.id || null;
+                    }
+                } catch (_) {}
+            }
+
+            if (!userId) {
+                userId = localStorage.getItem('newketUserId') || null;
+            }
+
+            if (!userId) {
                 alert('Vous devez être connecté pour recevoir un push FCM.');
                 btn.disabled = false;
                 return;
             }
 
-            let count = 3;
-            btn.textContent = `⏳ Verrouille (${count}s)...`;
-            console.log(`[Debug] 🔔 Test réveil FCM dans 3s pour user ${user.id}. Verrouille ton écran maintenant !`);
+            btn.textContent = '🚀 Envoi au serveur...';
+            console.log(`[Debug] 🔔 Envoi requête push FCM (délai serveur 3.5s) pour user ${userId}...`);
 
-            const timer = setInterval(async () => {
-                count--;
-                if (count > 0) {
-                    btn.textContent = `⏳ Verrouille (${count}s)...`;
-                } else {
-                    clearInterval(timer);
-                    btn.textContent = '🚀 Envoi du Push...';
+            const isCap = typeof window !== 'undefined' && (window.location?.protocol === 'capacitor:' || !!window.Capacitor?.isNativePlatform?.());
+            const apiBase = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (isCap ? 'https://newket.vercel.app/api' : '/api');
+            const url = apiBase.replace(/\/$/, '') + '/push/call-ring';
 
-                    const isCap = typeof window !== 'undefined' && (window.location?.protocol === 'capacitor:' || !!window.Capacitor?.isNativePlatform?.());
-                    const apiBase = typeof window.getApiBaseUrl === 'function' ? window.getApiBaseUrl() : (isCap ? 'https://newket.vercel.app/api' : '/api');
-                    const url = apiBase.replace(/\/$/, '') + '/push/call-ring';
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    target_user_id: userId,
+                    caller_name: 'Test Réveil Écran',
+                    order_id: 'TEST-REVEIL',
+                    caller_avatar: '',
+                    delay_ms: 3500 // Le serveur attend 3.5s avant de propager FCM !
+                })
+            });
 
-                    try {
-                        const res = await fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                target_user_id: user.id,
-                                caller_name: 'Test Réveil Écran',
-                                order_id: 'TEST-REVEIL',
-                                caller_avatar: ''
-                            })
-                        });
-                        const data = await res.json().catch(() => ({}));
-                        console.log('[Debug] 📩 Résultat envoi push test:', res.status, JSON.stringify(data));
-                        btn.textContent = '✅ Push envoyé !';
-                    } catch (e) {
-                        console.error('[Debug] ❌ Erreur push test:', e);
-                        btn.textContent = '❌ Erreur envoi';
-                    }
+            const data = await res.json().catch(() => ({}));
+            console.log('[Debug] 📩 Réponse serveur FCM:', res.status, JSON.stringify(data));
 
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.textContent = '🔔 Réveil FCM (3s)';
-                    }, 4000);
-                }
+            btn.textContent = '🔒 Verrouille vite ! (3s)';
+            btn.style.background = '#10b981';
+
+            // Fermer le panneau après 1s pour que l'utilisateur soit sur l'écran et puisse verrouiller
+            setTimeout(() => {
+                toggleDebugPanel(false);
             }, 1000);
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = '🔔 Réveil FCM (3s)';
+                btn.style.background = '#b45309';
+            }, 5000);
+
         } catch (err) {
+            console.error('[Debug] ❌ Erreur déclenchement FCM:', err);
             alert('Erreur: ' + err.message);
             btn.disabled = false;
             btn.textContent = '🔔 Réveil FCM (3s)';

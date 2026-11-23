@@ -73,9 +73,16 @@ export const unsubscribeFromPush = async (req, res, next) => {
 
 export const sendCallRing = async (req, res, next) => {
     try {
-        const { target_user_id, caller_name, caller_avatar, order_id } = req.body || {};
+        const { target_user_id, caller_name, caller_avatar, order_id, delay_ms } = req.body || {};
         if (!target_user_id || !order_id) {
             return res.status(400).json({ error: 'Champs requis manquants (target_user_id, order_id).' });
+        }
+
+        // Délai serveur optionnel (ex: 3s pour permettre à l'utilisateur de verrouiller son écran avant l'arrivée du push)
+        const delay = Math.min(10000, Math.max(0, Number(delay_ms || 0)));
+        if (delay > 0) {
+            console.log(`[PushController] Attente de ${delay}ms avant envoi FCM call-ring vers ${target_user_id}...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
         }
 
         // Envoi en parallèle : Web Push (PWA/navigateur) + FCM (Android) + APNs VoIP (iOS CallKit)
