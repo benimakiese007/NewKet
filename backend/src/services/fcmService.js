@@ -31,6 +31,8 @@ const __dirname = path.dirname(__filename);
 
 // ─── Initialisation Firebase Admin ───────────────────────────────────────────
 
+let initError = null;
+
 function _initFirebase() {
     // Éviter la double initialisation (ex: hot-reload en dev)
     if (getApps().length > 0) {
@@ -54,12 +56,17 @@ function _initFirebase() {
             }
             // Retirer d'éventuels guillemets englobants
             if (raw.startsWith('"') && raw.endsWith('"')) {
-                raw = raw.slice(1, -1).replace(/\\"/g, '"').replace(/\\n/g, '\n');
+                raw = raw.slice(1, -1).replace(/\\"/g, '"');
             }
             const parsed = JSON.parse(raw);
+            // VITAL Vercel : restaurer les vrais sauts de ligne dans la clé privée PEM
+            if (parsed.private_key && typeof parsed.private_key === 'string') {
+                parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+            }
             credential = cert(parsed);
             console.log('[FCM] Initialisé via variable d\'environnement FIREBASE_SERVICE_ACCOUNT (projet:', parsed.project_id, ')');
         } catch (e) {
+            initError = 'Erreur parsing/cert: ' + e.message;
             console.error('[FCM] Impossible de parser FIREBASE_SERVICE_ACCOUNT :', e.message);
         }
     }
@@ -68,10 +75,14 @@ function _initFirebase() {
     if (!credential) {
         const keyPath = path.resolve(__dirname, '../../config/firebase-service-account.json');
         if (fs.existsSync(keyPath)) {
-            const require = createRequire(import.meta.url);
-            const serviceAccount = require(keyPath);
-            credential = cert(serviceAccount);
-            console.log('[FCM] Initialisé via fichier firebase-service-account.json');
+            try {
+                const require = createRequire(import.meta.url);
+                const serviceAccount = require(keyPath);
+                credential = cert(serviceAccount);
+                console.log('[FCM] Initialisé via fichier firebase-service-account.json');
+            } catch (e) {
+                initError = initError || ('Erreur cert local: ' + e.message);
+            }
         }
     }
 
@@ -80,7 +91,13 @@ function _initFirebase() {
         return null;
     }
 
-    return initializeApp({ credential });
+    try {
+        return initializeApp({ credential });
+    } catch (e) {
+        initError = 'Erreur initializeApp: ' + e.message;
+        console.error('[FCM] Erreur initializeApp:', e.message);
+        return null;
+    }
 }
 
 const firebaseApp = _initFirebase();
@@ -236,7 +253,8 @@ const FcmService = {
             has_env: hasEnv,
             env_length: process.env.FIREBASE_SERVICE_ACCOUNT ? process.env.FIREBASE_SERVICE_ACCOUNT.length : 0,
             project_id: projectId,
-            parse_error: parseError
+            parse_error: parseError,
+            init_error: initError
         };
     },
 
