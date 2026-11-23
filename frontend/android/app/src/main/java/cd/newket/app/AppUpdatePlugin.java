@@ -67,6 +67,28 @@ public class AppUpdatePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void triggerNativeCallTest(PluginCall call) {
+        try {
+            Context ctx = getContext();
+            CallDiagnosticLogger.log(ctx, "🧪 Test natif déclenché manuellement depuis l'app");
+            Intent serviceIntent = new Intent(ctx, CallForegroundService.class);
+            serviceIntent.setAction(CallForegroundService.ACTION_START);
+            serviceIntent.putExtra("caller_name", "Testeur NewKet (Natif)");
+            serviceIntent.putExtra("order_id", "TEST-DIRECT");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ctx.startForegroundService(serviceIntent);
+            } else {
+                ctx.startService(serviceIntent);
+            }
+            CallDiagnosticLogger.log(ctx, "✅ CallForegroundService démarré avec succès");
+            call.resolve();
+        } catch (Exception e) {
+            CallDiagnosticLogger.log(getContext(), "❌ Erreur triggerNativeCallTest: " + e.getMessage());
+            call.reject("Erreur test natif: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
     public void getNativeVersion(PluginCall call) {
         JSObject result = new JSObject();
         try {

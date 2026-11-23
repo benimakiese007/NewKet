@@ -150,7 +150,7 @@ function updatePanel() {
                             <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em;">📡 MOUCHARD APPELS NATIFS</div>
                             <button id="nk-dbg-refresh-mouchard-btn" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:4px; padding:1px 6px; font-size:9px; font-weight:700; cursor:pointer;">🔄 Rafraîchir</button>
                         </div>
-                        <div id="nk-dbg-call-logs-box" style="background:#020617; padding:6px; border-radius:8px; font-family:monospace; font-size:10px; color:#a5f3fc; max-height:130px; overflow-y:auto; white-space:pre-wrap; border:1px solid rgba(56,189,248,0.2); line-height:1.4;">${window.__NATIVE_CALL_LOGS__ || 'Aucun événement natif enregistré pour l\'instant.'}</div>
+                        <div id="nk-dbg-call-logs-box" style="background:#020617; padding:6px; border-radius:8px; font-family:monospace; font-size:10px; color:#a5f3fc; max-height:130px; overflow-y:auto; white-space:pre-wrap; border:1px solid rgba(56,189,248,0.2); line-height:1.4;">${window.__NATIVE_CALL_LOGS__ || 'En attente de logs natifs...'}</div>
                     </div>
                 `;
 
@@ -162,13 +162,19 @@ function updatePanel() {
                             const AppUpdate = await getAppUpdatePlugin();
                             if (AppUpdate) {
                                 const res = await AppUpdate.getCallLogs();
-                                if (res?.logs) {
+                                if (res?.logs && res.logs.trim().length > 0) {
                                     window.__NATIVE_CALL_LOGS__ = res.logs.trim();
-                                    const box = document.getElementById('nk-dbg-call-logs-box');
-                                    if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
+                                } else {
+                                    window.__NATIVE_CALL_LOGS__ = `ℹ️ Aucun événement natif enregistré pour l'instant.\n\nNote : Si votre APK installé est v1.0.76 ou inférieur, le mouchard Java et l'écran de réveil natif ne sont pas présents dans cette version de l'APK (les màj OTA ne modifient pas le code Java). Cliquez sur "🚀 MàJ APK" pour installer la v1.0.78.`;
                                 }
+                                const box = document.getElementById('nk-dbg-call-logs-box');
+                                if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
                             }
-                        } catch (_) {}
+                        } catch (err) {
+                            window.__NATIVE_CALL_LOGS__ = `⚠️ Mouchard non disponible sur cet APK (${err?.message || 'Erreur'}).\nInstallez la mise à jour APK v1.0.78 via le bouton "🚀 MàJ APK".`;
+                            const box = document.getElementById('nk-dbg-call-logs-box');
+                            if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
+                        }
                         finally {
                             setTimeout(() => { window.__fetchingCallLogs = false; }, 3000);
                         }
@@ -244,6 +250,8 @@ function updatePanel() {
         if (logsEl) {
             const countEl = panel.querySelector('#nk-dbg-logs-count');
             if (countEl) countEl.textContent = String(logs.length);
+            const tabCountEl = panel.querySelector('#nk-dbg-tab-logs-count');
+            if (tabCountEl) tabCountEl.textContent = String(logs.length);
 
             if (logs.length === 0) {
                 logsEl.innerHTML = `<div style="color:#64748b; font-size:11px; text-align:center; padding:24px 0; font-family:monospace;">Aucun log pour le moment...</div>`;
@@ -378,74 +386,88 @@ export function initDebugOverlay() {
                     <button id="nk-dbg-close" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:6px; padding:4px 8px; font-size:11px; font-weight:bold; cursor:pointer; line-height:1;" title="Fermer">✕</button>
                 </div>
             </div>
-            <!-- Section Diagnostic Récapitulative -->
+            <!-- Onglets de bascule : État & Mouchard VS Console Logs -->
+            <div style="display:flex; gap:6px; margin-bottom:10px; background:rgba(255,255,255,0.06); padding:3px; border-radius:10px;">
+                <button id="nk-dbg-tab-btn-info" style="flex:1; padding:7px; font-size:11px; font-weight:800; border-radius:8px; border:none; cursor:pointer; background:#0284c7; color:#fff; transition:all 0.15s ease;">📊 État & Mouchard</button>
+                <button id="nk-dbg-tab-btn-logs" style="flex:1; padding:7px; font-size:11px; font-weight:800; border-radius:8px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.15s ease;">💻 Console Logs (<span id="nk-dbg-tab-logs-count">0</span>)</button>
+            </div>
+
+            <!-- Onglet 1 : Diagnostic & Mouchard -->
             <div id="nk-debug-info-wrap">
                 <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:8px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
                     <span>🛡️ Déclencher toutes les autorisations</span>
                 </button>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px;">
-                    <button id="nk-dbg-test-call-ui" style="background:#0f766e; color:#fff; border:1px solid #14b8a6; border-radius:10px; padding:8px 6px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="Tester l'interface appel plein écran">
-                        <span>📞 Test UI Appel</span>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:10px;">
+                    <button id="nk-dbg-test-call-ui" style="background:#0f766e; color:#fff; border:1px solid #14b8a6; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester l'interface appel in-app">
+                        <span>📞 Test In-App</span>
                     </button>
-                    <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:10px; padding:8px 6px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="Envoyer un vrai push FCM avec 3s de délai pour verrouiller l'écran">
-                        <span>🔔 Réveil FCM (3s)</span>
+                    <button id="nk-dbg-test-native-fullscreen" style="background:#0284c7; color:#fff; border:1px solid #38bdf8; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester le réveil plein écran et Heads-up (délai 5s pour verrouiller)">
+                        <span>🚨 Plein Écran (5s)</span>
+                    </button>
+                    <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Envoyer un vrai push FCM avec 3s de délai pour verrouiller l'écran">
+                        <span>🔔 FCM (3s)</span>
                     </button>
                 </div>
                 <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
             </div>
 
-            <!-- Barre d'outils des Logs (Agrandir + Effacer) -->
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:11px; font-weight:800; color:#94a3b8; letter-spacing:0.04em;">CONSOLE LOGS</span>
-                    <span id="nk-dbg-logs-count" style="background:rgba(255,255,255,0.1); color:#38bdf8; font-size:9px; font-weight:700; padding:1px 6px; border-radius:999px;">0</span>
+            <!-- Onglet 2 : Console Logs Noir Dédié -->
+            <div id="nk-debug-logs-wrap" style="display:none; flex-direction:column;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:11px; font-weight:800; color:#38bdf8; letter-spacing:0.04em;">LOGS CONSOLE EN DIRECT</span>
+                        <span id="nk-dbg-logs-count" style="background:rgba(255,255,255,0.1); color:#38bdf8; font-size:9px; font-weight:700; padding:1px 6px; border-radius:999px;">0</span>
+                    </div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button id="nk-dbg-copy-logs-only" style="background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:4px 9px; font-size:10px; font-weight:700; cursor:pointer;">📋 Copier Logs</button>
+                        <button id="nk-dbg-clear-logs" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer;" title="Vider les logs">🗑️</button>
+                    </div>
                 </div>
-                <div style="display:flex; gap:6px; align-items:center;">
-                    <button id="nk-dbg-toggle-expand" style="background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:4px 9px; font-size:10px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 6px rgba(0,0,0,0.2); transition:all 0.15s ease;" title="Agrandir / Réduire les logs">
-                        <span id="nk-dbg-expand-icon">⤢</span>
-                        <span id="nk-dbg-expand-text">Agrandir</span>
-                    </button>
-                    <button id="nk-dbg-clear-logs" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer; transition:all 0.15s ease;" title="Vider les logs">🗑️</button>
-                </div>
+                <div id="nk-debug-logs" style="background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); height:55vh; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
             </div>
-
-            <div id="nk-debug-logs" style="background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); min-height:160px; max-height:280px; overflow-y:auto; -webkit-overflow-scrolling:touch; margin-bottom:8px;"></div>
         </div>
         </div>
     `;
 
-    function setLogsExpanded(expanded) {
-        isLogsExpanded = expanded;
+    // ── Gestion des Onglets Diag ──────────────────────────────────────────────
+    let activeTab = 'info'; // 'info' | 'logs'
+    function switchTab(tab) {
+        activeTab = tab;
         const infoWrap = panel.querySelector('#nk-debug-info-wrap');
-        const logsEl = panel.querySelector('#nk-debug-logs');
-        const expandBtn = panel.querySelector('#nk-dbg-toggle-expand');
-        const expandIcon = panel.querySelector('#nk-dbg-expand-icon');
-        const expandText = panel.querySelector('#nk-dbg-expand-text');
+        const logsWrap = panel.querySelector('#nk-debug-logs-wrap');
+        const btnInfo = panel.querySelector('#nk-dbg-tab-btn-info');
+        const btnLogs = panel.querySelector('#nk-dbg-tab-btn-logs');
 
-        if (infoWrap) {
-            infoWrap.style.display = isLogsExpanded ? 'none' : 'block';
+        if (tab === 'info') {
+            if (infoWrap) infoWrap.style.display = 'block';
+            if (logsWrap) logsWrap.style.display = 'none';
+            if (btnInfo) { btnInfo.style.background = '#0284c7'; btnInfo.style.color = '#fff'; }
+            if (btnLogs) { btnLogs.style.background = 'transparent'; btnLogs.style.color = '#94a3b8'; }
+        } else {
+            if (infoWrap) infoWrap.style.display = 'none';
+            if (logsWrap) logsWrap.style.display = 'flex';
+            if (btnInfo) { btnInfo.style.background = 'transparent'; btnInfo.style.color = '#94a3b8'; }
+            if (btnLogs) { btnLogs.style.background = '#0284c7'; btnLogs.style.color = '#fff'; }
         }
-        if (logsEl) {
-            logsEl.style.maxHeight = isLogsExpanded ? 'calc(75vh - 70px)' : '300px';
-            logsEl.style.height = isLogsExpanded ? 'calc(75vh - 70px)' : 'auto';
-        }
-        if (expandBtn) {
-            expandBtn.style.background = isLogsExpanded ? '#0284c7' : '#1e293b';
-            expandBtn.style.color = isLogsExpanded ? '#ffffff' : '#38bdf8';
-            expandBtn.style.borderColor = isLogsExpanded ? '#38bdf8' : 'rgba(56,189,248,0.3)';
-        }
-        if (expandIcon) expandIcon.textContent = isLogsExpanded ? '⤡' : '⤢';
-        if (expandText) expandText.textContent = isLogsExpanded ? 'Réduire' : 'Agrandir';
         updatePanel();
     }
 
-    panel.querySelector('#nk-dbg-toggle-expand')?.addEventListener('click', () => {
-        setLogsExpanded(!isLogsExpanded);
-    });
+    panel.querySelector('#nk-dbg-tab-btn-info')?.addEventListener('click', () => switchTab('info'));
+    panel.querySelector('#nk-dbg-tab-btn-logs')?.addEventListener('click', () => switchTab('logs'));
 
     panel.querySelector('#nk-dbg-clear-logs')?.addEventListener('click', () => {
         logs.length = 0;
         updatePanel();
+    });
+
+    panel.querySelector('#nk-dbg-copy-logs-only')?.addEventListener('click', async () => {
+        const text = logs.slice().reverse().map(l => `[${l.time}] [${l.level.toUpperCase()}] ${l.text}`).join('\n');
+        try {
+            await navigator.clipboard.writeText(text);
+            const btn = panel.querySelector('#nk-dbg-copy-logs-only');
+            if (btn) btn.textContent = '✅ Copié !';
+            setTimeout(() => { if (btn) btn.textContent = '📋 Copier Logs'; }, 2000);
+        } catch (_) {}
     });
 
     panel.addEventListener('click', (e) => {
@@ -615,9 +637,9 @@ export function initDebugOverlay() {
         }
     });
 
-    // ── Bouton 1 : Test UI Appel Plein Écran & PiP In-App ───────────────────────
+    // ── Bouton 1 : Test UI Appel In-App ─────────────────────────────────────────
     panel.querySelector('#nk-dbg-test-call-ui')?.addEventListener('click', () => {
-        console.log('[Debug] 📞 Déclenchement test UI appel plein écran...');
+        console.log('[Debug] 📞 Déclenchement test UI appel plein écran in-app...');
         toggleDebugPanel(false);
         window.dispatchEvent(new CustomEvent('newket:trigger_test_call', {
             detail: {
@@ -629,7 +651,78 @@ export function initDebugOverlay() {
         }));
     });
 
-    // ── Bouton 2 : Test Réveil FCM (Envoi immédiat au serveur avec délai 3.5s) ──
+    // ── Bouton 2 : Test Réveil Plein Écran & Heads-up (Natif / Délai 5s pour verrouiller) ──
+    panel.querySelector('#nk-dbg-test-native-fullscreen')?.addEventListener('click', async () => {
+        const btn = panel.querySelector('#nk-dbg-test-native-fullscreen');
+        if (!btn) return;
+        btn.disabled = true;
+        console.log('[Debug] 🚨 Démarrage du test Plein Écran / Heads-Up (5s pour verrouiller votre écran)...');
+
+        let countdown = 5;
+        btn.textContent = `⏳ ${countdown}s`;
+        btn.style.background = '#dc2626';
+
+        // Fermer le panneau après 1.5s pour que l'utilisateur puisse verrouiller l'écran
+        setTimeout(() => {
+            toggleDebugPanel(false);
+        }, 1500);
+
+        const timer = setInterval(async () => {
+            countdown--;
+            if (countdown > 0) {
+                btn.textContent = `⏳ ${countdown}s`;
+            } else {
+                clearInterval(timer);
+                btn.textContent = '🔔 DÉCLENCHÉ !';
+                btn.style.background = '#10b981';
+
+                console.log('[Debug] 🚀 Exécution du test Plein Écran / Heads-Up...');
+
+                // 1. Tenter le déclencheur natif Java via AppUpdatePlugin (si présent dans l'APK)
+                try {
+                    const AppUpdate = await getAppUpdatePlugin();
+                    if (AppUpdate && typeof AppUpdate.triggerNativeCallTest === 'function') {
+                        await AppUpdate.triggerNativeCallTest();
+                        console.log('[Debug] ✅ triggerNativeCallTest exécuté avec succès côté Java natif.');
+                    } else {
+                        console.log('[Debug] ℹ️ triggerNativeCallTest non présent dans cet APK (nécessite APK v1.0.78).');
+                    }
+                } catch (e) {
+                    console.warn('[Debug] ⚠️ triggerNativeCallTest erreur:', e.message);
+                }
+
+                // 2. Déclencher l'UI in-app plein écran (JavaScript)
+                window.dispatchEvent(new CustomEvent('newket:trigger_test_call', {
+                    detail: {
+                        callerName: 'Livreur Test NewKet (Plein Écran)',
+                        callerAvatar: '',
+                        orderId: 'CMD-HEADS-UP',
+                        role: 'vendor'
+                    }
+                }));
+
+                // 3. Tenter une notification système locale
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try {
+                        new Notification('📞 Appel de Livreur Test NewKet', {
+                            body: 'Appel vocal entrant • Commande #CMD-HEADS-UP',
+                            icon: '/favicon.ico',
+                            tag: 'test-call-notification',
+                            requireInteraction: true,
+                        });
+                    } catch (_) {}
+                }
+
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = '🚨 Plein Écran (5s)';
+                    btn.style.background = '#0284c7';
+                }, 3000);
+            }
+        }, 1000);
+    });
+
+    // ── Bouton 3 : Test Réveil FCM (Envoi immédiat au serveur avec délai 3.5s) ──
     panel.querySelector('#nk-dbg-test-fcm-call')?.addEventListener('click', async () => {
         const btn = panel.querySelector('#nk-dbg-test-fcm-call');
         btn.disabled = true;
