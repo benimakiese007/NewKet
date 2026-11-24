@@ -110,6 +110,43 @@ function getOtaColor(status) {
     return map[status] || '#6b7280';
 }
 
+// ── Formateurs de version universels selon la nomenclature convenue ───────────
+function formatOtaCode(v) {
+    if (!v) return 'OTA-?';
+    const clean = String(v).replace(/^v/i, '').trim();
+    // Ex: "1.0.79a" -> "OTA-79a"
+    const m = clean.match(/(?:^|\.)(\d+[a-z]+)$/i);
+    if (m) return `OTA-${m[1].toLowerCase()}`;
+    const m2 = clean.match(/(?:^|\.)(\d+)$/);
+    if (m2) return `OTA-${m2[1]}a`;
+    return `OTA-${clean}`;
+}
+
+function formatApkCode(v) {
+    if (!v) return 'APK-?';
+    const clean = String(v).replace(/^v/i, '').trim();
+    // Ex: "1.0.79" -> "APK-79"
+    const m = clean.match(/(?:^|\.)(\d+)(?:[a-z].*)?$/i);
+    if (m) return `APK-${m[1]}`;
+    return `APK-${clean}`;
+}
+
+function formatTfCode(v) {
+    if (!v || v === 'none' || v === 'null') return 'TF-Non configuré';
+    const clean = String(v).replace(/^v/i, '').trim();
+    const m = clean.match(/(?:^|\.)(\d+)$/);
+    if (m) return `TF-${m[1]}`;
+    return `TF-${clean}`;
+}
+
+function formatWebCode(v) {
+    if (!v) return 'WEB-?';
+    const clean = String(v).replace(/^v/i, '').trim();
+    const m = clean.match(/(?:^|\.)(\d+[a-z]+)$/i);
+    if (m) return `WEB-${m[1].toLowerCase()}`;
+    return `WEB-${clean}`;
+}
+
 function updatePanel() {
     if (!pill) return;
     const s = getDiagnosticState();
@@ -117,11 +154,40 @@ function updatePanel() {
     const hasProducts = s.pubCount > 0;
     const pillColor = hasProducts && (otaOk || !s.isCap) ? '#10b981' : s.ota.status === 'error' ? '#ef4444' : '#f59e0b';
 
-    // Pastille universelle propre pour tous les supports (iOS, Android, Web)
+    // Pastille universelle : juste le code OTA pour tout le monde
+    const activeOtaVer = s.ota.localVersion || s.pkgVer || '1.0.79a';
+    const otaPillText = formatOtaCode(activeOtaVer);
+
     pill.innerHTML = `
-        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${pillColor}; margin-right:6px;"></span>
-        <b>v${s.pkgVer}</b> | Prd: ${s.pubCount}/${s.prodCount} | OTA: ${s.ota.status || '?'}
+        <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${pillColor}; margin-right:6px; box-shadow:0 0 5px ${pillColor};"></span>
+        <b style="letter-spacing:0.04em;">${otaPillText}</b>
     `;
+
+    // Rafraîchir dynamiquement la release GitHub (Android APK) une seule fois pour TOUS les supports (Web, iOS, Android)
+    if (!window.__REMOTE_APK_VERSION__ && !window.__fetchingRemoteApk) {
+        window.__fetchingRemoteApk = true;
+        const stored = localStorage.getItem('nk_remote_apk_version');
+        if (stored) window.__REMOTE_APK_VERSION__ = stored;
+        (async () => {
+            try {
+                const res = await fetch('https://api.github.com/repos/benimakiese007/NewKet/releases/latest', {
+                    headers: { 'Accept': 'application/vnd.github+json' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data?.tag_name) {
+                        window.__REMOTE_APK_VERSION__ = data.tag_name;
+                        localStorage.setItem('nk_remote_apk_version', data.tag_name);
+                        const el = document.getElementById('nk-dbg-matrice-apk-val');
+                        if (el) el.textContent = formatApkCode(data.tag_name);
+                    }
+                }
+            } catch (_) {}
+            finally {
+                window.__fetchingRemoteApk = false;
+            }
+        })();
+    }
 
     if (panel && isOpen) {
         const infoEl = panel.querySelector('#nk-debug-info');
@@ -133,24 +199,18 @@ function updatePanel() {
 
         if (infoEl) {
             const otaStatusColor = getOtaColor(s.ota.status);
+            const nativeVer = window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.79';
+            const remoteVer = window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.79';
 
-            let platformSection = '';
+            let platformSpecificDetails = '';
             if (s.isAndroid) {
-                const nativeVer = window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.79';
-                const remoteVer = window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.79';
-                platformSection = `
-                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
-                        <div style="font-size:10px; font-weight:800; color:#10b981; letter-spacing:0.05em; margin-bottom:2px;">🤖 COQUE ANDROID (APK)</div>
-                        <div><b>APK installé :</b> <span id="nk-dbg-native-apk-val" style="color:#38bdf8; font-weight:bold;">v${nativeVer}</span></div>
-                        <div><b>Dernière release GitHub :</b> <span id="nk-dbg-remote-apk-val" style="color:#a78bfa;">${remoteVer.startsWith('v') ? remoteVer : 'v' + remoteVer}</span></div>
-                        <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:2px;"></div>
-                    </div>
+                platformSpecificDetails = `
                     <div style="margin-top:8px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em;">📡 MOUCHARD APPELS NATIFS</div>
+                            <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em;">📡 MOUCHARD APPELS NATIFS ANDROID</div>
                             <button id="nk-dbg-refresh-mouchard-btn" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:4px; padding:1px 6px; font-size:9px; font-weight:700; cursor:pointer;">🔄 Rafraîchir</button>
                         </div>
-                        <div id="nk-dbg-call-logs-box" style="background:#020617; padding:6px; border-radius:8px; font-family:monospace; font-size:10px; color:#a5f3fc; max-height:130px; overflow-y:auto; white-space:pre-wrap; border:1px solid rgba(56,189,248,0.2); line-height:1.4;">${window.__NATIVE_CALL_LOGS__ || 'En attente de logs natifs...'}</div>
+                        <div id="nk-dbg-call-logs-box" style="background:#020617; padding:6px; border-radius:8px; font-family:monospace; font-size:10px; color:#a5f3fc; max-height:120px; overflow-y:auto; white-space:pre-wrap; border:1px solid rgba(56,189,248,0.2); line-height:1.4;">${window.__NATIVE_CALL_LOGS__ || 'En attente de logs natifs...'}</div>
                     </div>
                 `;
 
@@ -165,13 +225,13 @@ function updatePanel() {
                                 if (res?.logs && res.logs.trim().length > 0) {
                                     window.__NATIVE_CALL_LOGS__ = res.logs.trim();
                                 } else {
-                                    window.__NATIVE_CALL_LOGS__ = `ℹ️ Aucun événement natif enregistré pour l'instant.\n\nNote : Si votre APK installé est v1.0.76 ou inférieur, le mouchard Java et l'écran de réveil natif ne sont pas présents dans cette version de l'APK (les màj OTA ne modifient pas le code Java). Cliquez sur "🚀 MàJ APK" pour installer la v1.0.78.`;
+                                    window.__NATIVE_CALL_LOGS__ = `ℹ️ Aucun événement natif enregistré pour l'instant.`;
                                 }
                                 const box = document.getElementById('nk-dbg-call-logs-box');
                                 if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
                             }
                         } catch (err) {
-                            window.__NATIVE_CALL_LOGS__ = `⚠️ Mouchard non disponible sur cet APK (${err?.message || 'Erreur'}).\nInstallez la mise à jour APK v1.0.78 via le bouton "🚀 MàJ APK".`;
+                            window.__NATIVE_CALL_LOGS__ = `⚠️ Mouchard non disponible sur cet APK (${err?.message || 'Erreur'}).`;
                             const box = document.getElementById('nk-dbg-call-logs-box');
                             if (box) box.textContent = window.__NATIVE_CALL_LOGS__;
                         }
@@ -192,8 +252,8 @@ function updatePanel() {
                                 if (nativeInfo?.versionName) {
                                     window.__NATIVE_APK_VERSION__ = nativeInfo.versionName;
                                     localStorage.setItem('nk_native_apk_version', nativeInfo.versionName);
-                                    const el = document.getElementById('nk-dbg-native-apk-val');
-                                    if (el) el.textContent = 'v' + nativeInfo.versionName;
+                                    const el = document.getElementById('nk-dbg-matrice-apk-sub');
+                                    if (el) el.innerHTML = `Installé : <b>${formatApkCode(nativeInfo.versionName)}</b>`;
                                 }
                             }
                         } catch (_) {}
@@ -203,48 +263,82 @@ function updatePanel() {
                     })();
                 }
             } else if (s.isIos) {
-                platformSection = `
-                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
-                        <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🍏 NATIVE APPLE (iOS)</div>
-                        <div><b>Canal natif :</b> <span style="color:#38bdf8; font-weight:bold;">TestFlight / App Store</span></div>
-                        <div><b>MàJ bundle :</b> <span style="color:#10b981;">OTA Supabase actif</span></div>
-                    </div>
-                `;
-            } else {
-                platformSection = `
-                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
-                        <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:2px;">🌐 PLATEFORME : WEB / PWA</div>
-                        <div><b>Hôte :</b> ${window.location.hostname}</div>
+                platformSpecificDetails = `
+                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12); font-size:11px;">
+                        <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🍏 ARCHITECTURE APPLE NATIVE</div>
+                        <div><b>PushKit & CallKit :</b> Intégrés dans NewKetPushKitHandler.swift</div>
+                        <div><b>Live Activities :</b> Intégrées dans LiveActivityPlugin.swift</div>
                     </div>
                 `;
             }
 
             infoEl.innerHTML = `
+                <!-- 1. Matrice universelle des versions des autres supports -->
+                <div style="margin-bottom:10px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px;">
+                    <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.06em; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>🌐 VERSIONS DES DIFFÉRENTS SUPPORTS</span>
+                        <span style="font-size:9px; color:#94a3b8; font-weight:600;">Ici : <b style="color:#fff;">${s.platform.toUpperCase()}</b></span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <!-- Carte 1 : OTA -->
+                        <div style="background:rgba(2,132,199,0.12); border:1px solid rgba(56,189,248,0.25); border-radius:8px; padding:6px 8px;">
+                            <div style="font-size:9px; color:#7dd3fc; font-weight:700;">📡 OTA (Supabase)</div>
+                            <div style="font-size:13px; font-weight:900; color:#38bdf8;">${formatOtaCode(s.ota.localVersion || s.pkgVer)}</div>
+                            <div style="font-size:9px; color:${otaStatusColor}; font-weight:600;">Statut : ${s.ota.status || 'actif'}</div>
+                        </div>
+
+                        <!-- Carte 2 : Android APK -->
+                        <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:6px 8px;">
+                            <div style="font-size:9px; color:#6ee7b7; font-weight:700;">🤖 ANDROID (GitHub)</div>
+                            <div id="nk-dbg-matrice-apk-val" style="font-size:13px; font-weight:900; color:#10b981;">${formatApkCode(remoteVer)}</div>
+                            <div id="nk-dbg-matrice-apk-sub" style="font-size:9px; color:#94a3b8;">${s.isAndroid ? `Installé : <b>${formatApkCode(nativeVer)}</b>` : 'Release GitHub'}</div>
+                        </div>
+
+                        <!-- Carte 3 : iOS TestFlight -->
+                        <div style="background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.25); border-radius:8px; padding:6px 8px;">
+                            <div style="font-size:9px; color:#d8b4fe; font-weight:700;">🍏 APPLE (TestFlight)</div>
+                            <div style="font-size:13px; font-weight:900; color:#c084fc;">${s.isIos ? formatTfCode(window.__NATIVE_IOS_VERSION__ || '1') : 'TF-Non configuré'}</div>
+                            <div style="font-size:9px; color:#94a3b8;">${s.isIos ? 'Coque iOS' : 'En attente compte dev'}</div>
+                        </div>
+
+                        <!-- Carte 4 : Web / PWA -->
+                        <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); border-radius:8px; padding:6px 8px;">
+                            <div style="font-size:9px; color:#fde68a; font-weight:700;">🌐 WEB / PWA</div>
+                            <div style="font-size:13px; font-weight:900; color:#fbbf24;">${formatWebCode(s.pkgVer)}</div>
+                            <div style="font-size:9px; color:#94a3b8;">Hôte : ${window.location.hostname}</div>
+                        </div>
+                    </div>
+                    <div id="nk-dbg-apk-feedback" style="font-size:10px; color:#10b981; margin-top:4px;"></div>
+                </div>
+
+                <!-- 2. Diagnostic Système de l'App -->
                 <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                    <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">📱 APP</div>
-                    <div><b>Version bundle :</b> ${s.pkgVer}</div>
-                    <div><b>Plateforme :</b> ${s.platform.toUpperCase()} (${s.isCap ? 'Natif Capacitor' : 'Navigateur Web'})</div>
+                    <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">📱 ÉTAT SYSTÈME</div>
+                    <div><b>Environnement :</b> ${s.platform.toUpperCase()} (${s.isCap ? 'Natif Capacitor' : 'Navigateur Web'})</div>
                     <div><b>Supabase Client :</b> ${s.sbOk ? '✅ OK' : '❌ NULL'}</div>
                     <div><b>BackendReady :</b> ${s.bReady ? '✅ true' : '❌ false'}</div>
                     <div><b>Produits :</b> ${s.prodCount} total (${s.pubCount} publics)</div>
                     <div><b>Rôle Auth :</b> ${s.authRole}</div>
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
-                        <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🧭 ORIENTATION & ECRAN</div>
+                        <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🧭 ORIENTATION & ÉCRAN</div>
                         <div><b>Mode :</b> ${window.innerWidth > window.innerHeight ? '⚠️ Landscape (Paysage)' : '✅ Portrait'}</div>
                         <div><b>Taille :</b> ${window.innerWidth} x ${window.innerHeight} px</div>
-                        <div><b>Overlay :</b> ${document.getElementById('nk-rotate-device-overlay')?.classList?.contains('is-active') ? '🔴 ACTIF (bloqué)' : '⚪ Inactif'}</div>
+                        <div><b>Overlay Rotation :</b> ${document.getElementById('nk-rotate-device-overlay')?.classList?.contains('is-active') ? '🔴 ACTIF (bloqué)' : '⚪ Inactif'}</div>
                     </div>
                 </div>
+
+                <!-- 3. Détails OTA Supabase -->
                 <div>
-                    <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">🔄 OTA</div>
-                    <div><b>Statut :</b> <span style="color:${otaStatusColor}; font-weight:bold;">${s.ota.status || 'idle'}</span></div>
+                    <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">🔄 DÉTAILS OTA SUPABASE</div>
                     <div><b>Version locale :</b> ${s.ota.localVersion || '—'}</div>
                     <div><b>Version distante :</b> ${s.ota.remoteVersion || '—'}</div>
                     <div><b>Checksum DB :</b> ${s.ota.checksumExpected ? s.ota.checksumExpected.slice(0,20)+'...' : '⚠️ ABSENT'}</div>
                     ${s.ota.error ? `<div style="color:#f87171; font-weight:bold;">❌ Erreur : ${s.ota.error}</div>` : ''}
                     ${s.ota.lastChecked ? `<div style="opacity:0.5; font-size:10px;">Vérifié : ${new Date(s.ota.lastChecked).toLocaleTimeString()}</div>` : ''}
                 </div>
-                ${platformSection}
+
+                ${platformSpecificDetails}
             `;
         }
         if (logsEl) {
@@ -493,11 +587,11 @@ export function initDebugOverlay() {
                 showUpdateModal(res);
             } else if (res.reason === 'up-to-date') {
                 btn.textContent = '✅ À jour';
-                if (feedback) feedback.textContent = `Votre APK (${res.localVersion || '1.0.78'}) est à jour.`;
-                const elNat = document.getElementById('nk-dbg-native-apk-val');
-                if (elNat && res.localVersion) elNat.textContent = 'v' + res.localVersion;
-                const elRem = document.getElementById('nk-dbg-remote-apk-val');
-                if (elRem && res.remoteVersion) elRem.textContent = res.remoteVersion.startsWith('v') ? res.remoteVersion : 'v' + res.remoteVersion;
+                if (feedback) feedback.textContent = `Votre APK (${formatApkCode(res.localVersion || '1.0.79')}) est à jour.`;
+                const elRem = document.getElementById('nk-dbg-matrice-apk-val');
+                if (elRem && res.remoteVersion) elRem.textContent = formatApkCode(res.remoteVersion);
+                const elSub = document.getElementById('nk-dbg-matrice-apk-sub');
+                if (elSub && res.localVersion) elSub.innerHTML = `Installé : <b>${formatApkCode(res.localVersion)}</b>`;
             } else {
                 btn.textContent = 'ℹ️ ' + (res.reason || 'OK');
                 if (feedback) feedback.textContent = 'Statut : ' + res.reason;
@@ -528,8 +622,14 @@ export function initDebugOverlay() {
         } catch (_) {}
 
         const fullText = [
-            `=== NewKet Diagnostic (v${s.pkgVer}) ===`,
+            `=== NewKet Diagnostic (OTA: ${formatOtaCode(s.ota.localVersion || s.pkgVer)}) ===`,
             `Date: ${new Date().toISOString()}`,
+            ``,
+            `--- VERSIONS SUPPORTS ---`,
+            `OTA (Supabase): ${formatOtaCode(s.ota.localVersion || s.pkgVer)} (statut: ${s.ota.status || 'actif'})`,
+            `Android (GitHub): ${formatApkCode(window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || '1.0.79')}${s.isAndroid ? ` | Installé: ${formatApkCode(window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.79')}` : ''}`,
+            `iOS (TestFlight): ${s.isIos ? formatTfCode(window.__NATIVE_IOS_VERSION__ || '1') : 'TF-Non configuré'}`,
+            `Web / PWA: ${formatWebCode(s.pkgVer)}`,
             ``,
             `--- APP ---`,
             `Capacitor: ${s.isCap ? 'OUI' : 'NON'} (${window.location.protocol}//${window.location.hostname})`,
@@ -537,8 +637,6 @@ export function initDebugOverlay() {
             `Supabase Client: ${s.sbOk ? 'OK' : 'NULL'}`,
             `Produits: ${s.prodCount} total (${s.pubCount} publics)`,
             `Rôle Auth: ${s.authRole}`,
-            s.isAndroid ? `APK installé: v${window.__NATIVE_APK_VERSION__ || localStorage.getItem('nk_native_apk_version') || '1.0.78'}` : null,
-            s.isAndroid ? `Dernière release GitHub: ${window.__REMOTE_APK_VERSION__ || localStorage.getItem('nk_remote_apk_version') || 'v1.0.78'}` : null,
             ``,
             `--- APPELS NATIFS (MOUCHARD ANDROID) ---`,
             nativeCallLogs ? nativeCallLogs.trim() : 'Aucun log natif enregistré ou non-disponible sur cette plateforme.',

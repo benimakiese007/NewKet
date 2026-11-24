@@ -47,12 +47,15 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf8').replace(/^\uFEFF/, ''));
 const args = process.argv.slice(2);
 let targetVersion = '';
 let releaseNotes = '';
+let isNewFeature = false;
 
 for (let i = 0; i < args.length; i++) {
     if (args[i] === '--version' && args[i + 1]) {
         targetVersion = args[++i];
     } else if (args[i] === '--notes' && args[i + 1]) {
         releaseNotes = args[++i];
+    } else if (args[i] === '--feature' || args[i] === '--new-chantier' || args[i] === '--chantier') {
+        isNewFeature = true;
     } else if (!targetVersion && !args[i].startsWith('--')) {
         targetVersion = args[i];
     } else if (!releaseNotes && !args[i].startsWith('--')) {
@@ -64,11 +67,12 @@ for (let i = 0; i < args.length; i++) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
- * Calcule la prochaine version avec lettre-suffixe depuis la DB.
- * Exemples : 1.0.65 → 1.0.65a → 1.0.65b → ... → 1.0.65z → 1.0.66
- * Protège contre les collisions multi-agents simultanés.
+ * Calcule la prochaine version OTA avec lettre-suffixe OBLIGATOIRE.
+ * Règle d'or NewKet : l'OTA a TOUJOURS une lettre (ex: 79a, 79b... jamais 80 tout court).
+ * - Patch / fix standard : incrémente la lettre (79a → 79b → 79c)
+ * - Nouvelle feature (--feature) : incrémente le chiffre de chantier et repart à 'a' (79x → 80a)
  */
-async function getNextVersion() {
+async function getNextVersion(isFeature = false) {
     const { data, error } = await supabase
         .from('app_versions')
         .select('version')
@@ -77,30 +81,62 @@ async function getNextVersion() {
 
     if (error) {
         console.warn('[OTA] Impossible de lire la DB, fallback sur package.json :', error.message);
-        return pkg.version || '1.0.0';
+        const base = pkg.version || '1.0.79a';
+        return normalizeOtaVersion(base);
     }
 
-    const latest = data?.[0]?.version || pkg.version || '1.0.0';
+    const latest = data?.[0]?.version || pkg.version || '1.0.79a';
     console.log('[OTA] Dernière version en DB :', latest);
 
-    // Parsing : "1.0.65" ou "1.0.65a" ou "1.0.65b"
-    const match = String(latest).match(/^(\d+\.\d+\.)(\d+)([a-z]?)$/);
+    // Parsing : "1.0.79" ou "1.0.79a" ou "1.0.79b"
+    const match = String(latest).match(/^(\d+\.\d+\.)(\d+)([a-z]?)$/i);
     if (!match) {
-        console.warn('[OTA] Version en DB non parsable, fallback direct :', latest);
-        return latest;
+        console.warn('[OTA] Version non conventionnelle, normalisation :', latest);
+        return normalizeOtaVersion(latest);
     }
     const prefix = match[1]; // "1.0."
-    const patch = parseInt(match[2]); // 65
-    const letter = match[3]; // "" ou "a" ou "b"
+    let patch = parseInt(match[2], 10); // 79
+    let letter = (match[3] || '').toLowerCase(); // "a", "b", etc.
 
-    if (!letter) return `${prefix}${patch}a`;             // 1.0.65 → 1.0.65a
-    if (letter === 'z') return `${prefix}${patch + 1}`;  // 1.0.65z → 1.0.66
-    return `${prefix}${patch}${String.fromCharCode(letter.charCodeAt(0) + 1)}`; // 1.0.65a → 1.0.65b
+    if (isFeature) {
+        // Nouveau chantier / nouvelle fonctionnalité
+        patch += 1;
+        letter = 'a';
+        console.log(`[OTA] 🚀 Nouveau chantier détecté (--feature) -> Passage au chantier ${patch}a`);
+        return `${prefix}${patch}a`;
+    }
+
+    // Retouche / patch standard sur le même chantier
+    if (!letter) {
+        return `${prefix}${patch}a`;
+    }
+    if (letter === 'z') {
+        // Fin de l'alphabet, on passe au chantier suivant avec 'a' (toujours une lettre !)
+        return `${prefix}${patch + 1}a`;
+    }
+    const nextLetter = String.fromCharCode(letter.charCodeAt(0) + 1);
+    return `${prefix}${patch}${nextLetter}`;
+}
+
+/**
+ * Assure qu'une version OTA possède TOUJOURS une lettre de suffixe
+ */
+function normalizeOtaVersion(ver) {
+    const v = String(ver).trim().replace(/^v/i, '');
+    const m = v.match(/^(\d+\.\d+\.\d+)([a-z]?)$/i);
+    if (m) {
+        if (!m[2]) return `${m[1]}a`; // 1.0.80 -> 1.0.80a
+        return `${m[1]}${m[2].toLowerCase()}`;
+    }
+    return v.endsWith('a') ? v : `${v}a`;
 }
 
 // Si pas de version fournie, calculer depuis la DB avec lettre-suffixe
 if (!targetVersion) {
-    targetVersion = await getNextVersion();
+    targetVersion = await getNextVersion(isNewFeature);
+} else {
+    // Si l'utilisateur a passé une version manuelle sans lettre, on applique la règle (toujours une lettre)
+    targetVersion = normalizeOtaVersion(targetVersion);
 }
 
 releaseNotes = releaseNotes || `Mise à jour OTA v${targetVersion} (${new Date().toLocaleDateString('fr-FR')})`;
