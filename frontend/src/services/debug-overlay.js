@@ -469,57 +469,64 @@ export function initDebugOverlay() {
     `;
 
     panel.innerHTML = `
-        <div style="background:#0f172a; color:#fff; border-top-left-radius:24px; border-top-right-radius:24px; padding:16px 16px calc(24px + env(safe-area-inset-bottom, 20px)); max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column; box-shadow:0 -10px 30px rgba(0,0,0,0.6); border-top:1px solid rgba(255,255,255,0.15); width:100%; box-sizing:border-box;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px; position:sticky; top:0; background:#0f172a; z-index:10;">
-                <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
-                <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
-                    <button id="nk-dbg-check-apk" style="background:#10b981; color:#0f172a; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap;">🚀 MàJ APK</button>
-                    <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
-                    <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
-                    <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:6px; padding:4px 6px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 OTA</button>
-                    <button id="nk-dbg-close" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:6px; padding:4px 8px; font-size:11px; font-weight:bold; cursor:pointer; line-height:1;" title="Fermer">✕</button>
-                </div>
-            </div>
-            <!-- Onglets de bascule : État & Mouchard VS Console Logs -->
-            <div style="display:flex; gap:6px; margin-bottom:10px; background:rgba(255,255,255,0.06); padding:3px; border-radius:10px;">
-                <button id="nk-dbg-tab-btn-info" style="flex:1; padding:7px; font-size:11px; font-weight:800; border-radius:8px; border:none; cursor:pointer; background:#0284c7; color:#fff; transition:all 0.15s ease;">📊 État & Mouchard</button>
-                <button id="nk-dbg-tab-btn-logs" style="flex:1; padding:7px; font-size:11px; font-weight:800; border-radius:8px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.15s ease;">💻 Console Logs (<span id="nk-dbg-tab-logs-count">0</span>)</button>
+        <div id="nk-debug-card" style="background:#0f172a; color:#fff; border-top-left-radius:0px; border-top-right-radius:0px; height:100dvh; max-height:100dvh; width:100%; box-sizing:border-box; display:flex; flex-direction:column; box-shadow:0 -10px 40px rgba(0,0,0,0.8); border-top:1px solid rgba(255,255,255,0.18); transition:height 0.2s cubic-bezier(0.2, 0.9, 0.4, 1); overflow:hidden; padding-top:env(safe-area-inset-top, 0px);">
+            <!-- Poignée tactile de tirage (Drag Handle) : tirer de haut en bas ou de bas en haut -->
+            <div id="nk-dbg-drag-handle" style="width:100%; padding:10px 0 8px; display:flex; justify-content:center; align-items:center; cursor:ns-resize; touch-action:none; -webkit-user-select:none; user-select:none;">
+                <div id="nk-dbg-drag-bar" style="width:44px; height:5px; border-radius:999px; background:rgba(255,255,255,0.4); transition:background 0.2s ease, width 0.2s ease;"></div>
             </div>
 
-            <!-- Onglet 1 : Diagnostic & Mouchard -->
-            <div id="nk-debug-info-wrap">
-                <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:8px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <span>🛡️ Déclencher toutes les autorisations</span>
-                </button>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:10px;">
-                    <button id="nk-dbg-test-call-ui" style="background:#0f766e; color:#fff; border:1px solid #14b8a6; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester l'interface appel in-app">
-                        <span>📞 Test In-App</span>
-                    </button>
-                    <button id="nk-dbg-test-native-fullscreen" style="background:#0284c7; color:#fff; border:1px solid #38bdf8; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester le réveil plein écran et Heads-up (délai 5s pour verrouiller)">
-                        <span>🚨 Plein Écran (5s)</span>
-                    </button>
-                    <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Envoyer un vrai push (FCM sous Android / VoIP sous iOS) avec 3s de délai pour verrouiller l'écran">
-                        <span>🔔 Push (3s)</span>
-                    </button>
+            <!-- Contenu défilable interne -->
+            <div id="nk-debug-card-scroll" style="flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:0 16px calc(24px + env(safe-area-inset-bottom, 20px)); display:flex; flex-direction:column;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; gap:4px; position:sticky; top:0; background:#0f172a; z-index:10;">
+                    <h3 style="margin:0; font-size:13px; font-weight:800; color:#38bdf8; white-space:nowrap;">🛠️ Diag</h3>
+                    <div style="display:flex; gap:4px; flex-wrap:nowrap; align-items:center;">
+                        <button id="nk-dbg-check-apk" style="background:#10b981; color:#0f172a; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap;">🚀 MàJ APK</button>
+                        <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
+                        <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
+                        <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:6px; padding:4px 6px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 OTA</button>
+                        <button id="nk-dbg-close" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:5px 11px; font-size:13px; font-weight:800; cursor:pointer; line-height:1;" title="Fermer">✕</button>
+                    </div>
                 </div>
-                <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
-            </div>
+                <!-- Onglets de bascule : État & Mouchard VS Console Logs -->
+                <div style="display:flex; gap:6px; margin-bottom:10px; background:rgba(255,255,255,0.06); padding:3px; border-radius:10px;">
+                    <button id="nk-dbg-tab-btn-info" style="flex:1; padding:7px; font-size:11px; font-weight:800; border-radius:8px; border:none; cursor:pointer; background:#0284c7; color:#fff; transition:all 0.15s ease;">📊 État & Mouchard</button>
+                    <button id="nk-dbg-tab-btn-logs" style="flex:1; padding:7px; font-size:11px; font-weight:800; border-radius:8px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.15s ease;">💻 Console Logs (<span id="nk-dbg-tab-logs-count">0</span>)</button>
+                </div>
 
-            <!-- Onglet 2 : Console Logs Noir Dédié -->
-            <div id="nk-debug-logs-wrap" style="display:none; flex-direction:column;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="font-size:11px; font-weight:800; color:#38bdf8; letter-spacing:0.04em;">LOGS CONSOLE EN DIRECT</span>
-                        <span id="nk-dbg-logs-count" style="background:rgba(255,255,255,0.1); color:#38bdf8; font-size:9px; font-weight:700; padding:1px 6px; border-radius:999px;">0</span>
+                <!-- Onglet 1 : Diagnostic & Mouchard -->
+                <div id="nk-debug-info-wrap">
+                    <button id="nk-dbg-request-all-perms" style="width:100%; margin-bottom:8px; background:linear-gradient(135deg, #6366f1, #a855f7); color:#fff; border:none; border-radius:12px; padding:10px 14px; font-size:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <span>🛡️ Déclencher toutes les autorisations</span>
+                    </button>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:10px;">
+                        <button id="nk-dbg-test-call-ui" style="background:#0f766e; color:#fff; border:1px solid #14b8a6; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester l'interface appel in-app">
+                            <span>📞 Test In-App</span>
+                        </button>
+                        <button id="nk-dbg-test-native-fullscreen" style="background:#0284c7; color:#fff; border:1px solid #38bdf8; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester le réveil plein écran et Heads-up (délai 5s pour verrouiller)">
+                            <span>🚨 Plein Écran (5s)</span>
+                        </button>
+                        <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Envoyer un vrai push (FCM sous Android / VoIP sous iOS) avec 3s de délai pour verrouiller l'écran">
+                            <span>🔔 Push (3s)</span>
+                        </button>
                     </div>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <button id="nk-dbg-copy-logs-only" style="background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:4px 9px; font-size:10px; font-weight:700; cursor:pointer;">📋 Copier Logs</button>
-                        <button id="nk-dbg-clear-logs" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer;" title="Vider les logs">🗑️</button>
-                    </div>
+                    <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
                 </div>
-                <div id="nk-debug-logs" style="background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); height:55vh; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+
+                <!-- Onglet 2 : Console Logs Noir Dédié -->
+                <div id="nk-debug-logs-wrap" style="display:none; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:11px; font-weight:800; color:#38bdf8; letter-spacing:0.04em;">LOGS CONSOLE EN DIRECT</span>
+                            <span id="nk-dbg-logs-count" style="background:rgba(255,255,255,0.1); color:#38bdf8; font-size:9px; font-weight:700; padding:1px 6px; border-radius:999px;">0</span>
+                        </div>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button id="nk-dbg-copy-logs-only" style="background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:4px 9px; font-size:10px; font-weight:700; cursor:pointer;">📋 Copier Logs</button>
+                            <button id="nk-dbg-clear-logs" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer;" title="Vider les logs">🗑️</button>
+                        </div>
+                    </div>
+                    <div id="nk-debug-logs" style="background:#020617; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); height:55vh; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
+                </div>
             </div>
-        </div>
         </div>
     `;
 
@@ -569,6 +576,87 @@ export function initDebugOverlay() {
     });
 
     panel.querySelector('#nk-dbg-close').addEventListener('click', () => toggleDebugPanel(false));
+
+    // ── Poignée de réglage de hauteur libre ("caler partout") ─────────────
+    const card = panel.querySelector('#nk-debug-card');
+    const handle = panel.querySelector('#nk-dbg-drag-handle');
+    const bar = panel.querySelector('#nk-dbg-drag-bar');
+    let isResizing = false;
+    let sheetDragStartY = 0;
+    let startCardH = 0;
+
+    function startResize(clientY) {
+        if (!card) return;
+        isResizing = true;
+        sheetDragStartY = clientY;
+        startCardH = card.getBoundingClientRect().height || window.innerHeight;
+        card.style.transition = 'none';
+        if (bar) {
+            bar.style.background = '#38bdf8';
+            bar.style.width = '52px';
+        }
+    }
+
+    function moveResize(clientY) {
+        if (!isResizing || !card) return;
+        const deltaY = sheetDragStartY - clientY; // Vers le haut = agrandit, vers le bas = rétrécit
+        let newH = startCardH + deltaY;
+        const minH = 100;
+        const maxH = window.innerHeight;
+        newH = Math.max(minH, Math.min(maxH, newH));
+        card.style.height = `${newH}px`;
+        if (newH >= window.innerHeight - 20) {
+            card.style.borderTopLeftRadius = '0px';
+            card.style.borderTopRightRadius = '0px';
+        } else {
+            card.style.borderTopLeftRadius = '24px';
+            card.style.borderTopRightRadius = '24px';
+        }
+    }
+
+    function endResize() {
+        if (!isResizing || !card) return;
+        isResizing = false;
+        card.style.transition = 'height 0.2s cubic-bezier(0.2, 0.9, 0.4, 1)';
+        if (bar) {
+            bar.style.background = 'rgba(255,255,255,0.4)';
+            bar.style.width = '44px';
+        }
+        const currentH = card.getBoundingClientRect().height;
+        // Si l'utilisateur l'a baissé tout en bas (< 140px), on ferme
+        if (currentH < 140) {
+            toggleDebugPanel(false);
+        } else if (currentH >= window.innerHeight - 25) {
+            // Calé tout en haut -> 100dvh plein écran
+            card.style.height = '100dvh';
+            card.style.borderTopLeftRadius = '0px';
+            card.style.borderTopRightRadius = '0px';
+            try { localStorage.setItem('nk_debug_panel_height', '100dvh'); } catch (_) {}
+        } else {
+            // Reste EXACTEMENT là où le doigt l'a calé !
+            card.style.height = `${currentH}px`;
+            try { localStorage.setItem('nk_debug_panel_height', `${currentH}px`); } catch (_) {}
+        }
+    }
+
+    handle?.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) startResize(e.touches[0].clientY);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (isResizing && e.touches.length === 1) moveResize(e.touches[0].clientY);
+    }, { passive: true });
+
+    window.addEventListener('touchend', endResize);
+
+    // Support souris (Web desktop)
+    handle?.addEventListener('mousedown', (e) => {
+        startResize(e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+        if (isResizing) moveResize(e.clientY);
+    });
+    window.addEventListener('mouseup', endResize);
 
     panel.querySelector('#nk-dbg-check-apk')?.addEventListener('click', async () => {
         const btn = panel.querySelector('#nk-dbg-check-apk');
@@ -1174,9 +1262,10 @@ function toggleDebugPanel(force) {
                 htmlNav.setAttribute('style', (htmlNav.getAttribute('style') || '') + '; display: none !important; visibility: hidden !important; pointer-events: none !important;');
             }
 
-            // Sur iOS : masquer aussi la NativeTabBar native
+            // Sur iOS : masquer aussi la NativeTabBar native ET les boutons Liquid Glass (Burger / Recherche)
             try {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
             } catch (_) {}
 
             panel.style.setProperty('display', 'flex', 'important');
@@ -1184,6 +1273,20 @@ function toggleDebugPanel(force) {
             panel.style.setProperty('top', '0px', 'important');
             panel.style.setProperty('height', '100dvh', 'important');
             panel.style.setProperty('justify-content', 'flex-end', 'important');
+
+            // Initialiser ou restaurer la hauteur du volet (plein écran par défaut)
+            const card = panel.querySelector('#nk-debug-card');
+            if (card) {
+                const savedH = localStorage.getItem('nk_debug_panel_height') || '100dvh';
+                card.style.height = savedH;
+                if (savedH === '100dvh') {
+                    card.style.borderTopLeftRadius = '0px';
+                    card.style.borderTopRightRadius = '0px';
+                } else {
+                    card.style.borderTopLeftRadius = '24px';
+                    card.style.borderTopRightRadius = '24px';
+                }
+            }
         } else {
             panel.style.setProperty('display', 'none', 'important');
 
@@ -1201,12 +1304,17 @@ function toggleDebugPanel(force) {
                 delete htmlNav.dataset.debugHidden;
             }
 
-            // Sur iOS : restaurer la NativeTabBar quand le panneau de debug se ferme
+            // Sur iOS : restaurer la NativeTabBar et les boutons Liquid Glass (Burger / Recherche)
             try {
                 if (window.ComponentsLoader && typeof window.ComponentsLoader.syncNativeTabBarVisibility === 'function') {
                     window.ComponentsLoader.syncNativeTabBarVisibility();
                 } else {
                     window.Capacitor?.Plugins?.NativeTabBar?.show?.().catch(() => {});
+                }
+                if (window.ComponentsLoader && typeof window.ComponentsLoader.syncNativeHeaderButtons === 'function') {
+                    window.ComponentsLoader.syncNativeHeaderButtons();
+                } else {
+                    window.Capacitor?.Plugins?.NativeHeaderButtons?.show?.().catch(() => {});
                 }
             } catch (_) {}
         }
