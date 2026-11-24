@@ -238,6 +238,42 @@ async function uploadAndPublish() {
     // 7. Nettoyage du zip local
     try { unlinkSync(zipPath); } catch (_) {}
 
+    // 8. Rotation automatique : conserver uniquement les 3 dernières versions (Storage + DB)
+    try {
+        console.log('\n[Rotation] Nettoyage automatique des anciennes versions (garde les 3 plus récentes)...');
+        const { data: storageFiles } = await supabase.storage.from('app-releases').list('', {
+            limit: 200,
+            sortBy: { column: 'created_at', order: 'desc' }
+        });
+
+        if (storageFiles && storageFiles.length > 3) {
+            const oldFiles = storageFiles.slice(3).map(f => f.name);
+            const { error: removeErr } = await supabase.storage.from('app-releases').remove(oldFiles);
+            if (!removeErr) {
+                console.log(`[OK] ${oldFiles.length} ancienne(s) version(s) supprimée(s) du Storage.`);
+            }
+
+            const { data: recentVersions } = await supabase
+                .from('app_versions')
+                .select('version')
+                .order('created_at', { ascending: false })
+                .limit(3);
+
+            if (recentVersions && recentVersions.length >= 3) {
+                const keepVersions = recentVersions.map(v => v.version);
+                await supabase
+                    .from('app_versions')
+                    .delete()
+                    .not('version', 'in', `("${keepVersions.join('","')}")`);
+                console.log(`[OK] Table app_versions synchronisée (3 versions max).`);
+            }
+        } else {
+            console.log(`[OK] Storage déjà propre (<= 3 versions).`);
+        }
+    } catch (cleanupErr) {
+        console.warn(`[AVERTISSEMENT] Erreur non-bloquante lors de la rotation :`, cleanupErr.message);
+    }
+
     console.log('\n========================================\n[SUCCES] PUBLICATION OTA REUSSIE !\n========================================');
     console.log(`----------------------------------------`);
     console.log(`- Version       : ${targetVersion}`);
