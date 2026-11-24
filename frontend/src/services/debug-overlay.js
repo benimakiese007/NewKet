@@ -456,20 +456,19 @@ export function initDebugOverlay() {
         height: 100vh !important;
         height: 100dvh !important;
         z-index: 2147483647 !important;
-        background: rgba(0, 0, 0, 0.65) !important;
+        background: transparent !important;
+        pointer-events: none !important;
         display: none;
         flex-direction: column !important;
         justify-content: flex-end !important;
         align-items: stretch !important;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
     `;
 
     panel.innerHTML = `
-        <div id="nk-debug-card" style="background:#0f172a; color:#fff; border-top-left-radius:0px; border-top-right-radius:0px; height:100dvh; max-height:100dvh; width:100%; box-sizing:border-box; display:flex; flex-direction:column; box-shadow:0 -10px 40px rgba(0,0,0,0.8); border-top:1px solid rgba(255,255,255,0.18); transition:height 0.2s cubic-bezier(0.2, 0.9, 0.4, 1); overflow:hidden; padding-top:env(safe-area-inset-top, 0px);">
+        <div id="nk-debug-card" style="background:#0f172a; color:#fff; border-top-left-radius:0px; border-top-right-radius:0px; height:100dvh; max-height:100dvh; width:100%; box-sizing:border-box; display:flex; flex-direction:column; box-shadow:0 -10px 40px rgba(0,0,0,0.8); border-top:1px solid rgba(255,255,255,0.18); transition:height 0.2s cubic-bezier(0.2, 0.9, 0.4, 1); overflow:hidden; padding-top:env(safe-area-inset-top, 0px); pointer-events:auto;">
             <!-- Poignée tactile de tirage (Drag Handle) : tirer de haut en bas ou de bas en haut -->
             <div id="nk-dbg-drag-handle" style="width:100%; padding:10px 0 8px; display:flex; justify-content:center; align-items:center; cursor:ns-resize; touch-action:none; -webkit-user-select:none; user-select:none;">
                 <div id="nk-dbg-drag-bar" style="width:44px; height:5px; border-radius:999px; background:rgba(255,255,255,0.4); transition:background 0.2s ease, width 0.2s ease;"></div>
@@ -484,6 +483,7 @@ export function initDebugOverlay() {
                         <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
                         <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
                         <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:6px; padding:4px 6px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 OTA</button>
+                        <button id="nk-dbg-lock" style="background:rgba(255,255,255,0.08); color:#94a3b8; border:1px solid rgba(255,255,255,0.15); border-radius:8px; width:30px; height:28px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; font-size:14px;" title="Épingler la hauteur">🔓</button>
                         <button id="nk-dbg-close" style="background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; width:30px; height:28px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0;" title="Fermer">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -576,11 +576,29 @@ export function initDebugOverlay() {
         } catch (_) {}
     });
 
-    panel.addEventListener('click', (e) => {
-        if (e.target === panel) toggleDebugPanel(false);
-    });
+    // Click-outside removed: panel is now pointer-events:none (passthrough)
 
     panel.querySelector('#nk-dbg-close').addEventListener('click', () => toggleDebugPanel(false));
+
+    // ── Bouton lock / unlock ───────────────────────────────────────────────────
+    let isPanelLocked = false;
+    try { isPanelLocked = localStorage.getItem('nk_debug_lock') === '1'; } catch(_) {}
+
+    const lockBtn = panel.querySelector('#nk-dbg-lock');
+    function updateLockBtn() {
+        if (!lockBtn) return;
+        lockBtn.textContent = isPanelLocked ? '🔒' : '🔓';
+        lockBtn.title = isPanelLocked ? 'Épinglé (clic pour libérer)' : 'Libre Apple Music (clic pour épingler)';
+        lockBtn.style.color = isPanelLocked ? '#38bdf8' : '#94a3b8';
+        lockBtn.style.borderColor = isPanelLocked ? 'rgba(56,189,248,0.4)' : 'rgba(255,255,255,0.15)';
+        lockBtn.style.background = isPanelLocked ? 'rgba(56,189,248,0.12)' : 'rgba(255,255,255,0.08)';
+    }
+    updateLockBtn();
+    lockBtn?.addEventListener('click', () => {
+        isPanelLocked = !isPanelLocked;
+        try { localStorage.setItem('nk_debug_lock', isPanelLocked ? '1' : '0'); } catch(_) {}
+        updateLockBtn();
+    });
 
     // ── Poignée de réglage de hauteur libre ("caler partout") ─────────────
     const card = panel.querySelector('#nk-debug-card');
@@ -628,19 +646,35 @@ export function initDebugOverlay() {
             bar.style.width = '44px';
         }
         const currentH = card.getBoundingClientRect().height;
-        // Si l'utilisateur l'a baissé tout en bas (< 140px), on ferme
-        if (currentH < 140) {
-            toggleDebugPanel(false);
-        } else if (currentH >= window.innerHeight - 25) {
-            // Calé tout en haut -> 100dvh plein écran
-            card.style.height = '100dvh';
-            card.style.borderTopLeftRadius = '0px';
-            card.style.borderTopRightRadius = '0px';
-            try { localStorage.setItem('nk_debug_panel_height', '100dvh'); } catch (_) {}
+        const dragDistance = startCardH - currentH; // positif = tiré vers le bas
+
+        if (isPanelLocked) {
+            // 🔒 Mode épinglé : ferme seulement si quasi tout en bas
+            if (currentH < 120) {
+                toggleDebugPanel(false);
+            } else if (currentH >= window.innerHeight - 25) {
+                card.style.height = '100dvh';
+                card.style.borderTopLeftRadius = '0px';
+                card.style.borderTopRightRadius = '0px';
+                try { localStorage.setItem('nk_debug_panel_height', '100dvh'); } catch (_) {}
+            } else {
+                // Reste EXACTEMENT là où le doigt l'a calé !
+                card.style.height = `${currentH}px`;
+                try { localStorage.setItem('nk_debug_panel_height', `${currentH}px`); } catch (_) {}
+            }
         } else {
-            // Reste EXACTEMENT là où le doigt l'a calé !
-            card.style.height = `${currentH}px`;
-            try { localStorage.setItem('nk_debug_panel_height', `${currentH}px`); } catch (_) {}
+            // 🔓 Mode Apple Music : si trop bas ou glissé bien vers le bas -> ferme
+            if (currentH < 200 || dragDistance > 150) {
+                toggleDebugPanel(false);
+            } else if (currentH >= window.innerHeight - 25) {
+                card.style.height = '100dvh';
+                card.style.borderTopLeftRadius = '0px';
+                card.style.borderTopRightRadius = '0px';
+                try { localStorage.setItem('nk_debug_panel_height', '100dvh'); } catch (_) {}
+            } else {
+                card.style.height = `${currentH}px`;
+                try { localStorage.setItem('nk_debug_panel_height', `${currentH}px`); } catch (_) {}
+            }
         }
     }
 
