@@ -1287,6 +1287,8 @@ const ComponentLoader = {
             if (customerSb && customerSb.classList.contains('translate-x-0') && window.innerWidth < 1024) return true;
             const searchContainer = document.getElementById('mobileSearchContainer');
             if (searchContainer && !searchContainer.classList.contains('user-hidden-on-mobile') && window.innerWidth < 1024) return true;
+            const debugPanel = document.getElementById('nk-debug-panel');
+            if (debugPanel && debugPanel.style.display !== 'none') return true;
             if (isAnyWebModalOpen()) return true;
             return false;
         };
