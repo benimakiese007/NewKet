@@ -598,6 +598,15 @@ export function initDebugOverlay() {
         isPanelLocked = !isPanelLocked;
         try { localStorage.setItem('nk_debug_lock', isPanelLocked ? '1' : '0'); } catch(_) {}
         updateLockBtn();
+
+        // Si on passe en mode DÉCADENASSÉ (🔓) : TOP DIRECT (100% plein écran) !
+        if (!isPanelLocked && card) {
+            card.style.transition = 'height 0.25s cubic-bezier(0.2, 0.9, 0.4, 1), border-radius 0.2s ease';
+            card.style.height = '100dvh';
+            card.style.borderTopLeftRadius = '0px';
+            card.style.borderTopRightRadius = '0px';
+            try { localStorage.setItem('nk_debug_panel_height', '100dvh'); } catch(_) {}
+        }
     });
 
     // ── Poignée de réglage de hauteur libre ("caler partout") ─────────────
@@ -663,17 +672,19 @@ export function initDebugOverlay() {
                 try { localStorage.setItem('nk_debug_panel_height', `${currentH}px`); } catch (_) {}
             }
         } else {
-            // 🔓 Mode Apple Music : si trop bas ou glissé bien vers le bas -> ferme
-            if (currentH < 200 || dragDistance > 150) {
-                toggleDebugPanel(false);
-            } else if (currentH >= window.innerHeight - 25) {
+            // 🔓 Mode Décadenassé (Apple Music) : STRICTEMENT BINAIRE (0% ou 100%)
+            // Si on glisse vers le bas (> 40px ou hauteur baissée), fermeture immédiate animée vers 0
+            if (dragDistance > 40 || currentH < window.innerHeight - 80) {
+                card.style.transition = 'height 0.18s cubic-bezier(0.2, 0.9, 0.4, 1)';
+                card.style.height = '0px';
+                setTimeout(() => {
+                    toggleDebugPanel(false);
+                }, 180);
+            } else {
+                // Annulé ou repoussé vers le haut -> rebond propre à 100% Top
                 card.style.height = '100dvh';
                 card.style.borderTopLeftRadius = '0px';
                 card.style.borderTopRightRadius = '0px';
-                try { localStorage.setItem('nk_debug_panel_height', '100dvh'); } catch (_) {}
-            } else {
-                card.style.height = `${currentH}px`;
-                try { localStorage.setItem('nk_debug_panel_height', `${currentH}px`); } catch (_) {}
             }
         }
     }
@@ -1317,7 +1328,11 @@ function toggleDebugPanel(force) {
             // Initialiser ou restaurer la hauteur du volet (plein écran par défaut)
             const card = panel.querySelector('#nk-debug-card');
             if (card) {
-                const savedH = localStorage.getItem('nk_debug_panel_height') || '100dvh';
+                let isLocked = false;
+                try { isLocked = localStorage.getItem('nk_debug_lock') === '1'; } catch(_) {}
+                // En mode 🔓 (décadenassé) : STRICTEMENT 100dvh (jamais de hauteur partielle)
+                const savedH = isLocked ? (localStorage.getItem('nk_debug_panel_height') || '100dvh') : '100dvh';
+                card.style.transition = 'none';
                 card.style.height = savedH;
                 if (savedH === '100dvh') {
                     card.style.borderTopLeftRadius = '0px';
