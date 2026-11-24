@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "cd.newket.app",
+      "sha256_cert_fingerprints": [
+        "6E:9F:67:F2:35:32:A6:3A:EA:C7:16:21:94:AA:01:B0:9E:66:21:F4:14:AC:68:91:AA:D3:4B:A3:91:55:C5:61"
+      ]
+    }
+  }
+]
