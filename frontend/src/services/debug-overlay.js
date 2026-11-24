@@ -404,8 +404,8 @@ export function initDebugOverlay() {
                     <button id="nk-dbg-test-native-fullscreen" style="background:#0284c7; color:#fff; border:1px solid #38bdf8; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Tester le réveil plein écran et Heads-up (délai 5s pour verrouiller)">
                         <span>🚨 Plein Écran (5s)</span>
                     </button>
-                    <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Envoyer un vrai push FCM avec 3s de délai pour verrouiller l'écran">
-                        <span>🔔 FCM (3s)</span>
+                    <button id="nk-dbg-test-fcm-call" style="background:#b45309; color:#fff; border:1px solid #f59e0b; border-radius:8px; padding:8px 4px; font-size:10px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;" title="Envoyer un vrai push (FCM sous Android / VoIP sous iOS) avec 3s de délai pour verrouiller l'écran">
+                        <span>🔔 Push (3s)</span>
                     </button>
                 </div>
                 <div id="nk-debug-info" style="font-size:11px; line-height:1.6; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);"></div>
@@ -790,25 +790,27 @@ export function initDebugOverlay() {
                 alert('Erreur serveur (' + res.status + '): ' + (data.error || 'Échec'));
                 setTimeout(() => {
                     btn.disabled = false;
-                    btn.textContent = '🔔 FCM (3s)';
+                    btn.textContent = '🔔 Push (3s)';
                     btn.style.background = '#b45309';
                 }, 3000);
                 return;
             }
 
-            if (data.fcm_sent === 0) {
-                btn.textContent = '⚠️ 0 push FCM envoyé';
+            const pushCount = (data.fcm_sent || 0) + (data.voip_sent || 0);
+            if (pushCount === 0) {
+                btn.textContent = '⚠️ 0 push envoyé';
                 btn.style.background = '#ea580c';
-                alert('⚠️ Le serveur a répondu 200 OK mais fcm_sent=0 (le service FCM du backend n\'a pas trouvé de token actif ou n\'est pas initialisé).');
+                alert('⚠️ Le serveur a répondu 200 OK mais aucun push n\'a été envoyé (fcm_sent=0, voip_sent=0). Vérifiez que votre appareil a un token actif.');
                 setTimeout(() => {
                     btn.disabled = false;
-                    btn.textContent = '🔔 FCM (3s)';
+                    btn.textContent = '🔔 Push (3s)';
                     btn.style.background = '#b45309';
                 }, 3000);
                 return;
             }
 
-            btn.textContent = '🔒 ' + data.fcm_sent + ' push envoyé ! Verrouille !';
+            const label = data.voip_sent > 0 ? `🔒 ${data.voip_sent} VoIP envoyé !` : `🔒 ${data.fcm_sent} push envoyé !`;
+            btn.textContent = `${label} Verrouille !`;
             btn.style.background = '#10b981';
 
             // Fermer le panneau après 1s pour que l'utilisateur soit sur l'écran et puisse verrouiller
@@ -818,15 +820,15 @@ export function initDebugOverlay() {
 
             setTimeout(() => {
                 btn.disabled = false;
-                btn.textContent = '🔔 FCM (3s)';
+                btn.textContent = '🔔 Push (3s)';
                 btn.style.background = '#b45309';
             }, 6000);
 
         } catch (err) {
-            console.error('[Debug] ❌ Erreur déclenchement FCM:', err);
+            console.error('[Debug] ❌ Erreur déclenchement push:', err);
             alert('Erreur: ' + err.message);
             btn.disabled = false;
-            btn.textContent = '🔔 Réveil FCM (3s)';
+            btn.textContent = '🔔 Push (3s)';
         }
     });
 
