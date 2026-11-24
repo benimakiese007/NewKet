@@ -1313,8 +1313,9 @@ const ComponentLoader = {
             const isCallOverlay = (document.getElementById('dt-call-fullscreen') && !document.getElementById('dt-call-fullscreen').classList.contains('hidden')) ||
                                   (document.getElementById('dt-global-call-fullscreen') && !document.getElementById('dt-global-call-fullscreen').classList.contains('hidden'));
             const isToast = !!document.getElementById('dt-chat-toast-pill');
+            const isDebugPanel = (document.getElementById('nk-debug-panel') && document.getElementById('nk-debug-panel').style.display !== 'none');
             // 🍏 Les modales web, plein écran d'appel et toasts masquent les boutons natifs Liquid Glass sans X natif parasite
-            if (isModal || isSuccessOverlay || isCallOverlay || isToast) {
+            if (isModal || isSuccessOverlay || isCallOverlay || isToast || isDebugPanel) {
                 _isOverlayActive = true;
                 _lastCloseConfigKey = 'modal_no_native_close';
                 plugin.update({ showLeft: false, showRight: false }).catch(() => {});

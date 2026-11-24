@@ -484,7 +484,12 @@ export function initDebugOverlay() {
                         <button id="nk-dbg-copy-all" style="background:#059669; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📋 Copier</button>
                         <button id="nk-dbg-force-fetch" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:4px 7px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">Forcer</button>
                         <button id="nk-dbg-ota-history" style="background:#7c3aed; color:#fff; border:none; border-radius:6px; padding:4px 6px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">📜 OTA</button>
-                        <button id="nk-dbg-close" style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:5px 11px; font-size:13px; font-weight:800; cursor:pointer; line-height:1;" title="Fermer">✕</button>
+                        <button id="nk-dbg-close" style="background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; width:30px; height:28px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0;" title="Fermer">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
                     </div>
                 </div>
                 <!-- Onglets de bascule : État & Mouchard VS Console Logs -->
@@ -1262,10 +1267,11 @@ function toggleDebugPanel(force) {
                 htmlNav.setAttribute('style', (htmlNav.getAttribute('style') || '') + '; display: none !important; visibility: hidden !important; pointer-events: none !important;');
             }
 
-            // Sur iOS : masquer aussi la NativeTabBar native ET les boutons Liquid Glass (Burger / Recherche)
+            // Sur iOS : masquer aussi la NativeTabBar native ET les boutons Liquid Glass (Burger / Recherche / Bouton Close natif)
             try {
                 window.Capacitor?.Plugins?.NativeTabBar?.hide?.().catch(() => {});
                 window.Capacitor?.Plugins?.NativeHeaderButtons?.hide?.().catch(() => {});
+                window.Capacitor?.Plugins?.NativeHeaderButtons?.hideClose?.().catch(() => {});
             } catch (_) {}
 
             panel.style.setProperty('display', 'flex', 'important');
