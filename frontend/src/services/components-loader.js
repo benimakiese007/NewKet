@@ -1553,9 +1553,12 @@ const ComponentLoader = {
             const logoutTrigger = event.target.closest('[data-logout-safe], [data-action="logout"], .sidebar-logout');
             if (logoutTrigger) {
                 event.preventDefault();
+                event.stopPropagation();
+                console.log('[LOGOUT 1/6] 🔘 Clic déconnexion capté sur :', logoutTrigger.tagName, logoutTrigger.className || logoutTrigger.id);
                 if (window.AuthManager?.handleLogoutClick) {
                     window.AuthManager.handleLogoutClick(logoutTrigger);
                 } else if (window.AuthManager?.logout) {
+                    console.log('[LOGOUT 1/6-bis] Appel direct AuthManager.logout(true)');
                     window.AuthManager.logout(true);
                 }
                 return;

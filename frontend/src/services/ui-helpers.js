@@ -2908,10 +2908,16 @@ window.ThemeManager = ThemeManager;
  */
 window.showLogoutConfirm = () => {
     return new Promise((resolve) => {
+        console.log('[LOGOUT 2/6] 📋 Affichage de la modale de confirmation...');
         // 1. Fermer le menu mobile burger s'il est ouvert pour éviter tout conflit d'overlay
         if (typeof window.closeMobileMenu === 'function') {
             try { window.closeMobileMenu(false); } catch(_) {}
         }
+
+        // Nettoyer toute modale orpheline résiduelle
+        document.querySelectorAll('[id^="logout-confirm-"]').forEach(m => {
+            try { m.remove(); } catch(_) {}
+        });
 
         const modalId = 'logout-confirm-' + Date.now();
         const modal = document.createElement('div');
@@ -2924,6 +2930,7 @@ window.showLogoutConfirm = () => {
         window._doLogoutAction = (result) => {
             if (hasClosed) return;
             hasClosed = true;
+            console.log('[LOGOUT 3/6] 👆 Réponse modale reçue :', result ? 'OUI (Confirmer)' : 'NON (Annuler)');
             const el = document.getElementById(modalId);
             if (el) {
                 el.style.opacity = '0';

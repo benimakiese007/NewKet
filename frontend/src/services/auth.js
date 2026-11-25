@@ -913,13 +913,15 @@ const AuthManager = {
      * Helper to handle logout button clicks with loading state.
      */
     async handleLogoutClick(btnEl, confirmFirst = true) {
+        if (this._logoutInProgress) {
+            console.warn('[LOGOUT] ⚠️ Logout déjà en cours, action ignorée.');
+            return;
+        }
+
         // Fermer le menu mobile immédiatement s'il est ouvert
         if (typeof window.closeMobileMenu === 'function') {
             try { window.closeMobileMenu(false); } catch(_) {}
         }
-
-        // Réinitialiser le verrou de sécurité
-        this._logoutInProgress = false;
 
         const originalHTML = btnEl ? btnEl.innerHTML : '';
         const originalDisabled = btnEl ? btnEl.disabled : false;
@@ -929,7 +931,10 @@ const AuthManager = {
                 const confirmed = typeof window.showLogoutConfirm === 'function'
                     ? await window.showLogoutConfirm()
                     : window.confirm('Êtes-vous sûr de vouloir fermer votre session ?');
-                if (!confirmed) return;
+                if (!confirmed) {
+                    console.log('[LOGOUT] ❌ Déconnexion annulée par l\'utilisateur.');
+                    return;
+                }
             }
 
             if (btnEl) {
@@ -940,60 +945,94 @@ const AuthManager = {
                 `;
             }
 
-            await this.logout(false);
+            await this.logout(false, 'Clic utilisateur validé');
         } catch (err) {
-            console.error('[NewKet Auth] Logout click handler error:', err);
+            console.error('[LOGOUT] ❌ Erreur dans handleLogoutClick:', err);
             if (btnEl) {
                 btnEl.disabled = originalDisabled;
                 btnEl.innerHTML = originalHTML;
             }
+            // Secours absolu : forcer quand même la déconnexion
+            await this.logout(false, 'Secours après erreur');
         }
     },
 
     async logout(confirmFirst = false, reason = 'Utilisateur/Système') {
-        // Robustness: if first arg is a string, it's actually the reason
         if (typeof confirmFirst === 'string') {
             reason = confirmFirst;
             confirmFirst = false;
         }
 
         if (confirmFirst) {
-            const confirmed = await window.showLogoutConfirm();
-            if (!confirmed) return;
+            const confirmed = typeof window.showLogoutConfirm === 'function'
+                ? await window.showLogoutConfirm()
+                : window.confirm('Êtes-vous sûr de vouloir fermer votre session ?');
+            if (!confirmed) {
+                console.log('[LOGOUT] ❌ Déconnexion annulée.');
+                return;
+            }
         }
 
         if (this._logoutInProgress) {
-            console.warn('[NewKet Auth] Logout already in progress.');
+            console.warn('[LOGOUT] ⚠️ Logout déjà en cours d\'exécution.');
             return;
         }
 
         this._logoutInProgress = true;
-
-        console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
+        console.warn(`[LOGOUT 4/6] 🔐 Démarrage de la déconnexion. Motif : ${reason}`);
         
-        // --- 1. Déconnexion Supabase d'abord (pendant que la session est encore en mémoire) ---
+        // 1. Déconnexion Supabase
         try {
-            if (window.supabaseClient) {
+            if (window.supabaseClient?.auth) {
+                console.log('[LOGOUT 4/6] 📡 Appel supabaseClient.auth.signOut()...');
                 const signoutPromise = window.supabaseClient.auth.signOut({ scope: 'global' });
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 1500));
-                
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout (1500ms)')), 1500));
                 await Promise.race([signoutPromise, timeoutPromise]).catch(err => {
-                    console.warn('[NewKet Auth] Supabase SignOut took too long or failed:', err);
+                    console.warn('[LOGOUT 4/6] ⚠️ Supabase SignOut timeout ou erreur (non bloquant):', err?.message || err);
                 });
+                console.log('[LOGOUT 4/6] ✅ Supabase signOut achevé ou timeout absorbé.');
             }
         } catch (err) {
-            console.error('[NewKet Auth] Logout error (Supabase):', err);
+            console.error('[LOGOUT 4/6] ⚠️ Exception Supabase signOut (non bloquant):', err);
         }
 
-        // --- 2. Nettoyage complet de l'état et du stockage local ---
-        this.handleLogoutCleanup();
+        // 2. Nettoyage complet
+        console.log('[LOGOUT 5/6] 🧹 Nettoyage de l\'état et stockage local...');
+        try {
+            this.handleLogoutCleanup();
+            console.log('[LOGOUT 5/6] ✅ handleLogoutCleanup terminé.');
+        } catch (cleanupErr) {
+            console.error('[LOGOUT 5/6] ⚠️ Erreur dans handleLogoutCleanup (absorbée):', cleanupErr);
+            try { this.clearSession(); } catch(_) {}
+        }
 
-        // --- 3. Redirection garantie vers login ---
-        const loginPath = window.resolvePath('login');
-        console.log('[NewKet Auth] Redirecting to:', loginPath);
-        setTimeout(() => {
+        // 3. Détermination du chemin de redirection
+        let loginPath = '/src/pages/login.html';
+        try {
+            if (typeof window.resolvePath === 'function') {
+                loginPath = window.resolvePath('login');
+            } else if (typeof window.ComponentLoader?.getAdjustedPath === 'function') {
+                loginPath = window.ComponentLoader.getAdjustedPath('login');
+            }
+        } catch (resErr) {
+            console.warn('[LOGOUT 6/6] ⚠️ resolvePath a échoué, fallback par défaut :', resErr);
+        }
+
+        console.log('[LOGOUT 6/6] 🚀 Redirection immédiate vers :', loginPath);
+
+        // Exécution de la redirection immédiate + fallback timer
+        try {
+            window.location.replace(loginPath);
+        } catch (_) {
             window.location.href = loginPath;
-        }, 150);
+        }
+
+        setTimeout(() => {
+            if (window.location.pathname.includes('customer-dashboard') || window.location.pathname.includes('vendor-dashboard')) {
+                console.warn('[LOGOUT 6/6-bis] Redirection de secours forcée.');
+                window.location.href = loginPath;
+            }
+        }, 200);
     },
 
     // --- 🔐 PERIODIC SECURITY VALIDATION ---
@@ -1305,7 +1344,7 @@ const AuthManager = {
         document.querySelectorAll('.customer-nav').forEach(el => el.classList.toggle('hidden', isVendor));
 
         // Seller-only UI elements (Vendre buttons in header/menu)
-        if (window.ComponentLoader) ComponentLoader.updateSellerUI();
+        if (window.ComponentLoader) window.ComponentLoader.updateSellerUI();
 
         // Mobile Menu Toggles (Guest vs Auth)
         const isLoggedIn = this.role !== null;
