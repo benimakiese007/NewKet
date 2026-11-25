@@ -1550,7 +1550,7 @@
                         const bioPayload = {
                             email: resolvedLoginEmail, // La véritable adresse email requise par Supabase
                             displayId: loginValidation.identifier, // L'identifiant saisi (email ou nom d'utilisateur)
-                            secret: btoa(encodeURIComponent(password)),
+                            secret: encodeVaultSecret(password),
                             savedAt: Date.now()
                         };
                         localStorage.setItem('newket_bio_vault', JSON.stringify(bioPayload));
@@ -2097,6 +2097,39 @@
         function signInWithGoogle() { signInWithProvider('google'); }
         function signInWithFacebook() { signInWithProvider('facebook'); }
 
+        function encodeVaultSecret(str) {
+            try {
+                const bytes = new TextEncoder().encode(str);
+                return btoa(String.fromCharCode(...bytes));
+            } catch (_) {
+                return btoa(unescape(encodeURIComponent(str)));
+            }
+        }
+
+        function decodeVaultSecret(b64) {
+            if (!b64) return '';
+            try {
+                const bin = atob(b64);
+                const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+                let decoded = new TextDecoder().decode(bytes);
+                // Si stocké avec encodage URI (%40, etc.), le décoder proprement
+                if (decoded.includes('%')) {
+                    try { decoded = decodeURIComponent(decoded); } catch (_) {}
+                }
+                return decoded;
+            } catch (_) {}
+
+            try {
+                let s = atob(b64);
+                if (s.includes('%')) {
+                    try { s = decodeURIComponent(s); } catch (_) {}
+                }
+                return s;
+            } catch (_) {
+                return b64;
+            }
+        }
+
         function isNativeAppEnvironment() {
             return Boolean(
                 window.Capacitor?.isNativePlatform?.() ||
@@ -2184,12 +2217,7 @@
 
                     const targetEmail = vault.email || (vault.id && vault.id.includes('@') ? vault.id : null);
                     const displayId = vault.displayId || vault.id || targetEmail;
-                    let password = '';
-                    try {
-                        password = decodeURIComponent(escape(atob(vault.secret)));
-                    } catch (_) {
-                        try { password = decodeURIComponent(atob(vault.secret)); } catch (_) {}
-                    }
+                    const password = decodeVaultSecret(vault.secret);
 
                     if (!targetEmail || !password) {
                         showError("Identifiants biométriques introuvables. Connectez-vous avec votre mot de passe.");
