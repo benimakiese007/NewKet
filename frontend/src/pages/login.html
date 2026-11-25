@@ -7,7 +7,7 @@
     (function () {
         var proto = window.location.protocol;
         var ua = navigator.userAgent;
-        var isCapacitor = proto === 'capacitor:';
+        var isCapacitor = proto === 'capacitor:' || (window.location.hostname === 'localhost' && /Android|iPhone|iPad|iPod/i.test(ua));
         if (isCapacitor) {
             var html = document.documentElement;
             html.classList.add('is-native-app');
@@ -1886,21 +1886,47 @@
         // Detect if running inside Capacitor native app (iOS or Android)
         const isCapacitorNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 
-        async function signInWithProvider(provider) {
-            const btn = document.getElementById('google-btn');
-            const icon = document.getElementById('google-icon');
-            const spinner = document.getElementById('google-spinner');
+        function resetAllOAuthButtons() {
+            ['google', 'facebook'].forEach((p) => {
+                const b = document.getElementById(`${p}-btn`);
+                const i = document.getElementById(`${p}-icon`);
+                const s = document.getElementById(`${p}-spinner`);
+                if (b) b.disabled = false;
+                if (i) i.classList.remove('hidden');
+                if (s) s.classList.add('hidden');
+            });
+            const pBtn = document.getElementById('passkey-btn');
+            if (pBtn) pBtn.disabled = false;
+        }
 
-            // One single exit path for OAuth: an aborted native browser must always
-            // put the Google button back into its initial, clickable state.
+        // Remise à zéro instantanée lors du retour sur la page (BFCache / touche Précédent / focus)
+        window.addEventListener('pageshow', () => resetAllOAuthButtons());
+        window.addEventListener('focus', () => {
+            setTimeout(() => {
+                if (!window._oauthRedirecting) {
+                    resetAllOAuthButtons();
+                }
+            }, 800);
+        });
+
+        async function signInWithProvider(provider) {
+            // Sélectionner dynamiquement le bouton cliqué (Google ou Facebook)
+            const btn = document.getElementById(`${provider}-btn`);
+            const icon = document.getElementById(`${provider}-icon`);
+            const spinner = document.getElementById(`${provider}-spinner`);
+
             const stopOAuthLoading = (message) => {
-                if (btn) btn.disabled = false;
-                if (icon) icon.classList.remove('hidden');
-                if (spinner) spinner.classList.add('hidden');
+                resetAllOAuthButtons();
                 if (message) showError(message);
             };
 
-            if (btn) btn.disabled = true;
+            // Désactiver tous les boutons sociaux pendant la tentative
+            ['google-btn', 'facebook-btn', 'passkey-btn'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.disabled = true;
+            });
+
+            // Activer le spinner UNIQUEMENT sur le bouton sélectionné
             if (icon) icon.classList.add('hidden');
             if (spinner) spinner.classList.remove('hidden');
 
@@ -2133,11 +2159,15 @@
         function isNativeAppEnvironment() {
             return Boolean(
                 window.Capacitor?.isNativePlatform?.() ||
+                window.Capacitor?.isNative ||
                 window.Capacitor?.getPlatform?.() === 'android' ||
                 window.Capacitor?.getPlatform?.() === 'ios' ||
                 window.location?.protocol === 'capacitor:' ||
                 document.documentElement.classList.contains('is-ios-capacitor') ||
-                document.documentElement.classList.contains('capacitor-native')
+                document.documentElement.classList.contains('is-android-capacitor') ||
+                document.documentElement.classList.contains('is-native-app') ||
+                document.documentElement.classList.contains('capacitor-native') ||
+                (window.location.hostname === 'localhost' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
             );
         }
 
