@@ -82,6 +82,8 @@ jobs:
           /usr/libexec/PlistBuddy -c "Set :UIDesignRequiresCompatibility false" ios/App/App/Info.plist 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIDesignRequiresCompatibility bool false" ios/App/App/Info.plist 2>/dev/null || true
           python3 -c "import plistlib; p_path='ios/App/App/Info.plist'; f=open(p_path,'rb'); d=plistlib.load(f); f.close(); modes=d.get('UIBackgroundModes',[]); modes.append('voip') if 'voip' not in modes else None; d['UIBackgroundModes']=modes; f=open(p_path,'wb'); plistlib.dump(d,f); f.close(); print('voip configure dans UIBackgroundModes')"
           echo "UIDesignRequiresCompatibility=false verifie pour Liquid Glass"
+          /usr/libexec/PlistBuddy -c "Add :NSFaceIDUsageDescription string 'NewKet utilise Face ID pour vous connecter rapidement et en toute sécurité.'" ios/App/App/Info.plist 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :NSFaceIDUsageDescription 'NewKet utilise Face ID pour vous connecter rapidement et en toute sécurité.'" ios/App/App/Info.plist 2>/dev/null || true
+          echo "NSFaceIDUsageDescription ajoute a Info.plist"
         working-directory: ./frontend
 
       - name: Build Xcode (Sans signature)
