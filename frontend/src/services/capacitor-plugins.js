@@ -381,11 +381,12 @@ async function clearWatch(watcherId) {
  * @returns {Promise<boolean>}
  */
 export async function authenticateDeviceOwner(reason = "Confirmez votre identité") {
+    window.lastBiometricResult = null;
     // 1. Mobile natif (iOS & Android) : plugin Capacitor BiometricAuth natif (inchangé)
     if (isNative()) {
         try {
             const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
-            const available = await BiometricAuth.checkBiometry();
+            const available = await BiometricAuth.checkBiometry().catch(() => ({ isAvailable: false }));
             console.log('[NewKet Biometric] checkBiometry:', available);
             
             // Si la biométrie ou le code d'appareil est disponible
@@ -396,9 +397,15 @@ export async function authenticateDeviceOwner(reason = "Confirmez votre identit�
                 iosFallbackTitle: "Utiliser le code de l'iPhone"
             });
             console.log('[NewKet Biometric] ✅ Authentification appareil réussie.');
+            window.lastBiometricResult = { success: true };
             return true;
         } catch (e) {
-            console.warn('[NewKet Biometric] Échec ou annulation appareil:', e?.message || e);
+            console.warn('[NewKet Biometric] Échec ou annulation appareil:', e?.message || e, 'code:', e?.code);
+            window.lastBiometricResult = {
+                success: false,
+                code: e?.code || '',
+                message: e?.message || String(e)
+            };
             return false;
         }
     }

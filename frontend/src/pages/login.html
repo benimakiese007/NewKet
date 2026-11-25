@@ -1548,7 +1548,8 @@
                     // Enregistrement dans le coffre biométrique pour connexion native instantanée
                     try {
                         const bioPayload = {
-                            id: loginValidation.identifier,
+                            email: resolvedLoginEmail, // La véritable adresse email requise par Supabase
+                            displayId: loginValidation.identifier, // L'identifiant saisi (email ou nom d'utilisateur)
                             secret: btoa(encodeURIComponent(password)),
                             savedAt: Date.now()
                         };
@@ -2168,7 +2169,7 @@
                             emailInput.value = remembered;
                             pwdInput?.focus();
                         }
-                        showError("Connectez-vous d'abord une fois avec votre mot de passe pour enregistrer votre empreinte sur cet appareil.");
+                        showError("Veuillez vous connecter une première fois avec votre mot de passe pour enregistrer votre empreinte sur cet appareil.");
                         return;
                     }
 
@@ -2181,8 +2182,17 @@
                         return;
                     }
 
-                    if (!vault?.id || !vault?.secret) {
-                        showError("Aucun compte enregistré pour l'empreinte. Connectez-vous avec votre mot de passe.");
+                    const targetEmail = vault.email || (vault.id && vault.id.includes('@') ? vault.id : null);
+                    const displayId = vault.displayId || vault.id || targetEmail;
+                    let password = '';
+                    try {
+                        password = decodeURIComponent(escape(atob(vault.secret)));
+                    } catch (_) {
+                        try { password = decodeURIComponent(atob(vault.secret)); } catch (_) {}
+                    }
+
+                    if (!targetEmail || !password) {
+                        showError("Identifiants biométriques introuvables. Connectez-vous avec votre mot de passe.");
                         return;
                     }
 
@@ -2191,7 +2201,7 @@
                     if (typeof window.authenticateDeviceOwner === 'function') {
                         authSuccess = await window.authenticateDeviceOwner("Connectez-vous à votre compte NewKet");
                     } else {
-                        await new Promise(r => setTimeout(r, 200));
+                        await new Promise(r => setTimeout(r, 250));
                         if (typeof window.authenticateDeviceOwner === 'function') {
                             authSuccess = await window.authenticateDeviceOwner("Connectez-vous à votre compte NewKet");
                         } else {
@@ -2200,31 +2210,43 @@
                     }
 
                     if (!authSuccess) {
-                        console.log('[NewKet Bio] Authentification annulée par l\'utilisateur.');
+                        const lastErr = window.lastBiometricResult || {};
+                        const errCode = String(lastErr.code || '');
+                        const errMsg = String(lastErr.message || '').toLowerCase();
+
+                        if (errCode === 'passcodeNotSet' || errCode === 'noDeviceCredential' || errMsg.includes('passcode') || errMsg.includes('not set') || errMsg.includes('no device credential')) {
+                            showError("Aucun code de verrouillage ou mot de passe n'est configuré sur votre appareil. Veuillez activer un code PIN ou une empreinte dans les paramètres de votre téléphone.");
+                        } else if (errCode === 'biometryNotEnrolled' || errMsg.includes('not enrolled')) {
+                            showError("Aucune empreinte digitale enregistrée sur cet appareil. Ajoutez une empreinte dans les paramètres de votre téléphone pour l'utiliser.");
+                        } else if (errCode === 'biometryLockout' || errMsg.includes('lockout')) {
+                            showError("Le capteur d'empreinte est temporairement verrouillé suite à trop d'essais. Veuillez saisir votre mot de passe ci-dessus.");
+                        } else if (errCode === 'userCancel' || errMsg.includes('cancel')) {
+                            console.log('[NewKet Bio] Authentification annulée par l\'utilisateur.');
+                        } else if (errMsg) {
+                            showError("Échec de l'authentification : " + (lastErr.message || "erreur biométrique"));
+                        }
                         return;
                     }
 
-                    // L'utilisateur a posé son doigt avec succès sur le capteur physique
-                    const identifier = vault.id;
-                    const password = decodeURIComponent(escape(atob(vault.secret)));
+                    // Remplir les champs avec les VRAIES valeurs pour que l'icône œil fonctionne parfaitement
+                    if (emailInput) emailInput.value = displayId;
+                    if (pwdInput) {
+                        pwdInput.value = password;
+                        pwdInput.classList.remove('border-red-400', 'ring-red-400');
+                    }
 
-                    if (emailInput) emailInput.value = identifier;
-                    if (pwdInput) pwdInput.value = '••••••••';
-
-                    const resolvedEmail = identifier.includes('@')
-                        ? identifier
-                        : await resolveLoginIdentifier(identifier);
-
-                    console.log('[NewKet Bio] Empreinte validée. Connexion Supabase en cours pour :', resolvedEmail);
+                    console.log('[NewKet Bio] Empreinte validée. Connexion Supabase en cours pour :', targetEmail);
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email: resolvedEmail,
+                        email: targetEmail,
                         password: password
                     });
 
                     if (error) {
-                        if (error.message?.includes('Invalid login credentials')) {
-                            localStorage.removeItem('newket_bio_vault');
-                            throw new Error("Votre mot de passe a changé. Veuillez vous reconnecter avec votre mot de passe.");
+                        console.error('[NewKet Bio] Erreur Supabase:', error);
+                        if (error.message?.includes('Invalid login credentials') || error.message?.includes('invalid')) {
+                            showError("Mot de passe incorrect ou expiré. Vous pouvez vérifier ou corriger votre mot de passe ci-dessus et cliquer sur Se connecter.");
+                            pwdInput?.focus();
+                            return;
                         }
                         throw error;
                     }
