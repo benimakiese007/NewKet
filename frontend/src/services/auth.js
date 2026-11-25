@@ -971,12 +971,11 @@ const AuthManager = {
         // Do this immediately so even if redirect fails, the user is locally logged out.
         this.handleLogoutCleanup();
 
-        // --- 3. Supabase SignOut with Fail-safe ---
+        // --- 3. Supabase SignOut with Fail-safe (Déconnexion globale sur tous les supports) ---
         try {
             if (window.supabaseClient) {
-                // Set a short timeout for Supabase signOut to avoid hanging
-                const signoutPromise = window.supabaseClient.auth.signOut();
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 1500));
+                const signoutPromise = window.supabaseClient.auth.signOut({ scope: 'global' });
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 2000));
                 
                 await Promise.race([signoutPromise, timeoutPromise]).catch(err => {
                     console.warn('[NewKet Auth] Supabase SignOut took too long or failed, forcing UI cleanup.', err);
@@ -985,14 +984,13 @@ const AuthManager = {
         } catch (err) {
             console.error('[NewKet Auth] Logout error (Supabase):', err);
         } finally {
-            // --- 4. Final Redirection (Snappy) ---
+            // Re-nettoyage de sécurité complet
+            this.handleLogoutCleanup();
             const loginPath = window.resolvePath('login');
             console.log('[NewKet Auth] Redirecting to:', loginPath);
-            
-            // Minimal delay to let the user see the "..." state change on the button
             setTimeout(() => {
-                window.location.href = loginPath;
-            }, 300);
+                window.location.replace(loginPath);
+            }, 250);
         }
     },
 

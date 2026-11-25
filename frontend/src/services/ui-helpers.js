@@ -2949,11 +2949,12 @@ window.showLogoutConfirm = () => {
 
         mountModalOverlay(modal);
 
-        // Binding explicite des événements clics et touch (résout le blocage sous WKWebView iOS)
+        // Binding sécurisé sans double tirage touchend/click
         const btnConfirm = document.getElementById(`${modalId}-btn-confirm`);
         const btnCancel = document.getElementById(`${modalId}-btn-cancel`);
         const backdrop = document.getElementById(`${modalId}-backdrop`);
 
+        let hasClosed = false;
         const triggerConfirm = (e) => {
             if (e) e.preventDefault();
             window._closeLogoutConfirm(modalId, true);
@@ -2964,13 +2965,8 @@ window.showLogoutConfirm = () => {
         };
 
         btnConfirm?.addEventListener('click', triggerConfirm);
-        btnConfirm?.addEventListener('touchend', triggerConfirm);
-
         btnCancel?.addEventListener('click', triggerCancel);
-        btnCancel?.addEventListener('touchend', triggerCancel);
-
         backdrop?.addEventListener('click', triggerCancel);
-        backdrop?.addEventListener('touchend', triggerCancel);
 
         // Animate in et déverrouillage des pointer-events sur le conteneur parent
         requestAnimationFrame(() => {
@@ -2985,6 +2981,8 @@ window.showLogoutConfirm = () => {
         });
 
         window._closeLogoutConfirm = (id, result) => {
+            if (hasClosed) return;
+            hasClosed = true;
             const el = document.getElementById(id);
             if (!el) return;
             const backdrop = document.getElementById(`${id}-backdrop`);
@@ -2993,7 +2991,7 @@ window.showLogoutConfirm = () => {
             if (backdrop) backdrop.classList.add('opacity-0');
             if (content) {
                 content.style.transitionTimingFunction = 'cubic-bezier(0.4, 0, 0.2, 1)';
-                content.style.transitionDuration = '400ms';
+                content.style.transitionDuration = '300ms';
                 content.classList.add('scale-95', 'translate-y-4', 'opacity-0');
             }
             el.classList.add('opacity-0');
@@ -3002,7 +3000,7 @@ window.showLogoutConfirm = () => {
                 el.remove();
                 delete window._closeLogoutConfirm;
                 resolve(result);
-            }, 400); // Wait for transition
+            }, 300);
         };
     });
 };

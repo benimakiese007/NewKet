@@ -1549,16 +1549,22 @@ const ComponentLoader = {
         this.globalActionsBound = true;
 
         document.addEventListener('click', (event) => {
+            // Déconnexion universelle : capte [data-logout-safe], [data-action="logout"] et .sidebar-logout
+            const logoutTrigger = event.target.closest('[data-logout-safe], [data-action="logout"], .sidebar-logout');
+            if (logoutTrigger) {
+                event.preventDefault();
+                if (window.AuthManager?.handleLogoutClick) {
+                    window.AuthManager.handleLogoutClick(logoutTrigger);
+                } else if (window.AuthManager?.logout) {
+                    window.AuthManager.logout(true);
+                }
+                return;
+            }
+
             const trigger = event.target.closest('[data-action]');
             if (!trigger) return;
 
             const action = trigger.dataset.action;
-            if (action === 'logout') {
-                event.preventDefault();
-                if (window.AuthManager) AuthManager.handleLogoutClick(trigger);
-                return;
-            }
-
             if (action === 'install-app') {
                 event.preventDefault();
                 if (window.AppNotifications) AppNotifications.promptInstall();

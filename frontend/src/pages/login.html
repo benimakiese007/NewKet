@@ -1191,7 +1191,15 @@
                     passwordStrengthContainer.classList.add('hidden');
                     loginActions.classList.remove('hidden');
                     if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.add('hidden');
-                    if (passkeyBtn) passkeyBtn.classList.remove('hidden');
+                    // Afficher Passkey seulement si l'environnement supporte réellement WebAuthn
+                    const supportsPasskey = typeof window !== 'undefined' && Boolean(window.PublicKeyCredential);
+                    if (passkeyBtn) {
+                        if (supportsPasskey) {
+                            passkeyBtn.classList.remove('hidden');
+                        } else {
+                            passkeyBtn.classList.add('hidden');
+                        }
+                    }
                     createAccountSection?.classList.remove('hidden');
                     alreadyHaveAccountSection?.classList.add('hidden');
                     backToLoginContainer?.classList.add('hidden');
@@ -2092,6 +2100,14 @@
                 return;
             }
 
+            // Vérification de compatibilité WebAuthn
+            if (!window.PublicKeyCredential) {
+                showError("Les clés d'accès (Passkey) ne sont pas supportées sur cette vue ou ce navigateur. Veuillez vous connecter par email.");
+                icon.style.display = 'block';
+                spinner.classList.add('hidden');
+                return;
+            }
+
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPasskey();
                 if (error) throw error;
@@ -2100,6 +2116,8 @@
                 let msg = err.message || "Erreur de connexion par clé d'accès.";
                 if (msg.includes('cancelled') || msg.includes('cancel')) {
                     msg = "Connexion annulée.";
+                } else if (msg.includes('not support WebAuthn') || msg.includes('WebAuthn')) {
+                    msg = "Ce navigateur ne supporte pas la connexion par clé d'accès. Utilisez votre mot de passe.";
                 }
                 showError(msg);
             } finally {
