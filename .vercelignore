@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+frontend/node_modules
+backend/node_modules
+
+# Version Control
+.git
+
+# Mobile Native Projects
+android
+ios
+build_artifacts
+*.apk
+*.aab
+*.zip
+
+# Tests & Reports
+tests
+test-results
+playwright-report
+
+# Temporary & Local Tools
+tools
+scratch
+.agents
+antigravity-workflows
+newket-ad
+*.log
