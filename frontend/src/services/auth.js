@@ -913,15 +913,18 @@ const AuthManager = {
      * Helper to handle logout button clicks with loading state.
      */
     async handleLogoutClick(btnEl, confirmFirst = true) {
-        if (!btnEl) return this.logout(confirmFirst);
-        if (btnEl.disabled) return;
-        if (this._logoutInProgress) return;
-        
-        const originalHTML = btnEl.innerHTML;
-        const originalDisabled = btnEl.disabled;
+        // Fermer le menu mobile immédiatement s'il est ouvert
+        if (typeof window.closeMobileMenu === 'function') {
+            try { window.closeMobileMenu(false); } catch(_) {}
+        }
+
+        // Réinitialiser le verrou de sécurité
+        this._logoutInProgress = false;
+
+        const originalHTML = btnEl ? btnEl.innerHTML : '';
+        const originalDisabled = btnEl ? btnEl.disabled : false;
 
         try {
-            // Confirmation before disabling button to avoid "stuck" disabled state if user cancels
             if (confirmFirst) {
                 const confirmed = typeof window.showLogoutConfirm === 'function'
                     ? await window.showLogoutConfirm()
@@ -929,18 +932,21 @@ const AuthManager = {
                 if (!confirmed) return;
             }
 
-            btnEl.disabled = true;
-            btnEl.innerHTML = `
-                <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
-                <span class="hidden sm:inline">Déconnexion...</span>
-            `;
+            if (btnEl) {
+                btnEl.disabled = true;
+                btnEl.innerHTML = `
+                    <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
+                    <span class="hidden sm:inline">Déconnexion...</span>
+                `;
+            }
 
-            await this.logout(false); // We already confirmed
+            await this.logout(false);
         } catch (err) {
             console.error('[NewKet Auth] Logout click handler error:', err);
-            // Revert button if something catastrophic happened before redirect
-            btnEl.disabled = originalDisabled;
-            btnEl.innerHTML = originalHTML;
+            if (btnEl) {
+                btnEl.disabled = originalDisabled;
+                btnEl.innerHTML = originalHTML;
+            }
         }
     },
 
@@ -965,33 +971,29 @@ const AuthManager = {
 
         console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
         
-        // --- 1. Immediate UI Feedback ---
-
-        // --- 2. Clean Up Internal State & Storage ---
-        // Do this immediately so even if redirect fails, the user is locally logged out.
-        this.handleLogoutCleanup();
-
-        // --- 3. Supabase SignOut with Fail-safe (Déconnexion globale sur tous les supports) ---
+        // --- 1. Déconnexion Supabase d'abord (pendant que la session est encore en mémoire) ---
         try {
             if (window.supabaseClient) {
                 const signoutPromise = window.supabaseClient.auth.signOut({ scope: 'global' });
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 2000));
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 1500));
                 
                 await Promise.race([signoutPromise, timeoutPromise]).catch(err => {
-                    console.warn('[NewKet Auth] Supabase SignOut took too long or failed, forcing UI cleanup.', err);
+                    console.warn('[NewKet Auth] Supabase SignOut took too long or failed:', err);
                 });
             }
         } catch (err) {
             console.error('[NewKet Auth] Logout error (Supabase):', err);
-        } finally {
-            // Re-nettoyage de sécurité complet
-            this.handleLogoutCleanup();
-            const loginPath = window.resolvePath('login');
-            console.log('[NewKet Auth] Redirecting to:', loginPath);
-            setTimeout(() => {
-                window.location.replace(loginPath);
-            }, 250);
         }
+
+        // --- 2. Nettoyage complet de l'état et du stockage local ---
+        this.handleLogoutCleanup();
+
+        // --- 3. Redirection garantie vers login ---
+        const loginPath = window.resolvePath('login');
+        console.log('[NewKet Auth] Redirecting to:', loginPath);
+        setTimeout(() => {
+            window.location.href = loginPath;
+        }, 150);
     },
 
     // --- 🔐 PERIODIC SECURITY VALIDATION ---

@@ -2908,38 +2908,54 @@ window.ThemeManager = ThemeManager;
  */
 window.showLogoutConfirm = () => {
     return new Promise((resolve) => {
+        // 1. Fermer le menu mobile burger s'il est ouvert pour éviter tout conflit d'overlay
+        if (typeof window.closeMobileMenu === 'function') {
+            try { window.closeMobileMenu(false); } catch(_) {}
+        }
+
         const modalId = 'logout-confirm-' + Date.now();
         const modal = document.createElement('div');
         modal.id = modalId;
-        modal.className = 'nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 pointer-events-none transition-opacity duration-400 opacity-0';
-        modal.style.zIndex = '20000';
+        // pointer-events: auto immédiat pour garantir la réactivité instantanée sur mobile
+        modal.className = 'nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 transition-opacity duration-300 opacity-0';
+        modal.style.cssText = 'z-index: 2147483647 !important; pointer-events: auto !important;';
+
+        let hasClosed = false;
+        window._doLogoutAction = (result) => {
+            if (hasClosed) return;
+            hasClosed = true;
+            const el = document.getElementById(modalId);
+            if (el) {
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    try { el.remove(); } catch(_) {}
+                }, 200);
+            }
+            delete window._doLogoutAction;
+            resolve(result);
+        };
         
         modal.innerHTML = `
-            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[4px] pointer-events-auto transition-opacity duration-500 opacity-0" id="${modalId}-backdrop"></div>
-            <div class="relative bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl max-w-sm w-full pointer-events-auto border border-white/60 transform scale-95 translate-y-4 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden" id="${modalId}-content">
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-red-400 to-rose-600 rounded-full blur-[3rem] opacity-20 pointer-events-none"></div>
-                <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-orange-400 to-amber-500 rounded-full blur-[3rem] opacity-20 pointer-events-none"></div>
-
-                <div class="p-8 relative z-10 text-center flex flex-col items-center">
-                    <div class="w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-red-50 to-orange-50 border border-red-100/50 flex items-center justify-center shadow-inner mb-6 relative group transition-transform duration-500 hover:scale-110">
-                        <div class="absolute inset-0 bg-red-500 rounded-[1.5rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
-                        <iconify-icon icon="solar:logout-3-bold" class="text-red-500 text-4xl relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform duration-500"></iconify-icon>
+            <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-[4px] transition-opacity duration-300" onclick="window._doLogoutAction(false)" style="pointer-events:auto;"></div>
+            <div class="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl max-w-sm w-full border border-gray-100 dark:border-slate-800 overflow-hidden transform scale-100 transition-all duration-300" style="pointer-events:auto; z-index:10;">
+                <div class="p-6 text-center flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:logout-3-bold" class="text-red-500 text-3xl"></iconify-icon>
                     </div>
                     
-                    <h3 class="text-2xl font-black text-gray-900 leading-tight mb-2 tracking-tight">Déconnexion</h3>
-                    <p class="text-[11px] text-red-500 font-bold uppercase tracking-[0.2em] mb-4 bg-red-50 px-3 py-1 rounded-full border border-red-100">Session NewKet</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white leading-tight mb-1">Déconnexion</h3>
+                    <p class="text-[11px] text-red-500 font-bold uppercase tracking-wider mb-3">Session NewKet</p>
                     
-                    <p class="text-[14px] text-gray-500 font-medium leading-relaxed mb-8">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed mb-6">
                         Êtes-vous sûr de vouloir fermer votre session ? Vous devrez vous reconnecter pour accéder à votre compte.
                     </p>
                     
-                    <div class="flex flex-col gap-3 w-full">
-                        <button id="${modalId}-btn-confirm" type="button" class="w-full px-5 py-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-[1.25rem] shadow-[0_8px_16px_-4px_rgba(239,68,68,0.3)] hover:shadow-[0_16px_24px_-4px_rgba(239,68,68,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-[0.98] text-[15px] flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer">
-                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out skew-x-12"></div>
-                            <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-1">Oui, me déconnecter</span>
-                            <iconify-icon icon="solar:logout-3-bold" width="18" class="relative z-10 transition-transform duration-300 group-hover:translate-x-2 group-hover:rotate-6"></iconify-icon>
+                    <div class="flex flex-col gap-2.5 w-full">
+                        <button id="${modalId}-btn-confirm" type="button" onclick="window._doLogoutAction(true)" class="w-full py-3.5 px-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-red-500/25 active:scale-95 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer" style="pointer-events:auto;">
+                            <span>Oui, me déconnecter</span>
+                            <iconify-icon icon="solar:logout-3-bold" width="16"></iconify-icon>
                         </button>
-                        <button id="${modalId}-btn-cancel" type="button" class="w-full px-5 py-4 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-[1.25rem] transition-all duration-300 active:scale-[0.98] text-[15px] border-2 border-gray-100 hover:border-gray-200 hover:-translate-y-1 hover:shadow-md flex items-center justify-center cursor-pointer">
+                        <button id="${modalId}-btn-cancel" type="button" onclick="window._doLogoutAction(false)" class="w-full py-3 px-4 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 active:scale-95 transition-all text-sm cursor-pointer" style="pointer-events:auto;">
                             Rester connecté
                         </button>
                     </div>
@@ -2949,59 +2965,10 @@ window.showLogoutConfirm = () => {
 
         mountModalOverlay(modal);
 
-        // Binding sécurisé sans double tirage touchend/click
-        const btnConfirm = document.getElementById(`${modalId}-btn-confirm`);
-        const btnCancel = document.getElementById(`${modalId}-btn-cancel`);
-        const backdrop = document.getElementById(`${modalId}-backdrop`);
-
-        let hasClosed = false;
-        const triggerConfirm = (e) => {
-            if (e) e.preventDefault();
-            window._closeLogoutConfirm(modalId, true);
-        };
-        const triggerCancel = (e) => {
-            if (e) e.preventDefault();
-            window._closeLogoutConfirm(modalId, false);
-        };
-
-        btnConfirm?.addEventListener('click', triggerConfirm);
-        btnCancel?.addEventListener('click', triggerCancel);
-        backdrop?.addEventListener('click', triggerCancel);
-
-        // Animate in et déverrouillage des pointer-events sur le conteneur parent
+        // Apparition fluide
         requestAnimationFrame(() => {
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            modal.classList.add('pointer-events-auto');
-            const bd = document.getElementById(`${modalId}-backdrop`);
-            const ct = document.getElementById(`${modalId}-content`);
-            if (bd) bd.classList.remove('opacity-0');
-            if (ct) {
-                ct.classList.remove('scale-95', 'translate-y-4', 'opacity-0');
-            }
+            modal.classList.remove('opacity-0');
         });
-
-        window._closeLogoutConfirm = (id, result) => {
-            if (hasClosed) return;
-            hasClosed = true;
-            const el = document.getElementById(id);
-            if (!el) return;
-            const backdrop = document.getElementById(`${id}-backdrop`);
-            const content = document.getElementById(`${id}-content`);
-            
-            if (backdrop) backdrop.classList.add('opacity-0');
-            if (content) {
-                content.style.transitionTimingFunction = 'cubic-bezier(0.4, 0, 0.2, 1)';
-                content.style.transitionDuration = '300ms';
-                content.classList.add('scale-95', 'translate-y-4', 'opacity-0');
-            }
-            el.classList.add('opacity-0');
-            
-            setTimeout(() => {
-                el.remove();
-                delete window._closeLogoutConfirm;
-                resolve(result);
-            }, 300);
-        };
     });
 };
 
