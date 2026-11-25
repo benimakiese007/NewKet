@@ -821,11 +821,21 @@ const AuthManager = {
     },
 
     clearSession() {
+        // Clés persistantes locales de l'appareil à ne JAMAIS supprimer lors d'une déconnexion
+        const PRESERVED_KEYS = new Set([
+            'newketRememberedLogin',
+            'newket_bio_vault',
+            'newket_native_push_disabled',
+            'newket_device_fcm_token',
+            'newketFcmToken',
+            'newketVoipToken'
+        ]);
+
         // Broad clear of all newket-related storage keys
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('newket')) {
+            if (key && key.startsWith('newket') && !PRESERVED_KEYS.has(key)) {
                 keysToRemove.push(key);
             }
             // Supabase JS v2 persists sessions under keys like: sb-<project-ref>-auth-token

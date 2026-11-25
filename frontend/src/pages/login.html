@@ -711,14 +711,14 @@
                             </div>
                         </button>
 
-                        <!-- Passkey Sign In -->
+                        <!-- Passkey / Biométrie Native Sign In -->
                         <button type="button" id="passkey-btn" data-track-action="auth_login:passkey_click"
-                            aria-label="Se connecter avec Passkey" title="Passkey"
+                            aria-label="Se connecter par biométrie" title="Biométrie"
                             class="social-btn flex-1 min-w-[140px] max-w-full h-13 flex items-center justify-center gap-2.5 border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 transition-all relative px-4">
                             <span class="w-5 h-5 flex items-center justify-center flex-shrink-0">
-                                <iconify-icon icon="material-symbols:passkey-rounded" width="17" height="17" id="passkey-icon" class="block text-gray-900"></iconify-icon>
+                                <iconify-icon icon="solar:fingerprint-bold" width="19" height="19" id="passkey-icon" class="block text-red-500"></iconify-icon>
                             </span>
-                            <span class="text-[11px] font-black tracking-wider">Passkey</span>
+                            <span id="passkey-label" class="text-[11px] font-black tracking-wider">Empreinte</span>
                             <div id="passkey-spinner" class="hidden absolute">
                                 <iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-black"></iconify-icon>
                             </div>
@@ -1134,6 +1134,11 @@
         updateSignupFieldsVisibility();
         restoreLoginPrefill();
 
+        // Initialiser l'UI biométrique / passkey selon l'environnement
+        initBiometricUI();
+        window.addEventListener('DOMContentLoaded', initBiometricUI);
+
+
         // --- 3. UI Interactions ---
         // Toggle Password
         togglePwdBtn.addEventListener('click', () => {
@@ -1191,14 +1196,8 @@
                     passwordStrengthContainer.classList.add('hidden');
                     loginActions.classList.remove('hidden');
                     if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.add('hidden');
-                    // Afficher Passkey seulement si l'environnement supporte réellement WebAuthn
-                    const supportsPasskey = typeof window !== 'undefined' && Boolean(window.PublicKeyCredential);
-                    if (passkeyBtn) {
-                        if (supportsPasskey) {
-                            passkeyBtn.classList.remove('hidden');
-                        } else {
-                            passkeyBtn.classList.add('hidden');
-                        }
+                    if (typeof initBiometricUI === 'function') {
+                        initBiometricUI();
                     }
                     createAccountSection?.classList.remove('hidden');
                     alreadyHaveAccountSection?.classList.add('hidden');
@@ -1545,6 +1544,16 @@
 
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email: resolvedLoginEmail, password });
                     if (error) throw error;
+
+                    // Enregistrement dans le coffre biométrique pour connexion native instantanée
+                    try {
+                        const bioPayload = {
+                            id: loginValidation.identifier,
+                            secret: btoa(encodeURIComponent(password)),
+                            savedAt: Date.now()
+                        };
+                        localStorage.setItem('newket_bio_vault', JSON.stringify(bioPayload));
+                    } catch (_) {}
 
                     if (rememberMeInput?.checked) {
                         localStorage.setItem(rememberedLoginKey, loginValidation.identifier);
@@ -2087,6 +2096,53 @@
         function signInWithGoogle() { signInWithProvider('google'); }
         function signInWithFacebook() { signInWithProvider('facebook'); }
 
+        function isNativeAppEnvironment() {
+            return Boolean(
+                window.Capacitor?.isNativePlatform?.() ||
+                window.Capacitor?.getPlatform?.() === 'android' ||
+                window.Capacitor?.getPlatform?.() === 'ios' ||
+                window.location?.protocol === 'capacitor:' ||
+                document.documentElement.classList.contains('is-ios-capacitor') ||
+                document.documentElement.classList.contains('capacitor-native')
+            );
+        }
+
+        function initBiometricUI() {
+            const btn = document.getElementById('passkey-btn');
+            const label = document.getElementById('passkey-label');
+            const icon = document.getElementById('passkey-icon');
+            if (!btn) return;
+
+            const isNative = isNativeAppEnvironment();
+            if (isNative) {
+                // Mobile Natif (Android & iOS) : Empreinte / Face ID
+                btn.classList.remove('hidden');
+                const isIOS = window.Capacitor?.getPlatform?.() === 'ios' || document.documentElement.classList.contains('is-ios-capacitor');
+                if (label) label.textContent = isIOS ? "Face ID" : "Empreinte";
+                if (icon) {
+                    icon.setAttribute('icon', 'solar:fingerprint-bold');
+                    icon.className = 'block text-red-500';
+                }
+                btn.setAttribute('title', isIOS ? "Se connecter avec Face ID" : "Se connecter avec l'empreinte digitale");
+                btn.setAttribute('aria-label', isIOS ? "Se connecter avec Face ID" : "Se connecter avec l'empreinte digitale");
+            } else {
+                // Web Desktop / Navigateurs
+                const supportsPasskey = typeof window !== 'undefined' && Boolean(window.PublicKeyCredential);
+                if (supportsPasskey) {
+                    btn.classList.remove('hidden');
+                    if (label) label.textContent = "Passkey";
+                    if (icon) {
+                        icon.setAttribute('icon', 'material-symbols:passkey-rounded');
+                        icon.className = 'block text-gray-900';
+                    }
+                    btn.setAttribute('title', "Se connecter avec Passkey");
+                    btn.setAttribute('aria-label', "Se connecter avec Passkey");
+                } else {
+                    btn.classList.add('hidden');
+                }
+            }
+        }
+
         async function signInWithPasskey() {
             const icon = document.getElementById('passkey-icon');
             const spinner = document.getElementById('passkey-spinner');
@@ -2100,7 +2156,91 @@
                 return;
             }
 
-            // Vérification de compatibilité WebAuthn
+            const isNative = isNativeAppEnvironment();
+
+            // ─── 1. MOBILE NATIF (Android & iOS) : BIOMÉTRIE PHYSIQUE DE L'APPAREIL ─────
+            if (isNative) {
+                try {
+                    const rawVault = localStorage.getItem('newket_bio_vault');
+                    if (!rawVault) {
+                        const remembered = localStorage.getItem(rememberedLoginKey) || '';
+                        if (remembered && emailInput) {
+                            emailInput.value = remembered;
+                            pwdInput?.focus();
+                        }
+                        showError("Connectez-vous d'abord une fois avec votre mot de passe pour enregistrer votre empreinte sur cet appareil.");
+                        return;
+                    }
+
+                    let vault = null;
+                    try {
+                        vault = JSON.parse(rawVault);
+                    } catch (_) {
+                        localStorage.removeItem('newket_bio_vault');
+                        showError("Données d'authentification expirées. Reconnectez-vous avec votre mot de passe.");
+                        return;
+                    }
+
+                    if (!vault?.id || !vault?.secret) {
+                        showError("Aucun compte enregistré pour l'empreinte. Connectez-vous avec votre mot de passe.");
+                        return;
+                    }
+
+                    // Déclenchement de la fenêtre officielle Android / iOS (BiometricPrompt)
+                    let authSuccess = false;
+                    if (typeof window.authenticateDeviceOwner === 'function') {
+                        authSuccess = await window.authenticateDeviceOwner("Connectez-vous à votre compte NewKet");
+                    } else {
+                        await new Promise(r => setTimeout(r, 200));
+                        if (typeof window.authenticateDeviceOwner === 'function') {
+                            authSuccess = await window.authenticateDeviceOwner("Connectez-vous à votre compte NewKet");
+                        } else {
+                            console.warn('[NewKet Bio] window.authenticateDeviceOwner non disponible.');
+                        }
+                    }
+
+                    if (!authSuccess) {
+                        console.log('[NewKet Bio] Authentification annulée par l\'utilisateur.');
+                        return;
+                    }
+
+                    // L'utilisateur a posé son doigt avec succès sur le capteur physique
+                    const identifier = vault.id;
+                    const password = decodeURIComponent(escape(atob(vault.secret)));
+
+                    if (emailInput) emailInput.value = identifier;
+                    if (pwdInput) pwdInput.value = '••••••••';
+
+                    const resolvedEmail = identifier.includes('@')
+                        ? identifier
+                        : await resolveLoginIdentifier(identifier);
+
+                    console.log('[NewKet Bio] Empreinte validée. Connexion Supabase en cours pour :', resolvedEmail);
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: resolvedEmail,
+                        password: password
+                    });
+
+                    if (error) {
+                        if (error.message?.includes('Invalid login credentials')) {
+                            localStorage.removeItem('newket_bio_vault');
+                            throw new Error("Votre mot de passe a changé. Veuillez vous reconnecter avec votre mot de passe.");
+                        }
+                        throw error;
+                    }
+
+                    console.log('[NewKet Bio] ✅ Connexion par empreinte réussie !');
+                } catch (err) {
+                    console.error('[NewKet Bio] Erreur :', err);
+                    showError(err.message || "Échec de l'authentification par empreinte.");
+                } finally {
+                    icon.style.display = 'block';
+                    spinner.classList.add('hidden');
+                }
+                return;
+            }
+
+            // ─── 2. WEB DESKTOP (Passkey WebAuthn) ──────────────────────────────────
             if (!window.PublicKeyCredential) {
                 showError("Les clés d'accès (Passkey) ne sont pas supportées sur cette vue ou ce navigateur. Veuillez vous connecter par email.");
                 icon.style.display = 'block';
