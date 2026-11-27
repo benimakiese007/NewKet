@@ -381,13 +381,15 @@ const NotificationManager = {
     },
     updateBadge() {
         const unreadCount = this.getUnreadCount();
+        console.log(`[NotificationManager] updateBadge: ${unreadCount} non lues (sur ${this.notifications.length} totales)`);
         const badges = document.querySelectorAll('.notification-badge, #notificationBadge, #mobileNotificationBadge, #desktopNotificationsBadge, #desktopNotificationBadge');
         badges.forEach(badge => {
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                badge.style.display = 'flex';
+                badge.style.setProperty('display', 'flex', 'important');
+                badge.classList.remove('hidden');
             } else {
-                badge.style.display = 'none';
+                badge.style.setProperty('display', 'none', 'important');
             }
         });
     },

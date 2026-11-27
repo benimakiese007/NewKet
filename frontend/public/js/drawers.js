@@ -380,6 +380,7 @@ class DrawersManager {
     }
 
     async openNotifications() {
+        console.log('[DrawersManager] openNotifications: ouverture du tiroir');
         // If on notifications.html itself, do nothing
         if (window.location.pathname.includes('/notifications')) return;
 
@@ -400,8 +401,10 @@ class DrawersManager {
         }
 
         if (!notifs || notifs.length === 0) {
+            console.log('[DrawersManager] Aucun cache trouvé -> affichage skeleton temporaire');
             this.renderSkeleton();
         } else {
+            console.log(`[DrawersManager] Affichage immédiat de ${notifs.length} notifications en cache`);
             this.renderNotifications();
         }
 
@@ -419,6 +422,7 @@ class DrawersManager {
 
         // Direct robust fetch from API to replace skeleton with real data
         try {
+            console.log('[DrawersManager] Requête /api/notifications en cours...');
             let freshData = null;
             if (window.ApiClient) {
                 freshData = await window.ApiClient.get('/notifications');
@@ -427,6 +431,7 @@ class DrawersManager {
                 if (res.ok) freshData = await res.json();
             }
 
+            console.log('[DrawersManager] Réponse API reçue:', freshData ? `${freshData.length} éléments` : 'null');
             if (freshData && Array.isArray(freshData)) {
                 if (window.NotificationManager) {
                     window.NotificationManager.notifications = freshData;
@@ -437,7 +442,7 @@ class DrawersManager {
                 } catch (_) {}
             }
         } catch (e) {
-            console.warn('[DrawersManager] Fresh notifications fetch warning:', e);
+            console.error('[DrawersManager] Erreur récupération notifications:', e);
         }
 
         // Render final notifications
@@ -495,6 +500,7 @@ class DrawersManager {
         if (!Array.isArray(notifs)) notifs = [];
 
         const unreadCount = notifs.filter(n => !n.read).length;
+        console.log(`[DrawersManager] renderNotifications: ${notifs.length} reçues, ${unreadCount} non lues, filtre="${this.notifFilter}"`);
 
         if (countText) {
             countText.textContent = unreadCount > 0
@@ -509,6 +515,7 @@ class DrawersManager {
         });
 
         if (filtered.length === 0) {
+            console.log('[DrawersManager] Aucune notification filtrée à afficher');
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-full text-gray-500 py-16 text-center">
                     <div class="w-16 h-16 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mb-4">
@@ -520,6 +527,8 @@ class DrawersManager {
             `;
             return;
         }
+
+        console.log(`[DrawersManager] Affichage de ${filtered.length} notifications dans le DOM`);
 
         container.innerHTML = filtered.map(n => {
             let icon = 'solar:bell-linear';
