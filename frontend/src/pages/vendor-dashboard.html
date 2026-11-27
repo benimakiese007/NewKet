@@ -1237,7 +1237,7 @@
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
                 class="nk-modal-overlay fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 p-4">
-                <div class="solid-modal-content relative w-full max-w-md max-h-[65dvh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300" style="max-height: 65dvh !important; height: min(65dvh, 100%) !important;">
+                <div class="nk-modal-card nk-modal-wide relative animate-in fade-in zoom-in duration-300">
                     <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0">
                         <div>
                             <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
@@ -1250,48 +1250,32 @@
                         </button>
                     </div>
 
-                    <div class="p-5 space-y-6 overflow-y-auto overscroll-contain flex-1">
-                        <!-- Client Info -->
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 bg-gray-50 p-6 rounded-2xl">
-                            <div class="flex items-center gap-3">
-                                <div id="vModalAvatarContainer" class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
-                                    <img id="vModalCustomerAvatar" src="" alt="" class="w-full h-full object-cover hidden">
-                                    <span id="vModalCustomerInitials" class="hidden text-sm font-black text-gray-500 uppercase"></span>
-                                    <iconify-icon id="vModalCustomerIcon" icon="solar:user-bold" width="20" class="text-gray-400"></iconify-icon>
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Client</p>
-                                    <p class="font-bold text-gray-900 break-words" id="vModalCustomerName"></p>
-                                    <p class="text-xs text-gray-500 break-all" id="vModalCustomerEmail"></p>
-                                </div>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact</p>
-                                <p class="font-bold text-gray-900 break-words" id="vModalCustomerPhone"></p>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Localisation</p>
-                                <p class="font-bold text-gray-900 break-words" id="vModalCustomerCity"></p>
-                                <p class="text-[10px] font-bold text-blue-500 hover:underline cursor-pointer break-words hidden mt-1" id="vModalCustomerGPS" onclick="window.openMapUrl(this.dataset.lat, this.dataset.lng)">Voir sur la carte</p>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Paiement</p>
-                                <div id="vModalPaymentStatus" class="inline-block px-2 py-1 rounded-lg text-[10px] font-bold mb-1"></div>
-                                <p class="text-[8px] font-black text-gray-400 uppercase tracking-tighter break-all line-clamp-2" id="vModalTransactionId"></p>
-                            </div>
+                    <div class="p-5 space-y-5 overflow-y-auto overscroll-contain flex-1">
+                        <!-- Segmented Tabs Slider Bar -->
+                        <div class="flex p-1 bg-gray-100 rounded-2xl text-xs font-bold gap-1 shrink-0">
+                            <button type="button" class="vendor-modal-tab-btn flex-1 py-2 px-2 rounded-xl transition-all text-center bg-white text-gray-900 shadow-sm" data-tab="items" onclick="switchVendorOrderTab('items')">
+                                <iconify-icon icon="solar:box-bold" width="14" class="inline mr-1 align-text-bottom text-indigo-600"></iconify-icon>Articles & Prix
+                            </button>
+                            <button type="button" class="vendor-modal-tab-btn flex-1 py-2 px-2 rounded-xl transition-all text-center text-gray-500 hover:text-gray-700" data-tab="delivery" onclick="switchVendorOrderTab('delivery')">
+                                <iconify-icon icon="solar:user-bold" width="14" class="inline mr-1 align-text-bottom text-green-600"></iconify-icon>Client & Suivi
+                            </button>
+                            <button type="button" class="vendor-modal-tab-btn flex-1 py-2 px-2 rounded-xl transition-all text-center text-gray-500 hover:text-gray-700" data-tab="actions" onclick="switchVendorOrderTab('actions')">
+                                <iconify-icon icon="solar:shield-check-bold" width="14" class="inline mr-1 align-text-bottom text-purple-600"></iconify-icon>Actions Vendeur
+                            </button>
                         </div>
 
-                        <!-- Items -->
-                        <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">Articles commandés</p>
-                            <div id="vModalOrderItems" class="space-y-4">
-                                <!-- Items injected here -->
+                        <!-- Pane 1: Items & Financial Summary -->
+                        <div id="vendorModalTab-items" class="vendor-modal-pane space-y-4">
+                            <!-- Items -->
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 border-b border-gray-100 pb-2">Articles commandés</p>
+                                <div id="vModalOrderItems" class="space-y-4">
+                                    <!-- Items injected here -->
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Summary -->
-                        <div class="flex flex-col gap-4 pt-4 border-t border-gray-100">
-                            <div class="flex flex-col gap-2 w-full bg-gray-50 rounded-xl p-4">
+                            <!-- Summary -->
+                            <div class="flex flex-col gap-2 w-full bg-gray-50 rounded-2xl p-5 border border-gray-100">
                                 <div class="flex justify-between text-sm">
                                     <span class="text-gray-500 font-medium">Prix initial</span>
                                     <span id="vModalOrderSubtotal" class="font-bold text-gray-900">0 FC</span>
@@ -1313,6 +1297,48 @@
                                     <span id="vModalOrderTotal" class="text-2xl font-black text-gray-900">0 FC</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Pane 2: Client Details & Live Delivery Tracking -->
+                        <div id="vendorModalTab-delivery" class="vendor-modal-pane space-y-4 hidden">
+                            <!-- Client Info -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <div id="vModalAvatarContainer" class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                        <img id="vModalCustomerAvatar" src="" alt="" class="w-full h-full object-cover hidden">
+                                        <span id="vModalCustomerInitials" class="hidden text-sm font-black text-gray-500 uppercase"></span>
+                                        <iconify-icon id="vModalCustomerIcon" icon="solar:user-bold" width="20" class="text-gray-400"></iconify-icon>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Client</p>
+                                        <p class="font-bold text-gray-900 break-words text-sm" id="vModalCustomerName"></p>
+                                        <p class="text-xs text-gray-500 break-all" id="vModalCustomerEmail"></p>
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Contact</p>
+                                    <p class="font-bold text-gray-900 break-words text-sm" id="vModalCustomerPhone"></p>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Localisation</p>
+                                    <p class="font-bold text-gray-900 break-words text-sm" id="vModalCustomerCity"></p>
+                                    <p class="text-[10px] font-bold text-blue-500 hover:underline cursor-pointer break-words hidden mt-1" id="vModalCustomerGPS" onclick="window.openMapUrl(this.dataset.lat, this.dataset.lng)">Voir sur la carte</p>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Paiement</p>
+                                    <div id="vModalPaymentStatus" class="inline-block px-2 py-0.5 rounded-lg text-[10px] font-bold mb-1"></div>
+                                    <p class="text-[8px] font-black text-gray-400 uppercase tracking-tighter break-all line-clamp-2" id="vModalTransactionId"></p>
+                                </div>
+                            </div>
+
+                            <!-- Realtime Delivery Live Tracking Map Container (Vendor) -->
+                            <div id="vendorDeliveryTrackingSection" class="hidden w-full mb-3">
+                                <div id="vendorDeliveryTrackingContainer"></div>
+                            </div>
+                        </div>
+
+                        <!-- Pane 3: Vendor Actions & Escrow -->
+                        <div id="vendorModalTab-actions" class="vendor-modal-pane space-y-4 hidden">
                             <div class="flex flex-col gap-3 w-full" id="vModalActions">
                                 <p id="order-modal-feedback" class="text-sm font-medium hidden transition-opacity"></p>
                                 <!-- Standard Actions -->
@@ -5110,6 +5136,24 @@
                 }
 
                 // Order Detail Modal Functions
+                window.switchVendorOrderTab = function(tabName) {
+                    document.querySelectorAll('.vendor-modal-pane').forEach(el => el.classList.add('hidden'));
+                    document.querySelectorAll('.vendor-modal-tab-btn').forEach(btn => {
+                        btn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                        btn.classList.add('text-gray-500');
+                    });
+                    const target = document.getElementById('vendorModalTab-' + tabName);
+                    if (target) target.classList.remove('hidden');
+                    const activeBtn = document.querySelector(`.vendor-modal-tab-btn[data-tab="${tabName}"]`);
+                    if (activeBtn) {
+                        activeBtn.classList.remove('text-gray-500');
+                        activeBtn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                    }
+                    if (tabName === 'delivery' && window.deliveryTrackerInstance?.map) {
+                        setTimeout(() => { try { window.deliveryTrackerInstance.map?.invalidateSize(); } catch(_) {} }, 100);
+                    }
+                };
+
                 window.openOrderDetailModal = async function(orderId) {
                     const order = OrderManager.getOrderById(orderId);
                     if (!order) return;
@@ -5399,6 +5443,12 @@
                         window.loadVendorDisputeChat(order.id);
                     }
                     
+                    if (order.status === 'IN_DELIVERY') {
+                        window.switchVendorOrderTab('delivery');
+                    } else {
+                        window.switchVendorOrderTab('items');
+                    }
+
                     const modal = document.getElementById('orderDetailModal');
                     if (modal) {
                         modal.classList.remove('hidden');
@@ -9324,7 +9374,7 @@ async function openOrderModal(id) {
 
     <!-- Modal d'Ouverture de Litige (Dispute Modal) -->
     <div id="disputeModal" style="display: none;" class="nk-modal-overlay fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
-        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="nk-modal-card relative animate-in fade-in zoom-in duration-300">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
@@ -9681,7 +9731,7 @@ async function openOrderModal(id) {
     <!-- Invoice Preview Modal (Universal across iOS, Android, Web, PWA) -->
     <div id="invoiceModal" style="display: none;"
         class="nk-modal-overlay fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
-        <div class="relative w-full max-w-2xl max-h-[92dvh] flex flex-col bg-white rounded-3xl sm:rounded-[32px] shadow-2xl overflow-hidden">
+        <div class="nk-modal-card nk-modal-wide relative animate-in fade-in zoom-in duration-200">
             <!-- Modal Header -->
             <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center gap-3 bg-white flex-shrink-0">
                 <div class="min-w-0 flex-1">
