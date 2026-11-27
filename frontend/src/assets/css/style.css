@@ -11208,11 +11208,16 @@ html.dark .skeleton::after {
   overflow: hidden !important;
 }
 
+/* Sécurité absolue : empêcher tout script ou style d'être rendu visible */
+script, style, template, head, link, meta {
+  display: none !important;
+}
+
 /* Inner modal box on mobile — Carte flottante standardisée (Capture 2 spec) */
-.nk-modal-overlay:not(.hidden) > *:not(.absolute),
-#orderDetailModal:not(.hidden) > *:not(.absolute),
-#orderModal:not(.hidden) > *:not(.absolute),
-#disputeModal:not(.hidden) > *:not(.absolute) {
+.nk-modal-overlay:not(.hidden) > *:not(.absolute):not(script):not(style),
+#orderDetailModal:not(.hidden) > *:not(.absolute):not(script):not(style),
+#orderModal:not(.hidden) > *:not(.absolute):not(script):not(style),
+#disputeModal:not(.hidden) > *:not(.absolute):not(script):not(style) {
   width: 100% !important;
   max-width: 440px !important;
   max-height: 65dvh !important;

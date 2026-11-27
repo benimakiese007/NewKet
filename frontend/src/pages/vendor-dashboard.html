@@ -1087,7 +1087,7 @@
                                 <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
                                 <span>Chargez votre residence puis sauvegardez-la pour vos futurs achats.</span>
                             </div>
-                            <div class="hidden sm:flex text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-2 items-center gap-2 leading-snug">
+                            <div id="vendorPcResidenceNotice" style="display: none;" class="flex text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-2 items-center gap-2 leading-snug">
                                 <iconify-icon icon="solar:laptop-minimalistic-bold" width="16" class="text-amber-600 flex-shrink-0"></iconify-icon>
                                 <span><b>Sur ordinateur :</b> la détection GPS est approximative. Vous pouvez faire glisser le repère sur votre adresse exacte.</span>
                             </div>
@@ -10359,6 +10359,18 @@ async function openOrderModal(id) {
         })();
     </script>
 
+    <script>
+        (function() {
+            try {
+                const isPc = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') &&
+                             !('ontouchstart' in window && navigator.maxTouchPoints > 0);
+                const notice = document.getElementById('vendorPcResidenceNotice');
+                if (notice && isPc) {
+                    notice.style.display = 'flex';
+                }
+            } catch (_) {}
+        })();
+    </script>
 </body>
 </html>
 

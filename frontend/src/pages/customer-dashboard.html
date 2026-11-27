@@ -729,7 +729,7 @@
                             <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
                             <span>Chargez votre résidence puis sauvegardez-la pour le checkout.</span>
                         </div>
-                        <div class="hidden sm:flex text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-2 items-center gap-2 leading-snug">
+                        <div id="customerPcResidenceNotice" style="display: none;" class="flex text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-2 items-center gap-2 leading-snug">
                             <iconify-icon icon="solar:laptop-minimalistic-bold" width="16" class="text-amber-600 flex-shrink-0"></iconify-icon>
                             <span><b>Sur ordinateur :</b> la détection GPS est approximative. Vous pouvez faire glisser le repère sur votre adresse exacte.</span>
                         </div>
@@ -853,8 +853,6 @@
                 </div>
                 </div>
 
-            </div>
-        </div>
     <div id="orderModal" style="display: none;"
         class="nk-modal-overlay fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60 p-4">
         <div
@@ -3963,6 +3961,13 @@
         }
 
         async function openOrderModal(id) {
+            // Close any other open modals to prevent overlap
+            try {
+                const inv = document.getElementById('invoiceModal');
+                if (inv) { inv.classList.add('hidden'); inv.style.display = 'none'; }
+                const disp = document.getElementById('disputeModal');
+                if (disp) { disp.classList.add('hidden'); disp.style.display = 'none'; }
+            } catch (_) {}
             // 1. Ouvrir le modal IMMÉDIATEMENT à partir du cache local (0 milliseconde de latence)
             let order = OrderManager.getOrders().find(o => o.id === id);
             console.log('[Delivery:Flow] 📦 Commande #' + id + ' | opening modal | cache status=' + (order?.status || 'NOT_IN_CACHE'));
@@ -4940,6 +4945,18 @@
 
 
     <script>
+        // Show PC Residence Notice on desktop regardless of split-screen width
+        (function() {
+            try {
+                const isPc = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '') &&
+                             !('ontouchstart' in window && navigator.maxTouchPoints > 0);
+                const notice = document.getElementById('customerPcResidenceNotice');
+                if (notice && isPc) {
+                    notice.style.display = 'flex';
+                }
+            } catch (_) {}
+        })();
+
         // ===== Sprint 2: Form Loading States =====
         function setButtonLoading(btn, loading) {
             if (loading) {
@@ -5165,6 +5182,7 @@
         </div>
     </div>
 
+</div>
 </div> <!-- End of customer-main-content (317) -->
 </main>
     <input type="file" id="customerAvatarUploadInput" accept="image/png,image/jpeg,image/webp,image/jpg" class="hidden">
