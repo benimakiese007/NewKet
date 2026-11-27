@@ -6,28 +6,34 @@ export const getNotifications = async (req, res, next) => {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
 
-        // Retrieve user role from public.users to map to target (customers/suppliers)
+        // Retrieve user role from public.users to map to target (customers/suppliers/admin)
         let userRole = 'customer';
         if (userId) {
             const { data: userData } = await supabaseAdmin.from('users').select('role').eq('id', userId).single();
             if (userData && userData.role) userRole = userData.role;
         }
 
-        // Match the target mapped from select options in admin UI
-        const mappedTarget = userRole === 'supplier' ? 'suppliers' : 'customers';
-
-        // Filter: specifically to this user via ID/Email OR public for 'all' OR public for this mapped target
-        let condition = `target_role.eq.all,target_role.eq.${mappedTarget}`;
-        if (userId) condition += `,user_id.eq.${userId}`;
-        if (userEmail) condition += `,user_email.eq.${userEmail}`;
-
-        // ✅ OPTIMISATION: Colonnes précises seulement
-        const { data, error } = await supabaseAdmin
+        let query = supabaseAdmin
             .from('notifications')
             .select('id, user_id, user_email, title, message, type, target_role, read, date')
-            .or(condition)
             .order('date', { ascending: false })
             .limit(50);
+
+        // Si l'utilisateur est Admin, il voit l'ensemble des notifications de la plateforme
+        if (userRole !== 'admin') {
+            const mappedTargets = userRole === 'supplier'
+                ? 'target_role.eq.supplier,target_role.eq.suppliers'
+                : 'target_role.eq.customer,target_role.eq.customers';
+
+            let condition = `target_role.eq.all,${mappedTargets}`;
+            if (userId) condition += `,user_id.eq.${userId}`;
+            if (userEmail) condition += `,user_email.eq.${userEmail}`;
+
+            query = query.or(condition);
+        }
+
+        // ✅ OPTIMISATION: Colonnes précises seulement
+        const { data, error } = await query;
 
         if (error) throw error;
         res.json(data);
