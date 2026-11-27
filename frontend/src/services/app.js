@@ -26,6 +26,7 @@ import './ui.js';
 import './pull-to-refresh.js';
 import './components-loader.js';
 import './search.js';
+import './debug-overlay.js';
 
 // main.js is usually the last one as it depends on initialized UI
 import './main.js';

@@ -14,6 +14,7 @@ const ConfigManager = {
         shippingFee: 5,
         freeShippingThreshold: 50,
         maintenanceMode: false,
+        debugMode: false,
 
         // Branding / Theme (site-wide)
         primaryColor: '#050505',
@@ -132,6 +133,7 @@ const ConfigManager = {
         const shippingFee = row.shippingFee ?? row.shipping_fee;
         const freeShippingThreshold = row.freeShippingThreshold ?? row.free_shipping_threshold;
         const maintenanceMode = row.maintenanceMode ?? row.maintenance_mode;
+        const debugMode = row.debugMode ?? row.debug_mode;
 
         // Branding / Theme (site-wide)
         const primaryColor = row.primaryColor ?? row.primary_color;
@@ -169,6 +171,7 @@ const ConfigManager = {
             ...(shippingFee !== undefined ? { shippingFee } : {}),
             ...(freeShippingThreshold !== undefined ? { freeShippingThreshold } : {}),
             ...(maintenanceMode !== undefined ? { maintenanceMode: !!maintenanceMode } : {}),
+            ...(debugMode !== undefined ? { debugMode: !!debugMode } : {}),
             ...(primaryColor !== undefined ? { primaryColor } : {}),
             ...(secondaryColor !== undefined ? { secondaryColor } : {}),
             ...(headerBg !== undefined ? { headerBg } : {}),
@@ -286,6 +289,7 @@ const ConfigManager = {
                 shippingFee: config.shippingFee,
                 freeShippingThreshold: config.freeShippingThreshold,
                 maintenanceMode: !!config.maintenanceMode,
+                debugMode: !!config.debugMode,
                 socialLinks,
                 sellerCommission: config.sellerCommission,
                 targetAOV: config.targetAOV,
@@ -320,6 +324,7 @@ const ConfigManager = {
             shipping_fee: config.shippingFee,
             free_shipping_threshold: config.freeShippingThreshold,
             maintenance_mode: !!config.maintenanceMode,
+            debug_mode: !!config.debugMode,
             primary_color: config.primaryColor,
             secondary_color: config.secondaryColor,
             header_bg: config.headerBg,

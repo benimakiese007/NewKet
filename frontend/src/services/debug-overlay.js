@@ -368,7 +368,112 @@ function updatePanel() {
     }
 }
 
-export function initDebugOverlay() {
+export // ── Contrôleur de Visibilité Universel : Mode Diagnostic & Raccourci Secret ──
+let _debugStyleEl = null;
+function getDebugStyleTag() {
+    if (_debugStyleEl) return _debugStyleEl;
+    _debugStyleEl = document.getElementById('nk-debug-visibility-style');
+    if (!_debugStyleEl && typeof document !== 'undefined' && document.head) {
+        _debugStyleEl = document.createElement('style');
+        _debugStyleEl.id = 'nk-debug-visibility-style';
+        document.head.appendChild(_debugStyleEl);
+    }
+    return _debugStyleEl;
+}
+
+function isDebugActive() {
+    try {
+        const localOverride = localStorage.getItem('nk_debug_override');
+        if (localOverride === 'true') return true;
+        if (localOverride === 'false') return false;
+    } catch (_) {}
+    if (window.ConfigManager && typeof window.ConfigManager.isDebugMode === 'function') {
+        return window.ConfigManager.isDebugMode();
+    }
+    if (window.ConfigManager?.config?.debugMode !== undefined) {
+        return Boolean(window.ConfigManager.config.debugMode);
+    }
+    return false; // Par défaut : PROPRE (mode présentation investisseurs)
+}
+
+function syncDebugVisibility() {
+    const active = isDebugActive();
+    const styleTag = getDebugStyleTag();
+    if (styleTag) {
+        if (!active) {
+            styleTag.textContent = '#nk-live-activity-test-panel, #nk-vendor-live-activity-panel, #nk-settings-live-activity-section { display: none !important; }';
+        } else {
+            styleTag.textContent = '';
+        }
+    }
+    if (pill) {
+        pill.style.display = active ? 'flex' : 'none';
+    }
+    if (!active && panel && isOpen) {
+        toggleDebugPanel(false);
+    }
+    const testSelectors = ['#nk-live-activity-test-panel', '#nk-vendor-live-activity-panel', '#nk-settings-live-activity-section'];
+    testSelectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => {
+            if (active) {
+                el.style.removeProperty('display');
+            } else {
+                el.style.setProperty('display', 'none', 'important');
+            }
+        });
+    });
+}
+window.syncDebugVisibility = syncDebugVisibility;
+
+// ── Option B : Raccourci Secret (5 taps sur logo ou Ctrl+Alt+D) ───────────────
+let _logoTapCount = 0;
+let _lastLogoTapTime = 0;
+function triggerSecretDebugToggle() {
+    const current = isDebugActive();
+    const next = !current;
+    try {
+        localStorage.setItem('nk_debug_override', next ? 'true' : 'false');
+    } catch (_) {}
+    syncDebugVisibility();
+    try {
+        window.Capacitor?.Plugins?.Haptics?.notification?.({ type: next ? 'SUCCESS' : 'WARNING' });
+    } catch (_) {}
+    const msg = next
+        ? '🛠️ Mode Diagnostic Déverrouillé (Logs et bancs de test visibles)'
+        : '🔒 Mode Diagnostic Masqué (Mode Présentation Pro)';
+    if (typeof window.showToast === 'function') {
+        window.showToast(msg, next ? 'info' : 'success');
+    } else {
+        console.log('[NewKet Debug Toggle]', msg);
+    }
+}
+
+function setupSecretLogoListener() {
+    document.addEventListener('click', (e) => {
+        const logoTarget = e.target.closest('#newket-logo, .brand-logo, [data-brand-logo], img[src*="logo-newket"], img[src*="logo"], .navbar-brand');
+        if (!logoTarget) return;
+        const now = Date.now();
+        if (now - _lastLogoTapTime < 700) {
+            _logoTapCount++;
+        } else {
+            _logoTapCount = 1;
+        }
+        _lastLogoTapTime = now;
+        if (_logoTapCount >= 5) {
+            _logoTapCount = 0;
+            triggerSecretDebugToggle();
+        }
+    }, true);
+
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key === 'd' || e.key === 'D')) {
+            e.preventDefault();
+            triggerSecretDebugToggle();
+        }
+    });
+}
+
+function initDebugOverlay() {
     if (typeof document === 'undefined') return;
 
     // Show debug pill (activé pour diagnostic mobile iOS/Android)
@@ -441,6 +546,14 @@ export function initDebugOverlay() {
         if (!isDragging) toggleDebugPanel();
     });
     document.body.appendChild(pill);
+    syncDebugVisibility();
+    setupSecretLogoListener();
+    window.addEventListener('configUpdated', () => syncDebugVisibility());
+    window.addEventListener('debugModeChanged', () => syncDebugVisibility());
+    // Réapplication préventive après chargement des composants asynchrones
+    setTimeout(syncDebugVisibility, 500);
+    setTimeout(syncDebugVisibility, 1500);
+    setTimeout(syncDebugVisibility, 3000);
 
     // Create modal panel
     panel = document.createElement('div');

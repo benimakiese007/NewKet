@@ -201,6 +201,18 @@
                                     placeholder="Lien LinkedIn">
                             </div>
                         </div>
+                        <div class="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem] border border-gray-100 group hover:bg-white hover:shadow-2xl hover:shadow-black/5 transition-all">
+                            <div>
+                                <div class="text-sm font-black text-gray-900">Mode Diagnostic & Bancs de Test</div>
+                                <div class="text-[9px] text-gray-400 uppercase tracking-widest font-black mt-1">Afficher la pastille OTA et les simulateurs Live Activity</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="debugMode" data-track-action="admin_settings:debug_mode_toggle_change" class="sr-only peer">
+                                <div
+                                    class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 shadow-inner">
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -291,6 +303,7 @@
                 }
 
                 document.getElementById('maintenanceMode').checked = config.maintenanceMode || false;
+                document.getElementById('debugMode').checked = config.debugMode || false;
             }
         }
 
@@ -314,6 +327,7 @@
                     linkedin: document.getElementById('socialLinkedin').value
                 },
                 maintenanceMode: document.getElementById('maintenanceMode').checked,
+                debugMode: document.getElementById('debugMode').checked,
                 exchangeRate: parseFloat(document.getElementById('exchangeRate').value) || 2800,
                 targetAOV: parseFloat(document.getElementById('targetAOV').value) || 0,
                 platformCommissionRate: parseFloat(document.getElementById('platformCommissionRate').value) || 5.0,
@@ -354,6 +368,26 @@
                     }, 3000);
                 }
             }
+        });
+
+                document.getElementById('debugMode').addEventListener('change', async (e) => {
+            if (!window.ConfigManager) return;
+            const newValue = e.target.checked;
+            ConfigManager.saveConfig({ ...ConfigManager.getConfig(), debugMode: newValue })
+                .then(() => {
+                    if (typeof showToast === 'function') {
+                        showToast(
+                            newValue ? "Mode Diagnostic Activé (Logs visibles)" : "Mode Diagnostic Masqué (Mode Forum épuré)",
+                            "success"
+                        );
+                    }
+                })
+                .catch((error) => {
+                    console.error('[NewKet] Debug mode save failed:', error?.message || error);
+                    if (typeof showToast === 'function') {
+                        showToast("Sauvegarde échouée.", "error");
+                    }
+                });
         });
 
         document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
