@@ -379,7 +379,7 @@ class DrawersManager {
         `;
     }
 
-    openNotifications() {
+    async openNotifications() {
         // If on notifications.html itself, do nothing
         if (window.location.pathname.includes('/notifications')) return;
 
@@ -391,7 +391,14 @@ class DrawersManager {
         this.injectNotificationsUI();
 
         // Check if we have cached notifications to display immediately
-        const notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
+        let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
+        if (!notifs || notifs.length === 0) {
+            try {
+                const cached = localStorage.getItem('newket_cached_notifications');
+                if (cached) notifs = JSON.parse(cached);
+            } catch (_) {}
+        }
+
         if (!notifs || notifs.length === 0) {
             this.renderSkeleton();
         } else {
@@ -410,16 +417,31 @@ class DrawersManager {
             try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
         }, 10);
 
-        // Trigger fresh fetch and re-render
-        if (window.NotificationManager?.init) {
-            window.NotificationManager.init(true)
-                .then(() => {
-                    this.renderNotifications();
-                })
-                .catch(() => {
-                    this.renderNotifications();
-                });
+        // Direct robust fetch from API to replace skeleton with real data
+        try {
+            let freshData = null;
+            if (window.ApiClient) {
+                freshData = await window.ApiClient.get('/notifications');
+            } else {
+                const res = await fetch('/api/notifications');
+                if (res.ok) freshData = await res.json();
+            }
+
+            if (freshData && Array.isArray(freshData)) {
+                if (window.NotificationManager) {
+                    window.NotificationManager.notifications = freshData;
+                    window.NotificationManager.updateBadge();
+                }
+                try {
+                    localStorage.setItem('newket_cached_notifications', JSON.stringify(freshData));
+                } catch (_) {}
+            }
+        } catch (e) {
+            console.warn('[DrawersManager] Fresh notifications fetch warning:', e);
         }
+
+        // Render final notifications
+        this.renderNotifications();
     }
 
     closeNotifications(unlockScroll = true) {
@@ -463,7 +485,15 @@ class DrawersManager {
         const countText = document.getElementById('drawerNotifCount');
         if (!container) return;
 
-        const notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
+        let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
+        if (!notifs || notifs.length === 0) {
+            try {
+                const cached = localStorage.getItem('newket_cached_notifications');
+                if (cached) notifs = JSON.parse(cached);
+            } catch (_) {}
+        }
+        if (!Array.isArray(notifs)) notifs = [];
+
         const unreadCount = notifs.filter(n => !n.read).length;
 
         if (countText) {
