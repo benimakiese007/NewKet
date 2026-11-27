@@ -225,7 +225,7 @@ const App = {
             // Managed Utilities
             if (window.PromoManager && isAdmin && backendReady) initPromises.push(PromoManager.init().catch(e => console.warn('[App] PromoManager init failed (non-blocking):', e.message)));
             if (window.ActivityManager && isAdmin && backendReady) initPromises.push(ActivityManager.init().catch(e => console.warn('[App] ActivityManager init failed (non-blocking):', e.message)));
-            if (window.NotificationManager && backendReady) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
+            if (window.NotificationManager && (backendReady || window.supabaseClient)) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
             if (window.FavoritesManager && isLoggedIn && backendReady) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
 
             const initResults = await Promise.allSettled(initPromises);

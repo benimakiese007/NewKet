@@ -130,11 +130,13 @@ function getDiagnosticState() {
     const pubCount = window.ProductManager?.getPublicProducts?.()?.length ?? 'N/A';
     const sbOk = !!window.supabaseClient;
     const authRole = window.AuthManager?.role || 'visiteur';
+    const notifCount = window.NotificationManager?.notifications?.length ?? 0;
+    const notifUnread = window.NotificationManager?.getUnreadCount ? window.NotificationManager.getUnreadCount() : 0;
     const platform = getPlatform();
     const isAndroid = platform === 'android';
     const isIos = platform === 'ios';
 
-    return { pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole, ota, platform, isAndroid, isIos };
+    return { pkgVer, isCap, bReady, prodCount, pubCount, sbOk, authRole, notifCount, notifUnread, ota, platform, isAndroid, isIos };
 }
 
 function getOtaColor(status) {
@@ -357,6 +359,9 @@ function updatePanel() {
                     <div><b>BackendReady :</b> ${s.bReady ? '✅ true' : '❌ false'}</div>
                     <div><b>Produits :</b> ${s.prodCount} total (${s.pubCount} publics)</div>
                     <div><b>Rôle Auth :</b> ${s.authRole}</div>
+                    <div style="margin-top:4px; padding-top:4px; border-top:1px dashed rgba(255,255,255,0.08);">
+                        <div><b>🔔 Notifications :</b> ${s.notifCount} total (<span style="color:${s.notifUnread > 0 ? '#f87171' : '#4ade80'}; font-weight:bold;">${s.notifUnread} non lues</span>)</div>
+                    </div>
                     <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.12);">
                         <div style="font-size:10px; font-weight:800; color:#38bdf8; letter-spacing:0.05em; margin-bottom:2px;">🧭 ORIENTATION & ÉCRAN</div>
                         <div><b>Mode :</b> ${window.innerWidth > window.innerHeight ? '⚠️ Landscape (Paysage)' : '✅ Portrait'}</div>

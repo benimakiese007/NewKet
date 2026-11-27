@@ -232,12 +232,54 @@ const NotificationManager = {
             return [];
         }
     })(),
-    async init(force = false) {
-        if (!window.ApiClient) {
-            console.error('[NotificationManager] ApiClient not found');
-            return;
+
+    async fetchFromSupabase() {
+        if (!window.supabaseClient) return [];
+        try {
+            let query = window.supabaseClient
+                .from('notifications')
+                .select('id, user_id, user_email, title, message, type, target_role, read, date')
+                .order('date', { ascending: false })
+                .limit(50);
+
+            let user = window.AuthManager?.user;
+            if (!user && window.supabaseClient.auth) {
+                try {
+                    const { data } = await window.supabaseClient.auth.getUser();
+                    user = data?.user;
+                } catch (_) {}
+            }
+
+            const userEmail = user?.email || localStorage.getItem('newketUserEmail') || '';
+            const userId = user?.id || localStorage.getItem('newketUserId') || '';
+            const userRole = localStorage.getItem('newketRole') || 'customer';
+
+            if (userRole === 'admin') {
+                // Admin voit toutes les notifications
+            } else {
+                const mappedTargets = (userRole === 'supplier' || userRole === 'seller' || userRole === 'vendor')
+                    ? 'target_role.eq.supplier,target_role.eq.suppliers'
+                    : 'target_role.eq.customer,target_role.eq.customers';
+
+                let condition = `target_role.eq.all,${mappedTargets}`;
+                if (userId) condition += `,user_id.eq.${userId}`;
+                if (userEmail) condition += `,user_email.eq.${userEmail}`;
+
+                query = query.or(condition);
+            }
+
+            const { data, error } = await query;
+            if (!error && Array.isArray(data)) {
+                console.log(`[NotificationManager] Supabase Direct Fetch: ${data.length} notifications chargées`);
+                return data;
+            }
+        } catch (e) {
+            console.warn('[NotificationManager] Supabase Direct Fetch warning:', e);
         }
-        
+        return [];
+    },
+
+    async init(force = false) {
         if (this._fetchPromise) {
             await this._fetchPromise;
             this.updateBadge();
@@ -254,18 +296,44 @@ const NotificationManager = {
         }
 
         this._fetchPromise = (async () => {
-            try {
-                const data = await window.ApiClient.get('/notifications', { suppressNetworkError: true });
-                if (data && Array.isArray(data)) {
-                    this.notifications = data;
-                    try {
-                        localStorage.setItem('newket_cached_notifications', JSON.stringify(this.notifications));
-                    } catch (_) {}
+            let data = null;
+            // 1. Tenter via ApiClient
+            if (window.ApiClient) {
+                try {
+                    data = await window.ApiClient.get('/notifications', { suppressNetworkError: true });
+                } catch (e) {
+                    console.warn('[NotificationManager] ApiClient get failed, bascule sur les fallbacks:', e?.message);
                 }
-                localStorage.setItem('newket_notifications_sync_time', now.toString());
-            } catch (e) {
-                console.error('[NotificationManager] Init error:', e);
             }
+
+            // 2. Fallback Vercel direct si sur dev ou si ApiClient a échoué
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                try {
+                    const token = window.getSupabaseAccessToken ? window.getSupabaseAccessToken() : null;
+                    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                    const vRes = await fetch('https://newket.vercel.app/api/notifications', { headers });
+                    if (vRes.ok) {
+                        const json = await vRes.json();
+                        if (Array.isArray(json) && json.length > 0) data = json;
+                    }
+                } catch (_) {}
+            }
+
+            // 3. Fallback direct Supabase (100% résilient sans passer par l'API Express)
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                const sbData = await this.fetchFromSupabase();
+                if (sbData && Array.isArray(sbData) && sbData.length > 0) {
+                    data = sbData;
+                }
+            }
+
+            if (data && Array.isArray(data)) {
+                this.notifications = data;
+                try {
+                    localStorage.setItem('newket_cached_notifications', JSON.stringify(this.notifications));
+                } catch (_) {}
+            }
+            localStorage.setItem('newket_notifications_sync_time', now.toString());
         })();
         await this._fetchPromise;
         this._fetchPromise = null;

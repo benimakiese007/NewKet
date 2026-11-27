@@ -143,8 +143,8 @@ const HEADER_HTML = `
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
                     <span
-                        class="notification-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold shadow-sm"
+                        style="display:none; width:18px; height:18px; min-width: 18px;">0</span>
                 </button>
 
                 <!-- Favorites -->

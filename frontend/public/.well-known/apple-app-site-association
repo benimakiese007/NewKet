@@ -1,0 +1,16 @@
+{
+  "webcredentials": {
+    "apps": [
+      "cd.newket.app"
+    ]
+  },
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "cd.newket.app",
+        "paths": ["*"]
+      }
+    ]
+  }
+}

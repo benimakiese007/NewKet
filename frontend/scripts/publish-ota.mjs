@@ -198,12 +198,23 @@ async function uploadAndPublish() {
     const checksum = createHash('sha256').update(fileBuffer).digest('hex');
     console.log(`[OK] Checksum SHA-256 calcule : ${checksum}`);
 
-    const { error: uploadError } = await supabase.storage
-        .from('app-releases')
-        .upload(zipName, fileBuffer, {
-            contentType: 'application/zip',
-            upsert: true
-        });
+    let uploadError = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        console.log(`[Upload] Tentative ${attempt}/3 vers Supabase Storage...`);
+        const { error } = await supabase.storage
+            .from('app-releases')
+            .upload(zipName, fileBuffer, {
+                contentType: 'application/zip',
+                upsert: true
+            });
+        if (!error) {
+            uploadError = null;
+            break;
+        }
+        uploadError = error;
+        console.warn(`[Upload] Tentative ${attempt} échouée :`, error.message);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
+    }
 
     if (uploadError) {
         console.error(`[ERREUR] Echec de l'upload vers Supabase Storage :`, uploadError.message);

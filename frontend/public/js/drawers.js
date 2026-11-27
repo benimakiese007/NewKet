@@ -420,18 +420,43 @@ class DrawersManager {
             try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
         }, 10);
 
-        // Direct robust fetch from API to replace skeleton with real data
+        // Direct robust fetch to replace skeleton with real data
         try {
-            console.log('[DrawersManager] Requête /api/notifications en cours...');
+            console.log('[DrawersManager] Requête notifications en cours...');
             let freshData = null;
             if (window.ApiClient) {
-                freshData = await window.ApiClient.get('/notifications');
+                try {
+                    freshData = await window.ApiClient.get('/notifications', { suppressNetworkError: true });
+                } catch (_) {}
             } else {
-                const res = await fetch('/api/notifications');
-                if (res.ok) freshData = await res.json();
+                try {
+                    const res = await fetch('/api/notifications');
+                    if (res.ok) freshData = await res.json();
+                } catch (_) {}
             }
 
-            console.log('[DrawersManager] Réponse API reçue:', freshData ? `${freshData.length} éléments` : 'null');
+            // Fallback 1: Production Vercel si l'API locale échoue ou est vide
+            if (!freshData || !Array.isArray(freshData) || freshData.length === 0) {
+                try {
+                    const token = window.getSupabaseAccessToken ? window.getSupabaseAccessToken() : null;
+                    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                    const vRes = await fetch('https://newket.vercel.app/api/notifications', { headers });
+                    if (vRes.ok) {
+                        const json = await vRes.json();
+                        if (Array.isArray(json) && json.length > 0) freshData = json;
+                    }
+                } catch (_) {}
+            }
+
+            // Fallback 2: Direct Supabase Client (bypasse tout problème serveur)
+            if ((!freshData || !Array.isArray(freshData) || freshData.length === 0) && window.NotificationManager?.fetchFromSupabase) {
+                try {
+                    const sbData = await window.NotificationManager.fetchFromSupabase();
+                    if (sbData && Array.isArray(sbData) && sbData.length > 0) freshData = sbData;
+                } catch (_) {}
+            }
+
+            console.log('[DrawersManager] Réponse notifications obtenue:', freshData ? `${freshData.length} éléments` : 'null');
             if (freshData && Array.isArray(freshData)) {
                 if (window.NotificationManager) {
                     window.NotificationManager.notifications = freshData;
