@@ -72,6 +72,16 @@ export async function initCapgoUpdater() {
     window._otaState.status = isNative ? 'checking' : 'non-natif';
     if (!isNative) {
         otaLog('log', '[NewKet OTA] Non-natif (web/localhost) — OTA désactivé.');
+        // Récupérer la dernière version distante pour affichage informatif dans le panneau de diagnostic
+        try {
+            fetchLatestVersion().then(latest => {
+                if (latest?.version) {
+                    window._otaState.remoteVersion = latest.version;
+                    window._otaState.checksumExpected = latest.checksum || null;
+                    window.dispatchEvent(new CustomEvent('otaStateChanged'));
+                }
+            }).catch(() => {});
+        } catch (_) {}
         return;
     }
 

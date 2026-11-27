@@ -116,7 +116,14 @@ function getPlatform() {
 function getDiagnosticState() {
     const ota = window._otaState || {};
     const metaVer = document.querySelector('meta[name="newket-version"]')?.content || '';
-    const pkgVer = metaVer ? metaVer.split('-')[0] : (ota.localVersion || '1.0.78');
+    const metaAppVer = document.querySelector('meta[name="app-version"]')?.content || '';
+    let rawVer = metaVer;
+    if (rawVer && (rawVer.startsWith('dpl_') || /^[a-f0-9]{7,40}$/i.test(rawVer))) {
+        rawVer = metaAppVer || ota.remoteVersion || ota.localVersion || '1.0.79r';
+    } else if (rawVer && rawVer.includes('-')) {
+        rawVer = rawVer.split('-')[0];
+    }
+    const pkgVer = rawVer || metaAppVer || ota.localVersion || ota.remoteVersion || '1.0.79r';
     const isCap = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
     const bReady = window.newketBackendReady;
     const prodCount = window.ProductManager?.products?.length ?? 'N/A';
@@ -144,6 +151,7 @@ function formatOtaCode(v) {
     if (m) return `OTA-${m[1].toLowerCase()}`;
     const m2 = clean.match(/(?:^|\.)(\d+)$/);
     if (m2) return `OTA-${m2[1]}a`;
+    if (clean.startsWith('dpl_')) return `OTA-${clean.slice(4, 10)}`;
     return `OTA-${clean}`;
 }
 
@@ -169,6 +177,9 @@ function formatWebCode(v) {
     const clean = String(v).replace(/^v/i, '').trim();
     const m = clean.match(/(?:^|\.)(\d+[a-z]+)$/i);
     if (m) return `WEB-${m[1].toLowerCase()}`;
+    const m2 = clean.match(/(?:^|\.)(\d+)$/);
+    if (m2) return `WEB-${m2[1]}`;
+    if (clean.startsWith('dpl_')) return `WEB-${clean.slice(4, 10)}`;
     return `WEB-${clean}`;
 }
 
@@ -180,7 +191,7 @@ function updatePanel() {
     const pillColor = hasProducts && (otaOk || !s.isCap) ? '#10b981' : s.ota.status === 'error' ? '#ef4444' : '#f59e0b';
 
     // Pastille universelle : juste le code OTA pour tout le monde
-    const activeOtaVer = s.ota.localVersion || s.pkgVer || '1.0.79a';
+    const activeOtaVer = s.ota.localVersion || s.ota.remoteVersion || s.pkgVer || '1.0.79r';
     const otaPillText = formatOtaCode(activeOtaVer);
 
     pill.innerHTML = `
@@ -310,7 +321,7 @@ function updatePanel() {
                         <!-- Carte 1 : OTA -->
                         <div style="background:rgba(2,132,199,0.12); border:1px solid rgba(56,189,248,0.25); border-radius:8px; padding:6px 8px;">
                             <div style="font-size:9px; color:#7dd3fc; font-weight:700;">📡 OTA (Supabase)</div>
-                            <div style="font-size:13px; font-weight:900; color:#38bdf8;">${formatOtaCode(s.ota.localVersion || s.pkgVer)}</div>
+                            <div style="font-size:13px; font-weight:900; color:#38bdf8;">${formatOtaCode(s.ota.localVersion || s.ota.remoteVersion || s.pkgVer)}</div>
                             <div style="font-size:9px; color:${otaStatusColor}; font-weight:600;">Statut : ${s.ota.status || 'actif'}</div>
                         </div>
 
@@ -357,8 +368,8 @@ function updatePanel() {
                 <!-- 3. Détails OTA Supabase -->
                 <div>
                     <div style="font-size:10px; font-weight:800; color:#94a3b8; letter-spacing:0.05em; margin-bottom:4px;">🔄 DÉTAILS OTA SUPABASE</div>
-                    <div><b>Version locale :</b> ${s.ota.localVersion || '—'}</div>
-                    <div><b>Version distante :</b> ${s.ota.remoteVersion || '—'}</div>
+                    <div><b>Version locale :</b> ${s.ota.localVersion || (s.isCap ? '—' : `${s.pkgVer} (Web)`)}</div>
+                    <div><b>Version distante :</b> ${s.ota.remoteVersion || (s.isCap ? '—' : s.pkgVer)}</div>
                     <div><b>Checksum DB :</b> ${s.ota.checksumExpected ? s.ota.checksumExpected.slice(0,20)+'...' : '⚠️ ABSENT'}</div>
                     ${s.ota.error ? `<div style="color:#f87171; font-weight:bold;">❌ Erreur : ${s.ota.error}</div>` : ''}
                     ${s.ota.lastChecked ? `<div style="opacity:0.5; font-size:10px;">Vérifié : ${new Date(s.ota.lastChecked).toLocaleTimeString()}</div>` : ''}

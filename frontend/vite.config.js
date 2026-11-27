@@ -34,9 +34,11 @@ function getCurrentVersion() {
   }
 }
 
-const buildVersion = process.env.VERCEL_DEPLOYMENT_ID
+const currentPkgVer = getCurrentVersion();
+const deployTag = process.env.VERCEL_DEPLOYMENT_ID
   || process.env.VERCEL_GIT_COMMIT_SHA
-  || `${getCurrentVersion()}-${Date.now()}`;
+  || Date.now();
+const buildVersion = `${currentPkgVer}-${deployTag}`;
 
 export default defineConfig({
   plugins: [
@@ -65,7 +67,7 @@ export default defineConfig({
         // Inject build version meta tag into every page
         html = html.replace(
           '<meta charset="UTF-8">',
-          `<meta charset="UTF-8">\n    <meta name="newket-version" content="${buildVersion}">`
+          `<meta charset="UTF-8">\n    <meta name="app-version" content="${currentPkgVer}">\n    <meta name="newket-version" content="${buildVersion}">`
         );
 
         // Inject geo meta tags (Kinshasa / RDC) into every page if not already present
