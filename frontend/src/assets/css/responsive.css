@@ -1111,7 +1111,7 @@ canvas {
     header,
     footer,
     nav,
-    .fixed,
+    .fixed:not(#invoiceModal),
     #header-placeholder,
     #footer-placeholder {
         display: none !important;

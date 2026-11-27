@@ -9086,14 +9086,10 @@ async function openOrderModal(id) {
                     modalContent.innerHTML = template.innerHTML;
                 }
 
-                // Share button visibility
+                // Share button visibility (accessible everywhere)
                 const shareBtn = document.getElementById('btnShareInvoice');
                 if (shareBtn) {
-                    if (typeof navigator.share === 'function') {
-                        shareBtn.classList.remove('hidden');
-                    } else {
-                        shareBtn.classList.add('hidden');
-                    }
+                    shareBtn.classList.remove('hidden');
                 }
 
                 // Open in-app invoice modal
@@ -9120,12 +9116,42 @@ async function openOrderModal(id) {
             }
         }
 
-        function printInvoiceFromModal() {
-            console.log('[Facture] 🖨️ Déclenchement de window.print()');
+        async function printInvoiceFromModal() {
+            console.log('[Facture] 🖨️ Déclenchement impression/export facture');
+            const isMobileDevice = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.location.protocol === 'capacitor:';
+            
+            if (isMobileDevice && currentSelectedOrder) {
+                const o = currentSelectedOrder;
+                try {
+                    const amounts = getOrderAmounts(o);
+                    const qrReference = await buildInvoiceQrReference(o, amounts);
+                    const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                title: `Facture NewKet #${o.id}`,
+                                text: `Facture NewKet commande #${o.id}`,
+                                url: targetUrl
+                            });
+                            return;
+                        } catch (shareErr) {
+                            if (shareErr.name === 'AbortError') return;
+                        }
+                    }
+                    window.open(targetUrl, '_blank');
+                } catch (_) {
+                    window.open(`/facture/${o.id}`, '_blank');
+                }
+                return;
+            }
+
             try {
                 window.print();
             } catch (e) {
                 console.error('[Facture] ❌ Erreur window.print():', e);
+                if (currentSelectedOrder?.id) {
+                    window.open(`/facture/${currentSelectedOrder.id}`, '_blank');
+                }
             }
         }
 
@@ -9134,16 +9160,22 @@ async function openOrderModal(id) {
             const o = currentSelectedOrder;
             console.log(`[Facture] 📤 Partage de la facture #${o.id}`);
             try {
+                const amounts = getOrderAmounts(o);
+                const qrReference = await buildInvoiceQrReference(o, amounts);
+                const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
                 if (navigator.share) {
-                    const amounts = getOrderAmounts(o);
-                    const qrReference = await buildInvoiceQrReference(o, amounts);
-                    const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
                     await navigator.share({
                         title: `Facture NewKet #${o.id}`,
                         text: `Facture NewKet commande #${o.id} - Montant: ${CurrencyManager.formatPrice(amounts.total)}`,
                         url: targetUrl
                     });
                     console.log('[Facture] ✅ Partage réussi');
+                } else if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(targetUrl);
+                    if (window.showToast) window.showToast('Lien de la facture copié !', 'success');
+                    else alert('Lien de la facture copié dans le presse-papier !');
+                } else {
+                    window.open(targetUrl, '_blank');
                 }
             } catch (err) {
                 if (err.name !== 'AbortError') {
