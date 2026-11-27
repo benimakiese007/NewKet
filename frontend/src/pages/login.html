@@ -1405,9 +1405,20 @@
         }
 
         function showError(msg) {
-            if (msg && typeof msg === 'string') {
-                if (msg.includes("not allowed by the user agent") || msg.includes("denied permission") || msg.toLowerCase().includes("cancelled")) {
+            if (typeof window.humanizeUserError === 'function') {
+                msg = window.humanizeUserError(msg);
+            } else if (msg && typeof msg === 'string') {
+                const low = msg.toLowerCase();
+                if (low.includes("not allowed by the user agent") || low.includes("denied permission") || low.includes("cancelled") || low.includes("abort")) {
                     msg = "Opération annulée ou permission refusée.";
+                } else if (low.includes("invalid login credentials") || low.includes("invalid credentials")) {
+                    msg = "Email ou mot de passe incorrect.";
+                } else if (low.includes("already registered") || low.includes("already exists")) {
+                    msg = "Cette adresse email est déjà utilisée. Essayez de vous connecter.";
+                } else if (low.includes("fetch") || low.includes("network")) {
+                    msg = "Problème de connexion. Vérifiez votre connexion internet.";
+                } else if (low.includes("rate") || low.includes("limit") || low.includes("too many")) {
+                    msg = "Trop de tentatives. Veuillez patienter quelques minutes avant de réessayer.";
                 }
             }
             formError.textContent = msg;

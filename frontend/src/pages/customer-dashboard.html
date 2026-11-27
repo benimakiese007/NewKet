@@ -853,6 +853,8 @@
                 </div>
                 </div>
 
+            </div>
+        </div>
     <div id="orderModal" style="display: none;"
         class="nk-modal-overlay fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60 p-4">
         <div
@@ -1290,7 +1292,10 @@
         function showInlineMessage(elementId, message, type = 'success', duration = 4000) {
             const el = document.getElementById(elementId);
             if (!el) return;
-            el.textContent = message;
+            const finalMsg = (type === 'error' || type === 'warning') && typeof window.humanizeUserError === 'function'
+                ? window.humanizeUserError(message)
+                : message;
+            el.textContent = finalMsg;
             el.className = `text-sm font-medium mt-3 transition-opacity duration-300 ${type === 'success' ? 'text-green-600' : type === 'warning' ? 'text-orange-500' : 'text-red-500'}`;
             el.classList.remove('hidden');
             el.style.opacity = '1';
@@ -4280,22 +4285,36 @@
             // Init listener input file (une seule fois)
             _initDisputePhotoInput();
 
+            try {
+                const inv = document.getElementById('invoiceModal');
+                if (inv) { inv.classList.add('hidden'); inv.style.display = 'none'; }
+            } catch (_) {}
+            closeOrderModal();
             const modal = document.getElementById('disputeModal');
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            closeOrderModal();
         }
 
         function closeDisputeModal() {
             const modal = document.getElementById('disputeModal');
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
             document.body.style.overflow = '';
             // Libérer les object URLs
             for (const item of disputePhotoFiles) URL.revokeObjectURL(item.previewUrl);
             disputePhotoFiles = [];
             _updateDisputePhotoUI();
+            if (currentSelectedOrder) {
+                const ord = document.getElementById('orderModal');
+                if (ord) {
+                    ord.classList.remove('hidden');
+                    ord.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            }
         }
 
         async function submitDispute() {
@@ -4876,7 +4895,13 @@
                     }
                 }
 
-                // Open in-app invoice modal
+                // Open in-app invoice modal (mutually exclusive)
+                try {
+                    const ord = document.getElementById('orderModal');
+                    if (ord) { ord.classList.add('hidden'); ord.style.display = 'none'; }
+                    const disp = document.getElementById('disputeModal');
+                    if (disp) { disp.classList.add('hidden'); disp.style.display = 'none'; }
+                } catch (_) {}
                 const modal = document.getElementById('invoiceModal');
                 if (modal) {
                     modal.classList.remove('hidden');
@@ -4897,6 +4922,14 @@
             if (modal) {
                 modal.classList.add('hidden');
                 modal.style.display = 'none';
+            }
+            if (currentSelectedOrder) {
+                const ord = document.getElementById('orderModal');
+                if (ord) {
+                    ord.classList.remove('hidden');
+                    ord.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
             }
         }
 
@@ -5183,7 +5216,6 @@
         </div>
     </div>
 
-</div>
 </div> <!-- End of customer-main-content (317) -->
 </main>
     <input type="file" id="customerAvatarUploadInput" accept="image/png,image/jpeg,image/webp,image/jpg" class="hidden">

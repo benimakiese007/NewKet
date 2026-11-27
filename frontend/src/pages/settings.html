@@ -480,7 +480,10 @@
         function showInlineMessage(containerId, message, type = 'error') {
             const container = document.getElementById(containerId);
             if (!container) return;
-            container.innerHTML = message;
+            const finalMsg = (type === 'error' || type === 'warning') && typeof window.humanizeUserError === 'function'
+                ? window.humanizeUserError(message)
+                : message;
+            container.innerHTML = finalMsg;
             const colorClass = type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-600' : 'text-amber-500';
             container.className = `text-[11px] font-bold text-center mt-3 block transition-opacity ${colorClass}`;
             setTimeout(() => { container.className = 'hidden'; }, 5000);

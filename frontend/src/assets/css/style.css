@@ -11183,9 +11183,12 @@ html.dark .skeleton::after {
 #orderDetailModal.hidden,
 #orderModal.hidden,
 #disputeModal.hidden,
+#invoiceModal.hidden,
+#invoiceTemplate,
 #orderDetailModal[style*="display: none"],
 #orderModal[style*="display: none"],
 #disputeModal[style*="display: none"],
+#invoiceModal[style*="display: none"],
 .nk-modal-overlay.hidden,
 .nk-modal-overlay[style*="display: none"] {
   display: none !important;
@@ -11214,29 +11217,31 @@ script, style, template, head, link, meta {
 }
 
 /* Inner modal box on mobile — Carte flottante standardisée (Capture 2 spec) */
-.nk-modal-overlay:not(.hidden) > *:not(.absolute):not(script):not(style),
-#orderDetailModal:not(.hidden) > *:not(.absolute):not(script):not(style),
-#orderModal:not(.hidden) > *:not(.absolute):not(script):not(style),
-#disputeModal:not(.hidden) > *:not(.absolute):not(script):not(style) {
-  width: 100% !important;
-  max-width: 440px !important;
-  max-height: 65dvh !important;
-  height: min(65dvh, 100%) !important;
-  border-radius: 28px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
-  box-sizing: border-box !important;
-  margin: auto !important;
-}
+@media (max-width: 639.98px) {
+  .nk-modal-overlay:not(.hidden) > *:not(.absolute):not(script):not(style),
+  #orderDetailModal:not(.hidden) > *:not(.absolute):not(script):not(style),
+  #orderModal:not(.hidden) > *:not(.absolute):not(script):not(style),
+  #disputeModal:not(.hidden) > *:not(.absolute):not(script):not(style) {
+    width: 100% !important;
+    max-width: 440px !important;
+    max-height: 65dvh !important;
+    height: min(65dvh, 100%) !important;
+    border-radius: 28px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+    box-sizing: border-box !important;
+    margin: auto !important;
+  }
 
-/* Grandes modales détaillées sur mobile : hauteur uniforme constante */
-#orderModal:not(.hidden) > *:not(.absolute),
-#orderDetailModal:not(.hidden) > *:not(.absolute),
-#disputeModal:not(.hidden) > *:not(.absolute) {
-  height: min(65dvh, 100%) !important;
-  max-height: 65dvh !important;
+  /* Grandes modales détaillées sur mobile : hauteur uniforme constante */
+  #orderModal:not(.hidden) > *:not(.absolute),
+  #orderDetailModal:not(.hidden) > *:not(.absolute),
+  #disputeModal:not(.hidden) > *:not(.absolute) {
+    height: min(65dvh, 100%) !important;
+    max-height: 65dvh !important;
+  }
 }
 
 /* Header & Footer intérieurs : restent toujours visibles sans réduction */

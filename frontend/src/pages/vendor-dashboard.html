@@ -1469,7 +1469,10 @@
                 function showInlineMessage(elementId, message, type = 'success', duration = 4000) {
                     const el = document.getElementById(elementId);
                     if (!el) return;
-                    el.textContent = message;
+                    const finalMsg = (type === 'error' || type === 'warning') && typeof window.humanizeUserError === 'function'
+                        ? window.humanizeUserError(message)
+                        : message;
+                    el.textContent = finalMsg;
                     el.className = `text-sm font-medium mt-3 transition-opacity duration-300 ${type === 'success' ? 'text-green-600' : type === 'warning' ? 'text-orange-500' : 'text-red-500'}`;
                     el.classList.remove('hidden');
                     el.style.opacity = '1';

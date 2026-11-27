@@ -12,11 +12,80 @@ let _toastQueue = [];
 let _isShowingToast = false;
 
 /**
+ * Nettoie et traduit tout message technique ou jargon en français clair et humain
+ */
+export function humanizeUserError(raw) {
+    if (!raw) return "Une erreur est survenue. Veuillez réessayer.";
+    let msg = String(raw).trim();
+    msg = msg.replace(/^Error:\s*/i, '');
+    const low = msg.toLowerCase();
+
+    // Authentification & identifiants
+    if (low.includes('invalid login credentials') || low.includes('invalid_grant') || low.includes('invalid credentials')) {
+        return "Email ou mot de passe incorrect.";
+    }
+    if (low.includes('user already registered') || low.includes('already registered') || low.includes('user already exists')) {
+        return "Cette adresse email est déjà utilisée. Essayez de vous connecter.";
+    }
+    if (low.includes('email not confirmed')) {
+        return "Veuillez confirmer votre adresse email en cliquant sur le lien reçu.";
+    }
+    if (low.includes('password should be at least')) {
+        return "Le mot de passe doit contenir au moins 6 caractères.";
+    }
+    if (low.includes('new password should be different') || low.includes('different from the old password')) {
+        return "Le nouveau mot de passe doit être différent de l'ancien.";
+    }
+
+    // Clés d'accès & biométrie
+    if (low.includes('credentialverification') || low.includes('publickeycredential') || low.includes('webauthn')) {
+        return "Impossible de vérifier votre clé d'accès. Utilisez votre mot de passe.";
+    }
+    if (low.includes('not allowed by the user agent') || low.includes('denied permission') || low.includes('cancelled') || low.includes('abort')) {
+        return "Opération annulée.";
+    }
+
+    // Réseau & quotas
+    if (low.includes('fetch') || low.includes('network') || low.includes('timed out') || low.includes('timeout') || low.includes('connection refused')) {
+        return "Problème de connexion. Vérifiez votre connexion internet.";
+    }
+    if (low.includes('rate') || low.includes('too many') || low.includes('over_email_send_rate_limit') || low.includes('limit')) {
+        return "Trop de tentatives. Veuillez patienter quelques minutes avant de réessayer.";
+    }
+
+    // Session & jetons
+    if (low.includes('jwt') || low.includes('token is expired') || low.includes('session expired') || low.includes('session_not_found')) {
+        return "Votre session a expiré. Veuillez vous reconnecter.";
+    }
+
+    // Base de données & contraintes internes
+    if (low.includes('row-level security') || low.includes('violates foreign key') || low.includes('duplicate key') || low.includes('violates unique constraint') || low.includes('violates not-null') || low.includes('syntax error') || low.includes('pgrst')) {
+        return "L'opération n'a pas pu être validée par le serveur. Veuillez réessayer.";
+    }
+    if (low.includes('permission denied') || low.includes('unauthorized') || low.includes('forbidden')) {
+        return "Vous n'avez pas l'autorisation nécessaire pour effectuer cette action.";
+    }
+
+    // OTP
+    if (low.includes('token has expired') || low.includes('otp has expired')) {
+        return "Le code de vérification a expiré. Veuillez en demander un nouveau.";
+    }
+
+    return msg;
+}
+if (typeof window !== 'undefined') {
+    window.humanizeUserError = humanizeUserError;
+}
+
+/**
  * Shows a toast message to the user using a central queue system.
  */
 export function showToast(message, type = 'info', title = null, iconOverride = null) {
     const normalizedType = (type === 'error') ? 'danger' : type;
-    _toastQueue.push({ message, type: normalizedType, title, iconOverride });
+    const finalMessage = (normalizedType === 'danger' || normalizedType === 'warning')
+        ? humanizeUserError(message)
+        : message;
+    _toastQueue.push({ message: finalMessage, type: normalizedType, title, iconOverride });
     if (!_isShowingToast) {
         _processToastQueue();
     }
