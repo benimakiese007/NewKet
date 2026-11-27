@@ -1,4 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
+import { CapacitorPasskey } from '@capgo/capacitor-passkey';
+
+// Initialize WebAuthn shim for native Capacitor (Android Credential Manager / iOS AuthenticationServices)
+if (typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.()) {
+    CapacitorPasskey.autoShimWebAuthn()
+        .then(() => {
+            window.dispatchEvent(new CustomEvent('newket:passkey-shim-ready'));
+        })
+        .catch((err) => {
+            console.warn('[NewKet] Passkey autoShimWebAuthn warning:', err);
+        });
+}
 
 // Supabase configuration loaded from .env.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;

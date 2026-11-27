@@ -14,6 +14,11 @@
     "webContentsDebuggingEnabled": true
   },
   "plugins": {
+    "CapacitorPasskey": {
+      "origin": "https://newket.vercel.app",
+      "autoShim": true,
+      "domains": ["newket.vercel.app"]
+    },
     "PushNotifications": {
       "presentationOptions": ["badge", "sound", "alert"]
     },

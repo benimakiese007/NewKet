@@ -1137,6 +1137,7 @@
         // Initialiser l'UI passkey selon l'environnement
         initPasskeyUI();
         window.addEventListener('DOMContentLoaded', initPasskeyUI);
+        window.addEventListener('newket:passkey-shim-ready', initPasskeyUI);
 
 
         // --- 3. UI Interactions ---

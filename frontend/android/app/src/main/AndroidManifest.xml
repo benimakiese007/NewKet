@@ -133,7 +133,10 @@
             android:name=".CallForegroundService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
-
+            <!-- CapacitorPasskey auto-configuration -->
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/capacitor_passkey_asset_statements" />
     </application>
 
     <!-- Permissions -->
