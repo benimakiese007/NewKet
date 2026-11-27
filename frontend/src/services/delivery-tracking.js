@@ -159,6 +159,10 @@
          */
         _buildUI() {
             const isVendor = this.role === 'vendor';
+            const isNative = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
+            const ua = typeof navigator !== 'undefined' ? (navigator.userAgent || '') : '';
+            const isMobileDevice = isNative || /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            const isPcUser = !isMobileDevice;
             let peerLabel = this.peerName || (isVendor ? 'Client' : 'Vendeur');
             if (typeof peerLabel === 'string' && peerLabel.includes('@')) {
                 peerLabel = peerLabel.split('@')[0];
@@ -190,6 +194,13 @@
                             </button>
                         </div>
                     </div>
+
+                    ${isPcUser ? `
+                    <div class="px-3.5 py-2 bg-amber-50/90 border-b border-amber-200/80 text-[11px] text-amber-900 leading-tight flex items-center gap-2">
+                        <iconify-icon icon="solar:laptop-minimalistic-bold" width="16" class="text-amber-600 flex-shrink-0"></iconify-icon>
+                        <span><b>Sur ordinateur :</b> la position GPS est approximative (déduite de votre connexion internet).</span>
+                    </div>
+                    ` : ''}
 
                     <!-- Map View -->
                     <div class="relative w-full h-[280px] sm:h-[340px] bg-gray-100">
@@ -2155,7 +2166,12 @@
 
             if (!this.markers[this.role]) {
                 this.markers[this.role] = window.L.marker([coords.lat, coords.lng], { icon }).addTo(this.map);
-                this.map.setView([coords.lat, coords.lng], 16);
+                // Si la position est dans la région de Kinshasa / RDC, on recentre. Sinon (ex: VPN à l'étranger), on préserve l'adresse client
+                const kinBounds = { minLat: -5.5, maxLat: -3.5, minLng: 14.5, maxLng: 16.5 };
+                const isInKin = coords.lat >= kinBounds.minLat && coords.lat <= kinBounds.maxLat && coords.lng >= kinBounds.minLng && coords.lng <= kinBounds.maxLng;
+                if (isInKin) {
+                    this.map.setView([coords.lat, coords.lng], 16);
+                }
             } else {
                 this.markers[this.role].setLatLng([coords.lat, coords.lng]);
             }
