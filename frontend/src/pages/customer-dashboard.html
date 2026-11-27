@@ -309,12 +309,12 @@
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
                         <span>Mes Favoris</span>
                     </a>
-                    <a href="#notifications" data-switch-customer-tab="notifications" class="sidebar-link flex items-center justify-between" id="link-notifications">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <iconify-icon icon="solar:bell-bold" width="20" class="shrink-0"></iconify-icon>
-                            <span>Notifications</span>
-                        </div>
-                        <span class="sidebar-link-badge notification-badge ml-auto shrink-0 whitespace-nowrap bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center hidden">0</span>
+                    <a href="#notifications" data-switch-customer-tab="notifications" class="sidebar-link" id="link-notifications">
+                        <iconify-icon icon="solar:bell-bold" width="20" class="shrink-0"></iconify-icon>
+                        <span class="sidebar-link-label-with-badge flex-1 flex items-center justify-between gap-2">
+                            <span class="whitespace-nowrap">Notifications</span>
+                            <span id="customerNotificationsBadge" class="sidebar-link-badge notification-badge ml-auto shrink-0 whitespace-nowrap bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center hidden" style="margin-left: auto !important;">0</span>
+                        </span>
                     </a>
                     <a href="#settings" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>

@@ -813,6 +813,29 @@ body {
     margin-top: 0 !important;
 }
 
+#link-notifications {
+    display: flex !important;
+    align-items: center;
+}
+
+#link-notifications .sidebar-link-label-with-badge {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#link-notifications span:not(.sidebar-link-badge) {
+    white-space: nowrap !important;
+}
+
+#link-notifications .notification-badge,
+#customerNotificationsBadge {
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+}
+
 .sidebar-link:hover {
     background: #f8fafc;
     color: #0f172a;
