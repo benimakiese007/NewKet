@@ -224,7 +224,14 @@ const ActivityManager = {
 
 // ========== NOTIFICATION MANAGER ==========
 const NotificationManager = {
-    notifications: [],
+    notifications: (() => {
+        try {
+            const raw = localStorage.getItem('newket_cached_notifications');
+            return raw ? JSON.parse(raw) : [];
+        } catch (_) {
+            return [];
+        }
+    })(),
     async init(force = false) {
         if (!window.ApiClient) {
             console.error('[NotificationManager] ApiClient not found');
@@ -239,7 +246,7 @@ const NotificationManager = {
 
         const lastFetch = localStorage.getItem('newket_notifications_sync_time');
         const now = Date.now();
-        const COOLDOWN = 1000 * 60 * 5; // 5 mins
+        const COOLDOWN = 1000 * 60 * 3; // 3 mins
         if (!force && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.notifications.length > 0) {
             this.updateBadge();
             window.dispatchEvent(new CustomEvent('notificationsUpdated'));
@@ -249,15 +256,15 @@ const NotificationManager = {
         this._fetchPromise = (async () => {
             try {
                 const data = await window.ApiClient.get('/notifications', { suppressNetworkError: true });
-                if (!data) {
-                    this.notifications = [];
-                    return;
+                if (data && Array.isArray(data)) {
+                    this.notifications = data;
+                    try {
+                        localStorage.setItem('newket_cached_notifications', JSON.stringify(this.notifications));
+                    } catch (_) {}
                 }
-                this.notifications = Array.isArray(data) ? data : [];
                 localStorage.setItem('newket_notifications_sync_time', now.toString());
             } catch (e) {
                 console.error('[NotificationManager] Init error:', e);
-                this.notifications = [];
             }
         })();
         await this._fetchPromise;
@@ -374,7 +381,7 @@ const NotificationManager = {
     },
     updateBadge() {
         const unreadCount = this.getUnreadCount();
-        const badges = document.querySelectorAll('.notification-badge');
+        const badges = document.querySelectorAll('.notification-badge, #notificationBadge, #mobileNotificationBadge, #desktopNotificationsBadge, #desktopNotificationBadge');
         badges.forEach(badge => {
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 99 ? '99+' : unreadCount;

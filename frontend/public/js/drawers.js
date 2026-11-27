@@ -349,6 +349,36 @@ class DrawersManager {
         document.body.insertAdjacentHTML('beforeend', html);
     }
 
+    renderSkeleton() {
+        const container = document.getElementById('drawerNotifItemsContainer');
+        if (!container) return;
+        container.innerHTML = `
+            <div class="space-y-3 animate-pulse">
+                <div class="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 flex gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-200 flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2 py-1">
+                        <div class="h-3.5 bg-gray-200 rounded w-2/3"></div>
+                        <div class="h-3 bg-gray-200 rounded w-5/6"></div>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 flex gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-200 flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2 py-1">
+                        <div class="h-3.5 bg-gray-200 rounded w-1/2"></div>
+                        <div class="h-3 bg-gray-200 rounded w-4/5"></div>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 flex gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-200 flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2 py-1">
+                        <div class="h-3.5 bg-gray-200 rounded w-3/4"></div>
+                        <div class="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     openNotifications() {
         // If on notifications.html itself, do nothing
         if (window.location.pathname.includes('/notifications')) return;
@@ -360,9 +390,12 @@ class DrawersManager {
 
         this.injectNotificationsUI();
 
-        // Trigger fresh fetch
-        if (window.NotificationManager?.init) {
-            window.NotificationManager.init(true).catch(() => {});
+        // Check if we have cached notifications to display immediately
+        const notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
+        if (!notifs || notifs.length === 0) {
+            this.renderSkeleton();
+        } else {
+            this.renderNotifications();
         }
 
         setTimeout(() => {
@@ -375,8 +408,18 @@ class DrawersManager {
             this._lockScroll();
             this.activeDrawer = 'notifications';
             try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
-            this.renderNotifications();
         }, 10);
+
+        // Trigger fresh fetch and re-render
+        if (window.NotificationManager?.init) {
+            window.NotificationManager.init(true)
+                .then(() => {
+                    this.renderNotifications();
+                })
+                .catch(() => {
+                    this.renderNotifications();
+                });
+        }
     }
 
     closeNotifications(unlockScroll = true) {
