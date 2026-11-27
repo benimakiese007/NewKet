@@ -591,7 +591,14 @@ function initDebugOverlay() {
     syncDebugVisibility();
     setupSecretLogoListener();
     window.addEventListener('configUpdated', () => syncDebugVisibility());
-    window.addEventListener('debugModeChanged', () => syncDebugVisibility());
+    window.addEventListener('debugModeChanged', (e) => {
+        if (e && e.detail && e.detail.debugMode !== undefined) {
+            try {
+                localStorage.setItem('nk_debug_override', e.detail.debugMode ? 'true' : 'false');
+            } catch (_) {}
+        }
+        syncDebugVisibility();
+    });
     // Réapplication préventive après chargement des composants asynchrones
     setTimeout(syncDebugVisibility, 500);
     setTimeout(syncDebugVisibility, 1500);

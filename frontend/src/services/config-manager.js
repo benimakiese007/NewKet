@@ -251,7 +251,12 @@ const ConfigManager = {
             }));
         }
 
-        const nextDebugMode = !!this.config.debugMode;
+        const nextDebugMode = !!(normalized.debugMode !== undefined ? normalized.debugMode : this.config.debugMode);
+        try {
+            if (source === 'realtime') {
+                localStorage.setItem('nk_debug_override', nextDebugMode ? 'true' : 'false');
+            }
+        } catch (_) {}
         window.dispatchEvent(new CustomEvent('debugModeChanged', {
             detail: { debugMode: nextDebugMode, source }
         }));
@@ -295,6 +300,7 @@ const ConfigManager = {
                 freeShippingThreshold: config.freeShippingThreshold,
                 maintenanceMode: !!config.maintenanceMode,
                 debugMode: !!config.debugMode,
+                debug_mode: !!config.debugMode,
                 socialLinks,
                 sellerCommission: config.sellerCommission,
                 targetAOV: config.targetAOV,
@@ -329,6 +335,7 @@ const ConfigManager = {
             shipping_fee: config.shippingFee,
             free_shipping_threshold: config.freeShippingThreshold,
             maintenance_mode: !!config.maintenanceMode,
+            debugMode: !!config.debugMode,
             debug_mode: !!config.debugMode,
             primary_color: config.primaryColor,
             secondary_color: config.secondaryColor,
@@ -418,6 +425,24 @@ const ConfigManager = {
         this.config = { ...this.config, ...newConfig };
         this.config.socialLinks = this._getSocialLinks(this.config);
         this.saveLocal();
+        try {
+            if (newConfig.debugMode !== undefined) {
+                localStorage.setItem('nk_debug_override', newConfig.debugMode ? 'true' : 'false');
+            }
+        } catch (_) {}
+
+        // Direct Supabase debugMode update for instant Realtime broadcast (<100ms)
+        if (newConfig.debugMode !== undefined && window.SupabaseAdapter?.getClient) {
+            try {
+                const sbClient = window.SupabaseAdapter.getClient();
+                if (sbClient) {
+                    sbClient.from('settings').update({
+                        debugMode: !!newConfig.debugMode,
+                        debug_mode: !!newConfig.debugMode
+                    }).eq('id', this.config.id || 'global-settings').then(() => {}).catch(() => {});
+                }
+            } catch (_) {}
+        }
         let remoteError = null;
 
         // Dispatcher maintenanceModeChanged localement de façon immédiate

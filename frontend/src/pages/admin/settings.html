@@ -303,7 +303,8 @@
                 }
 
                 document.getElementById('maintenanceMode').checked = config.maintenanceMode || false;
-                document.getElementById('debugMode').checked = config.debugMode || false;
+                const _localDbg = localStorage.getItem('nk_debug_override');
+                document.getElementById('debugMode').checked = _localDbg !== null ? (_localDbg === 'true') : Boolean(config.debugMode);
             }
         }
 
@@ -371,13 +372,21 @@
         });
 
                 document.getElementById('debugMode').addEventListener('change', async (e) => {
-            if (!window.ConfigManager) return;
             const newValue = e.target.checked;
+            try {
+                localStorage.setItem('nk_debug_override', newValue ? 'true' : 'false');
+            } catch (_) {}
+
+            if (typeof window.syncDebugVisibility === 'function') {
+                window.syncDebugVisibility();
+            }
+
+            if (!window.ConfigManager) return;
             ConfigManager.saveConfig({ ...ConfigManager.getConfig(), debugMode: newValue })
                 .then(() => {
                     if (typeof showToast === 'function') {
                         showToast(
-                            newValue ? "Mode Diagnostic Activé (Logs visibles)" : "Mode Diagnostic Masqué (Mode Forum épuré)",
+                            newValue ? "Mode Diagnostic Activé (Visible partout en temps réel)" : "Mode Diagnostic Masqué (Masqué partout en temps réel)",
                             "success"
                         );
                     }
