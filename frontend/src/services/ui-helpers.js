@@ -1555,6 +1555,10 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             window.AuthManager?.role ||
             localStorage.getItem('newketRole') ||
             '';
+        const isNative = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
+        const ua = typeof navigator !== 'undefined' ? (navigator.userAgent || '') : '';
+        const isMobileDevice = isNative || /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        const isPcUser = !isMobileDevice;
 
         let prefillName = '';
         if (role === 'supplier') {
@@ -1806,6 +1810,13 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                     <iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon>
                                     <span id="${modalId}-locate-text">Utiliser ma position actuelle</span>
                                 </button>
+                                
+                                ${isPcUser ? `
+                                <div class="text-[10px] text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-xl px-3 py-2 mb-3 leading-snug flex items-center gap-2 shadow-xs">
+                                    <iconify-icon icon="solar:laptop-minimalistic-bold" width="16" class="text-amber-600 flex-shrink-0"></iconify-icon>
+                                    <span><b>Sur ordinateur :</b> la détection automatique place le repère au centre de Kinshasa. Glissez-le sur la carte jusqu'à votre adresse exacte.</span>
+                                </div>
+                                ` : ''}
                                 
                                 <div id="${modalId}-map" class="w-full h-36 sm:h-44 rounded-2xl border border-gray-100 overflow-hidden z-10 shadow-sm block relative">
                                     <!-- Locate overlay on map corner -->
