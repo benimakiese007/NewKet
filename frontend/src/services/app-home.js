@@ -15,6 +15,7 @@ import './auth.js';
 import './profile-manager.js';
 import './currency.js';
 import './favorites.js';
+import './managers.js';
 import './products.js';
 
 import './ui-helpers.js';

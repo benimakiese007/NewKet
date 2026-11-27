@@ -456,8 +456,11 @@ const getBottomNavHTML = (role, isGuest = false) => {
 
     // ── Item 4 : Notifs (admin) | Panier→login (invité) | Panier→drawer (buyer/seller) ──
     const item4_lg = isAdmin
-        ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Notifications">
-        <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+        ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item relative flex flex-1 flex-col items-center justify-center gap-1 transition-all active:scale-95" aria-label="Notifications">
+        <div class="relative flex items-center justify-center">
+            <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+            <span class="notification-badge absolute -top-1 -right-2 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
+        </div>
         <span class="text-[9px] font-medium tracking-wide">Notifs</span>
     </a>`
         : isGuest
@@ -473,7 +476,10 @@ const getBottomNavHTML = (role, isGuest = false) => {
 
     const item4_std = isAdmin
         ? `<a href="{{ROOT}}notifications" data-bottom-nav-item="notifications" class="nav-item relative z-10 flex flex-1 flex-col items-center justify-center gap-[3px] text-gray-500 dark:text-gray-400 font-medium text-[10px] py-2 px-1 transition-colors" aria-label="Notifications">
-            <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+            <div class="relative flex items-center justify-center">
+                <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+                <span class="notification-badge absolute -top-1 -right-2 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
+            </div>
             <span>Notifs</span>
         </a>`
         : isGuest
