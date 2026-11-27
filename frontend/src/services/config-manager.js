@@ -251,6 +251,11 @@ const ConfigManager = {
             }));
         }
 
+        const nextDebugMode = !!this.config.debugMode;
+        window.dispatchEvent(new CustomEvent('debugModeChanged', {
+            detail: { debugMode: nextDebugMode, source }
+        }));
+
         return true;
     },
 
@@ -424,6 +429,11 @@ const ConfigManager = {
             }));
         }
 
+        const nextDebugMode = !!this.config.debugMode;
+        window.dispatchEvent(new CustomEvent('debugModeChanged', {
+            detail: { debugMode: nextDebugMode, source: 'save-immediate' }
+        }));
+
         if (window.SupabaseAdapter) {
             try {
                 // Ensure local cache timestamp is fresh after a write.
@@ -440,10 +450,22 @@ const ConfigManager = {
                         window.ApiClient._responseCache.delete('global-settings');
                     }
 
-                    await window.ApiClient.put('/settings', payload, {
-                        suppressToast: true,
-                        suppressErrorLogging: true
-                    });
+                    try {
+                        await window.ApiClient.put('/settings', payload, {
+                            suppressToast: true,
+                            suppressErrorLogging: true
+                        });
+                    } catch (apiErr) {
+                        console.warn('[NewKet] ApiClient.put failed, attempting direct Supabase fallback:', apiErr);
+                        const rows = await window.SupabaseAdapter.fetch('settings');
+                        const existingRow = rows && rows.length > 0 ? rows[0] : null;
+                        const remotePayload = this._toRemoteSettingsPayload(this.config, existingRow);
+                        if (rows && rows.length > 0) {
+                            await window.SupabaseAdapter.update('settings', rows[0].id, remotePayload);
+                        } else {
+                            await window.SupabaseAdapter.insert('settings', remotePayload);
+                        }
+                    }
                 } else {
                     // Fallback to raw Supabase table.
                     const rows = await window.SupabaseAdapter.fetch('settings');

@@ -1,3 +1,19 @@
+// Auto-hide debug pill & test panels by default from t=0ms
+if (typeof document !== 'undefined') {
+    const _initHideStyle = document.createElement('style');
+    _initHideStyle.id = 'nk-debug-visibility-style';
+    _initHideStyle.textContent = '#nk-debug-pill, #nk-live-activity-test-panel, #nk-vendor-live-activity-panel, #nk-settings-live-activity-section { display: none !important; }';
+    if (document.head) {
+        document.head.appendChild(_initHideStyle);
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!document.getElementById('nk-debug-visibility-style') && document.head) {
+                document.head.appendChild(_initHideStyle);
+            }
+        });
+    }
+}
+/* nk-debug-visibility-style-init */
 /**
  * NewKet - Diagnostic On-Screen Overlay for Mobile Debugging (iOS / Android)
  * Displays real-time state: version, backendReady, products count, Supabase status, and live console logs.
@@ -37,18 +53,15 @@ const origLog = console.log;
 const origWarn = console.warn;
 const origError = console.error;
 
+let _isUpdatingPanel = false;
 function addLog(level, args) {
     const time = new Date().toLocaleTimeString();
     const text = args.map(a => {
-        if (a instanceof Error) {
-            return `${a.name || 'Error'}: ${a.message}`;
-        }
+        if (a instanceof Error) return `${a.name || 'Error'}: ${a.message}`;
         if (typeof a === 'object' && a !== null) {
             try {
                 const s = JSON.stringify(a);
-                if (s === '{}' && (a.message || a.name)) {
-                    return `${a.name || 'Error'}: ${a.message}`;
-                }
+                if (s === '{}' && (a.message || a.name)) return `${a.name || 'Error'}: ${a.message}`;
                 return s;
             } catch (_) {
                 return String(a);
@@ -56,9 +69,21 @@ function addLog(level, args) {
         }
         return String(a);
     }).join(' ');
+
+    if (text.includes('Content Security Policy') || text.includes('connect-src') || text.includes('violates the following')) {
+        return;
+    }
+
     logs.unshift({ level, time, text });
     if (logs.length > MAX_LOGS) logs.pop();
-    updatePanel();
+    if (!_isUpdatingPanel) {
+        _isUpdatingPanel = true;
+        try {
+            updatePanel();
+        } finally {
+            _isUpdatingPanel = false;
+        }
+    }
 }
 
 console.log = function (...args) {
@@ -164,7 +189,8 @@ function updatePanel() {
     `;
 
     // Rafraîchir dynamiquement la release GitHub (Android APK) une seule fois pour TOUS les supports (Web, iOS, Android)
-    if (!window.__REMOTE_APK_VERSION__ && !window.__fetchingRemoteApk) {
+    const isCapacitorNative = typeof window.isNativeCapacitor === 'function' ? window.isNativeCapacitor() : (window.location?.protocol === 'capacitor:');
+    if (isCapacitorNative && !window.__REMOTE_APK_VERSION__ && !window.__fetchingRemoteApk) {
         window.__fetchingRemoteApk = true;
         const stored = localStorage.getItem('nk_remote_apk_version');
         if (stored) window.__REMOTE_APK_VERSION__ = stored;
@@ -368,7 +394,7 @@ function updatePanel() {
     }
 }
 
-export // ── Contrôleur de Visibilité Universel : Mode Diagnostic & Raccourci Secret ──
+// ── Contrôleur de Visibilité Universel : Mode Diagnostic & Raccourci Secret ──
 let _debugStyleEl = null;
 function getDebugStyleTag() {
     if (_debugStyleEl) return _debugStyleEl;
@@ -401,13 +427,13 @@ function syncDebugVisibility() {
     const styleTag = getDebugStyleTag();
     if (styleTag) {
         if (!active) {
-            styleTag.textContent = '#nk-live-activity-test-panel, #nk-vendor-live-activity-panel, #nk-settings-live-activity-section { display: none !important; }';
+            styleTag.textContent = '#nk-debug-pill, #nk-live-activity-test-panel, #nk-vendor-live-activity-panel, #nk-settings-live-activity-section { display: none !important; }';
         } else {
-            styleTag.textContent = '';
+            styleTag.textContent = '#nk-debug-pill { display: flex !important; }';
         }
     }
     if (pill) {
-        pill.style.display = active ? 'flex' : 'none';
+        pill.style.setProperty('display', active ? 'flex' : 'none', 'important');
     }
     if (!active && panel && isOpen) {
         toggleDebugPanel(false);
@@ -449,6 +475,22 @@ function triggerSecretDebugToggle() {
 }
 
 function setupSecretLogoListener() {
+    const handleTap = (e) => {
+        const logoTarget = e.target.closest('#newket-logo, .brand-logo, [data-brand-logo], img[src*="logo-newket"], img[src*="logo"], .navbar-brand');
+        if (!logoTarget) return;
+        const now = Date.now();
+        if (now - _lastLogoTapTime < 800) {
+            _logoTapCount++;
+        } else {
+            _logoTapCount = 1;
+        }
+        _lastLogoTapTime = now;
+        if (_logoTapCount >= 5) {
+            _logoTapCount = 0;
+            triggerSecretDebugToggle();
+        }
+    };
+    document.addEventListener('touchend', handleTap, { passive: true });
     document.addEventListener('click', (e) => {
         const logoTarget = e.target.closest('#newket-logo, .brand-logo, [data-brand-logo], img[src*="logo-newket"], img[src*="logo"], .navbar-brand');
         if (!logoTarget) return;
@@ -496,7 +538,7 @@ function initDebugOverlay() {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         box-shadow: 0 4px 14px rgba(0,0,0,0.3);
         border: 1px solid rgba(255,255,255,0.15);
-        display: flex;
+        display: none !important;
         align-items: center;
         cursor: pointer;
         backdrop-filter: blur(10px);
