@@ -11216,7 +11216,7 @@ script, style, template, head, link, meta {
   display: none !important;
 }
 
-/* Inner modal box on mobile — Carte flottante standardisée (Capture 2 spec) */
+/* Inner modal box on mobile — Carte flottante standardisée & adaptative (zéro zone blanche vide) */
 @media (max-width: 639.98px) {
   .nk-modal-overlay:not(.hidden) > *:not(.absolute):not(script):not(style),
   #orderDetailModal:not(.hidden) > *:not(.absolute):not(script):not(style),
@@ -11224,8 +11224,8 @@ script, style, template, head, link, meta {
   #disputeModal:not(.hidden) > *:not(.absolute):not(script):not(style) {
     width: 100% !important;
     max-width: 440px !important;
-    max-height: 65dvh !important;
-    height: min(65dvh, 100%) !important;
+    max-height: 80dvh !important;
+    height: auto !important;
     border-radius: 28px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -11235,12 +11235,12 @@ script, style, template, head, link, meta {
     margin: auto !important;
   }
 
-  /* Grandes modales détaillées sur mobile : hauteur uniforme constante */
+  /* Grandes modales détaillées sur mobile : s'adaptent au contenu avec plafond max sécurisé */
   #orderModal:not(.hidden) > *:not(.absolute),
   #orderDetailModal:not(.hidden) > *:not(.absolute),
   #disputeModal:not(.hidden) > *:not(.absolute) {
-    height: min(65dvh, 100%) !important;
-    max-height: 65dvh !important;
+    height: auto !important;
+    max-height: 80dvh !important;
   }
 }
 
