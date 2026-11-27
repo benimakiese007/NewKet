@@ -2154,11 +2154,10 @@
                 if (error) throw error;
             } catch (err) {
                 console.error('Passkey login error:', err);
-                let msg = err.message || "Erreur de connexion par clé d'accès.";
-                if (msg.includes('cancelled') || msg.includes('cancel')) {
+                const raw = (err?.message || '').toLowerCase();
+                let msg = "Impossible de vous connecter avec votre clé d'accès. Vérifiez qu'une clé est bien enregistrée sur votre compte ou utilisez votre mot de passe.";
+                if (raw.includes('cancelled') || raw.includes('cancel') || raw.includes('abort')) {
                     msg = "Connexion annulée.";
-                } else if (msg.includes('not support WebAuthn') || msg.includes('WebAuthn')) {
-                    msg = "Ce navigateur ne supporte pas la connexion par clé d'accès. Utilisez votre mot de passe.";
                 }
                 showError(msg);
             } finally {

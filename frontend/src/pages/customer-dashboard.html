@@ -2285,8 +2285,9 @@
                     loadCustomerPasskeys();
                 } catch (err) {
                     console.error('Passkey registration error:', err);
-                    let msg = err.message || "Erreur lors de la création de la clé d'accès.";
-                    if (msg.includes('cancelled') || msg.includes('cancel')) {
+                    const raw = (err?.message || '').toLowerCase();
+                    let msg = "Impossible de créer la clé d'accès pour le moment. Vérifiez que votre appareil est bien protégé par un code ou une empreinte.";
+                    if (raw.includes('cancelled') || raw.includes('cancel') || raw.includes('abort')) {
                         msg = "Création annulée.";
                     }
                     showInlineMessage('passkey-feedback', msg, 'error');

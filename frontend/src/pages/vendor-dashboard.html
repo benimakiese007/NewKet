@@ -8011,11 +8011,10 @@
                                 loadVendorPasskeys();
                             } catch (err) {
                                 console.error('[Vendor Passkey] Registration error:', err);
-                                let msg = err.message || "Erreur lors de la création de la clé d'accès.";
-                                if (msg.includes('cancelled') || msg.includes('cancel') || msg.includes('abort')) {
+                                const raw = (err?.message || '').toLowerCase();
+                                let msg = "Impossible de créer la clé d'accès pour le moment. Vérifiez que votre appareil est bien protégé par un code ou une empreinte.";
+                                if (raw.includes('cancelled') || raw.includes('cancel') || raw.includes('abort')) {
                                     msg = "Création annulée.";
-                                } else if (msg.includes('not supported') || msg.includes('supporté')) {
-                                    msg = "Votre navigateur ou appareil ne supporte pas les passkeys.";
                                 }
                                 showInlineMessage('passkey-feedback', msg, 'error');
                             } finally {
