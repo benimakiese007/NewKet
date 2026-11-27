@@ -1721,7 +1721,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:99999999 !important;">
                 <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:99999999 !important;" onclick="closeCheckoutModal('${modalId}', null)"></div>
                 
-                <div class="relative w-full max-w-md max-h-[65vh] max-h-[65dvh] sm:max-h-[70vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:100000000 !important; max-height: 65dvh !important;">
+                <div class="nk-modal-card nk-modal-wide relative transform scale-95 transition-transform duration-300" style="z-index:100000000 !important;">
                     <!-- Header -->
                     <div class="px-5 py-3.5 sm:px-6 sm:py-5 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
                         <div class="pr-4">
@@ -2231,7 +2231,7 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
 
     modal.innerHTML = `
         <div class="absolute inset-0 bg-gray-950/40 backdrop-blur-sm pointer-events-auto" id="${modalId}-backdrop"></div>
-        <div class="relative bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl max-w-sm w-full border border-white/20 transform scale-95 transition-all duration-300 pointer-events-auto" id="${modalId}-card">
+        <div class="nk-modal-card nk-modal-compact relative border border-white/20 transform scale-95 transition-all duration-300 pointer-events-auto" id="${modalId}-card">
             <div class="p-8 text-center">
                 <div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-6">
                     <iconify-icon icon="solar:question-square-bold" class="text-orange-500 text-3xl"></iconify-icon>
@@ -2343,7 +2343,7 @@ window.showPromptModal = ({
 
         modal.innerHTML = `
             <div class="absolute inset-0 bg-gray-950/40 backdrop-blur-sm" data-overlay="1"></div>
-            <div class="relative bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl max-w-lg w-full border border-white/20 transform scale-95 transition-all duration-300 pointer-events-auto">
+            <div class="nk-modal-card relative border border-white/20 transform scale-95 transition-all duration-300 pointer-events-auto">
                 <div class="p-8 sm:p-9">
                     <div class="flex items-start justify-between gap-4 mb-4">
                         <div class="min-w-0">
