@@ -3739,7 +3739,10 @@
             const releaseDelayHint = document.getElementById('releaseDelayHint');
 
             const customerTrackingSection = document.getElementById('customerDeliveryTrackingSection');
-            if (customerTrackingSection) customerTrackingSection.classList.add('hidden');
+            const isCustomerOrderInDelivery = order.status === 'IN_DELIVERY' || order.status === 'SHIPPED';
+            if (customerTrackingSection && !isCustomerOrderInDelivery) {
+                customerTrackingSection.classList.add('hidden');
+            }
 
             escrowSection.classList.add('hidden');
             otpSection.classList.add('hidden');
@@ -3863,6 +3866,10 @@
                             myAvatar,
                             peerUserId
                         });
+                    } else if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.map) {
+                        setTimeout(() => {
+                            try { window.deliveryTrackerInstance.map?.invalidateSize(); } catch (_) {}
+                        }, 100);
                     }
 
                     if (!peerAvatar && peerUserId && window.supabaseClient) {

@@ -5119,10 +5119,11 @@
                     document.getElementById('vModalCustomerEmail').textContent = order.customer?.email || order.customer_email || 'Pas d\'email';
                     document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
                     
+                    const isVendorDeliveryActive = ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED'].includes(String(order.status || '').toUpperCase());
                     const cityEl = document.getElementById('vModalCustomerCity');
                     cityEl.textContent = order.customer_city || 'Ville non précisée';
                     const gpsEl = document.getElementById('vModalCustomerGPS');
-                    if (order.customer_lat && order.customer_lng) {
+                    if (order.customer_lat && order.customer_lng && isVendorDeliveryActive) {
                         gpsEl.dataset.lat = order.customer_lat;
                         gpsEl.dataset.lng = order.customer_lng;
                         gpsEl.textContent = 'Voir sur la carte';
@@ -5266,10 +5267,13 @@
                     const disputedSection = document.getElementById('vDisputedSection');
                     const deliveredSection = document.getElementById('vDeliveredSection');
                     
-                    if (window.deliveryTrackerInstance) {
-                        window.deliveryTrackerInstance.destroy();
+                    const isVendorOrderInDelivery = order.status === 'IN_DELIVERY';
+                    if (!isVendorOrderInDelivery) {
+                        if (window.deliveryTrackerInstance) {
+                            window.deliveryTrackerInstance.destroy();
+                        }
+                        if (vendorTrackingSection) vendorTrackingSection.classList.add('hidden');
                     }
-                    if (vendorTrackingSection) vendorTrackingSection.classList.add('hidden');
 
                     actions.classList.add('hidden');
                     standardActions.classList.add('hidden');
@@ -5321,24 +5325,28 @@
                                 && window.deliveryTrackerInstance.callState 
                                 && window.deliveryTrackerInstance.callState !== 'idle';
 
-                            if (!isSameOrderCallActive) {
+                            const isAlreadyTrackingSameOrder = window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === order.id;
+                            if (!isSameOrderCallActive && !isAlreadyTrackingSameOrder) {
                                 if (window.deliveryTrackerInstance) {
                                     window.deliveryTrackerInstance.destroy();
                                 }
                                 window.deliveryTrackerInstance = new window.DeliveryTracker();
+                                window.deliveryTrackerInstance.start({
+                                    orderId: order.id,
+                                    role: 'vendor',
+                                    container: '#vendorDeliveryTrackingContainer',
+                                    initialCustomerCoords: initialCoords,
+                                    peerName,
+                                    peerAvatar,
+                                    myName,
+                                    myAvatar,
+                                    peerUserId
+                                });
+                            } else if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.map) {
+                                setTimeout(() => {
+                                    try { window.deliveryTrackerInstance.map?.invalidateSize(); } catch (_) {}
+                                }, 100);
                             }
-
-                            window.deliveryTrackerInstance.start({
-                                orderId: order.id,
-                                role: 'vendor',
-                                container: '#vendorDeliveryTrackingContainer',
-                                initialCustomerCoords: initialCoords,
-                                peerName,
-                                peerAvatar,
-                                myName,
-                                myAvatar,
-                                peerUserId
-                            });
                         }
                     } else if (order.status === 'DELIVERED') {
                         actions.classList.remove('hidden');
@@ -6866,8 +6874,7 @@
                                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Devis de livraison</p>
                                         <h3 class="text-lg font-black text-gray-900 truncate">${currentQuote ? 'Modifier le devis' : 'Proposer un devis'}</h3>
                                         <div class="mt-2 p-2 bg-blue-50 rounded-lg text-xs text-blue-900">
-                                            <p class="font-bold">📍 Localisation client: <span class="font-normal">${order?.customer_city || 'Non précisée'}</span></p>
-                                            ${(order?.customer_lat && order?.customer_lng) ? `<a href="#" onclick="event.preventDefault(); window.openMapUrl('${order.customer_lat}','${order.customer_lng}');" class="text-[10px] font-bold text-blue-600 hover:underline mt-1 inline-block">Voir sur la carte</a>` : ''}
+                                            <p class="font-bold">📍 Quartier / Ville client: <span class="font-normal">${order?.customer_city || 'Non précisée'}</span></p>
                                         </div>
                                         <p class="text-xs text-gray-500 mt-2">Le client doit accepter avant de payer. Paiement en séquestre.</p>
                                     </div>
