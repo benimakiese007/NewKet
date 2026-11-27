@@ -5120,6 +5120,7 @@
                     document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
                     
                     const isVendorDeliveryActive = ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED'].includes(String(order.status || '').toUpperCase());
+                    console.log('[Delivery:Flow] 🏪 Vendeur | Commande #' + (order.id || '?') + ' | status=' + order.status + ' | GPS=' + (isVendorDeliveryActive ? 'SHOWN' : 'HIDDEN'));
                     const cityEl = document.getElementById('vModalCustomerCity');
                     cityEl.textContent = order.customer_city || 'Ville non précisée';
                     const gpsEl = document.getElementById('vModalCustomerGPS');
@@ -5267,10 +5268,12 @@
                     const disputedSection = document.getElementById('vDisputedSection');
                     const deliveredSection = document.getElementById('vDeliveredSection');
                     
-                    const isVendorOrderInDelivery = order.status === 'IN_DELIVERY';
+                    const isVendorOrderInDelivery = String(order.status || '').toUpperCase() === 'IN_DELIVERY';
                     if (!isVendorOrderInDelivery) {
                         if (window.deliveryTrackerInstance) {
+                            console.log('[Delivery:Flow] 🏪 Vendeur | Order not in delivery, tearing down active tracker | status=' + order.status);
                             window.deliveryTrackerInstance.destroy();
+                            window.deliveryTrackerInstance = null;
                         }
                         if (vendorTrackingSection) vendorTrackingSection.classList.add('hidden');
                     }
@@ -5326,10 +5329,13 @@
                                 && window.deliveryTrackerInstance.callState !== 'idle';
 
                             const isAlreadyTrackingSameOrder = window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === order.id;
+                            console.log('[Delivery:Flow] 🏪 Vendeur | IN_DELIVERY check | alreadyTracking=' + isAlreadyTrackingSameOrder + ' | callActive=' + isSameOrderCallActive);
                             if (!isSameOrderCallActive && !isAlreadyTrackingSameOrder) {
                                 if (window.deliveryTrackerInstance) {
+                                    console.log('[Delivery:Flow] 🏪 Vendeur | Destroying old tracker for new order/session');
                                     window.deliveryTrackerInstance.destroy();
                                 }
+                                console.log('[Delivery:Flow] 🏪 Vendeur | Starting new DeliveryTracker for order #' + order.id);
                                 window.deliveryTrackerInstance = new window.DeliveryTracker();
                                 window.deliveryTrackerInstance.start({
                                     orderId: order.id,
@@ -5343,6 +5349,7 @@
                                     peerUserId
                                 });
                             } else if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.map) {
+                                console.log('[Delivery:Flow] 🏪 Vendeur | Preserving tracker for same order, scheduling invalidateSize');
                                 setTimeout(() => {
                                     try { window.deliveryTrackerInstance.map?.invalidateSize(); } catch (_) {}
                                 }, 100);
@@ -5397,8 +5404,10 @@
                 };
 
                 window.closeOrderDetailModal = function() {
+                    console.log('[Delivery:Flow] 🏪 Vendeur | closeOrderDetailModal called | trackerExists=' + !!window.deliveryTrackerInstance);
                     if (window.deliveryTrackerInstance) {
                         window.deliveryTrackerInstance.destroy();
+                        window.deliveryTrackerInstance = null;
                     }
                     const modal = document.getElementById('orderDetailModal');
                     if (modal) {

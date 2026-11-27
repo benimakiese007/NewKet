@@ -3643,6 +3643,7 @@
         }
 
         function renderOrderModalDetails(order) {
+            console.log('[Delivery:Flow] 📦 Commande #' + (order?.id || '?') + ' | status=' + order?.status + ' | trackerExists=' + !!window.deliveryTrackerInstance);
             document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
             const _rawDate = order?.date || order?.created_at || order?.createdAt || order?.timestamp || order?.updated_at;
             const _d = _rawDate ? new Date(_rawDate) : new Date();
@@ -3739,9 +3740,15 @@
             const releaseDelayHint = document.getElementById('releaseDelayHint');
 
             const customerTrackingSection = document.getElementById('customerDeliveryTrackingSection');
-            const isCustomerOrderInDelivery = order.status === 'IN_DELIVERY' || order.status === 'SHIPPED';
+            const _custStatus = String(order?.status || '').toUpperCase();
+            const isCustomerOrderInDelivery = _custStatus === 'IN_DELIVERY' || _custStatus === 'SHIPPED';
             if (customerTrackingSection && !isCustomerOrderInDelivery) {
                 customerTrackingSection.classList.add('hidden');
+                if (window.deliveryTrackerInstance) {
+                    console.log('[Delivery:Flow] 📱 Client | Order not in delivery, tearing down active tracker | status=' + _custStatus);
+                    window.deliveryTrackerInstance.destroy();
+                    window.deliveryTrackerInstance = null;
+                }
             }
 
             escrowSection.classList.add('hidden');
@@ -3850,10 +3857,14 @@
 
                     const isAlreadyTrackingSameOrder = window.deliveryTrackerInstance && window.deliveryTrackerInstance.orderId === order.id;
 
+                    console.log('[Delivery:Flow] 📱 Client | IN_DELIVERY check | alreadyTracking=' + isAlreadyTrackingSameOrder + ' | callActive=' + isSameOrderCallActive);
+
                     if (!isSameOrderCallActive && !isAlreadyTrackingSameOrder) {
                         if (window.deliveryTrackerInstance) {
+                            console.log('[Delivery:Flow] 📱 Client | Destroying old tracker for new order/session');
                             window.deliveryTrackerInstance.destroy();
                         }
+                        console.log('[Delivery:Flow] 📱 Client | Starting new DeliveryTracker for order #' + order.id);
                         window.deliveryTrackerInstance = new window.DeliveryTracker();
                         window.deliveryTrackerInstance.start({
                             orderId: order.id,
@@ -3867,6 +3878,7 @@
                             peerUserId
                         });
                     } else if (window.deliveryTrackerInstance && window.deliveryTrackerInstance.map) {
+                        console.log('[Delivery:Flow] 📱 Client | Preserving tracker for same order, scheduling invalidateSize');
                         setTimeout(() => {
                             try { window.deliveryTrackerInstance.map?.invalidateSize(); } catch (_) {}
                         }, 100);
@@ -3909,6 +3921,7 @@
         async function openOrderModal(id) {
             // 1. Ouvrir le modal IMMÉDIATEMENT à partir du cache local (0 milliseconde de latence)
             let order = OrderManager.getOrders().find(o => o.id === id);
+            console.log('[Delivery:Flow] 📦 Commande #' + id + ' | opening modal | cache status=' + (order?.status || 'NOT_IN_CACHE'));
             if (releaseCountdownTimer) {
                 clearInterval(releaseCountdownTimer);
                 releaseCountdownTimer = null;
@@ -3927,6 +3940,7 @@
                 if (window.ApiClient) {
                     const fresh = await ApiClient.get(`/orders/${id}`);
                     if (fresh && fresh.id) {
+                        console.log('[Delivery:Flow] 📦 Commande #' + id + ' | fresh status=' + fresh?.status);
                         const idx = OrderManager.data?.findIndex?.(o => o.id === id);
                         if (idx !== undefined && idx !== -1) OrderManager.data[idx] = fresh;
 
@@ -4548,8 +4562,10 @@
         // ========================================================================
 
         function closeOrderModal() {
+            console.log('[Delivery:Flow] 📱 Client | closeOrderModal called | trackerExists=' + !!window.deliveryTrackerInstance);
             if (window.deliveryTrackerInstance) {
                 window.deliveryTrackerInstance.destroy();
+                window.deliveryTrackerInstance = null;
             }
             if (releaseCountdownTimer) {
                 clearInterval(releaseCountdownTimer);
