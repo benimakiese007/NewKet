@@ -419,6 +419,14 @@ const AuthManager = {
         this.status = null;
         this.user = null;
 
+        // Reset notifications
+        if (window.NotificationManager) {
+            window.NotificationManager.notifications = [];
+            window.NotificationManager.updateBadge();
+        }
+        localStorage.removeItem('newket_cached_notifications');
+        localStorage.removeItem('newket_notifications_sync_time');
+
         // Wipe storage
         this.clearSession();
 

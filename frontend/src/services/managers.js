@@ -224,8 +224,21 @@ const ActivityManager = {
 
 // ========== NOTIFICATION MANAGER ==========
 const NotificationManager = {
+    _isUserLoggedIn() {
+        return !!(
+            window.AuthManager?.user?.id ||
+            localStorage.getItem('newketUserId') ||
+            localStorage.getItem('newketUserEmail')
+        );
+    },
+
     notifications: (() => {
         try {
+            const hasUser = !!(
+                localStorage.getItem('newketUserId') ||
+                localStorage.getItem('newketUserEmail')
+            );
+            if (!hasUser) return [];
             const raw = localStorage.getItem('newket_cached_notifications');
             return raw ? JSON.parse(raw) : [];
         } catch (_) {
@@ -236,12 +249,6 @@ const NotificationManager = {
     async fetchFromSupabase() {
         if (!window.supabaseClient) return [];
         try {
-            let query = window.supabaseClient
-                .from('notifications')
-                .select('id, user_id, user_email, title, message, type, target_role, read, date')
-                .order('date', { ascending: false })
-                .limit(50);
-
             let user = window.AuthManager?.user;
             if (!user && window.supabaseClient.auth) {
                 try {
@@ -252,20 +259,33 @@ const NotificationManager = {
 
             const userEmail = user?.email || localStorage.getItem('newketUserEmail') || '';
             const userId = user?.id || localStorage.getItem('newketUserId') || '';
-            const userRole = localStorage.getItem('newketRole') || 'customer';
+            const userRole = localStorage.getItem('newketRole') || '';
+
+            // SÉCURITÉ & CONFIDENTIALITÉ :
+            // Si l'utilisateur n'est pas connecté (mode invité), NE JAMAIS charger de notifications privées !
+            if (!userId && !userEmail) {
+                console.log('[NotificationManager] Mode invité : aucune notification personnelle.');
+                return [];
+            }
+
+            let query = window.supabaseClient
+                .from('notifications')
+                .select('id, user_id, user_email, title, message, type, target_role, read, date')
+                .order('date', { ascending: false })
+                .limit(50);
 
             if (userRole === 'admin') {
                 // Admin voit toutes les notifications
             } else {
-                const mappedTargets = (userRole === 'supplier' || userRole === 'seller' || userRole === 'vendor')
-                    ? 'target_role.eq.supplier,target_role.eq.suppliers'
-                    : 'target_role.eq.customer,target_role.eq.customers';
+                let conditions = ['target_role.eq.all'];
+                if (userId) conditions.push(`user_id.eq.${userId}`);
+                if (userEmail) conditions.push(`user_email.eq.${userEmail}`);
 
-                let condition = `target_role.eq.all,${mappedTargets}`;
-                if (userId) condition += `,user_id.eq.${userId}`;
-                if (userEmail) condition += `,user_email.eq.${userEmail}`;
+                if (userRole === 'supplier' || userRole === 'seller' || userRole === 'vendor') {
+                    conditions.push('target_role.eq.supplier,target_role.eq.suppliers');
+                }
 
-                query = query.or(condition);
+                query = query.or(conditions.join(','));
             }
 
             const { data, error } = await query;
@@ -280,6 +300,13 @@ const NotificationManager = {
     },
 
     async init(force = false) {
+        if (!this._isUserLoggedIn()) {
+            this.notifications = [];
+            this.updateBadge();
+            window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+            return;
+        }
+
         if (this._fetchPromise) {
             await this._fetchPromise;
             this.updateBadge();
@@ -346,7 +373,7 @@ const NotificationManager = {
     },
 
     _setupRealtime() {
-        if (this._realtimeSubscription || !window.supabaseClient) return;
+        if (!this._isUserLoggedIn() || this._realtimeSubscription || !window.supabaseClient) return;
         this._realtimeSubscription = window.supabaseClient
             .channel('public:notifications:manager')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, (payload) => {
@@ -448,16 +475,18 @@ const NotificationManager = {
         return false;
     },
     updateBadge() {
-        const unreadCount = this.getUnreadCount();
-        console.log(`[NotificationManager] updateBadge: ${unreadCount} non lues (sur ${this.notifications.length} totales)`);
+        const isLoggedIn = this._isUserLoggedIn();
+        const unreadCount = isLoggedIn ? this.getUnreadCount() : 0;
+        console.log(`[NotificationManager] updateBadge: ${unreadCount} non lues (connecté: ${isLoggedIn}, ${this.notifications.length} totales)`);
         const badges = document.querySelectorAll('.notification-badge, #notificationBadge, #mobileNotificationBadge, #desktopNotificationsBadge, #desktopNotificationBadge');
         badges.forEach(badge => {
-            if (unreadCount > 0) {
+            if (isLoggedIn && unreadCount > 0) {
                 badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
                 badge.style.setProperty('display', 'flex', 'important');
                 badge.classList.remove('hidden');
             } else {
                 badge.style.setProperty('display', 'none', 'important');
+                badge.classList.add('hidden');
             }
         });
     },

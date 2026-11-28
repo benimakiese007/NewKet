@@ -334,14 +334,11 @@ class DrawersManager {
                 </div>
 
                 <!-- Footer -->
-                <div class="drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 flex items-center justify-between" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));">
-                    <button onclick="window.DrawersManager.clearAllNotifications()" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
+                <div class="drawer-footer bg-white border-t border-gray-100 p-4 shrink-0 flex items-center justify-center" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));">
+                    <button onclick="window.DrawersManager.clearAllNotifications()" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors inline-flex items-center gap-1.5 py-1 px-3 rounded-lg hover:bg-red-50">
+                        <iconify-icon icon="solar:trash-bin-trash-linear" width="15"></iconify-icon>
                         Effacer l'historique
                     </button>
-                    <a href="/notifications" onclick="window.DrawersManager.closeNotifications()" class="text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors inline-flex items-center gap-1">
-                        Page complète
-                        <iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon>
-                    </a>
                 </div>
             </div>
         `;
@@ -379,6 +376,14 @@ class DrawersManager {
         `;
     }
 
+    _isUserLoggedIn() {
+        return !!(
+            window.AuthManager?.user?.id ||
+            localStorage.getItem('newketUserId') ||
+            localStorage.getItem('newketUserEmail')
+        );
+    }
+
     async openNotifications() {
         console.log('[DrawersManager] openNotifications: ouverture du tiroir');
         // If on notifications.html itself, do nothing
@@ -390,6 +395,27 @@ class DrawersManager {
         }
 
         this.injectNotificationsUI();
+
+        // En mode invité (non connecté) : aucune notification personnelle
+        if (!this._isUserLoggedIn()) {
+            if (window.NotificationManager) {
+                window.NotificationManager.notifications = [];
+                window.NotificationManager.updateBadge();
+            }
+            this.renderNotifications();
+            setTimeout(() => {
+                const el = document.getElementById('notificationsSlideOver');
+                const overlay = document.getElementById('notificationsOverlay');
+                if (!el || !overlay) return;
+
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                el.classList.remove('translate-x-full');
+                this._lockScroll();
+                this.activeDrawer = 'notifications';
+                try { window.dispatchEvent(new CustomEvent('nativeOverlayOpen')); } catch (_) {}
+            }, 10);
+            return;
+        }
 
         // Check if we have cached notifications to display immediately
         let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
@@ -515,22 +541,27 @@ class DrawersManager {
         const countText = document.getElementById('drawerNotifCount');
         if (!container) return;
 
-        let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
-        if (!notifs || notifs.length === 0) {
+        const isLoggedIn = this._isUserLoggedIn();
+        let notifs = (isLoggedIn && window.NotificationManager) ? window.NotificationManager.getNotifications() : [];
+        if (isLoggedIn && (!notifs || notifs.length === 0)) {
             try {
                 const cached = localStorage.getItem('newket_cached_notifications');
                 if (cached) notifs = JSON.parse(cached);
             } catch (_) {}
         }
-        if (!Array.isArray(notifs)) notifs = [];
+        if (!isLoggedIn || !Array.isArray(notifs)) notifs = [];
 
         const unreadCount = notifs.filter(n => !n.read).length;
-        console.log(`[DrawersManager] renderNotifications: ${notifs.length} reçues, ${unreadCount} non lues, filtre="${this.notifFilter}"`);
+        console.log(`[DrawersManager] renderNotifications: ${notifs.length} reçues, ${unreadCount} non lues, filtre="${this.notifFilter}", connecté=${isLoggedIn}`);
 
         if (countText) {
-            countText.textContent = unreadCount > 0
-                ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}`
-                : 'Toutes les notifications sont lues';
+            if (!isLoggedIn) {
+                countText.textContent = '0 notification';
+            } else {
+                countText.textContent = unreadCount > 0
+                    ? `${unreadCount} non lue${unreadCount > 1 ? 's' : ''}`
+                    : 'Toutes les notifications sont lues';
+            }
         }
 
         const filtered = notifs.filter(n => {
