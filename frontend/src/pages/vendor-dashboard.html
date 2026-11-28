@@ -1297,6 +1297,12 @@
                                     <span id="vModalOrderTotal" class="text-2xl font-black text-gray-900">0 FC</span>
                                 </div>
                             </div>
+
+                            <!-- Bouton Facture PDF visible sur Tab 1 Vendeur -->
+                            <button type="button" onclick="downloadInvoice()" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-sm active:scale-[0.98]">
+                                <iconify-icon icon="solar:download-minimalistic-linear" width="18"></iconify-icon>
+                                <span>Facture PDF</span>
+                            </button>
                         </div>
 
                         <!-- Pane 2: Client Details & Live Delivery Tracking -->
@@ -1436,6 +1442,12 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Bouton Facture PDF visible sur Tab 3 Vendeur (Actions) -->
+                            <button type="button" onclick="downloadInvoice()" class="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-sm active:scale-[0.98]">
+                                <iconify-icon icon="solar:download-minimalistic-linear" width="18"></iconify-icon>
+                                <span>Facture PDF</span>
+                            </button>
                         </div>
                         
                         <!-- Option A Note -->
@@ -5160,6 +5172,8 @@
                 window.openOrderDetailModal = async function(orderId) {
                     const order = OrderManager.getOrderById(orderId);
                     if (!order) return;
+                    currentSelectedOrder = order;
+                    console.log(`[OrderDetailModal] 📦 Commande #${order.id} sélectionnée`);
 
                     // Header Info
                     document.getElementById('vModalOrderId').textContent = `Commande #${order.id.substring(0, 8)}`;
@@ -9010,31 +9024,58 @@ async function openOrderModal(id) {
         }
 
         async function downloadInvoice() {
-            if (!currentSelectedOrder) {
-                console.warn('[Facture] ⚠️ Aucune commande sélectionnée.');
+            console.log('[Facture] 📥 [Vendeur] Clic sur le bouton Facture PDF');
+            let o = currentSelectedOrder;
+            if (!o) {
+                // Secours : récupérer la commande depuis l'en-tête de la modale ouverte
+                const headerText = document.getElementById('vModalOrderId')?.textContent || '';
+                const match = headerText.match(/#?([A-Za-z0-9_-]+)/);
+                if (match && window.OrderManager) {
+                    o = OrderManager.getOrderById(match[1]) || OrderManager.getOrders().find(item => item.id && item.id.includes(match[1]));
+                    if (o) currentSelectedOrder = o;
+                }
+            }
+
+            if (!o) {
+                console.warn('[Facture] ⚠️ Aucune commande active trouvée.');
+                if (window.showToast) window.showToast('Veuillez d\'abord ouvrir les détails d\'une commande.', 'warning');
                 return;
             }
 
-            const o = currentSelectedOrder;
-            console.log(`[Facture] 📄 Préparation de la facture pour la commande #${o.id}`);
+            console.log(`[Facture] 📄 [Vendeur] Préparation de la facture pour #${o.id}`);
 
             try {
                 const amounts = getOrderAmounts(o);
-                const qrReference = await buildInvoiceQrReference(o, amounts);
-                const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
-                const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
+                let qrReference = 'NK-' + String(o.id || '').replace(/^ORD_/, '').slice(0, 10).toUpperCase();
+                let qrTargetUrl = `/facture/${o.id}`;
+                let qrImageSrc = '';
 
-                document.getElementById('invId').textContent = '#' + o.id;
+                try {
+                    qrReference = await buildInvoiceQrReference(o, amounts);
+                    qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                    qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
+                } catch (qrErr) {
+                    console.warn('[Facture] QR warning (absorbé):', qrErr);
+                }
+
+                const setElText = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                };
+
+                setElText('invId', '#' + o.id);
                 const _invRawDate = o?.date || o?.created_at || o?.createdAt || o?.timestamp || o?.updated_at;
                 const _invD = _invRawDate ? new Date(_invRawDate) : new Date();
-                document.getElementById('invDate').textContent = (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR', {
+                setElText('invDate', (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR', {
                     year: 'numeric', month: 'long', day: 'numeric'
-                });
-                document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
-                document.getElementById('invEmail').textContent = o.customer?.email || '';
-                document.getElementById('invVendor').textContent = getVendorDisplayName(o);
-                document.getElementById('invQrCode').textContent = qrReference;
-                document.getElementById('invQrImage').src = qrImageSrc;
+                }));
+                setElText('invClient', o.customer?.name || o.customer_name || 'Client NewKet');
+                setElText('invEmail', o.customer?.email || o.customer_email || '');
+                setElText('invVendor', getVendorDisplayName(o));
+                setElText('invQrCode', qrReference);
+
+                const qrImgEl = document.getElementById('invQrImage');
+                if (qrImgEl && qrImageSrc) qrImgEl.src = qrImageSrc;
 
                 const promoCode = String(o.promo_code || '').trim().toUpperCase();
                 const discountAmount = Number(amounts.discount || 0);
@@ -9049,19 +9090,30 @@ async function openOrderModal(id) {
                 if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
 
                 const invRate = parseFloat(o?.items?.[0]?.custom_exchange_rate || 0) || null;
-                const fmt = (v) => CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate);
+                const fmt = (v) => CurrencyManager ? CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate) : `${v} FC`;
+
+                // Sécurisation robuste du parsing des articles
+                let rawItems = o.items;
+                if (typeof rawItems === 'string') {
+                    try { rawItems = JSON.parse(rawItems); } catch (_) { rawItems = []; }
+                }
+                if (!Array.isArray(rawItems)) {
+                    rawItems = rawItems && typeof rawItems === 'object' ? Object.values(rawItems) : [];
+                }
 
                 const invItems = document.getElementById('invItems');
-                invItems.innerHTML = (o.items || []).map(item => `
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px 0;">${item.name || 'Article'}</td>
-                        <td style="padding: 10px 0; text-align: center;">${item.quantity || 1}</td>
-                        <td style="padding: 10px 0; text-align: right;">${fmt(item.price)}</td>
-                        <td style="padding: 10px 0; text-align: right;">${fmt(item.price * (item.quantity || 1))}</td>
-                    </tr>
-                `).join('');
+                if (invItems) {
+                    invItems.innerHTML = rawItems.map(item => `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px 0;">${item?.name || item?.title || 'Article'}</td>
+                            <td style="padding: 10px 0; text-align: center;">${item?.quantity || 1}</td>
+                            <td style="padding: 10px 0; text-align: right;">${fmt(item?.price || 0)}</td>
+                            <td style="padding: 10px 0; text-align: right;">${fmt((item?.price || 0) * (item?.quantity || 1))}</td>
+                        </tr>
+                    `).join('');
+                }
 
-                document.getElementById('invSubtotal').textContent = fmt(amounts.subtotal);
+                setElText('invSubtotal', fmt(amounts.subtotal));
                 if (discountRow && discountValue) {
                     const hasDiscount = discountAmount > 0;
                     hasDiscount ? discountRow.classList.remove('hidden') : discountRow.classList.add('hidden');
@@ -9072,10 +9124,21 @@ async function openOrderModal(id) {
                     hasPromoCode ? promoCodeRow.classList.remove('hidden') : promoCodeRow.classList.add('hidden');
                     promoCodeValue.textContent = promoCode;
                 }
-                document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
-                    ? fmt(amounts.deliveryFee)
-                    : 'Gratuit';
-                document.getElementById('invTotal').textContent = fmt(amounts.total);
+                setElText('invDelivery', amounts.deliveryFee > 0 ? fmt(amounts.deliveryFee) : 'Gratuit');
+
+                const payinRow = document.getElementById('invPayinRow');
+                const payinEl = document.getElementById('invPayin');
+                if (payinRow && payinEl) {
+                    let payinFee = amounts.payinFee;
+                    if (!(payinFee > 0)) {
+                        const inferred = amounts.total - amounts.subtotal - amounts.deliveryFee + amounts.discount;
+                        if (inferred > 0.01) payinFee = inferred;
+                    }
+                    const hasPayin = payinFee > 0;
+                    hasPayin ? payinRow.classList.remove('hidden') : payinRow.classList.add('hidden');
+                    payinEl.textContent = hasPayin ? fmt(payinFee) : '';
+                }
+                setElText('invTotal', fmt(amounts.total));
 
                 // Inject into invoiceModalContent
                 const template = document.getElementById('invoiceTemplate');
@@ -9092,17 +9155,27 @@ async function openOrderModal(id) {
                     shareBtn.classList.remove('hidden');
                 }
 
-                // Open in-app invoice modal
+                // Masquer temporairement la modale de commande vendeur pour afficher la facture
+                try {
+                    const ord = document.getElementById('orderDetailModal');
+                    if (ord) { ord.classList.add('hidden'); ord.style.display = 'none'; }
+                } catch (_) {}
+
+                // Ouvrir la modale facture
                 const modal = document.getElementById('invoiceModal');
                 if (modal) {
                     modal.classList.remove('hidden');
-                    modal.style.display = 'flex';
-                    console.log(`[Facture] ✅ Modale facture ouverte avec succès pour #${o.id}`);
+                    modal.style.setProperty('display', 'flex', 'important');
+                    document.body.style.overflow = 'hidden';
+                    console.log(`[Facture] ✅ [Vendeur] Modale facture ouverte avec succès pour #${o.id}`);
+                    if (window.showToast) window.showToast('Facture chargée avec succès', 'success');
+                } else {
+                    console.warn('[Facture] Élément #invoiceModal introuvable');
                 }
             } catch (err) {
                 console.error(`[Facture] ❌ Erreur lors de la préparation de la facture:`, err);
-                if (window.showInlineMessage) {
-                    showInlineMessage('client-modal-feedback', 'Impossible d\'ouvrir la facture.', 'error');
+                if (window.showToast) {
+                    window.showToast('Erreur lors de l\'ouverture de la facture.', 'error');
                 }
             }
         }
@@ -9113,6 +9186,12 @@ async function openOrderModal(id) {
             if (modal) {
                 modal.classList.add('hidden');
                 modal.style.display = 'none';
+            }
+            const ord = document.getElementById('orderDetailModal');
+            if (ord) {
+                ord.classList.remove('hidden');
+                ord.style.setProperty('display', 'flex', 'important');
+                document.body.style.overflow = 'hidden';
             }
         }
 
@@ -9865,6 +9944,10 @@ async function openOrderModal(id) {
                     <div class="invoice-total-row">
                         <span>Livraison</span>
                         <strong id="invDelivery"></strong>
+                    </div>
+                    <div class="invoice-total-row hidden" id="invPayinRow">
+                        <span>Frais de protection</span>
+                        <strong id="invPayin"></strong>
                     </div>
                     <div class="invoice-total-row invoice-total-row--grand">
                         <span>Total</span>
