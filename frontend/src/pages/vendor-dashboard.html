@@ -1297,12 +1297,6 @@
                                     <span id="vModalOrderTotal" class="text-2xl font-black text-gray-900">0 FC</span>
                                 </div>
                             </div>
-
-                            <!-- Bouton Facture PDF visible sur Tab 1 Vendeur -->
-                            <button type="button" onclick="downloadInvoice()" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-sm active:scale-[0.98]">
-                                <iconify-icon icon="solar:download-minimalistic-linear" width="18"></iconify-icon>
-                                <span>Facture PDF</span>
-                            </button>
                         </div>
 
                         <!-- Pane 2: Client Details & Live Delivery Tracking -->
@@ -1442,12 +1436,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Bouton Facture PDF visible sur Tab 3 Vendeur (Actions) -->
-                            <button type="button" onclick="downloadInvoice()" class="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-sm active:scale-[0.98]">
-                                <iconify-icon icon="solar:download-minimalistic-linear" width="18"></iconify-icon>
-                                <span>Facture PDF</span>
-                            </button>
                         </div>
                         
                         <!-- Option A Note -->
@@ -5172,8 +5160,6 @@
                 window.openOrderDetailModal = async function(orderId) {
                     const order = OrderManager.getOrderById(orderId);
                     if (!order) return;
-                    currentSelectedOrder = order;
-                    console.log(`[OrderDetailModal] 📦 Commande #${order.id} sélectionnée`);
 
                     // Header Info
                     document.getElementById('vModalOrderId').textContent = `Commande #${order.id.substring(0, 8)}`;
@@ -9024,58 +9010,31 @@ async function openOrderModal(id) {
         }
 
         async function downloadInvoice() {
-            console.log('[Facture] 📥 [Vendeur] Clic sur le bouton Facture PDF');
-            let o = currentSelectedOrder;
-            if (!o) {
-                // Secours : récupérer la commande depuis l'en-tête de la modale ouverte
-                const headerText = document.getElementById('vModalOrderId')?.textContent || '';
-                const match = headerText.match(/#?([A-Za-z0-9_-]+)/);
-                if (match && window.OrderManager) {
-                    o = OrderManager.getOrderById(match[1]) || OrderManager.getOrders().find(item => item.id && item.id.includes(match[1]));
-                    if (o) currentSelectedOrder = o;
-                }
-            }
-
-            if (!o) {
-                console.warn('[Facture] ⚠️ Aucune commande active trouvée.');
-                if (window.showToast) window.showToast('Veuillez d\'abord ouvrir les détails d\'une commande.', 'warning');
+            if (!currentSelectedOrder) {
+                console.warn('[Facture] ⚠️ Aucune commande sélectionnée.');
                 return;
             }
 
-            console.log(`[Facture] 📄 [Vendeur] Préparation de la facture pour #${o.id}`);
+            const o = currentSelectedOrder;
+            console.log(`[Facture] 📄 Préparation de la facture pour la commande #${o.id}`);
 
             try {
                 const amounts = getOrderAmounts(o);
-                let qrReference = 'NK-' + String(o.id || '').replace(/^ORD_/, '').slice(0, 10).toUpperCase();
-                let qrTargetUrl = `/facture/${o.id}`;
-                let qrImageSrc = '';
+                const qrReference = await buildInvoiceQrReference(o, amounts);
+                const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
 
-                try {
-                    qrReference = await buildInvoiceQrReference(o, amounts);
-                    qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
-                    qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
-                } catch (qrErr) {
-                    console.warn('[Facture] QR warning (absorbé):', qrErr);
-                }
-
-                const setElText = (id, text) => {
-                    const el = document.getElementById(id);
-                    if (el) el.textContent = text;
-                };
-
-                setElText('invId', '#' + o.id);
+                document.getElementById('invId').textContent = '#' + o.id;
                 const _invRawDate = o?.date || o?.created_at || o?.createdAt || o?.timestamp || o?.updated_at;
                 const _invD = _invRawDate ? new Date(_invRawDate) : new Date();
-                setElText('invDate', (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR', {
+                document.getElementById('invDate').textContent = (isNaN(_invD.getTime()) ? new Date() : _invD).toLocaleDateString('fr-FR', {
                     year: 'numeric', month: 'long', day: 'numeric'
-                }));
-                setElText('invClient', o.customer?.name || o.customer_name || 'Client NewKet');
-                setElText('invEmail', o.customer?.email || o.customer_email || '');
-                setElText('invVendor', getVendorDisplayName(o));
-                setElText('invQrCode', qrReference);
-
-                const qrImgEl = document.getElementById('invQrImage');
-                if (qrImgEl && qrImageSrc) qrImgEl.src = qrImageSrc;
+                });
+                document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
+                document.getElementById('invEmail').textContent = o.customer?.email || '';
+                document.getElementById('invVendor').textContent = getVendorDisplayName(o);
+                document.getElementById('invQrCode').textContent = qrReference;
+                document.getElementById('invQrImage').src = qrImageSrc;
 
                 const promoCode = String(o.promo_code || '').trim().toUpperCase();
                 const discountAmount = Number(amounts.discount || 0);
@@ -9090,30 +9049,19 @@ async function openOrderModal(id) {
                 if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
 
                 const invRate = parseFloat(o?.items?.[0]?.custom_exchange_rate || 0) || null;
-                const fmt = (v) => CurrencyManager ? CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate) : `${v} FC`;
-
-                // Sécurisation robuste du parsing des articles
-                let rawItems = o.items;
-                if (typeof rawItems === 'string') {
-                    try { rawItems = JSON.parse(rawItems); } catch (_) { rawItems = []; }
-                }
-                if (!Array.isArray(rawItems)) {
-                    rawItems = rawItems && typeof rawItems === 'object' ? Object.values(rawItems) : [];
-                }
+                const fmt = (v) => CurrencyManager.formatPrice(Number(v || 0), undefined, true, invRate);
 
                 const invItems = document.getElementById('invItems');
-                if (invItems) {
-                    invItems.innerHTML = rawItems.map(item => `
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px 0;">${item?.name || item?.title || 'Article'}</td>
-                            <td style="padding: 10px 0; text-align: center;">${item?.quantity || 1}</td>
-                            <td style="padding: 10px 0; text-align: right;">${fmt(item?.price || 0)}</td>
-                            <td style="padding: 10px 0; text-align: right;">${fmt((item?.price || 0) * (item?.quantity || 1))}</td>
-                        </tr>
-                    `).join('');
-                }
+                invItems.innerHTML = (o.items || []).map(item => `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px 0;">${item.name || 'Article'}</td>
+                        <td style="padding: 10px 0; text-align: center;">${item.quantity || 1}</td>
+                        <td style="padding: 10px 0; text-align: right;">${fmt(item.price)}</td>
+                        <td style="padding: 10px 0; text-align: right;">${fmt(item.price * (item.quantity || 1))}</td>
+                    </tr>
+                `).join('');
 
-                setElText('invSubtotal', fmt(amounts.subtotal));
+                document.getElementById('invSubtotal').textContent = fmt(amounts.subtotal);
                 if (discountRow && discountValue) {
                     const hasDiscount = discountAmount > 0;
                     hasDiscount ? discountRow.classList.remove('hidden') : discountRow.classList.add('hidden');
@@ -9124,21 +9072,10 @@ async function openOrderModal(id) {
                     hasPromoCode ? promoCodeRow.classList.remove('hidden') : promoCodeRow.classList.add('hidden');
                     promoCodeValue.textContent = promoCode;
                 }
-                setElText('invDelivery', amounts.deliveryFee > 0 ? fmt(amounts.deliveryFee) : 'Gratuit');
-
-                const payinRow = document.getElementById('invPayinRow');
-                const payinEl = document.getElementById('invPayin');
-                if (payinRow && payinEl) {
-                    let payinFee = amounts.payinFee;
-                    if (!(payinFee > 0)) {
-                        const inferred = amounts.total - amounts.subtotal - amounts.deliveryFee + amounts.discount;
-                        if (inferred > 0.01) payinFee = inferred;
-                    }
-                    const hasPayin = payinFee > 0;
-                    hasPayin ? payinRow.classList.remove('hidden') : payinRow.classList.add('hidden');
-                    payinEl.textContent = hasPayin ? fmt(payinFee) : '';
-                }
-                setElText('invTotal', fmt(amounts.total));
+                document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
+                    ? fmt(amounts.deliveryFee)
+                    : 'Gratuit';
+                document.getElementById('invTotal').textContent = fmt(amounts.total);
 
                 // Inject into invoiceModalContent
                 const template = document.getElementById('invoiceTemplate');
@@ -9155,97 +9092,66 @@ async function openOrderModal(id) {
                     shareBtn.classList.remove('hidden');
                 }
 
-                // Masquer temporairement la modale de commande vendeur pour afficher la facture
-                try {
-                    const ord = document.getElementById('orderDetailModal');
-                    if (ord) { ord.classList.add('hidden'); ord.style.display = 'none'; }
-                } catch (_) {}
-
-                // Ouvrir la modale facture
+                // Open in-app invoice modal
                 const modal = document.getElementById('invoiceModal');
                 if (modal) {
                     modal.classList.remove('hidden');
-                    modal.style.setProperty('display', 'flex', 'important');
-                    document.body.style.overflow = 'hidden';
-                    try { window.history.pushState({ nk_invoice_modal: true }, ''); } catch (_) {}
-                    console.log(`[Facture] ✅ [Vendeur] Modale facture ouverte avec succès pour #${o.id}`);
-                    if (window.showToast) window.showToast('Facture chargée avec succès', 'success');
-                } else {
-                    console.warn('[Facture] Élément #invoiceModal introuvable');
+                    modal.style.display = 'flex';
+                    console.log(`[Facture] ✅ Modale facture ouverte avec succès pour #${o.id}`);
                 }
             } catch (err) {
                 console.error(`[Facture] ❌ Erreur lors de la préparation de la facture:`, err);
-                if (window.showToast) {
-                    window.showToast('Erreur lors de l\'ouverture de la facture.', 'error');
+                if (window.showInlineMessage) {
+                    showInlineMessage('client-modal-feedback', 'Impossible d\'ouvrir la facture.', 'error');
                 }
             }
         }
 
-        function closeInvoiceModal(fromHistory = false) {
+        function closeInvoiceModal() {
             console.log('[Facture] 🚪 Fermeture de la modale facture');
             const modal = document.getElementById('invoiceModal');
             if (modal) {
                 modal.classList.add('hidden');
                 modal.style.display = 'none';
             }
-            if (!fromHistory && window.history.state?.nk_invoice_modal) {
-                try { window.history.back(); } catch (_) {}
-            }
-            const ord = document.getElementById('orderDetailModal');
-            if (ord) {
-                ord.classList.remove('hidden');
-                ord.style.setProperty('display', 'flex', 'important');
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
         }
-
-        window.addEventListener('popstate', (e) => {
-            const modal = document.getElementById('invoiceModal');
-            if (modal && !modal.classList.contains('hidden') && modal.style.display !== 'none') {
-                closeInvoiceModal(true);
-            }
-        });
 
         async function printInvoiceFromModal() {
             console.log('[Facture] 🖨️ Déclenchement impression/export facture');
-            const o = currentSelectedOrder;
-            if (!o) return;
-
-            // 1. Déclencher window.print() (support natif pour iOS, Android, PWA, Desktop)
-            let printWorked = false;
-            try {
-                if (typeof window.print === 'function') {
-                    window.print();
-                    printWorked = true;
+            const isMobileDevice = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.location.protocol === 'capacitor:';
+            
+            if (isMobileDevice && currentSelectedOrder) {
+                const o = currentSelectedOrder;
+                try {
+                    const amounts = getOrderAmounts(o);
+                    const qrReference = await buildInvoiceQrReference(o, amounts);
+                    const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                title: `Facture NewKet #${o.id}`,
+                                text: `Facture NewKet commande #${o.id}`,
+                                url: targetUrl
+                            });
+                            return;
+                        } catch (shareErr) {
+                            if (shareErr.name === 'AbortError') return;
+                        }
+                    }
+                    window.open(targetUrl, '_blank');
+                } catch (_) {
+                    window.open(`/facture/${o.id}`, '_blank');
                 }
-            } catch (printErr) {
-                console.warn('[Facture] window.print() non disponible:', printErr);
+                return;
             }
 
-            if (printWorked) return;
-
-            // 2. Si non supporté par la WebView, repli direct vers le partage natif ou lien
             try {
-                const amounts = getOrderAmounts(o);
-                const qrReference = await buildInvoiceQrReference(o, amounts);
-                const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: `Facture NewKet #${o.id}`,
-                            text: `Facture NewKet #${o.id} - Total : ${CurrencyManager ? CurrencyManager.formatPrice(amounts.total) : amounts.total}`,
-                            url: targetUrl
-                        });
-                        return;
-                    } catch (shareErr) {
-                        if (shareErr.name === 'AbortError') return;
-                    }
+                window.print();
+            } catch (e) {
+                console.error('[Facture] ❌ Erreur window.print():', e);
+                if (currentSelectedOrder?.id) {
+                    window.open(`/facture/${currentSelectedOrder.id}`, '_blank');
                 }
-                window.location.href = targetUrl;
-            } catch (_) {
-                window.location.href = `/facture/${o.id}`;
             }
         }
 
@@ -9858,9 +9764,8 @@ async function openOrderModal(id) {
 
     <!-- Invoice Preview Modal (Universal across iOS, Android, Web, PWA) -->
     <div id="invoiceModal" style="display: none;"
-        onclick="if (event.target === this) closeInvoiceModal();"
         class="nk-modal-overlay fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
-        <div class="nk-modal-card nk-modal-wide relative animate-in fade-in zoom-in duration-200 flex flex-col" onclick="event.stopPropagation();">
+        <div class="nk-modal-card nk-modal-wide relative animate-in fade-in zoom-in duration-200">
             <!-- Modal Header -->
             <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center gap-3 bg-white flex-shrink-0">
                 <div class="min-w-0 flex-1">
@@ -9885,24 +9790,6 @@ async function openOrderModal(id) {
             <!-- Modal Body (The Invoice Sheet) -->
             <div class="p-4 sm:p-6 overflow-y-auto overscroll-contain flex-1 bg-gray-50/60" id="invoiceModalContent">
                 <!-- Rendered invoiceSheet injected dynamically -->
-            </div>
-
-            <!-- Modal Bottom Actions Bar (Parfait pour mobile & navigation au pouce) -->
-            <div class="p-3 sm:p-4 bg-white border-t border-gray-100 flex items-center justify-between gap-2 shrink-0">
-                <button type="button" onclick="closeInvoiceModal()" class="py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all">
-                    <iconify-icon icon="solar:arrow-left-linear" width="16"></iconify-icon>
-                    Retour
-                </button>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="shareInvoiceFromModal()" class="py-2.5 px-3.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all">
-                        <iconify-icon icon="solar:share-bold" width="16"></iconify-icon>
-                        Partager
-                    </button>
-                    <button type="button" onclick="printInvoiceFromModal()" class="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all shadow-sm shadow-emerald-600/30">
-                        <iconify-icon icon="solar:printer-bold" width="16"></iconify-icon>
-                        Imprimer / PDF
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -9978,10 +9865,6 @@ async function openOrderModal(id) {
                     <div class="invoice-total-row">
                         <span>Livraison</span>
                         <strong id="invDelivery"></strong>
-                    </div>
-                    <div class="invoice-total-row hidden" id="invPayinRow">
-                        <span>Frais de protection</span>
-                        <strong id="invPayin"></strong>
                     </div>
                     <div class="invoice-total-row invoice-total-row--grand">
                         <span>Total</span>
