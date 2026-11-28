@@ -9167,6 +9167,7 @@ async function openOrderModal(id) {
                     modal.classList.remove('hidden');
                     modal.style.setProperty('display', 'flex', 'important');
                     document.body.style.overflow = 'hidden';
+                    try { window.history.pushState({ nk_invoice_modal: true }, ''); } catch (_) {}
                     console.log(`[Facture] ✅ [Vendeur] Modale facture ouverte avec succès pour #${o.id}`);
                     if (window.showToast) window.showToast('Facture chargée avec succès', 'success');
                 } else {
@@ -9180,57 +9181,71 @@ async function openOrderModal(id) {
             }
         }
 
-        function closeInvoiceModal() {
+        function closeInvoiceModal(fromHistory = false) {
             console.log('[Facture] 🚪 Fermeture de la modale facture');
             const modal = document.getElementById('invoiceModal');
             if (modal) {
                 modal.classList.add('hidden');
                 modal.style.display = 'none';
             }
+            if (!fromHistory && window.history.state?.nk_invoice_modal) {
+                try { window.history.back(); } catch (_) {}
+            }
             const ord = document.getElementById('orderDetailModal');
             if (ord) {
                 ord.classList.remove('hidden');
                 ord.style.setProperty('display', 'flex', 'important');
                 document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
             }
         }
 
+        window.addEventListener('popstate', (e) => {
+            const modal = document.getElementById('invoiceModal');
+            if (modal && !modal.classList.contains('hidden') && modal.style.display !== 'none') {
+                closeInvoiceModal(true);
+            }
+        });
+
         async function printInvoiceFromModal() {
             console.log('[Facture] 🖨️ Déclenchement impression/export facture');
-            const isMobileDevice = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.location.protocol === 'capacitor:';
-            
-            if (isMobileDevice && currentSelectedOrder) {
-                const o = currentSelectedOrder;
-                try {
-                    const amounts = getOrderAmounts(o);
-                    const qrReference = await buildInvoiceQrReference(o, amounts);
-                    const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
-                    if (navigator.share) {
-                        try {
-                            await navigator.share({
-                                title: `Facture NewKet #${o.id}`,
-                                text: `Facture NewKet commande #${o.id}`,
-                                url: targetUrl
-                            });
-                            return;
-                        } catch (shareErr) {
-                            if (shareErr.name === 'AbortError') return;
-                        }
-                    }
-                    window.open(targetUrl, '_blank');
-                } catch (_) {
-                    window.open(`/facture/${o.id}`, '_blank');
+            const o = currentSelectedOrder;
+            if (!o) return;
+
+            // 1. Déclencher window.print() (support natif pour iOS, Android, PWA, Desktop)
+            let printWorked = false;
+            try {
+                if (typeof window.print === 'function') {
+                    window.print();
+                    printWorked = true;
                 }
-                return;
+            } catch (printErr) {
+                console.warn('[Facture] window.print() non disponible:', printErr);
             }
 
+            if (printWorked) return;
+
+            // 2. Si non supporté par la WebView, repli direct vers le partage natif ou lien
             try {
-                window.print();
-            } catch (e) {
-                console.error('[Facture] ❌ Erreur window.print():', e);
-                if (currentSelectedOrder?.id) {
-                    window.open(`/facture/${currentSelectedOrder.id}`, '_blank');
+                const amounts = getOrderAmounts(o);
+                const qrReference = await buildInvoiceQrReference(o, amounts);
+                const targetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: `Facture NewKet #${o.id}`,
+                            text: `Facture NewKet #${o.id} - Total : ${CurrencyManager ? CurrencyManager.formatPrice(amounts.total) : amounts.total}`,
+                            url: targetUrl
+                        });
+                        return;
+                    } catch (shareErr) {
+                        if (shareErr.name === 'AbortError') return;
+                    }
                 }
+                window.location.href = targetUrl;
+            } catch (_) {
+                window.location.href = `/facture/${o.id}`;
             }
         }
 
@@ -9843,8 +9858,9 @@ async function openOrderModal(id) {
 
     <!-- Invoice Preview Modal (Universal across iOS, Android, Web, PWA) -->
     <div id="invoiceModal" style="display: none;"
+        onclick="if (event.target === this) closeInvoiceModal();"
         class="nk-modal-overlay fixed inset-0 z-[250] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
-        <div class="nk-modal-card nk-modal-wide relative animate-in fade-in zoom-in duration-200">
+        <div class="nk-modal-card nk-modal-wide relative animate-in fade-in zoom-in duration-200 flex flex-col" onclick="event.stopPropagation();">
             <!-- Modal Header -->
             <div class="p-4 sm:p-5 border-b border-gray-100 flex justify-between items-center gap-3 bg-white flex-shrink-0">
                 <div class="min-w-0 flex-1">
@@ -9869,6 +9885,24 @@ async function openOrderModal(id) {
             <!-- Modal Body (The Invoice Sheet) -->
             <div class="p-4 sm:p-6 overflow-y-auto overscroll-contain flex-1 bg-gray-50/60" id="invoiceModalContent">
                 <!-- Rendered invoiceSheet injected dynamically -->
+            </div>
+
+            <!-- Modal Bottom Actions Bar (Parfait pour mobile & navigation au pouce) -->
+            <div class="p-3 sm:p-4 bg-white border-t border-gray-100 flex items-center justify-between gap-2 shrink-0">
+                <button type="button" onclick="closeInvoiceModal()" class="py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all">
+                    <iconify-icon icon="solar:arrow-left-linear" width="16"></iconify-icon>
+                    Retour
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="shareInvoiceFromModal()" class="py-2.5 px-3.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all">
+                        <iconify-icon icon="solar:share-bold" width="16"></iconify-icon>
+                        Partager
+                    </button>
+                    <button type="button" onclick="printInvoiceFromModal()" class="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all shadow-sm shadow-emerald-600/30">
+                        <iconify-icon icon="solar:printer-bold" width="16"></iconify-icon>
+                        Imprimer / PDF
+                    </button>
+                </div>
             </div>
         </div>
     </div>
